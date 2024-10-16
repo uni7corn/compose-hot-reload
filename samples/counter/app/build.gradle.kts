@@ -9,11 +9,12 @@ plugins {
 }
 
 kotlin {
-    jvmToolchain(21)
-    jvmToolchain {
-        vendor = JvmVendorSpec.JETBRAINS
-    }
+
     jvm()
+
+    composeHotReload {
+        useJetBrainsRuntime = true
+    }
 
     sourceSets.commonMain.dependencies {
         implementation("io.sellmair:evas:1.1.0")
@@ -23,7 +24,6 @@ kotlin {
         implementation(compose.desktop.currentOs)
         implementation(compose.foundation)
         implementation(compose.material3)
-
 
         implementation(project(":widgets"))
     }

@@ -35,6 +35,10 @@ public class EvasHotReloadState(
 public actual fun linkUI(className: String, funName: String) {
     logger.debug("Linking $className/$funName")
 
+    LaunchedEffect(className, funName) {
+        composeRecompilerApplication()
+    }
+
     if (hotUIClasspath.isNotEmpty()) {
         return linkHotReloadableUI(className, funName)
     }
@@ -91,12 +95,6 @@ private fun linkHotReloadableUI(
                 }
                 reload()
             }
-        }
-    }
-
-    LaunchedEffect(className, funName, hotUIClasspath) {
-        withContext(Dispatchers.IO) {
-            composeRecompilerApplication()
         }
     }
 

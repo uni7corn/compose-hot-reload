@@ -4,7 +4,12 @@ import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.gradle.api.artifacts.component.ProjectComponentIdentifier
 import org.gradle.api.tasks.JavaExec
-import org.gradle.kotlin.dsl.*
+import org.gradle.jvm.toolchain.JavaLanguageVersion
+import org.gradle.jvm.toolchain.JavaToolchainService
+import org.gradle.jvm.toolchain.JvmVendorSpec
+import org.gradle.kotlin.dsl.dependencies
+import org.gradle.kotlin.dsl.support.serviceOf
+import org.gradle.kotlin.dsl.withType
 import org.jetbrains.kotlin.gradle.ExperimentalKotlinGradlePluginApi
 import org.jetbrains.kotlin.gradle.dsl.KotlinMultiplatformExtension
 import org.jetbrains.kotlin.gradle.plugin.KotlinMultiplatformPluginWrapper
@@ -17,7 +22,17 @@ import org.jetbrains.kotlin.konan.file.File
 class ComposeHotReloadPlugin : Plugin<Project> {
     @OptIn(ExperimentalKotlinGradlePluginApi::class)
     override fun apply(target: Project) {
-        val hotReload = target.extensions.create("hotReload", ComposeHotReloadExtension::class.java)
+        val hotReload = target.extensions.create("composeHotReload", ComposeHotReloadExtension::class.java, target)
+
+        val hotswapAgentConfiguration = target.configurations.create("hotswapAgent") {
+            isCanBeConsumed = false
+            isCanBeResolved = true
+            isTransitive = false
+        }
+
+        target.dependencies {
+            hotswapAgentConfiguration("org.hotswapagent:hotswap-agent-core:2.0.1")
+        }
 
         target.plugins.withType<KotlinMultiplatformPluginWrapper>().configureEach {
             val kotlin = target.extensions.getByName("kotlin") as KotlinMultiplatformExtension
@@ -67,8 +82,35 @@ class ComposeHotReloadPlugin : Plugin<Project> {
                 }
 
                 if (this is KotlinJvmTarget) {
-                    project.tasks.withType<JavaExec>().configureEach {
+                    project.tasks.withType<JavaExec>().configureEach configureExec@{
+
+
                         dependsOn(uiCompilation.compileTaskProvider)
+
+                        if (hotReload.useJetBrainsRuntime.get()) {
+                            javaLauncher.set(project.serviceOf<JavaToolchainService>().launcherFor {
+                                @Suppress("UnstableApiUsage")
+                                this.vendor.set(JvmVendorSpec.JETBRAINS)
+                                this.languageVersion.set(JavaLanguageVersion.of(21))
+                            })
+
+                            val hotswapAgent = hotswapAgentConfiguration.files
+                            inputs.files(hotswapAgent)
+
+                            classpath(uiCompilation.output.allOutputs)
+                            classpath(uiCompilation.runtimeDependencyFiles)
+                            jvmArgs("-XX:+AllowEnhancedClassRedefinition")
+                            jvmArgs("-XX:HotswapAgent=external")
+                            jvmArgs("-Xlog:redefine+class*=info")
+                            jvmArgs("-javaagent:${hotswapAgent.joinToString(File.pathSeparator)}=autoHotswap=true")
+
+                            systemProperty("compose.build.root", project.rootDir.absolutePath)
+                            systemProperty("compose.build.project", project.path)
+                            systemProperty("compose.build.compileTask", uiCompilation.compileKotlinTaskName)
+
+                            return@configureExec
+                        }
+
 
                         val runtimeConfiguration = project.configurations.getByName(
                             uiCompilation.runtimeDependencyConfigurationName
