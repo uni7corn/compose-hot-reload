@@ -34,4 +34,5 @@ include(":hot-reload-runtime")
 
 gradle.lifecycle.beforeProject {
     group = "org.jetbrains.compose"
+    version = project.providers.gradleProperty("version").get()
 }

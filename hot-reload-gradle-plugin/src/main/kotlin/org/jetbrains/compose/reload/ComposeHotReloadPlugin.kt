@@ -35,7 +35,7 @@ class ComposeHotReloadPlugin : Plugin<Project> {
                 uiCompilation.associateWith(mainCompilation)
 
                 mainCompilation.defaultSourceSet.dependencies {
-                    implementation("org.jetbrains.compose:hot-reload-runtime:1.0.0-dev.0")
+                    implementation("org.jetbrains.compose:hot-reload-runtime:$HOT_RELOAD_VERSION")
                 }
 
                 project.configurations.getByName(uiCompilation.apiConfigurationName).attributes {
