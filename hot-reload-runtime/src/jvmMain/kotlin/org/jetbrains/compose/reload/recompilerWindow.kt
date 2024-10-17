@@ -154,6 +154,10 @@ private suspend fun runGradleContinuousCompilation(): Flow<String> {
             .redirectErrorStream(true)
             .start()
 
+        Runtime.getRuntime().addShutdownHook(thread(start = false) {
+            process.destroy()
+        })
+
         thread(name = "Compose Recompiler Output", isDaemon = true) {
             process.inputStream.bufferedReader().use { reader ->
                 while (job.isActive) {

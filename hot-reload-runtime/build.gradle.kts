@@ -32,5 +32,6 @@ kotlin {
         implementation(deps.slf4j.api)
         implementation(compose.desktop.common)
         implementation(compose.material3)
+        compileOnly(deps.hotswapAgentCore)
     }
 }

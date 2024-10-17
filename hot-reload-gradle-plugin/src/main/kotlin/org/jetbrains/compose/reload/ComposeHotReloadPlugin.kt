@@ -31,7 +31,7 @@ class ComposeHotReloadPlugin : Plugin<Project> {
         }
 
         target.dependencies {
-            hotswapAgentConfiguration("org.hotswapagent:hotswap-agent-core:2.0.1")
+            hotswapAgentConfiguration(HOTSWAP_AGENT_CORE)
         }
 
         target.plugins.withType<KotlinMultiplatformPluginWrapper>().configureEach {
@@ -83,8 +83,6 @@ class ComposeHotReloadPlugin : Plugin<Project> {
 
                 if (this is KotlinJvmTarget) {
                     project.tasks.withType<JavaExec>().configureEach configureExec@{
-
-
                         dependsOn(uiCompilation.compileTaskProvider)
 
                         if (hotReload.useJetBrainsRuntime.get()) {
@@ -99,10 +97,25 @@ class ComposeHotReloadPlugin : Plugin<Project> {
 
                             classpath(uiCompilation.output.allOutputs)
                             classpath(uiCompilation.runtimeDependencyFiles)
-                            jvmArgs("-XX:+AllowEnhancedClassRedefinition")
-                            jvmArgs("-XX:HotswapAgent=external")
-                            jvmArgs("-Xlog:redefine+class*=info")
-                            jvmArgs("-javaagent:${hotswapAgent.joinToString(File.pathSeparator)}=autoHotswap=true")
+
+
+                            /* Generic JVM args */
+                            run {
+                                jvmArgs("-Xlog:redefine+class*=info")
+                                jvmArgs("-javaagent:${hotswapAgent.joinToString(File.pathSeparator)}=autoHotswap=true")
+                            }
+
+                            /* JBR args */
+                            run {
+                                jvmArgs("-XX:+AllowEnhancedClassRedefinition")
+                                jvmArgs("-XX:HotswapAgent=external")
+                            }
+
+                            /* Support for non jbr */
+                            run {
+                                jvmArgs("-XX:+IgnoreUnrecognizedVMOptions")
+                                jvmArgs("--add-opens=java.base/java.lang=ALL-UNNAMED") // Required for non jbr
+                            }
 
                             systemProperty("compose.build.root", project.rootDir.absolutePath)
                             systemProperty("compose.build.project", project.path)

@@ -1,13 +1,12 @@
 package org.jetbrains.compose.reload
 
-import androidx.compose.runtime.Composable
-
 
 import androidx.compose.runtime.*
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.withContext
+import org.hotswap.agent.plugin.compose.ComposeHotswapAgentPlugin
 import java.io.File
 import java.lang.invoke.MethodHandle
 import java.lang.invoke.MethodHandles
@@ -43,8 +42,13 @@ public actual fun linkUI(className: String, funName: String) {
         return linkHotReloadableUI(className, funName)
     }
 
-    val uiClass = Class.forName(className)
-    invokeUI(uiClass, funName)
+    /* Agent */
+    val reloads by ComposeHotswapAgentPlugin.onReload.collectAsState(0L)
+    CompositionLocalProvider(hotswapVersion provides reloads) {
+        logger.debug("Hotswap version: $reloads")
+        val uiClass = Class.forName(className)
+        invokeUI(uiClass, funName)
+    }
 }
 
 private val hotReloadState = MutableStateFlow<EvasHotReloadState?>(null)
@@ -127,3 +131,5 @@ private fun invokeUI(ui: MethodHandle) {
         ui.invokeWithArguments(composer, i)
     }
 }
+
+internal val hotswapVersion = staticCompositionLocalOf { 0L }

@@ -20,11 +20,15 @@ dependencies {
 run {
     val generatedSourceDir = file("build/generated/main/kotlin")
 
-    tasks.register("writeVersionCode") {
-        val file = generatedSourceDir.resolve("version.kt")
-        val version = project.version.toString()
+    val writeBuildConfig = tasks.register("writeBuildConfig") {
+        val file = generatedSourceDir.resolve("BuildConfig.kt")
 
+        val version = project.version.toString()
         inputs.property("version", version)
+
+        val hotswapAgentCore = deps.hotswapAgentCore.get().toString()
+        inputs.property("hotswapAgentCore", hotswapAgentCore)
+
         outputs.file(file)
 
         doLast {
@@ -34,6 +38,8 @@ run {
             package org.jetbrains.compose.reload
             
             internal const val HOT_RELOAD_VERSION = "$version"
+            
+            internal const val HOTSWAP_AGENT_CORE = "$hotswapAgentCore"
         """.trimIndent()
             )
         }
@@ -44,10 +50,10 @@ run {
     }
 
     tasks.register("prepareKotlinIdeaImport") {
-        dependsOn("writeVersionCode")
+        dependsOn(writeBuildConfig)
     }
 
     kotlin.target.compilations.getByName("main").compileTaskProvider.configure {
-        dependsOn("writeVersionCode")
+        dependsOn(writeBuildConfig)
     }
 }
