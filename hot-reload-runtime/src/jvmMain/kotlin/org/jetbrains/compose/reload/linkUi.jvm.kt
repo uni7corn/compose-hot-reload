@@ -31,6 +31,20 @@ public class EvasHotReloadState(
 )
 
 @Composable
+public fun HotReload(child: @Composable () -> Unit) {
+    LaunchedEffect(Unit) {
+        composeRecompilerApplication()
+    }
+
+    /* Agent */
+    val reloads by ComposeHotswapAgentPlugin.onReload.collectAsState(0L)
+    CompositionLocalProvider(hotswapVersion provides reloads) {
+        logger.debug("Hotswap version: $reloads")
+        child()
+    }
+}
+
+@Composable
 public actual fun linkUI(className: String, funName: String) {
     logger.debug("Linking $className/$funName")
 
