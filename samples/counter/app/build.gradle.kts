@@ -8,13 +8,13 @@ plugins {
     id("org.jetbrains.compose-hot-reload")
 }
 
+composeHotReload {
+    useJetBrainsRuntime = true
+}
+
+
 kotlin {
-
     jvm()
-
-    composeHotReload {
-        useJetBrainsRuntime = true
-    }
 
     sourceSets.commonMain.dependencies {
         implementation("io.sellmair:evas:1.1.0")
