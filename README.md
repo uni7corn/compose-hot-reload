@@ -49,3 +49,20 @@ composeHotReload {
     useJetBrainsRuntime = true
 }
 ```
+
+### Provide an Entry Point for your UI to hot-reload
+```kotlin
+@Composable 
+fun App() {
+    HotReload {
+        MainPage()
+    }
+}
+```
+
+```kotlin
+@Composable 
+fun App() {
+    linkUi("com.example.MainKt", "MainPage") // <- FQN of the function you want to hot reload 
+}
+```
