@@ -5,6 +5,12 @@ plugins {
     `publishing-conventions`
 }
 
+publishing {
+    publications.create<MavenPublication>("plugin") {
+        from(components["java"])
+    }
+}
+
 gradlePlugin {
     plugins.create("hot-reload") {
         id = "org.jetbrains.compose-hot-reload"
