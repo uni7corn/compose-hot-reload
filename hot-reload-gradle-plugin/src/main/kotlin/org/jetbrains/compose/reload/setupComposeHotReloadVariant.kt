@@ -32,6 +32,13 @@ private fun KotlinTarget.createComposeHotReloadVariants() {
     runtimeElements.outgoing { outgoing ->
         outgoing.attributes.attribute(ComposeHotReloadMarker.attribute, ComposeHotReloadMarker.Cold)
 
+        project.logger.debug("Creating 'composeHot' variant")
+
+        if (outgoing.variants.findByName("composeHot") != null) {
+            project.logger.error("Could not create 'composeHot' variant: Variant already exists!", Throwable())
+            return@outgoing
+        }
+
         outgoing.variants.create("composeHot") { variant ->
             variant.attributes.attribute(KotlinPlatformType.attribute, platformType)
             variant.attributes.attribute(Usage.USAGE_ATTRIBUTE, project.objects.named(Usage.JAVA_RUNTIME))
