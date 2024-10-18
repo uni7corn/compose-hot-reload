@@ -128,7 +128,7 @@ private suspend fun runGradleContinuousCompilation(): Flow<String> {
         return emptyFlow()
     }
 
-    val evasBuildCompileTask = composeBuildCompileTask ?: run {
+    val composeBuildCompileTask = composeBuildCompileTask ?: run {
         logger.error("Missing 'compose.build.compile.task' property")
         return emptyFlow()
     }
@@ -145,7 +145,7 @@ private suspend fun runGradleContinuousCompilation(): Flow<String> {
         val process = ProcessBuilder().directory(File(composeBuildRoot))
             .command(
                 if ("win" in System.getProperty("os.name").lowercase()) "gradlew.bat" else "gradlew",
-                "$composeBuildProject:$evasBuildCompileTask",
+                "$composeBuildProject:$composeBuildCompileTask",
                 "--console=plain",
                 "--no-daemon",
                 "--priority=low",

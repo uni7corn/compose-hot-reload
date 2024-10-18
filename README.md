@@ -50,6 +50,15 @@ composeHotReload {
 }
 ```
 
+#### 💡The JBR can also be downloaded automatically by Gradle (foojay)
+https://github.com/gradle/foojay-toolchains
+```kotlin
+// settings.gradle.kts
+plugins {
+    id("org.gradle.toolchains.foojay-resolver-convention") version "0.8.0"
+}
+```
+
 ### Provide an Entry Point for your UI to hot-reload
 ```kotlin
 @Composable 
