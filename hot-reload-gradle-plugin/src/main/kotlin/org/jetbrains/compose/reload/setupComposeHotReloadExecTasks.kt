@@ -48,6 +48,7 @@ internal fun JavaExec.configureJavaExecTaskForHotReload(compilation: Provider<Ko
         })
     }
 
+
     /* We do rely on the hotswap-agent */
     inputs.files(project.hotswapAgentConfiguration.files)
 
@@ -69,7 +70,10 @@ internal fun JavaExec.configureJavaExecTaskForHotReload(compilation: Provider<Ko
     }
 
     /* JBR args */
-    if (project.composeHotReloadExtension.useJetBrainsRuntime.get()) {
+    run {
+        /* Non JBR JVMs will hate our previous JBR specific args */
+        jvmArgs("-XX:+IgnoreUnrecognizedVMOptions")
+
         /* Enable DCEVM enhanced hotswap capabilities */
         jvmArgs("-XX:+AllowEnhancedClassRedefinition")
 
@@ -79,8 +83,6 @@ internal fun JavaExec.configureJavaExecTaskForHotReload(compilation: Provider<Ko
 
     /* Support for non jbr */
     if (!project.composeHotReloadExtension.useJetBrainsRuntime.get()) {
-        /* Non JBR JVMs will hate our previous JBR specific args */
-        jvmArgs("-XX:+IgnoreUnrecognizedVMOptions")
 
         /* Required for Hotswap Agent on non JBR */
         jvmArgs("--add-opens=java.base/java.lang=ALL-UNNAMED")

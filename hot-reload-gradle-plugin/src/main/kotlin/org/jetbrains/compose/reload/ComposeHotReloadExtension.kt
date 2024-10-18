@@ -21,5 +21,5 @@ open class ComposeHotReloadExtension(internal val project: Project) {
      * Download: https://github.com/JetBrains/JetBrainsRuntime (or use IntelliJ to download JBR 21)
      *
      */
-    val useJetBrainsRuntime = project.objects.property(Boolean::class.java).convention(false)
+    val useJetBrainsRuntime = project.objects.property(Boolean::class.java).convention(true)
 }
