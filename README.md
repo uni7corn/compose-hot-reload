@@ -36,7 +36,7 @@ plugins {
     kotlin("multiplatform")
     kotlin("plugin.compose")
     id("org.jetbrains.compose")
-    id("org.jetbrains.compose-hot-reload") version "1.0.0-dev.2" // <- add this additionally
+    id("org.jetbrains.compose-hot-reload") version "1.0.0-dev.3" // <- add this additionally
 }
 ```
 
