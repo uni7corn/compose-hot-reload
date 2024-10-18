@@ -1,6 +1,3 @@
-import org.gradle.internal.jvm.inspection.JvmVendor
-import org.jetbrains.kotlin.gradle.ExperimentalKotlinGradlePluginApi
-
 plugins {
     kotlin("multiplatform")
     kotlin("plugin.compose")
@@ -11,7 +8,6 @@ plugins {
 composeHotReload {
     useJetBrainsRuntime = true
 }
-
 
 kotlin {
     jvm()

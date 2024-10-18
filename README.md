@@ -36,7 +36,7 @@ plugins {
     kotlin("multiplatform")
     kotlin("plugin.compose")
     id("org.jetbrains.compose")
-    id("org.jetbrains.compose-hot-reload") version "1.0.0-dev.4" // <- add this additionally
+    id("org.jetbrains.compose-hot-reload") version "1.0.0-dev.6" // <- add this additionally
 }
 ```
 
@@ -47,6 +47,14 @@ https://github.com/JetBrains/JetBrainsRuntime
 ```kotlin
 composeHotReload {
     useJetBrainsRuntime = true
+}
+```
+
+### Optional: Create a custom entry point to launch your hot application
+```kotlin
+// build.gradle.kts
+tasks.register<ComposeHotRun>("runHot") {
+    mainClass.set("my.app.MainKt")
 }
 ```
 

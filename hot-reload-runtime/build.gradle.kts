@@ -23,6 +23,7 @@ kotlin {
     iosArm64()
     iosX64()
 
+
     sourceSets.commonMain.dependencies {
         implementation(compose.runtime)
         implementation(deps.coroutines.core)

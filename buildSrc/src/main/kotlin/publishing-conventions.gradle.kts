@@ -12,6 +12,10 @@ plugins.withType<MavenPublishPlugin>().all {
                     password = providers.gradleProperty("repo.sellmair.password").orNull
                 }
             }
+
+            maven(rootProject.layout.buildDirectory.dir("repo")) {
+                name = "local"
+            }
         }
     }
 }

@@ -13,7 +13,7 @@ import io.sellmair.evas.set
 
 
 @Composable
-fun Main() {
+fun App() {
     val applicationStateCounter = CounterState.composeValue()
     var uiStateCounter by remember { mutableStateOf(0) }
 
