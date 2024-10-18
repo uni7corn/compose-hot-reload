@@ -144,7 +144,7 @@ private suspend fun runGradleContinuousCompilation(): Flow<String> {
 
         val process = ProcessBuilder().directory(File(composeBuildRoot))
             .command(
-                if ("win" in System.getProperty("os.name").lowercase()) "gradlew.bat" else "gradlew",
+                if ("win" in System.getProperty("os.name").lowercase()) "gradlew.bat" else "./gradlew",
                 "$composeBuildProject:$composeBuildCompileTask",
                 "--console=plain",
                 "--no-daemon",
