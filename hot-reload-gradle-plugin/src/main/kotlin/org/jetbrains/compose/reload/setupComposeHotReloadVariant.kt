@@ -29,7 +29,7 @@ private fun KotlinTarget.createComposeHotReloadVariants() {
     val main = compilations.getByName("main")
     val runtimeElements = project.configurations.getByName(runtimeElementsConfigurationName)
 
-    runtimeElements.outgoing { outgoing ->
+    runtimeElements.outgoing.also outgoing@{ outgoing ->
         outgoing.attributes.attribute(ComposeHotReloadMarker.attribute, ComposeHotReloadMarker.Cold)
 
         project.logger.debug("Creating 'composeHot' variant")

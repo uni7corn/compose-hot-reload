@@ -24,6 +24,7 @@ dependencyResolutionManagement {
             mavenContent {
                 includeGroupByRegex(".*android.*")
                 includeGroupByRegex(".*androidx.*")
+                includeGroupByRegex(".*google.*")
             }
         }
     }

@@ -57,6 +57,7 @@ dependencies {
     testImplementation(deps.junit.jupiter)
     testImplementation(deps.junit.jupiter.engine)
     testImplementation(kotlin("gradle-plugin"))
+    testImplementation("com.android.tools.build:gradle:8.6.1")
 }
 
 
@@ -67,8 +68,8 @@ run {
     val writeBuildConfig = tasks.register("writeBuildConfig") {
         val file = generatedSourceDir.resolve("BuildConfig.kt")
 
-        val version = project.version.toString()
-        inputs.property("version", version)
+        val versionProperty = project.providers.gradleProperty("version")
+        inputs.property("version", versionProperty)
 
         val hotswapAgentCore = deps.hotswapAgentCore.get().toString()
         inputs.property("hotswapAgentCore", hotswapAgentCore)
@@ -81,7 +82,7 @@ run {
                 """
             package org.jetbrains.compose.reload
             
-            internal const val HOT_RELOAD_VERSION = "$version"
+            internal const val HOT_RELOAD_VERSION = "${versionProperty.get()}"
             
             internal const val HOTSWAP_AGENT_CORE = "$hotswapAgentCore"
         """.trimIndent()
