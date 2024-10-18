@@ -31,6 +31,7 @@ internal class ComposeHotswapAgentPlugin {
         _onReload.update { it + 1 }
     }
 
+    @Suppress("INVISIBLE_MEMBER", "INVISIBLE_REFERENCE")
     companion object {
         private val _beforeReload = MutableStateFlow(0L)
         private val beforeReload = _beforeReload.asSharedFlow()
@@ -51,19 +52,21 @@ internal class ComposeHotswapAgentPlugin {
         }
 
         init {
-            val scope = CoroutineScope(Dispatchers.IO + SupervisorJob())
+            val scope = CoroutineScope(Dispatchers.Main + SupervisorJob())
+            var token: Any? = null
 
             scope.launch {
                 beforeReload.collect {
                     logger.debug("before reload: $it")
+                    token = Recomposer.saveStateAndDisposeForHotReload()
                 }
             }
 
             scope.launch {
                 onReload.collect {
                     logger.debug("on reload: $it")
-                    @Suppress("INVISIBLE_MEMBER", "INVISIBLE_REFERENCE")
-                    Recomposer.clearErrors()
+                    logger.debug("on reload: $it")
+                    token?.let { Recomposer.loadStateAndComposeForHotReload(it) }
                 }
             }
         }
