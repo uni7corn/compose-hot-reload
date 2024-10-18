@@ -45,7 +45,7 @@ public fun HotReload(child: @Composable () -> Unit) {
 }
 
 @Composable
-public actual fun linkUI(className: String, funName: String) {
+public fun linkUI(className: String, funName: String) {
     logger.debug("Linking $className/$funName")
 
     LaunchedEffect(className, funName) {
