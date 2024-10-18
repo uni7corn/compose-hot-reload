@@ -2,6 +2,7 @@ plugins {
     kotlin("multiplatform")
     kotlin("plugin.compose")
     id("org.jetbrains.compose")
+    id("com.android.library")
     `maven-publish`
     `publishing-conventions`
 }
@@ -11,7 +12,12 @@ kotlin {
         explicitApi()
     }
 
+    jvmToolchain(17)
     jvm()
+
+    androidTarget {
+        publishLibraryVariants("release")
+    }
 
     macosArm64()
     macosX64()
@@ -22,7 +28,6 @@ kotlin {
     iosSimulatorArm64()
     iosArm64()
     iosX64()
-
 
     sourceSets.commonMain.dependencies {
         implementation(compose.runtime)
@@ -35,4 +40,9 @@ kotlin {
         implementation(compose.material3)
         compileOnly(deps.hotswapAgentCore)
     }
+}
+
+android {
+    compileSdk = 34
+    namespace = "org.jetbrains.compose.reload"
 }
