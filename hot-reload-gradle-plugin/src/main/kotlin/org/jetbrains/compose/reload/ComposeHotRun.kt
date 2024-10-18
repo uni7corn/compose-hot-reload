@@ -21,7 +21,8 @@ internal fun Project.setupComposeHotRunConventions() {
 
         compilation.convention(provider {
             kotlinMultiplatformOrNull?.let { kotlin ->
-                return@provider kotlin.targets.withType<KotlinJvmTarget>().first().compilations.getByName("main")
+                return@provider kotlin.targets.withType<KotlinJvmTarget>()
+                    .firstOrNull()?.compilations?.getByName("main")
             }
 
             kotlinJvmOrNull?.let { kotlin ->

@@ -34,12 +34,25 @@ kotlin {
         implementation(deps.coroutines.core)
     }
 
+    sourceSets.commonTest.dependencies {
+        implementation(kotlin("test"))
+    }
+
     sourceSets.jvmMain.dependencies {
         implementation(deps.slf4j.api)
         implementation(compose.desktop.common)
         implementation(compose.material3)
         compileOnly(deps.hotswapAgentCore)
     }
+
+    sourceSets.jvmTest.dependencies {
+        implementation(deps.junit.jupiter)
+        implementation(deps.junit.jupiter.engine)
+    }
+}
+
+tasks.withType<Test>().configureEach {
+    useJUnitPlatform()
 }
 
 android {

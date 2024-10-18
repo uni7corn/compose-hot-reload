@@ -95,10 +95,11 @@ internal fun JavaExec.configureJavaExecTaskForHotReload(compilation: Provider<Ko
     }
 
     /* Setup re-compiler */
+    val compileTaskName = compilation.map { it.compileKotlinTaskName }
+
     systemProperty("compose.build.root", project.rootDir.absolutePath)
     systemProperty("compose.build.project", project.path)
-
-    val compileTaskName = compilation.map { it.compileKotlinTaskName }
+    systemProperty("compose.build.compileTask", compileTaskName.get())
 
     doFirst {
         systemProperty("compose.build.compileTask", compileTaskName.get())
