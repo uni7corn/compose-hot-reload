@@ -27,7 +27,6 @@ import kotlinx.coroutines.flow.emptyFlow
 import java.io.File
 import java.net.URL
 import java.util.concurrent.TimeUnit
-import java.util.concurrent.atomic.AtomicBoolean
 import kotlin.concurrent.thread
 
 private val logger = createLogger()
@@ -142,9 +141,10 @@ private suspend fun runGradleContinuousCompilation(): Flow<String> {
     val job = currentCoroutineContext().job
     val recompilerThread = thread(name = "Compose Recompiler") {
         logger.debug("'Compose Recompiler' started")
+
         val process = ProcessBuilder().directory(File(composeBuildRoot))
             .command(
-                "./gradlew",
+                if ("win" in System.getProperty("os.name").lowercase()) "gradlew.bat" else "gradlew",
                 "$composeBuildProject:$evasBuildCompileTask",
                 "--console=plain",
                 "--no-daemon",
