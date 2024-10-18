@@ -68,25 +68,31 @@ run {
     val writeBuildConfig = tasks.register("writeBuildConfig") {
         val file = generatedSourceDir.resolve("BuildConfig.kt")
 
-        val versionProperty = project.providers.gradleProperty("version")
+        val versionProperty = project.providers.gradleProperty("version").get()
         inputs.property("version", versionProperty)
+
+        println(versionProperty)
 
         val hotswapAgentCore = deps.hotswapAgentCore.get().toString()
         inputs.property("hotswapAgentCore", hotswapAgentCore)
 
         outputs.file(file)
 
-        doLast {
-            file.parentFile.mkdirs()
-            file.writeText(
-                """
+        val text = """
             package org.jetbrains.compose.reload
             
-            internal const val HOT_RELOAD_VERSION = "${versionProperty.get()}"
+            internal const val HOT_RELOAD_VERSION = "$versionProperty"
             
             internal const val HOTSWAP_AGENT_CORE = "$hotswapAgentCore"
-        """.trimIndent()
-            )
+            """
+            .trimIndent()
+
+        inputs.property("text", text)
+
+        doLast {
+            file.parentFile.mkdirs()
+            logger.quiet(text)
+            file.writeText(text)
         }
     }
 
