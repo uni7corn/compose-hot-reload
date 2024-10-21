@@ -50,7 +50,8 @@ internal fun JavaExec.configureJavaExecTaskForHotReload(compilation: Provider<Ko
 
 
     /* We do rely on the hotswap-agent */
-    inputs.files(project.hotswapAgentConfiguration.files)
+    inputs.files(project.composeHotReloadAgentConfiguration.files)
+    dependsOn(project.composeHotReloadAgentConfiguration.buildDependencies)
 
     setClasspath(project.files { compilation.get().createComposeHotReloadRunClasspath() })
 
@@ -64,8 +65,7 @@ internal fun JavaExec.configureJavaExecTaskForHotReload(compilation: Provider<Ko
         /* Setup the hotswap agent (using autoHotswap) */
         jvmArgs(
             "-javaagent:" +
-                    "${project.hotswapAgentConfiguration.files.joinToString(File.pathSeparator)}=" +
-                    "autoHotswap=true"
+                    project.composeHotReloadAgentConfiguration.files.joinToString(File.pathSeparator)
         )
     }
 
@@ -95,7 +95,7 @@ internal fun JavaExec.configureJavaExecTaskForHotReload(compilation: Provider<Ko
     }
 
     /* Setup re-compiler */
-    val compileTaskName = compilation.map { it.compileKotlinTaskName }
+    val compileTaskName = compilation.map { composeHotClasspathTaskName(it) }
 
     systemProperty("compose.build.root", project.rootDir.absolutePath)
     systemProperty("compose.build.project", project.path)

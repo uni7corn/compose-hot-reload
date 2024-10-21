@@ -21,9 +21,8 @@ import androidx.compose.ui.window.WindowState
 import androidx.compose.ui.window.singleWindowApplication
 import kotlinx.coroutines.*
 import kotlinx.coroutines.channels.BufferOverflow
-import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.MutableSharedFlow
-import kotlinx.coroutines.flow.emptyFlow
+import kotlinx.coroutines.flow.*
+import org.jetbrains.compose.reload.agent.ComposeHotReloadAgent
 import java.io.File
 import java.net.URL
 import java.util.concurrent.TimeUnit
@@ -133,6 +132,9 @@ private suspend fun runGradleContinuousCompilation(): Flow<String> {
         return emptyFlow()
     }
 
+    val port = ComposeHotReloadAgent.port.filterNotNull().first()
+    logger.debug("'Compose Recompiler': Agent listening on port '$port'")
+
     val output = MutableSharedFlow<String>(
         extraBufferCapacity = 1024,
         onBufferOverflow = BufferOverflow.DROP_OLDEST
@@ -149,6 +151,7 @@ private suspend fun runGradleContinuousCompilation(): Flow<String> {
                 "--console=plain",
                 "--no-daemon",
                 "--priority=low",
+                "-Dcompose.hot.reload.agent.port=$port",
                 "-t"
             )
             .redirectErrorStream(true)

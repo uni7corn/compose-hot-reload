@@ -21,7 +21,7 @@ internal class ComposeHotswapAgentPlugin {
     @Suppress("unused")
     @OnClassFileEvent(classNameRegexp = ".*", events = [FileEvent.MODIFY, FileEvent.CREATE, FileEvent.DELETE])
     fun prepareReload(ctClass: CtClass, appClassLoader: ClassLoader, url: URL) {
-        logger.trace("prepareReload: $ctClass, $appClassLoader, $url")
+        logger.debug("prepareReload: $ctClass, $appClassLoader, $url")
         _beforeReload.update { it + 1 }
     }
 

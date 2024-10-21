@@ -29,6 +29,7 @@ run {
 tasks.withType<Test>().configureEach {
     useJUnitPlatform()
     dependsOn(":hot-reload-runtime:publishAllPublicationsToLocalRepository")
+    dependsOn(":hot-reload-agent:publishAllPublicationsToLocalRepository")
     systemProperty("local.test.repo", rootProject.layout.buildDirectory.dir("repo").get().asFile.absolutePath)
 }
 

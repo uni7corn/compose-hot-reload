@@ -6,7 +6,6 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.withContext
-import org.hotswap.agent.plugin.compose.ComposeHotswapAgentPlugin
 import java.io.File
 import java.lang.invoke.MethodHandle
 import java.lang.invoke.MethodHandles
@@ -37,9 +36,9 @@ public fun HotReload(child: @Composable () -> Unit) {
     }
 
     /* Agent */
-    val reloads by ComposeHotswapAgentPlugin.onReload.collectAsState(0L)
-    CompositionLocalProvider(hotswapVersion provides reloads) {
-        logger.debug("Hotswap version: $reloads")
+    val hotReloadState by HotReloadHooks.hotReloadFlow.collectAsState(null)
+    CompositionLocalProvider(hotswapVersion provides hotReloadState) {
+        logger.debug("Hotswap version: ${hotReloadState?.iteration}")
         child()
     }
 }
@@ -57,12 +56,15 @@ public fun linkUI(className: String, funName: String) {
     }
 
     /* Agent */
-    val reloads by ComposeHotswapAgentPlugin.onReload.collectAsState(0L)
-    CompositionLocalProvider(hotswapVersion provides reloads) {
-        logger.debug("Hotswap version: $reloads")
-        val uiClass = Class.forName(className)
-        invokeUI(uiClass, funName)
+    val hotReloadState by HotReloadHooks.hotReloadFlow.collectAsState(null)
+    withReloadLock {
+        CompositionLocalProvider(hotswapVersion provides hotReloadState) {
+            logger.debug("Hotswap version: ${hotReloadState?.iteration}")
+            val uiClass = Class.forName(className)
+            invokeUI(uiClass, funName)
+        }
     }
+
 }
 
 private val hotReloadState = MutableStateFlow<EvasHotReloadState?>(null)
@@ -146,4 +148,4 @@ private fun invokeUI(ui: MethodHandle) {
     }
 }
 
-internal val hotswapVersion = staticCompositionLocalOf { 0L }
+internal val hotswapVersion = staticCompositionLocalOf<HotReloadState?> { null }

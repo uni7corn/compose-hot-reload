@@ -3,12 +3,10 @@ package org.jetbrains.compose.reload
 import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.gradle.kotlin.dsl.withType
-import org.jetbrains.kotlin.gradle.ExperimentalKotlinGradlePluginApi
 import org.jetbrains.kotlin.gradle.plugin.DefaultKotlinBasePlugin
 
 @Suppress("unused")
 class ComposeHotReloadPlugin : Plugin<Project> {
-    @OptIn(ExperimentalKotlinGradlePluginApi::class)
     override fun apply(target: Project) {
         target.extensions.create(composeHotReloadExtensionName, ComposeHotReloadExtension::class.java, target)
 
@@ -18,6 +16,7 @@ class ComposeHotReloadPlugin : Plugin<Project> {
         target.plugins.withType<DefaultKotlinBasePlugin>().configureEach {
             target.setupComposeHotReloadRuntimeDependency()
             target.setupComposeHotReloadVariant()
+            target.setupComposeHotClasspathTasks()
             target.setupComposeHotReloadExecTasks()
             target.setupComposeHotRunConventions()
         }

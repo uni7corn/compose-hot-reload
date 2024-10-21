@@ -42,7 +42,10 @@ kotlin {
         implementation(deps.slf4j.api)
         implementation(compose.desktop.common)
         implementation(compose.material3)
+
+        implementation(deps.javassist) // TODO: Separate production and dev build dependencies
         compileOnly(deps.hotswapAgentCore)
+        compileOnly(project(":hot-reload-agent"))
     }
 
     sourceSets.jvmTest.dependencies {
