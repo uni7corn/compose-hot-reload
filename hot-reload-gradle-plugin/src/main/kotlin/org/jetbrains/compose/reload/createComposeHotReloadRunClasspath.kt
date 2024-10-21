@@ -25,17 +25,17 @@ internal fun KotlinCompilation<*>.createComposeHotReloadRunClasspath(): FileColl
 
     val dependencyProjects = runtimeConfiguration.incoming.artifactView { view ->
         view.componentFilter { id -> id.isCurrentBuild() }
-        view.withVariantReselection()
         view.attributes.attribute(KotlinPlatformType.attribute, platformType)
-        view.attributes.attribute(Usage.USAGE_ATTRIBUTE, project.objects.named(Usage.JAVA_RUNTIME))
-        view.attributes.attribute(ComposeHotReloadMarker.attribute, ComposeHotReloadMarker.Hot)
+        view.attributes.attribute(Usage.USAGE_ATTRIBUTE, project.objects.named(COMPOSE_HOT_RELOAD_USAGE))
+        view.isLenient = false
     }.files
 
     val dependencyBinaries = runtimeConfiguration.incoming.artifactView { view ->
         view.componentFilter { id -> !id.isCurrentBuild() }
-    }
+    }.files
+
     return project.files(
-        output.allOutputs, dependencyProjects, dependencyBinaries.files
+        output.allOutputs, dependencyProjects, dependencyBinaries
     )
 }
 

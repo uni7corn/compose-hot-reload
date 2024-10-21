@@ -1,6 +1,8 @@
 package org.jetbrains.compose.reload
 
 import org.gradle.api.Project
+import org.gradle.api.attributes.AttributeCompatibilityRule
+import org.gradle.api.attributes.CompatibilityCheckDetails
 import org.gradle.api.attributes.Usage
 import org.gradle.kotlin.dsl.named
 import org.gradle.kotlin.dsl.withType
@@ -14,6 +16,9 @@ import org.jetbrains.kotlin.gradle.targets.jvm.KotlinJvmTarget
  * as outgoing runtime elements.
  */
 internal fun Project.setupComposeHotReloadVariant() {
+    project.dependencies.attributesSchema.attribute(Usage.USAGE_ATTRIBUTE)
+        .compatibilityRules.add(ComposeHotReloadCompatibility::class.java)
+
     kotlinJvmOrNull?.apply {
         target.createComposeHotReloadVariants()
     }
@@ -25,13 +30,23 @@ internal fun Project.setupComposeHotReloadVariant() {
     }
 }
 
+internal const val COMPOSE_HOT_RELOAD_USAGE = "compose-hot-reload-runtime"
+
+internal class ComposeHotReloadCompatibility : AttributeCompatibilityRule<Usage> {
+    override fun execute(details: CompatibilityCheckDetails<Usage>) {
+        if (details.consumerValue?.name == COMPOSE_HOT_RELOAD_USAGE &&
+            details.producerValue?.name == Usage.JAVA_RUNTIME
+        ) {
+            details.compatible()
+        }
+    }
+}
+
 private fun KotlinTarget.createComposeHotReloadVariants() {
     val main = compilations.getByName("main")
     val runtimeElements = project.configurations.getByName(runtimeElementsConfigurationName)
 
     runtimeElements.outgoing.also outgoing@{ outgoing ->
-        outgoing.attributes.attribute(ComposeHotReloadMarker.attribute, ComposeHotReloadMarker.Cold)
-
         project.logger.debug("Creating 'composeHot' variant")
 
         if (outgoing.variants.findByName("composeHot") != null) {
@@ -41,8 +56,7 @@ private fun KotlinTarget.createComposeHotReloadVariants() {
 
         outgoing.variants.create("composeHot") { variant ->
             variant.attributes.attribute(KotlinPlatformType.attribute, platformType)
-            variant.attributes.attribute(Usage.USAGE_ATTRIBUTE, project.objects.named(Usage.JAVA_RUNTIME))
-            variant.attributes.attribute(ComposeHotReloadMarker.attribute, ComposeHotReloadMarker.Hot)
+            variant.attributes.attribute(Usage.USAGE_ATTRIBUTE, project.objects.named(COMPOSE_HOT_RELOAD_USAGE))
 
             variant.artifact(project.provider { main.output.classesDirs.singleFile }) { artifact ->
                 artifact.builtBy(main.output.allOutputs)
