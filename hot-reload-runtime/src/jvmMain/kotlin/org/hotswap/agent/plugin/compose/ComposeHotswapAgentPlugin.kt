@@ -9,7 +9,6 @@ import org.hotswap.agent.annotation.*
 import org.hotswap.agent.javassist.CtClass
 import org.hotswap.agent.util.PluginManagerInvoker
 import org.jetbrains.compose.reload.createLogger
-import org.jetbrains.compose.reload.enableComposeHotReloadMode
 import java.net.URL
 import kotlin.time.Duration.Companion.milliseconds
 
@@ -47,7 +46,7 @@ internal class ComposeHotswapAgentPlugin {
         fun init(appClassLoader: ClassLoader?) {
             if (appClassLoader == null) return
             PluginManagerInvoker.callInitializePlugin(ComposeHotswapAgentPlugin::class.java, appClassLoader)
-            enableComposeHotReloadMode(appClassLoader)
+            //enableComposeHotReloadMode(appClassLoader)
         }
 
         init {
