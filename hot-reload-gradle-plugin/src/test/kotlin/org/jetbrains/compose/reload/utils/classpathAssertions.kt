@@ -7,7 +7,7 @@ import org.intellij.lang.annotations.RegExp
 import java.io.File
 import kotlin.test.fail
 
-fun Iterable<File>.matches(
+fun Iterable<File>.assertMatches(
     vararg matchers: FileMatcher
 ) {
     val allFiles = toList()
