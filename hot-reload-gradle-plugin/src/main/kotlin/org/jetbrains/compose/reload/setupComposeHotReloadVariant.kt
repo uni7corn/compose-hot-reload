@@ -30,11 +30,11 @@ internal fun Project.setupComposeHotReloadVariant() {
     }
 }
 
-internal const val COMPOSE_HOT_RELOAD_USAGE = "compose-hot-reload-runtime"
+internal const val COMPOSE_DEV_RUNTIME_USAGE = "compose-dev-java-runtime"
 
 internal class ComposeHotReloadCompatibility : AttributeCompatibilityRule<Usage> {
     override fun execute(details: CompatibilityCheckDetails<Usage>) {
-        if (details.consumerValue?.name == COMPOSE_HOT_RELOAD_USAGE &&
+        if (details.consumerValue?.name == COMPOSE_DEV_RUNTIME_USAGE &&
             details.producerValue?.name == Usage.JAVA_RUNTIME
         ) {
             details.compatible()
@@ -56,7 +56,7 @@ private fun KotlinTarget.createComposeHotReloadVariants() {
 
         outgoing.variants.create("composeHot") { variant ->
             variant.attributes.attribute(KotlinPlatformType.attribute, platformType)
-            variant.attributes.attribute(Usage.USAGE_ATTRIBUTE, project.objects.named(COMPOSE_HOT_RELOAD_USAGE))
+            variant.attributes.attribute(Usage.USAGE_ATTRIBUTE, project.objects.named(COMPOSE_DEV_RUNTIME_USAGE))
 
             variant.artifact(project.provider { main.output.classesDirs.singleFile }) { artifact ->
                 artifact.builtBy(main.output.allOutputs)

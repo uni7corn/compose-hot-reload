@@ -8,7 +8,7 @@ internal fun Project.setupComposeHotReloadRuntimeDependency() {
      */
     kotlinMultiplatformOrNull?.apply {
         sourceSets.commonMain.dependencies {
-            implementation("org.jetbrains.compose:hot-reload-runtime:$HOT_RELOAD_VERSION")
+            implementation("org.jetbrains.compose:hot-reload-runtime-api:$HOT_RELOAD_VERSION")
         }
     }
 

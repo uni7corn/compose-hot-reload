@@ -32,7 +32,8 @@ dependencyResolutionManagement {
 
 include(":hot-reload-agent")
 include(":hot-reload-gradle-plugin")
-include(":hot-reload-runtime")
+include(":hot-reload-runtime-api")
+include(":hot-reload-runtime-jvm")
 
 gradle.lifecycle.beforeProject {
     group = "org.jetbrains.compose"

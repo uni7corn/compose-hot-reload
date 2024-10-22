@@ -2,6 +2,7 @@ package org.jetbrains.compose.reload.tests
 
 import org.gradle.testfixtures.ProjectBuilder
 import org.jetbrains.compose.reload.ComposeHotReloadPlugin
+import org.jetbrains.compose.reload.HOT_RELOAD_VERSION
 import org.jetbrains.compose.reload.createComposeHotReloadRunClasspath
 import org.jetbrains.compose.reload.kotlinMultiplatformOrNull
 import org.jetbrains.compose.reload.utils.PathRegex
@@ -57,7 +58,8 @@ class RunClasspathTest {
                 PathRegex(".*/consumer/.*"),
                 PathRegex(".*/producer/build/classes/kotlin/jvm/main"),
                 PathRegex(".*/producer/build/processedResources/jvm/main"),
-                PathRegex(".*/hot-reload-runtime-jvm.*\\.jar"),
+                PathRegex(".*/hot-reload-runtime-api-jvm.*\\.jar"),
+                PathRegex(".*/hot-reload-runtime-jvm-$HOT_RELOAD_VERSION-dev.jar"),
                 PathRegex(".*/userHome/.*") // Transitive maven dependencies
             )
         }
@@ -107,7 +109,8 @@ class RunClasspathTest {
             classpath.matches(
                 PathRegex(".*/consumer/.*"),
                 PathRegex(".*/producer/build/libs/producer-jvm.jar"), // Now we resolve against the .jar
-                PathRegex(".*/hot-reload-runtime-jvm.*\\.jar"),
+                PathRegex(".*/hot-reload-runtime-api-jvm.*\\.jar"),
+                PathRegex(".*/hot-reload-runtime-jvm-$HOT_RELOAD_VERSION-dev.jar"),
                 PathRegex(".*/userHome/.*") // Transitive maven dependencies
             )
         }

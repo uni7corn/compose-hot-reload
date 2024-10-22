@@ -7,9 +7,7 @@ The intent is to upstream this repository into an official JetBrains product.
 No guarantees apply. 
 
 ## State
-The project publishes experimental builds 
-
-
+The project publishes experimental builds
 
 ### Add the 'sellmair' maven repository
 
@@ -36,17 +34,7 @@ plugins {
     kotlin("multiplatform")
     kotlin("plugin.compose")
     id("org.jetbrains.compose")
-    id("org.jetbrains.compose-hot-reload") version "1.0.0-dev.18" // <- add this additionally
-}
-```
-
-### Enable JetBrains Runtime (might require you to download JBR)
-https://github.com/JetBrains/JetBrainsRuntime
-
-// build.gradle.kts
-```kotlin
-composeHotReload {
-    useJetBrainsRuntime = true
+    id("org.jetbrains.compose-hot-reload") version "1.0.0-dev.19" // <- add this additionally
 }
 ```
 
@@ -71,15 +59,8 @@ plugins {
 ```kotlin
 @Composable 
 fun App() {
-    HotReload {
+    ComposeDevelopmentEntryPoint {
         MainPage()
     }
-}
-```
-
-```kotlin
-@Composable 
-fun App() {
-    linkUi("com.example.MainKt", "MainPage") // <- FQN of the function you want to hot reload 
 }
 ```
