@@ -67,7 +67,7 @@ private fun listenForChanges(instrumentation: Instrumentation) {
                 val connection = socket.accept()
                 withConnection(connection, instrumentation)
             } catch (t: Throwable) {
-                logger.error("Error w/ connection", t)
+                logger.error("Error w/ request", t)
             }
         }
     }
