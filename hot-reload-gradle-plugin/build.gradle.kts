@@ -7,12 +7,6 @@ plugins {
     `publishing-conventions`
 }
 
-publishing {
-    publications.create<MavenPublication>("plugin") {
-        from(components["java"])
-    }
-}
-
 
 /* Setup integration test */
 run {

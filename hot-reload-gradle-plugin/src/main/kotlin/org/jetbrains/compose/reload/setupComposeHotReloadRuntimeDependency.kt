@@ -18,7 +18,7 @@ internal fun Project.setupComposeHotReloadRuntimeDependency() {
     kotlinJvmOrNull?.apply {
         val compilation = target.compilations.getByName("main")
         compilation.defaultSourceSet.dependencies {
-            implementation("org.jetbrains.compose:hot-reload-runtime:$HOT_RELOAD_VERSION")
+            implementation("org.jetbrains.compose:hot-reload-runtime-api:$HOT_RELOAD_VERSION")
         }
     }
 }
