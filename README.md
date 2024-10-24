@@ -34,7 +34,7 @@ plugins {
     kotlin("multiplatform")
     kotlin("plugin.compose")
     id("org.jetbrains.compose")
-    id("org.jetbrains.compose-hot-reload") version "1.0.0-dev.22" // <- add this additionally
+    id("org.jetbrains.compose-hot-reload") version "1.0.0-dev.23" // <- add this additionally
 }
 ```
 
@@ -59,7 +59,7 @@ plugins {
 ```kotlin
 @Composable 
 fun App() {
-    ComposeDevelopmentEntryPoint {
+    DevelopmentEntryPoint {
         MainPage()
     }
 }
