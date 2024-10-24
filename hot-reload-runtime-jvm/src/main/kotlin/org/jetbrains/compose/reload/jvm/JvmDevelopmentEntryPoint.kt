@@ -4,7 +4,7 @@ import androidx.compose.runtime.Composable
 
 @Composable
 @InternalHotReloadApi
-public fun ComposeDevelopmentEntryPointJvm(child: @Composable () -> Unit) {
+public fun JvmDevelopmentEntryPoint(child: @Composable () -> Unit) {
     child()
 }
 

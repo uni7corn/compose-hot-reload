@@ -9,6 +9,7 @@ import org.gradle.jvm.toolchain.JvmVendorSpec
 import org.gradle.kotlin.dsl.register
 import org.gradle.kotlin.dsl.support.serviceOf
 import org.gradle.kotlin.dsl.withType
+import org.jetbrains.compose.reload.orchestration.ORCHESTRATION_SERVER_PORT_PROPERTY_KEY
 import org.jetbrains.kotlin.gradle.InternalKotlinGradlePluginApi
 import org.jetbrains.kotlin.gradle.plugin.KotlinCompilation
 import org.jetbrains.kotlin.gradle.plugin.KotlinTarget
@@ -55,6 +56,15 @@ internal fun JavaExec.configureJavaExecTaskForHotReload(compilation: Provider<Ko
 
     setClasspath(project.files { compilation.get().createComposeHotReloadRunClasspath() })
 
+
+    /* Setup debugging capabilities */
+    run {
+        if (project.isDebugMode.orNull == true) {
+            logger.quiet("Enabled debugging")
+            jvmArgs("-agentlib:jdwp=transport=dt_socket,server=n,address=localhost:5005,suspend=y")
+        }
+    }
+
     /* Generic JVM args for hot reload*/
     run {
         /* Will get us additional information at runtime */
@@ -94,9 +104,17 @@ internal fun JavaExec.configureJavaExecTaskForHotReload(compilation: Provider<Ko
         jvmArgs("--add-opens=java.desktop/com.sun.beans.util=ALL-UNNAMED")
     }
 
+    /* Setup orchestration */
+    run {
+        project.orchestrationPort.orNull?.let { port ->
+            logger.quiet("Using orchestration server port: $port")
+            systemProperty(ORCHESTRATION_SERVER_PORT_PROPERTY_KEY, port.toInt())
+        }
+    }
+
+
     /* Setup re-compiler */
     val compileTaskName = compilation.map { composeHotClasspathTaskName(it) }
-
     systemProperty("compose.build.root", project.rootDir.absolutePath)
     systemProperty("compose.build.project", project.path)
     systemProperty("compose.build.compileTask", compileTaskName.get())

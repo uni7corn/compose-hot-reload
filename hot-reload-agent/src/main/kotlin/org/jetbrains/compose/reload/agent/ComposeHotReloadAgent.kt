@@ -1,154 +1,128 @@
 package org.jetbrains.compose.reload.agent
 
 import javassist.ClassPool
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.asStateFlow
 import org.jetbrains.compose.reload.agent.ComposeHotReloadAgent.reloadLock
+import org.jetbrains.compose.reload.orchestration.*
+import org.jetbrains.compose.reload.orchestration.OrchestrationMessage.ReloadClassesRequest
+import org.jetbrains.compose.reload.orchestration.OrchestrationMessage.ReloadClassesRequest.ChangeType
+import java.io.File
 import java.lang.instrument.ClassDefinition
 import java.lang.instrument.Instrumentation
-import java.net.ServerSocket
-import java.net.Socket
-import java.nio.file.Path
+import java.util.*
 import java.util.concurrent.locks.ReentrantLock
-import kotlin.concurrent.thread
 import kotlin.concurrent.withLock
-import kotlin.io.path.Path
-import kotlin.io.path.extension
-import kotlin.io.path.isRegularFile
-import kotlin.io.path.readBytes
+import kotlin.system.exitProcess
 
 private val logger = createLogger()
 
-object ComposeHotReloadAgent {
 
-    internal val _port = MutableStateFlow<Int?>(null)
-    val port: StateFlow<Int?> = _port.asStateFlow()
+object ComposeHotReloadAgent {
 
     val reloadLock = ReentrantLock()
 
-    private val beforeReloadListeners = mutableListOf<() -> Unit>()
-    private val afterReloadListeners = mutableListOf<(error: Throwable?) -> Unit>()
+    private val beforeReloadListeners = mutableListOf<(reloadRequestId: UUID) -> Unit>()
+    private val afterReloadListeners = mutableListOf<(reloadRequestId: UUID, error: Throwable?) -> Unit>()
 
-    internal val pendingChanges = mutableMapOf<Path, ChangeType>()
 
     @Volatile
     private var instrumentation: Instrumentation? = null
 
-    fun invokeBeforeReload(block: () -> Unit) = reloadLock.withLock {
+    val orchestration by lazy { startOrchestration() }
+
+    fun invokeBeforeReload(block: (reloadRequestId: UUID) -> Unit) = reloadLock.withLock {
         beforeReloadListeners.add(block)
     }
 
-    fun invokeAfterReload(block: (error: Throwable?) -> Unit) = reloadLock.withLock {
+    fun invokeAfterReload(block: (reloadRequestId: UUID, error: Throwable?) -> Unit) = reloadLock.withLock {
         afterReloadListeners.add(block)
     }
 
-    internal fun executeBeforeReloadListeners() = reloadLock.withLock {
-        beforeReloadListeners.forEach { it() }
+    internal fun executeBeforeReloadListeners(reloadRequestId: UUID) = reloadLock.withLock {
+        beforeReloadListeners.forEach { it(reloadRequestId) }
     }
 
-    internal fun executeAfterReloadListeners(error: Throwable?) = reloadLock.withLock {
-        afterReloadListeners.forEach { it(error) }
+    internal fun executeAfterReloadListeners(reloadRequestId: UUID, error: Throwable?) = reloadLock.withLock {
+        afterReloadListeners.forEach { it(reloadRequestId, error) }
     }
 
     fun retryPendingChanges() {
-        thread {
-            reloadLock.withLock {
-                executeBeforeReloadListeners()
-                reload(instrumentation ?: return@thread)
-            }
-        }
+        orchestration.sendMessage(ReloadClassesRequest())
     }
 
     @JvmStatic
     fun premain(args: String?, instrumentation: Instrumentation) {
         this.instrumentation = instrumentation
         enableComposeHotReloadMode()
-        startServer(instrumentation)
+        launchReloadClassesRequestHandler(instrumentation)
     }
 }
 
-private fun startServer(instrumentation: Instrumentation) {
-    thread(name = "Compose Hot Reload Agent / Server", isDaemon = true) {
-        val socket = ServerSocket()
-        socket.bind(null)
+private fun startOrchestration(): OrchestrationHandle {
+    /* Connecting to a server if we're instructed to */
+    OrchestrationClient()?.let { client ->
+        logger.debug("Hot Reload Agent is starting in 'client' mode (connected to '${client.port}')")
+        return client
+    }
 
-        logger.debug("Compose Hot Reload Agent: Listening on port: ${socket.localPort}")
-        ComposeHotReloadAgent._port.value = socket.localPort
+    /* Otherwise, we start our own orchestration server */
+    logger.debug("Hot Reload Agent is starting in 'server' mode")
+    return startOrchestrationServer()
+}
 
-        while (true) {
-            try {
-                val connection = socket.accept()
-                ComposeHotReloadAgent.executeBeforeReloadListeners()
-                handleHotReloadRequest(connection, instrumentation)
-            } catch (t: Throwable) {
-                logger.error("Error w/ request", t)
-                ComposeHotReloadAgent.executeAfterReloadListeners(t)
+private fun launchReloadClassesRequestHandler(instrumentation: Instrumentation) {
+    var pendingChanges = mapOf<File, ChangeType>()
+
+    ComposeHotReloadAgent.orchestration.invokeWhenReceived<ReloadClassesRequest> { request ->
+        reloadLock.withLock {
+            pendingChanges = pendingChanges + request.changedClassFiles
+
+            ComposeHotReloadAgent.executeBeforeReloadListeners(request.messageId)
+            val result = runCatching { reload(instrumentation, pendingChanges) }
+
+            /*
+            Yuhuu! We reloaded the classes; We can reset the 'pending changes'; No re-try necessary
+             */
+            if (result.isSuccess) {
+                pendingChanges = emptyMap()
+                resetComposeErrors()
             }
+
+            ComposeHotReloadAgent.executeAfterReloadListeners(request.messageId, result.exceptionOrNull())
         }
     }
+
+    ComposeHotReloadAgent.orchestration.invokeWhenReceived<OrchestrationMessage.ShutdownRequest> {
+        exitProcess(0)
+    }
+
+    ComposeHotReloadAgent.orchestration.invokeWhenClosed {
+        exitProcess(0)
+    }
 }
 
-private fun handleHotReloadRequest(socket: Socket, instrumentation: Instrumentation) = reloadLock.withLock {
-    val reload = socket.getInputStream().bufferedReader().readText()
-    val changes = parseChanges(reload)
-    ComposeHotReloadAgent.pendingChanges.putAll(changes)
-    reload(instrumentation)
-    logger.debug("Reload: $reload")
-}
-
-private fun reload(instrumentation: Instrumentation) = reloadLock.withLock {
-    val definitions = ComposeHotReloadAgent.pendingChanges.mapNotNull { (path, change) ->
+private fun reload(
+    instrumentation: Instrumentation, pendingChanges: Map<File, ChangeType>
+) = reloadLock.withLock {
+    val definitions = pendingChanges.mapNotNull { (file, change) ->
         if (change == ChangeType.Removed) {
             return@mapNotNull null
         }
 
-        if (path.extension != "class") {
-            logger.warn("$change: $path is not a class")
+        if (file.extension != "class") {
+            logger.warn("$change: $file is not a class")
             return@mapNotNull null
         }
 
-        if (!path.isRegularFile()) {
-            logger.warn("$change: $path is not a regular file")
+        if (!file.isFile) {
+            logger.warn("$change: $file is not a regular file")
             return@mapNotNull null
         }
 
-        logger.debug("Loading: $path")
-        val code = path.readBytes()
+        logger.debug("Loading: $file")
+        val code = file.readBytes()
         val clazz = ClassPool.getDefault().makeClass(code.inputStream())
         ClassDefinition(Class.forName(clazz.name), code)
     }
 
-    val result = runCatching {
-        instrumentation.redefineClasses(*definitions.toTypedArray())
-    }
-
-    if (result.isSuccess) {
-        ComposeHotReloadAgent.pendingChanges.clear()
-        resetComposeErrors()
-    }
-
-    ComposeHotReloadAgent.executeAfterReloadListeners(result.exceptionOrNull())
+    instrumentation.redefineClasses(*definitions.toTypedArray())
 }
-
-enum class ChangeType {
-    Added,
-    Modified,
-    Removed;
-
-    companion object {
-        fun fromString(value: String): ChangeType {
-            return entries.firstOrNull { it.name.equals(value, ignoreCase = true) }
-                ?: error("Unknown change type: $value")
-        }
-    }
-}
-
-fun parseChanges(raw: String): Map<Path, ChangeType> {
-    val regex = Regex("""\[(.*)]\s(.*)""")
-    return raw.lines().filter { it.isNotBlank() }.associate { line ->
-        val match = regex.matchEntire(line) ?: error("Illegal instruction: '$line'")
-        Path(match.groupValues[2]) to ChangeType.fromString(match.groupValues[1])
-    }
-}
-

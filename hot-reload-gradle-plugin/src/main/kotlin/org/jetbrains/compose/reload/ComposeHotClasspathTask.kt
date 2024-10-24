@@ -8,9 +8,12 @@ import org.gradle.kotlin.dsl.property
 import org.gradle.kotlin.dsl.withType
 import org.gradle.work.Incremental
 import org.gradle.work.InputChanges
+import org.jetbrains.compose.reload.orchestration.OrchestrationClient
+import org.jetbrains.compose.reload.orchestration.OrchestrationMessage
+import org.jetbrains.compose.reload.orchestration.OrchestrationMessage.ReloadClassesRequest
+import org.jetbrains.compose.reload.orchestration.OrchestrationMessage.ReloadClassesRequest.ChangeType
 import org.jetbrains.kotlin.gradle.plugin.KotlinCompilation
-import java.net.InetAddress
-import java.net.Socket
+import java.io.File
 
 
 internal fun Project.setupComposeHotClasspathTasks() {
@@ -23,7 +26,7 @@ internal fun Project.setupComposeHotClasspathTasks() {
     tasks.withType<ComposeHotClasspathTask>().configureEach { task ->
         task.outputs.upToDateWhen { true }
         task.group = "compose"
-        task.agentPort.set(project.providers.systemProperty("compose.hot.reload.agent.port").map { it.toInt() })
+        task.agentPort.set(project.orchestrationPort)
     }
 }
 
@@ -52,23 +55,29 @@ internal open class ComposeHotClasspathTask : DefaultTask() {
 
     @TaskAction
     fun execute(inputs: InputChanges) {
-        if (inputs.isIncremental) {
-            logger.quiet("Incremental run")
+        val client = OrchestrationClient() ?: error("Failed to create 'OrchestrationClient'!")
+
+        if (!inputs.isIncremental) {
+            logger.debug("Gradle Daemon is ready")
+            client.use { client.sendMessage(OrchestrationMessage.GradleDaemonReady()) }
+            return
         }
 
-        val output = StringBuilder()
+        logger.quiet("Incremental run")
+        val changedClassFiles = mutableMapOf<File, ChangeType>()
         inputs.getFileChanges(classpath).forEach { change ->
-            val formattedChange = "[${change.changeType}] ${change.file}"
-            output.appendLine(formattedChange)
-            logger.quiet(formattedChange)
+            val changeType = when (change.changeType) {
+                org.gradle.work.ChangeType.ADDED -> ChangeType.Added
+                org.gradle.work.ChangeType.MODIFIED -> ChangeType.Modified
+                org.gradle.work.ChangeType.REMOVED -> ChangeType.Removed
+            }
+
+            changedClassFiles[change.file.absoluteFile] = changeType
+            logger.trace("[${change.changeType}] ${change.file}")
         }
 
-        // Sending instructions to agent!
-        Socket(InetAddress.getLocalHost(), agentPort.get()).getOutputStream().use { out ->
-            out.bufferedWriter().use { writer ->
-                writer.write(output.toString())
-                writer.flush()
-            }
+        client.use {
+            client.sendMessage(ReloadClassesRequest(changedClassFiles))
         }
     }
 }

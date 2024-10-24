@@ -11,45 +11,64 @@ plugins {
 /* Setup integration test */
 run {
     val main = kotlin.target.compilations.getByName("main")
-    val integrationTest = kotlin.target.compilations.create("integrationTest")
-    integrationTest.associateWith(main)
+    val functionalTest = kotlin.target.compilations.create("functionalTest")
+    functionalTest.associateWith(main)
 
-    tasks.register<Test>("integrationTest") {
-        testClassesDirs = integrationTest.output.classesDirs
-        classpath = integrationTest.output.allOutputs + integrationTest.runtimeDependencyFiles
+    val functionalTestTask = tasks.register<Test>("functionalTest") {
+        testClassesDirs = functionalTest.output.classesDirs
+        classpath = functionalTest.output.allOutputs + functionalTest.runtimeDependencyFiles
+    }
+
+    tasks.check.configure {
+        dependsOn(functionalTestTask)
     }
 }
 
+
+
 tasks.withType<Test>().configureEach {
     useJUnitPlatform()
+
     dependsOn(":hot-reload-runtime-api:publishAllPublicationsToLocalRepository")
     dependsOn(":hot-reload-runtime-jvm:publishAllPublicationsToLocalRepository")
+    dependsOn(":hot-reload-orchestration:publishAllPublicationsToLocalRepository")
     dependsOn(":hot-reload-agent:publishAllPublicationsToLocalRepository")
+    dependsOn("publishAllPublicationsToLocalRepository")
     systemProperty("local.test.repo", rootProject.layout.buildDirectory.dir("repo").get().asFile.absolutePath)
+    jvmArgs("-DlogLevel=DEBUG")
+
+    testLogging {
+        showStandardStreams = true
+    }
 }
 
 gradlePlugin {
     plugins.create("hot-reload") {
         id = "org.jetbrains.compose-hot-reload"
         implementationClass = "org.jetbrains.compose.reload.ComposeHotReloadPlugin"
-        testSourceSet(sourceSets.getByName("integrationTest"))
+        testSourceSet(sourceSets.getByName("functionalTest"))
     }
 }
 
 dependencies {
-    val integrationTestImplementation by configurations
-    val integrationTestRuntimeOnly by configurations
+    val functionalTestImplementation by configurations
 
     compileOnly(kotlin("gradle-plugin"))
-    implementation(gradleApi())
-    implementation(gradleKotlinDsl())
+    compileOnly(gradleApi())
+    compileOnly(gradleKotlinDsl())
+    implementation(project(":hot-reload-orchestration"))
 
-    integrationTestImplementation(gradleTestKit())
-    integrationTestImplementation(kotlin("test-junit"))
-    integrationTestImplementation(deps.junit.jupiter)
-
+    functionalTestImplementation(gradleTestKit())
+    functionalTestImplementation(testFixtures(project(":hot-reload-orchestration")))
+    functionalTestImplementation(kotlin("test"))
+    functionalTestImplementation(kotlin("tooling-core"))
+    functionalTestImplementation(deps.junit.jupiter)
+    functionalTestImplementation(deps.junit.jupiter.engine)
+    functionalTestImplementation(deps.coroutines.core)
+    functionalTestImplementation(deps.coroutines.test)
 
     testImplementation(kotlin("test"))
+    testImplementation(gradleKotlinDsl())
     testImplementation(deps.junit.jupiter)
     testImplementation(deps.junit.jupiter.engine)
     testImplementation(kotlin("gradle-plugin"))
