@@ -22,11 +22,10 @@ suspend fun HotReloadTestFixture.checkScreenshot(name: String) {
         fail("Screenshot '$expectFile' did not exist; Generated")
     }
 
-    val actualFile = expectFile.resolveSibling("${expectFile.nameWithoutExtension}-actual.${screenshot.format}")
-    actualFile.writeBytes(screenshot.data)
+    if (!expectFile.readBytes().contentEquals(screenshot.data)) {
+        val actualFile = expectFile.resolveSibling("${expectFile.nameWithoutExtension}-actual.${screenshot.format}")
+        actualFile.writeBytes(screenshot.data)
 
-
-    if(!expectFile.readBytes().contentEquals(screenshot.data)) {
         fail("Screenshot '${expectFile.pathString}' does not match")
     }
 }

@@ -1,75 +1,31 @@
-@file:OptIn(ExperimentalPathApi::class)
-
 package org.jetbrains.compose.reload.utils
 
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.flow.filterIsInstance
-import kotlinx.coroutines.flow.first
-import kotlinx.coroutines.flow.receiveAsFlow
-import kotlinx.coroutines.withContext
-import kotlinx.coroutines.withTimeout
 import org.gradle.testkit.runner.GradleRunner
 import org.jetbrains.compose.reload.orchestration.ORCHESTRATION_SERVER_PORT_PROPERTY_KEY
-import org.jetbrains.compose.reload.orchestration.OrchestrationMessage
-import org.jetbrains.compose.reload.orchestration.OrchestrationServer
-import org.jetbrains.compose.reload.orchestration.asChannel
 import org.jetbrains.compose.reload.orchestration.startOrchestrationServer
 import org.jetbrains.compose.reload.utils.HotReloadTestFixtureProvider.Companion.testFixtureKey
 import org.junit.jupiter.api.TestTemplate
-import org.junit.jupiter.api.extension.*
+import org.junit.jupiter.api.extension.AfterEachCallback
+import org.junit.jupiter.api.extension.BeforeEachCallback
+import org.junit.jupiter.api.extension.ExtendWith
+import org.junit.jupiter.api.extension.Extension
+import org.junit.jupiter.api.extension.ExtensionContext
+import org.junit.jupiter.api.extension.ParameterContext
+import org.junit.jupiter.api.extension.ParameterResolver
+import org.junit.jupiter.api.extension.TestTemplateInvocationContext
+import org.junit.jupiter.api.extension.TestTemplateInvocationContextProvider
+import org.junit.platform.commons.util.AnnotationUtils
 import java.nio.file.Files
-import java.util.concurrent.locks.ReentrantLock
 import java.util.stream.Stream
-import kotlin.concurrent.withLock
-import kotlin.io.path.ExperimentalPathApi
-import kotlin.io.path.deleteRecursively
-import kotlin.time.Duration
-import kotlin.time.Duration.Companion.minutes
 
 @TestTemplate
 @ExtendWith(HotReloadTestInvocationContextProvider::class)
 annotation class HotReloadTest
 
-class HotReloadTestFixture(
-    val testClassName: String,
-    val testMethodName: String,
-    val projectDir: ProjectDir,
-    val gradleRunner: GradleRunner,
-    val orchestration: OrchestrationServer
-) : AutoCloseable {
-
-    val messages = orchestration.asChannel()
-
-    suspend inline fun <reified T> skipToMessage(timeout: Duration = 1.minutes): T {
-        return withContext(Dispatchers.Default.limitedParallelism(1)) {
-            withTimeout(timeout) {
-                messages.receiveAsFlow().filterIsInstance<T>().first()
-            }
-        }
-    }
-
-    fun sendMessage(message: OrchestrationMessage) {
-        orchestration.sendMessage(message).get()
-    }
-
-    private val resourcesLock = ReentrantLock()
-    private val resources = mutableListOf<AutoCloseable>()
-
-    override fun close() {
-        orchestration.close()
-        projectDir.path.deleteRecursively()
-
-        resourcesLock.withLock {
-            resources.forEach { resource -> resource.close() }
-            resources.clear()
-        }
-    }
-}
-
 internal class HotReloadTestInvocationContextProvider : TestTemplateInvocationContextProvider {
     override fun supportsTestTemplate(context: ExtensionContext): Boolean {
         if (context.testMethod.isEmpty) return false
-        return context.testMethod.get().isAnnotationPresent(HotReloadTest::class.java)
+        return AnnotationUtils.findAnnotation(context.testMethod.get(), HotReloadTest::class.java) != null
     }
 
     override fun provideTestTemplateInvocationContexts(context: ExtensionContext): Stream<TestTemplateInvocationContext> {
@@ -93,7 +49,9 @@ class HotReloadTestInvocationContext(
     private val versions: TestedVersions,
 ) : TestTemplateInvocationContext {
     override fun getDisplayName(invocationIndex: Int): String {
-        return "Gradle ${versions.gradle.version}, Kotlin ${versions.kotlin.version}, Compose ${versions.compose.version}"
+        return "Gradle ${versions.gradle.version.version}, " +
+                "Kotlin ${versions.kotlin.version}, " +
+                "Compose ${versions.compose.version}"
     }
 
     override fun getAdditionalExtensions(): List<Extension> {
