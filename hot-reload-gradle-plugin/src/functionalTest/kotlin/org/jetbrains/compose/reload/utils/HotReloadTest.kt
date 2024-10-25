@@ -10,6 +10,7 @@ import kotlinx.coroutines.withContext
 import kotlinx.coroutines.withTimeout
 import org.gradle.testkit.runner.GradleRunner
 import org.jetbrains.compose.reload.orchestration.ORCHESTRATION_SERVER_PORT_PROPERTY_KEY
+import org.jetbrains.compose.reload.orchestration.OrchestrationMessage
 import org.jetbrains.compose.reload.orchestration.OrchestrationServer
 import org.jetbrains.compose.reload.orchestration.asChannel
 import org.jetbrains.compose.reload.orchestration.startOrchestrationServer
@@ -45,6 +46,10 @@ class HotReloadTestFixture(
                 messages.receiveAsFlow().filterIsInstance<T>().first()
             }
         }
+    }
+
+    fun sendMessage(message: OrchestrationMessage) {
+        orchestration.sendMessage(message).get()
     }
 
     private val resourcesLock = ReentrantLock()

@@ -55,9 +55,7 @@ class KotlinJvmReloadTest {
                 
                 fun main() {
                     underTestApplication {
-                        Column { 
-                            Text("Hello", fontSize = 48.sp)
-                        }
+                        Text("Hello", fontSize = 48.sp)
                     }
                 }
             """.trimIndent()
@@ -77,14 +75,12 @@ class KotlinJvmReloadTest {
 
         logger.quiet("Waiting for Daemon to become ready")
         fixture.skipToMessage<GradleDaemonReady>()
+
+        logger.quiet("Checking screenshot before reload")
         fixture.checkScreenshot("before")
 
         logger.quiet("Modifying source code")
-        run {
-            fixture.projectDir.replaceText(
-                "src/main/kotlin/Main.kt", """Hello""", """Goodbye"""
-            )
-        }
+        fixture.projectDir.replaceText("src/main/kotlin/Main.kt", """Hello""", """Goodbye""")
 
         logger.quiet("Waiting for reload request")
         val reloadRequest = run {
@@ -104,6 +100,7 @@ class KotlinJvmReloadTest {
             assertEquals(reloadRequest.messageId, rendered.reloadRequestId)
         }
 
+        logger.quiet("Checking screenshot after reload")
         fixture.checkScreenshot("after")
     }
 }
