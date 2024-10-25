@@ -59,6 +59,13 @@ public sealed class OrchestrationMessage : Serializable {
     ) : OrchestrationMessage()
 
     /**
+     * An event sent for testing purposes:
+     * For example, integration tests will send such payloads to communicate with
+     * the 'application under test'
+     */
+    public data class TestEvent(val payload: Any?) : OrchestrationMessage()
+
+    /**
      * Sent once the UI was rendered
      * @param reloadRequestId: The uuid of the [ReloadClassesRequest] which caused the rendering
      * (or null for the initial renderings)

@@ -9,8 +9,10 @@ import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.withContext
 import kotlinx.coroutines.withTimeout
 import org.gradle.testkit.runner.GradleRunner
+import org.jetbrains.compose.reload.orchestration.OrchestrationMessage
 import org.jetbrains.compose.reload.orchestration.OrchestrationServer
 import org.jetbrains.compose.reload.orchestration.asChannel
+import java.io.Serializable
 import java.util.concurrent.locks.ReentrantLock
 import kotlin.concurrent.withLock
 import kotlin.io.path.ExperimentalPathApi
@@ -27,6 +29,10 @@ class HotReloadTestFixture(
 ) : AutoCloseable {
 
     val messages = orchestration.asChannel()
+
+    fun sendMessage(message: OrchestrationMessage) {
+        orchestration.sendMessage(message).get()
+    }
 
     suspend inline fun <reified T> skipToMessage(timeout: Duration = 1.minutes): T {
         return withContext(Dispatchers.Default.limitedParallelism(1)) {
@@ -48,4 +54,8 @@ class HotReloadTestFixture(
             resources.clear()
         }
     }
+}
+
+suspend fun HotReloadTestFixture.sendTestEvent(payload: Serializable? = null) {
+    sendMessage(OrchestrationMessage.TestEvent(payload))
 }
