@@ -4,6 +4,7 @@ import kotlinx.coroutines.currentCoroutineContext
 import kotlinx.coroutines.job
 import kotlinx.coroutines.test.runTest
 import org.gradle.api.logging.Logging
+import org.jetbrains.compose.reload.HOT_RELOAD_VERSION
 import org.jetbrains.compose.reload.orchestration.OrchestrationMessage.*
 import org.jetbrains.compose.reload.utils.*
 import kotlin.concurrent.thread
@@ -35,7 +36,7 @@ class KotlinJvmReloadTest {
                 implementation(compose.desktop.currentOs)
                 implementation(compose.foundation)
                 implementation(compose.material3)
-                implementation("ch.qos.logback:logback-classic:1.5.9")
+                implementation("org.jetbrains.compose:hot-reload-under-test:$HOT_RELOAD_VERSION")
             }
             
             tasks.create<ComposeHotRun>("run") {
@@ -46,14 +47,16 @@ class KotlinJvmReloadTest {
 
         fixture.projectDir.writeText(
             "src/main/kotlin/Main.kt", """
+                import androidx.compose.foundation.layout.*
                 import androidx.compose.material3.Text
+                import androidx.compose.ui.unit.sp
                 import androidx.compose.ui.window.*
-                import org.jetbrains.compose.reload.DevelopmentEntryPoint
+                import org.jetbrains.compose.reload.underTest.*
                 
                 fun main() {
-                    singleWindowApplication {
-                        DevelopmentEntryPoint {
-                            Text("Hello")
+                    underTestApplication {
+                        Column { 
+                            Text("Hello", fontSize = 48.sp)
                         }
                     }
                 }
@@ -74,11 +77,12 @@ class KotlinJvmReloadTest {
 
         logger.quiet("Waiting for Daemon to become ready")
         fixture.skipToMessage<GradleDaemonReady>()
+        fixture.checkScreenshot("before")
 
         logger.quiet("Modifying source code")
         run {
             fixture.projectDir.replaceText(
-                "src/main/kotlin/Main.kt", """Text("Hello")""", """Text("Goodbye!")"""
+                "src/main/kotlin/Main.kt", """Hello""", """Goodbye"""
             )
         }
 
@@ -99,6 +103,8 @@ class KotlinJvmReloadTest {
             val rendered = fixture.skipToMessage<UIRendered>()
             assertEquals(reloadRequest.messageId, rendered.reloadRequestId)
         }
+
+        fixture.checkScreenshot("after")
     }
 }
 

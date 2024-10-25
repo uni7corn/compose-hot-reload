@@ -30,6 +30,8 @@ import kotlin.time.Duration.Companion.minutes
 annotation class HotReloadTest
 
 class HotReloadTestFixture(
+    val testClassName: String,
+    val testMethodName: String,
     val projectDir: ProjectDir,
     val gradleRunner: GradleRunner,
     val orchestration: OrchestrationServer
@@ -154,7 +156,7 @@ private class HotReloadTestFixtureProvider(private val versions: TestedVersions)
         )
     }
 
-    private fun createTestFixture(): HotReloadTestFixture {
+    private fun ExtensionContext.createTestFixture(): HotReloadTestFixture {
         val projectDir = ProjectDir(Files.createTempDirectory("hot-reload-test"))
         val orchestrationServer = startOrchestrationServer()
         val gradleRunner = GradleRunner.create()
@@ -166,11 +168,16 @@ private class HotReloadTestFixtureProvider(private val versions: TestedVersions)
             .addedArguments("-P$ORCHESTRATION_SERVER_PORT_PROPERTY_KEY=${orchestrationServer.port}")
             .addedArguments("-D$ORCHESTRATION_SERVER_PORT_PROPERTY_KEY=${orchestrationServer.port}")
             .addedArguments("--configuration-cache")
+            .addedArguments("-Pcompose.reload.headless=true")
             //.addedArguments("-Pcompose.reload.debug=true")
             .addedArguments("-i")
             .addedArguments("-s")
 
-        return HotReloadTestFixture(projectDir, gradleRunner, orchestrationServer)
+        return HotReloadTestFixture(
+            testClass.get().name,
+            testMethod.get().name,
+            projectDir, gradleRunner, orchestrationServer
+        )
     }
 }
 

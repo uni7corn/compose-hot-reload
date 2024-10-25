@@ -65,6 +65,14 @@ internal fun JavaExec.configureJavaExecTaskForHotReload(compilation: Provider<Ko
         }
     }
 
+    /* Support headless mode */
+    run {
+        if (project.isHeadless.orNull == true) {
+            systemProperty("compose.reload.headless", true)
+        }
+    }
+
+
     /* Generic JVM args for hot reload*/
     run {
         /* Will get us additional information at runtime */

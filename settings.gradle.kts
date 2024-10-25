@@ -35,6 +35,7 @@ include(":hot-reload-gradle-plugin")
 include(":hot-reload-runtime-api")
 include(":hot-reload-runtime-jvm")
 include(":hot-reload-orchestration")
+include(":hot-reload-under-test")
 
 gradle.lifecycle.beforeProject {
     group = "org.jetbrains.compose"

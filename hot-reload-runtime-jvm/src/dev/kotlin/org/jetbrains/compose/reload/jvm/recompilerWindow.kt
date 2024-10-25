@@ -35,6 +35,17 @@ private val composeBuildProject: String? = System.getProperty("compose.build.pro
 private val composeBuildCompileTask: String? = System.getProperty("compose.build.compileTask")
 
 internal suspend fun composeRecompilerApplication() {
+    /*
+    On headless mode: Don't show a window, just run gradle
+     */
+    if (HotReloadEnvironment.isHeadless) {
+        runGradleContinuousCompilation().collect()
+        return
+    }
+
+    /*
+    Otherwise, we start a new windows (application) to show gradle
+     */
     val recompilerWindowThread = thread(name = "Compose Recompiler Window") {
         try {
             runRecompilerApplication()
@@ -197,6 +208,6 @@ private suspend fun runGradleContinuousCompilation(): Flow<String> {
 }
 
 internal fun createGradleCommand(projectPath: String, task: String): String {
-    if(projectPath == ":") return ":$task"
+    if (projectPath == ":") return ":$task"
     return "$projectPath:$task"
 }

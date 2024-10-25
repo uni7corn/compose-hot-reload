@@ -24,16 +24,10 @@ run {
     }
 }
 
-
-
 tasks.withType<Test>().configureEach {
     useJUnitPlatform()
+    dependsOn(":publishLocally")
 
-    dependsOn(":hot-reload-runtime-api:publishAllPublicationsToLocalRepository")
-    dependsOn(":hot-reload-runtime-jvm:publishAllPublicationsToLocalRepository")
-    dependsOn(":hot-reload-orchestration:publishAllPublicationsToLocalRepository")
-    dependsOn(":hot-reload-agent:publishAllPublicationsToLocalRepository")
-    dependsOn("publishAllPublicationsToLocalRepository")
     systemProperty("local.test.repo", rootProject.layout.buildDirectory.dir("repo").get().asFile.absolutePath)
     jvmArgs("-DlogLevel=DEBUG")
 

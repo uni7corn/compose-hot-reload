@@ -1,3 +1,7 @@
+@file:OptIn(ExperimentalComposeLibrary::class)
+
+import org.jetbrains.compose.ExperimentalComposeLibrary
+
 plugins {
     kotlin("jvm")
     kotlin("plugin.compose")
