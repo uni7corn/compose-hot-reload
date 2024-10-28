@@ -1,4 +1,6 @@
 # 🔥 Compose Hot Reload Experiments
+[![JetBrains team project](https://jb.gg/badges/incubator.svg)](https://confluence.jetbrains.com/display/ALL/JetBrains+on+GitHub)
+
 
 ## Intro
 This repository contains recent experiments for Hot Reloading Compose Applications.  
