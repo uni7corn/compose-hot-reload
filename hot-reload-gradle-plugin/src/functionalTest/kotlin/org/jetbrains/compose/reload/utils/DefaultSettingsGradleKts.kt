@@ -19,7 +19,6 @@ internal class DefaultSettingsGradleKtsExtension(
             return
         }
 
-
         val projectDir = context.getHotReloadTestFixtureOrThrow().projectDir
         projectDir.settingsGradleKts.createFile()
         projectDir.settingsGradleKts.writeText(

@@ -10,10 +10,10 @@ internal object OrchestrationClientEnvironment {
             ?: System.getProperty(ORCHESTRATION_SERVER_PORT_PROPERTY_KEY)?.toIntOrNull()
 }
 
-public fun OrchestrationClient(): OrchestrationClient? {
+public fun OrchestrationClient(role: OrchestrationClientRole): OrchestrationClient? {
     if (OrchestrationClientEnvironment.orchestrationServerPort == null) return null
 
     return connectOrchestrationClient(
-        port = OrchestrationClientEnvironment.orchestrationServerPort
+        role, port = OrchestrationClientEnvironment.orchestrationServerPort
     )
 }

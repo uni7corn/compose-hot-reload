@@ -170,6 +170,7 @@ private suspend fun runGradleContinuousCompilation(): Flow<String> {
             .start()
 
         Runtime.getRuntime().addShutdownHook(thread(start = false) {
+            logger.debug("'Compose Recompiler': Destroying process")
             process.destroy()
         })
 

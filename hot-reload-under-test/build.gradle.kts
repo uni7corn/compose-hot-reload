@@ -17,6 +17,7 @@ publishing {
 }
 
 dependencies {
+    compileOnly(project(":hot-reload-agent"))
     implementation(project(":hot-reload-runtime-api"))
     implementation(project(":hot-reload-orchestration"))
     implementation(deps.logback)

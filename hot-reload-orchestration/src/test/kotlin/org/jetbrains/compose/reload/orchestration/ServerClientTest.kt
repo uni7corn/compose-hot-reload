@@ -5,7 +5,8 @@ import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.test.runTest
-import org.jetbrains.compose.reload.orchestration.OrchestrationMessage.LogMessage
+import org.jetbrains.compose.reload.orchestration.OrchestrationClientRole.Unknown
+import org.jetbrains.compose.reload.orchestration.OrchestrationMessage.*
 import org.junit.jupiter.api.AfterEach
 import java.util.Collections.synchronizedList
 import kotlin.test.Test
@@ -28,7 +29,9 @@ class ServerClientTest {
     @Test
     fun `test - simple ping pong`() = runTest {
         val server = use(startOrchestrationServer())
-        val client = use(connectOrchestrationClient(server.port))
+        val serverMessages = server.asChannel()
+
+        val client = use(connectOrchestrationClient(Unknown, server.port))
 
         val clientMessages = client.asChannel()
 
@@ -36,15 +39,24 @@ class ServerClientTest {
         val clientReceivedMessages = mutableListOf<OrchestrationMessage>()
 
         server.invokeWhenMessageReceived { message ->
+            if (message is ClientConnected) return@invokeWhenMessageReceived
             serverReceivedMessages.add(message)
         }
 
         client.invokeWhenMessageReceived { message ->
+            if (message is ClientConnected) return@invokeWhenMessageReceived
             clientReceivedMessages.add(message)
         }
 
         client.sendMessage(LogMessage("A")).get()
-        clientMessages.receive()
+
+        while (true) {
+            if (clientMessages.receive() is LogMessage) break
+        }
+
+        while (true) {
+            if (serverMessages.receive() is LogMessage) break
+        }
 
         orchestrationThread.submit {
             assertEquals(listOf(LogMessage("A")), serverReceivedMessages.toList())
@@ -56,17 +68,21 @@ class ServerClientTest {
     @Test
     fun `test - single shot request`() = runTest {
         val server = use(startOrchestrationServer())
-        val client = use(connectOrchestrationClient(server.port))
+        val client = use(connectOrchestrationClient(Unknown, server.port))
         val serverMessages = server.asChannel()
 
         val serverReceivedMessages = synchronizedList(mutableListOf<OrchestrationMessage>())
         val clientReceivedMessages = synchronizedList(mutableListOf<OrchestrationMessage>())
 
         server.invokeWhenMessageReceived { message ->
+            if (message is ClientConnected) return@invokeWhenMessageReceived
+            if (message is ClientDisconnected) return@invokeWhenMessageReceived
             serverReceivedMessages.add(message)
         }
 
         client.invokeWhenMessageReceived { message ->
+            if (message is ClientConnected) return@invokeWhenMessageReceived
+            if (message is ClientDisconnected) return@invokeWhenMessageReceived
             clientReceivedMessages.add(message)
         }
 
@@ -75,15 +91,18 @@ class ServerClientTest {
         }
 
         serverMessages.receive()
-        assertEquals(listOf(LogMessage("A")), serverReceivedMessages)
-        assertEquals(listOf(), clientReceivedMessages)
+
+        orchestrationThread.submit {
+            assertEquals(listOf(LogMessage("A")), serverReceivedMessages.toList())
+            assertEquals(listOf(), clientReceivedMessages)
+        }.get()
     }
 
 
     @Test
     fun `test - multiple messages`() = runTest {
         val server = use(startOrchestrationServer())
-        val client = use(connectOrchestrationClient(server.port))
+        val client = use(connectOrchestrationClient(Unknown, server.port))
         val serverChannel = server.asChannel()
         val clientChannel = client.asChannel()
 
@@ -106,6 +125,24 @@ class ServerClientTest {
 
         client.sendMessage(LogMessage("A"))
         client.sendMessage(LogMessage("B"))
+    }
+
+    @Test
+    fun `test - client connected and client disconnected messages`() = runTest {
+        val server = use(startOrchestrationServer())
+        val serverChannel = server.asChannel()
+
+        val client = use(connectOrchestrationClient(Unknown, server.port))
+
+        val connected = serverChannel.receiveAsFlow().filterIsInstance<ClientConnected>().first()
+        assertEquals(client.clientId, connected.clientId)
+        assertEquals(Unknown, connected.clientRole)
+
+        client.close()
+
+        val disconnected = serverChannel.receiveAsFlow().filterIsInstance<ClientDisconnected>().first()
+        assertEquals(client.clientId, disconnected.clientId)
+        assertEquals(Unknown, disconnected.clientRole)
     }
 }
 

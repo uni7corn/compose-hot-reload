@@ -26,7 +26,7 @@ public fun OrchestrationHandle.asFlow(): Flow<OrchestrationMessage> = channelFlo
 }
 
 public fun OrchestrationHandle.asChannel(): ReceiveChannel<OrchestrationMessage> {
-    val channel = Channel<OrchestrationMessage>()
+    val channel = Channel<OrchestrationMessage>(Channel.UNLIMITED)
     val registration = invokeWhenMessageReceived { message -> channel.trySendBlocking(message) }
     channel.invokeOnClose { cause -> registration.dispose() }
     return channel

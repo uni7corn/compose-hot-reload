@@ -5,6 +5,7 @@ import java.io.ObjectInputStream
 import java.io.ObjectOutputStream
 import java.net.InetAddress
 import java.net.Socket
+import java.util.UUID
 import java.util.concurrent.ExecutorService
 import java.util.concurrent.Future
 import java.util.concurrent.atomic.AtomicBoolean
@@ -13,23 +14,27 @@ import kotlin.concurrent.thread
 import kotlin.concurrent.withLock
 
 
-public interface OrchestrationClient : OrchestrationHandle
+public interface OrchestrationClient : OrchestrationHandle {
+    public val clientId: UUID
+}
 
-public fun connectOrchestrationClient(port: Int): OrchestrationClient {
+public fun connectOrchestrationClient(role: OrchestrationClientRole, port: Int): OrchestrationClient {
     val socket = Socket(InetAddress.getLocalHost(), port)
 
     socket.keepAlive = true
-    val client = OrchestrationClientImpl(socket, orchestrationThread, port)
+    val client = OrchestrationClientImpl(role, socket, orchestrationThread, port)
     client.start()
     return client
 }
 
 private class OrchestrationClientImpl(
+    private val role: OrchestrationClientRole,
     private val socket: Socket,
     private val orchestrationThread: ExecutorService,
     override val port: Int,
 ) : OrchestrationClient {
 
+    override val clientId = UUID.randomUUID()
     private val logger = LoggerFactory.getLogger("OrchestrationClient(${socket.localPort})")
     private val lock = ReentrantLock()
     private val isClosed = AtomicBoolean(false)
@@ -64,42 +69,72 @@ private class OrchestrationClientImpl(
         }
     }
 
-    fun start() = thread(name = "Orchestration Client Reader") {
-        logger.debug("connected")
-
-        try {
-            val input = ObjectInputStream(socket.getInputStream().buffered())
-
-            while (isActive) {
-                val message = input.readObject()
-                if (message !is OrchestrationMessage) {
-                    logger.debug("Unknown message received '$message'")
-                    continue
-                }
-
-                /* Notify orchestration thread about the message */
-                orchestrationThread.submit {
-                    val listeners = lock.withLock { listeners.toList() }
-                    listeners.forEach { listener -> listener(message) }
-                }.get()
+    fun start() {
+        orchestrationThread.submit {
+            try {
+                output.writeObject(OrchestrationHandshake(clientId, role))
+                output.flush()
+            } catch (_: Throwable) {
+                logger.debug("start: Closing client")
+                close()
             }
-        } catch (t: Throwable) {
-            logger.debug("reader: closing client")
-            logger.trace("reader: closed with traces", t)
-            close()
+        }
+
+        thread(name = "Orchestration Client Reader") {
+            logger.debug("connected")
+
+            try {
+                val input = ObjectInputStream(socket.getInputStream().buffered())
+
+                while (isActive) {
+                    val message = input.readObject()
+                    if (message !is OrchestrationMessage) {
+                        logger.debug("Unknown message received '$message'")
+                        continue
+                    }
+
+                    /* Notify orchestration thread about the message */
+                    orchestrationThread.submit {
+                        val listeners = lock.withLock { listeners.toList() }
+                        listeners.forEach { listener -> listener(message) }
+                    }.get()
+                }
+            } catch (t: Throwable) {
+                logger.debug("reader: closing client")
+                logger.trace("reader: closed with traces", t)
+                close()
+            }
         }
     }
 
     override fun close() {
         if (isClosed.getAndSet(true)) return
+
         orchestrationThread.submit {
             logger.debug("Closing socket: '${socket.port}' ('${socket.localPort}')")
             socket.close()
 
             val closeListeners = lock.withLock {
-                closeListeners.toList().also { closeListeners.clear() }
+                try {
+                    closeListeners.toList()
+                } finally {
+                    closeListeners.clear()
+                }
             }
-            closeListeners.forEach { it() }
+
+            closeListeners.forEach { listener ->
+                try {
+                    listener.invoke()
+                } catch (t: Throwable) {
+                    logger.error("Failed invoking close listener", t)
+                }
+            }
         }
+    }
+
+    override fun closeImmediately() {
+        if (isClosed.getAndSet(true)) return
+        logger.debug("Closing socket (immediately): '${socket.port}' ('${socket.localPort}')")
+        socket.close()
     }
 }

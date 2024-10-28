@@ -61,7 +61,8 @@ class HotReloadTestInvocationContext(
             SimpleValueProvider(versions.kotlin),
             SimpleValueProvider(versions.compose),
             HotReloadTestFixtureProvider(versions),
-            DefaultSettingsGradleKtsExtension(versions)
+            DefaultSettingsGradleKtsExtension(versions),
+            DefaultBuildGradleKtsExtension(),
         )
     }
 }

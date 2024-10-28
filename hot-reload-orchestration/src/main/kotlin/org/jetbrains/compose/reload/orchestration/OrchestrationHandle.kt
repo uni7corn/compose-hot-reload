@@ -8,6 +8,12 @@ public interface OrchestrationHandle : AutoCloseable {
     public fun invokeWhenClosed(action: () -> Unit)
     public fun invokeWhenMessageReceived(action: (OrchestrationMessage) -> Unit): Disposable
     public fun sendMessage(message: OrchestrationMessage): Future<Unit>
+
+    /**
+     * Can be used as 'Shutdown Hook' to close the sockets immediately.
+     * Note: This will not invoke any close listeners! Use the default '.close' instead.
+     */
+    public fun closeImmediately()
 }
 
 public inline fun <reified T> OrchestrationHandle.invokeWhenReceived(crossinline action: (T) -> Unit): Disposable {

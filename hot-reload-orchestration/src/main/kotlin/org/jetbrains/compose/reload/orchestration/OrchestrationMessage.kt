@@ -1,11 +1,8 @@
 package org.jetbrains.compose.reload.orchestration
 
-import java.io.ByteArrayOutputStream
 import java.io.File
-import java.io.ObjectInputStream
-import java.io.ObjectOutputStream
 import java.io.Serializable
-import java.util.UUID
+import java.util.*
 
 public sealed class OrchestrationMessage : Serializable {
     /**
@@ -13,6 +10,32 @@ public sealed class OrchestrationMessage : Serializable {
      * Note: Closing the [OrchestrationServer] is also supposed to close all clients.
      */
     public class ShutdownRequest : OrchestrationMessage()
+
+    /**
+     * Sent once a new connection with a client was established
+     * @param clientId: uuid used which identifies the connection
+     */
+    public data class ClientConnected(
+        public val clientId: UUID,
+        public val clientRole: OrchestrationClientRole
+    ) : OrchestrationMessage() {
+        override fun toString(): String {
+            return "ClientConnected($clientRole)"
+        }
+    }
+
+    /**
+     * Sent once a connection with a client was closed/disconnected
+     * @param clientId: uuid which identifies the connection (same as [ClientConnected.clientId])
+     */
+    public data class ClientDisconnected(
+        public val clientId: UUID,
+        public val clientRole: OrchestrationClientRole,
+    ): OrchestrationMessage() {
+        override fun toString(): String {
+            return "ClientDisconnected($clientRole)"
+        }
+    }
 
     /**
      * Indicates that the 'Gradle Daemon' which is listening for changed source code, then recompiling is ready.
@@ -89,18 +112,5 @@ public sealed class OrchestrationMessage : Serializable {
 
     override fun hashCode(): Int {
         return messageId.hashCode()
-    }
-}
-
-public fun OrchestrationMessage.encodeToByteArray(): ByteArray {
-    return ByteArrayOutputStream().use { baos ->
-        ObjectOutputStream(baos).use { oos -> oos.writeObject(this) }
-        baos.toByteArray()
-    }
-}
-
-public fun decodeOrchestrationMessage(bytes: ByteArray): OrchestrationMessage {
-    return ObjectInputStream(bytes.inputStream()).use { ois ->
-        ois.readObject() as OrchestrationMessage
     }
 }

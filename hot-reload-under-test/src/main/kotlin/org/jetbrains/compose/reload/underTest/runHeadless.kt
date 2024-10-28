@@ -15,7 +15,9 @@ import androidx.compose.ui.test.runDesktopComposeUiTest
 import kotlinx.coroutines.*
 import kotlinx.coroutines.future.asCompletableFuture
 import org.jetbrains.compose.reload.DevelopmentEntryPoint
+import org.jetbrains.compose.reload.agent.ComposeHotReloadAgent
 import org.jetbrains.compose.reload.orchestration.OrchestrationClient
+import org.jetbrains.compose.reload.orchestration.OrchestrationClientRole
 import org.jetbrains.compose.reload.orchestration.OrchestrationMessage
 import org.jetbrains.compose.reload.orchestration.OrchestrationMessage.ShutdownRequest
 import org.jetbrains.compose.reload.orchestration.OrchestrationMessage.TakeScreenshotRequest
@@ -29,7 +31,7 @@ import kotlin.time.Duration.Companion.minutes
 
 
 internal val applicationScope = CoroutineScope(Dispatchers.Default.limitedParallelism(1) + SupervisorJob())
-internal val orchestration = OrchestrationClient() ?: error("Failed connecting to orchestration")
+internal val orchestration = OrchestrationClient(OrchestrationClientRole.Unknown) ?: error("Failed connecting to orchestration")
 internal val messages = orchestration.asChannel()
 
 /**

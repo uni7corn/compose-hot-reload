@@ -9,6 +9,7 @@ import org.gradle.kotlin.dsl.withType
 import org.gradle.work.Incremental
 import org.gradle.work.InputChanges
 import org.jetbrains.compose.reload.orchestration.OrchestrationClient
+import org.jetbrains.compose.reload.orchestration.OrchestrationClientRole.Compiler
 import org.jetbrains.compose.reload.orchestration.OrchestrationMessage
 import org.jetbrains.compose.reload.orchestration.OrchestrationMessage.ReloadClassesRequest
 import org.jetbrains.compose.reload.orchestration.OrchestrationMessage.ReloadClassesRequest.ChangeType
@@ -55,7 +56,7 @@ internal open class ComposeHotClasspathTask : DefaultTask() {
 
     @TaskAction
     fun execute(inputs: InputChanges) {
-        val client = OrchestrationClient() ?: error("Failed to create 'OrchestrationClient'!")
+        val client = OrchestrationClient(Compiler) ?: error("Failed to create 'OrchestrationClient'!")
 
         if (!inputs.isIncremental) {
             logger.debug("Gradle Daemon is ready")

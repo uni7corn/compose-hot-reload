@@ -1,12 +1,9 @@
 package org.jetbrains.compose.reload.utils
 
-import kotlinx.coroutines.*
-import kotlinx.coroutines.test.TestScope
 import org.gradle.api.logging.Logging
 import org.intellij.lang.annotations.Language
 import org.jetbrains.compose.reload.orchestration.OrchestrationMessage.*
 import java.nio.file.Path
-import kotlin.concurrent.thread
 import kotlin.io.path.createParentDirectories
 import kotlin.io.path.readText
 import kotlin.io.path.writeText
@@ -22,26 +19,8 @@ class ScreenshotTestFixture(
     val projectMode: ProjectMode,
     val hotReloadTestFixture: HotReloadTestFixture
 ) {
-    lateinit var testScope: TestScope
-        private set
-
-    /**
-     * Coroutines launched in this scope will not keep the 'runTest' blocking.
-     * This scope will be canceled after the 'runTest' finished (e.g., useful for launching 'Daemon Coroutines)
-     */
-    lateinit var daemonTestScope: CoroutineScope
-
-    fun runTest(timeout: Duration = 1.minutes, test: suspend () -> Unit) {
-        kotlinx.coroutines.test.runTest(timeout = timeout) {
-            testScope = this
-            daemonTestScope = CoroutineScope(currentCoroutineContext() + Job(currentCoroutineContext().job))
-            try {
-                test()
-            } finally {
-                daemonTestScope.cancel()
-            }
-        }
-    }
+    fun runTest(timeout: Duration = 1.minutes, test: suspend () -> Unit) =
+        hotReloadTestFixture.runTest(timeout, test)
 }
 
 suspend fun ScreenshotTestFixture.checkScreenshot(name: String) {
@@ -51,21 +30,7 @@ suspend fun ScreenshotTestFixture.checkScreenshot(name: String) {
 suspend infix fun ScreenshotTestFixture.initialSourceCode(source: String) {
     writeCode(source)
 
-    launchThread {
-        val runTask = when (projectMode) {
-            ProjectMode.Kmp -> "jvmRun"
-            ProjectMode.Jvm -> "run"
-        }
-
-        val additionalArguments = when (projectMode) {
-            ProjectMode.Kmp -> arrayOf("-DmainClass=MainKt")
-            ProjectMode.Jvm -> arrayOf()
-        }
-
-        hotReloadTestFixture.gradleRunner
-            .addedArguments("wrapper", runTask, *additionalArguments)
-            .build()
-    }
+    hotReloadTestFixture.launchApplication(projectMode)
 
     logger.quiet("Waiting for UI to render")
     run {
@@ -119,26 +84,3 @@ private fun ScreenshotTestFixture.getSourceFile(): Path {
     }
 }
 
-suspend fun ScreenshotTestFixture.launchThread(block: () -> Unit): Job {
-    val threadResult = CompletableDeferred<Unit>()
-    val thread = thread {
-        try {
-            block()
-            threadResult.complete(Unit)
-        } catch (_: InterruptedException) {
-            threadResult.complete(Unit)
-            // Goodbye.
-        } catch (t: Throwable) {
-            threadResult.completeExceptionally(t)
-        }
-    }
-
-    currentCoroutineContext().job.invokeOnCompletion {
-        thread.interrupt()
-    }
-
-    /* We want to forward exceptions from the thread into the parent coroutine scope */
-    return daemonTestScope.launch {
-        threadResult.await()
-    }
-}
