@@ -20,6 +20,7 @@ internal class DefaultSettingsGradleKtsExtension(
         }
 
         val projectDir = context.getHotReloadTestFixtureOrThrow().projectDir
+        val androidVersion = context.androidVersion
         projectDir.settingsGradleKts.createFile()
         projectDir.settingsGradleKts.writeText(
             """
@@ -30,6 +31,7 @@ internal class DefaultSettingsGradleKtsExtension(
                     kotlin("plugin.compose") version "${testedVersions.kotlin}"
                     id("org.jetbrains.compose") version "${testedVersions.compose}"
                     id("org.jetbrains.compose-hot-reload") version "$HOT_RELOAD_VERSION"
+                    ${androidVersion?.let { "id(\"com.android.application\") version \"$it\"" }}
                 }
                 
                 repositories {

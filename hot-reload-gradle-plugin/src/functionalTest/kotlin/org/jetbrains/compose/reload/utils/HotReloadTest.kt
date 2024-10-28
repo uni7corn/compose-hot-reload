@@ -62,7 +62,6 @@ class HotReloadTestInvocationContext(
             SimpleValueProvider(versions.compose),
             HotReloadTestFixtureProvider(versions),
             DefaultSettingsGradleKtsExtension(versions),
-            DefaultBuildGradleKtsExtension(),
         )
     }
 }
@@ -91,6 +90,10 @@ private class HotReloadTestFixtureProvider(private val versions: TestedVersions)
     }
 
     override fun beforeEach(context: ExtensionContext) {
+        context.projectMode = ProjectMode.Kmp
+        context.kotlinVersion = versions.kotlin
+        context.gradleVersion = versions.gradle
+        context.composeVersion = versions.compose
         context.getOrCreateTestFixture()
     }
 

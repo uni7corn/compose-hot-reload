@@ -1,14 +1,7 @@
 package org.jetbrains.compose.reload.utils
 
 import org.junit.jupiter.api.TestTemplate
-import org.junit.jupiter.api.extension.BeforeTestExecutionCallback
-import org.junit.jupiter.api.extension.ExtendWith
-import org.junit.jupiter.api.extension.Extension
-import org.junit.jupiter.api.extension.ExtensionContext
-import org.junit.jupiter.api.extension.ParameterContext
-import org.junit.jupiter.api.extension.ParameterResolver
-import org.junit.jupiter.api.extension.TestTemplateInvocationContext
-import org.junit.jupiter.api.extension.TestTemplateInvocationContextProvider
+import org.junit.jupiter.api.extension.*
 import java.util.stream.Stream
 import kotlin.coroutines.Continuation
 
@@ -34,7 +27,7 @@ class ScreenshotTestInvocationContextProvider : TestTemplateInvocationContextPro
     }
 }
 
-private class ScreenshotTestInvocationContext(
+internal class ScreenshotTestInvocationContext(
     private val parentContext: TestTemplateInvocationContext,
     private val mode: ProjectMode
 ) : TestTemplateInvocationContext {
@@ -49,14 +42,10 @@ private class ScreenshotTestInvocationContext(
 
 private class ScreenshotTestFixtureProvider(
     private val mode: ProjectMode
-) : BeforeTestExecutionCallback, ParameterResolver {
+) : BeforeEachCallback, ParameterResolver {
 
-    override fun beforeTestExecution(context: ExtensionContext) {
-        val fixture = context.getHotReloadTestFixtureOrThrow()
-        when (mode) {
-            ProjectMode.Kmp -> fixture.setupKmpProject()
-            ProjectMode.Jvm -> fixture.setupJvmProject()
-        }
+    override fun beforeEach(context: ExtensionContext) {
+        context.projectMode = mode
     }
 
     override fun supportsParameter(

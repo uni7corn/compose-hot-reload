@@ -9,4 +9,3 @@ fun SomeWidget() {
         Text("👋 Hello from 'widgets'", fontSize = 24.0.sp)
     }
 }
-

@@ -10,7 +10,7 @@ class ClientDisconnectedMessageTest {
 
     @HotReloadTest
     @DefaultSettingsGradleKts
-    @DefaultBuildGradleKts(ProjectMode.Kmp)
+    @DefaultBuildGradleKts
     fun `send shutdown request - receive ClientDisconnected`(
         testFixture: HotReloadTestFixture
     ) = testFixture.runTest(timeout = 1.minutes) {

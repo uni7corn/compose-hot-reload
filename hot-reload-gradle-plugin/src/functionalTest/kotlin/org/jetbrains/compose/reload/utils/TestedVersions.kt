@@ -2,6 +2,8 @@ package org.jetbrains.compose.reload.utils
 
 import org.gradle.util.GradleVersion
 import org.jetbrains.kotlin.tooling.core.KotlinToolingVersion
+import org.junit.jupiter.api.extension.ExtendWith
+import org.junit.jupiter.api.extension.ExtensionContext
 
 enum class TestedGradleVersion(val version: GradleVersion) {
     G_8_7(GradleVersion.version("8.7")),
@@ -29,8 +31,22 @@ enum class TestedComposeVersion(val version: String) {
     }
 }
 
+enum class TestedAndroidVersion(val version: String) {
+    AGP_8_5("8.5.2"),
+    AGP_8_7("8.7.1");
+
+    override fun toString(): String {
+        return version
+    }
+}
+
 data class TestedVersions(
     val gradle: TestedGradleVersion,
     val kotlin: TestedKotlinVersion,
     val compose: TestedComposeVersion
 )
+
+var ExtensionContext.kotlinVersion: TestedKotlinVersion? by extensionContextProperty()
+var ExtensionContext.gradleVersion: TestedGradleVersion? by extensionContextProperty()
+var ExtensionContext.composeVersion: TestedComposeVersion? by extensionContextProperty()
+var ExtensionContext.androidVersion: TestedAndroidVersion? by extensionContextProperty()
