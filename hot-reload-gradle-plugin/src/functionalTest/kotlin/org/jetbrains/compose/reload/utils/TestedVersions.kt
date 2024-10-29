@@ -40,12 +40,6 @@ enum class TestedAndroidVersion(val version: String) {
     }
 }
 
-data class TestedVersions(
-    val gradle: TestedGradleVersion,
-    val kotlin: TestedKotlinVersion,
-    val compose: TestedComposeVersion
-)
-
 var ExtensionContext.kotlinVersion: TestedKotlinVersion? by extensionContextProperty()
 var ExtensionContext.gradleVersion: TestedGradleVersion? by extensionContextProperty()
 var ExtensionContext.composeVersion: TestedComposeVersion? by extensionContextProperty()

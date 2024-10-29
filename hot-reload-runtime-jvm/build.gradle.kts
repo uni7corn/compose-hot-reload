@@ -18,7 +18,7 @@ kotlin {
 }
 
 dependencies {
-    implementation(compose.runtime)
+    sharedImplementation(compose.runtime)
 
     devCompileOnly(project(":hot-reload-agent"))
     devCompileOnly(deps.hotswapAgentCore)

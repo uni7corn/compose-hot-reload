@@ -9,6 +9,8 @@ import kotlin.time.Duration.Companion.minutes
 class ClientDisconnectedMessageTest {
 
     @HotReloadTest
+    @TestOnlyLatestVersions
+    @TestOnlyKmp
     @DefaultSettingsGradleKts
     @DefaultBuildGradleKts
     fun `send shutdown request - receive ClientDisconnected`(
@@ -27,7 +29,7 @@ class ClientDisconnectedMessageTest {
         """.trimIndent()
         )
 
-        testFixture.launchApplication(ProjectMode.Kmp)
+        testFixture.launchApplication()
         testFixture.skipToMessage<OrchestrationMessage.UIRendered>()
         testFixture.sendMessage(OrchestrationMessage.ShutdownRequest())
 

@@ -11,6 +11,10 @@ annotation class DefaultAndroidAndJvmBuildSetup
 
 private class DefaultAndroidBuildExtension() : BeforeTestExecutionCallback {
     override fun beforeTestExecution(context: ExtensionContext) {
+        if (context.projectMode != ProjectMode.Kmp) {
+            error("Project mode: '${context.projectMode}' is not supported (Only Kmp)")
+        }
+
         val testFixture = context.getHotReloadTestFixtureOrThrow()
         testFixture.projectDir.buildGradleKts.writeText(
             """

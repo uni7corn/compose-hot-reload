@@ -32,4 +32,5 @@ private fun Project.onKotlinPluginApplied() {
     setupComposeHotClasspathTasks()
     setupComposeHotReloadExecTasks()
     setupComposeHotRunConventions()
+    setupComposeDevCompilation()
 }

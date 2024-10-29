@@ -1,4 +1,5 @@
 import org.gradle.api.attributes.java.TargetJvmEnvironment.TARGET_JVM_ENVIRONMENT_ATTRIBUTE
+import org.jetbrains.kotlin.gradle.dsl.KotlinJvmCompilerOptions
 import org.jetbrains.kotlin.gradle.dsl.KotlinJvmProjectExtension
 import org.jetbrains.kotlin.gradle.plugin.KotlinPlatformType
 
@@ -16,8 +17,15 @@ extensions.configure<KotlinJvmProjectExtension> {
     val main = target.compilations.getByName("main")
     val test = target.compilations.getByName("test")
     val dev = target.compilations.create("dev")
-    dev.associateWith(main)
+    val shared = target.compilations.create("shared")
+
+    dev.associateWith(shared)
+    main.associateWith(shared)
     test.associateWith(dev)
+
+    tasks.withType<Zip>().configureEach {
+        from(shared.output.allOutputs)
+    }
 
     val jvmDevJar = project.tasks.register<Jar>("jvmDevJar") {
         from(dev.output.allOutputs)

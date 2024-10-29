@@ -31,7 +31,7 @@ public sealed class OrchestrationMessage : Serializable {
     public data class ClientDisconnected(
         public val clientId: UUID,
         public val clientRole: OrchestrationClientRole,
-    ): OrchestrationMessage() {
+    ) : OrchestrationMessage() {
         override fun toString(): String {
             return "ClientDisconnected($clientRole)"
         }
@@ -112,5 +112,9 @@ public sealed class OrchestrationMessage : Serializable {
 
     override fun hashCode(): Int {
         return messageId.hashCode()
+    }
+
+    override fun toString(): String {
+        return this.javaClass.simpleName
     }
 }

@@ -4,7 +4,10 @@ import java.nio.file.Path
 import kotlin.io.path.readText
 import kotlin.io.path.writeText
 
-data class ProjectDir(val path: Path, val parent: ProjectDir? = null) {
+data class ProjectDir(
+    val path: Path,
+    val parent: ProjectDir? = null
+) {
     fun subproject(name: String): ProjectDir = ProjectDir(path.resolve(name), parent = this)
 
     val buildGradleKts: Path get() = path.resolve("build.gradle.kts")

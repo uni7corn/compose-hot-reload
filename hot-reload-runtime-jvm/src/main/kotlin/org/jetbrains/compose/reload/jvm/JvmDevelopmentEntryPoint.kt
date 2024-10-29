@@ -7,6 +7,3 @@ import androidx.compose.runtime.Composable
 public fun JvmDevelopmentEntryPoint(child: @Composable () -> Unit) {
     child()
 }
-
-@RequiresOptIn("Internal API: Do not use!", RequiresOptIn.Level.ERROR)
-public annotation class InternalHotReloadApi

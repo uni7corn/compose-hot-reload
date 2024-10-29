@@ -1,11 +1,11 @@
 pluginManagement {
     plugins {
-        id("org.jetbrains.compose-hot-reload") version "1.0.0-dev.24"
+        id("org.jetbrains.compose-hot-reload") version "1.0.0-dev.25"
     }
 
     repositories {
-        maven("https://repo.sellmair.io")
         maven(file("../..//build/repo"))
+        maven("https://repo.sellmair.io")
         mavenCentral()
     }
 
@@ -18,8 +18,8 @@ pluginManagement {
 
 dependencyResolutionManagement {
     repositories {
-        maven("https://repo.sellmair.io")
         maven(file("../..//build/repo"))
+        maven("https://repo.sellmair.io")
         mavenCentral()
         google()
     }

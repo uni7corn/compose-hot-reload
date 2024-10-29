@@ -1,6 +1,6 @@
 @file:Suppress("UnstableApiUsage")
 
-tasks.register<Delete>("clean") {
+tasks.maybeCreate<Delete>("clean").apply {
     delete(layout.buildDirectory)
 }
 

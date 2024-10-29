@@ -8,9 +8,10 @@ import kotlin.io.path.appendText
 
 class ScreenshotTests {
 
-    @ScreenshotTest
+    @HotReloadTest
+    @DefaultSettingsGradleKts
     @DefaultBuildGradleKts
-    fun `test - simple change`(fixture: ScreenshotTestFixture) = fixture.runTest {
+    fun `test - simple change`(fixture: HotReloadTestFixture) = fixture.runTest {
         fixture initialSourceCode """
             import androidx.compose.foundation.layout.*
             import androidx.compose.material3.Text
@@ -30,9 +31,10 @@ class ScreenshotTests {
         fixture.checkScreenshot("after")
     }
 
-    @ScreenshotTest
+    @HotReloadTest
+    @DefaultSettingsGradleKts
     @DefaultBuildGradleKts
-    fun `test - retained state`(fixture: ScreenshotTestFixture) = fixture.runTest {
+    fun `test - retained state`(fixture: HotReloadTestFixture) = fixture.runTest {
         val d = "\$"
         fixture initialSourceCode """
             import androidx.compose.foundation.layout.*
@@ -54,19 +56,20 @@ class ScreenshotTests {
             """.trimIndent()
         fixture.checkScreenshot("before-0")
 
-        fixture.hotReloadTestFixture.sendTestEvent()
+        fixture.sendTestEvent()
         fixture.checkScreenshot("before-1")
 
-        fixture.hotReloadTestFixture.sendTestEvent()
+        fixture.sendTestEvent()
         fixture.checkScreenshot("before-2")
 
         fixture.replaceSourceCodeAndReload("Before", "After")
         fixture.checkScreenshot("after-2")
     }
 
-    @AndroidScreenshotTest
+    @AndroidHotReloadTest
+    @DefaultSettingsGradleKts
     @DefaultAndroidAndJvmBuildSetup
-    fun `test - kmp with android and jvm`(fixture: ScreenshotTestFixture) = fixture.runTest {
+    fun `test - kmp with android and jvm`(fixture: HotReloadTestFixture) = fixture.runTest {
         fixture initialSourceCode """
             import androidx.compose.foundation.layout.*
             import androidx.compose.material3.Text
@@ -86,10 +89,11 @@ class ScreenshotTests {
         fixture.checkScreenshot("after")
     }
 
-    @ScreenshotTest
+    @HotReloadTest
+    @DefaultSettingsGradleKts
     @DefaultBuildGradleKts("app", "widgets")
-    fun `test - change in dependency project`(fixture: ScreenshotTestFixture) = fixture.runTest {
-        fixture.hotReloadTestFixture.projectDir.settingsGradleKts.appendLines(
+    fun `test - change in dependency project`(fixture: HotReloadTestFixture) = fixture.runTest {
+        fixture.projectDir.settingsGradleKts.appendLines(
             listOf(
                 "",
                 """include(":widgets")""",
@@ -98,7 +102,7 @@ class ScreenshotTests {
         )
 
         if (fixture.projectMode == ProjectMode.Kmp) {
-            fixture.hotReloadTestFixture.projectDir.subproject("app").buildGradleKts.appendText(
+            fixture.projectDir.subproject("app").buildGradleKts.appendText(
                 """
                 kotlin {
                     sourceSets.commonMain.dependencies {
@@ -110,7 +114,7 @@ class ScreenshotTests {
         }
 
         if (fixture.projectMode == ProjectMode.Jvm) {
-            fixture.hotReloadTestFixture.projectDir.subproject("app").buildGradleKts.appendText(
+            fixture.projectDir.subproject("app").buildGradleKts.appendText(
                 """
                 dependencies {
                     implementation(project(":widgets"))
@@ -119,7 +123,7 @@ class ScreenshotTests {
             )
         }
 
-        fixture.hotReloadTestFixture.projectDir.writeText(
+        fixture.projectDir.writeText(
             "widgets/src/${fixture.projectMode.fold("commonMain", "main")}/kotlin/Widget.kt", """
             import androidx.compose.material3.Text
             import androidx.compose.runtime.Composable
@@ -132,7 +136,7 @@ class ScreenshotTests {
             """.trimIndent()
         )
 
-        fixture.hotReloadTestFixture.projectDir.writeText(
+        fixture.projectDir.writeText(
             "app/src/${fixture.projectMode.fold("commonMain", "main")}/kotlin/Main.kt", """
             import androidx.compose.foundation.layout.*
             import androidx.compose.material3.Text

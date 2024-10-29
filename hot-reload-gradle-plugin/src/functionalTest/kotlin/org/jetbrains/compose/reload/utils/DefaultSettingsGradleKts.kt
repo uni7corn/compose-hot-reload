@@ -3,16 +3,16 @@ package org.jetbrains.compose.reload.utils
 import org.gradle.internal.impldep.org.junit.platform.commons.support.AnnotationSupport
 import org.jetbrains.compose.reload.HOT_RELOAD_VERSION
 import org.junit.jupiter.api.extension.BeforeTestExecutionCallback
+import org.junit.jupiter.api.extension.ExtendWith
 import org.junit.jupiter.api.extension.ExtensionContext
 import java.io.File
 import kotlin.io.path.createFile
 import kotlin.io.path.writeText
 
+@ExtendWith(DefaultSettingsGradleKtsExtension::class)
 annotation class DefaultSettingsGradleKts
 
-internal class DefaultSettingsGradleKtsExtension(
-    private val testedVersions: TestedVersions,
-) : BeforeTestExecutionCallback {
+internal class DefaultSettingsGradleKtsExtension : BeforeTestExecutionCallback {
 
     override fun beforeTestExecution(context: ExtensionContext) {
         if (!AnnotationSupport.isAnnotated(context.requiredTestMethod, DefaultSettingsGradleKts::class.java)) {
@@ -26,10 +26,10 @@ internal class DefaultSettingsGradleKtsExtension(
             """
             pluginManagement {
                 plugins {
-                    kotlin("multiplatform") version "${testedVersions.kotlin}"
-                    kotlin("jvm") version "${testedVersions.kotlin}"
-                    kotlin("plugin.compose") version "${testedVersions.kotlin}"
-                    id("org.jetbrains.compose") version "${testedVersions.compose}"
+                    kotlin("multiplatform") version "${context.kotlinVersion}"
+                    kotlin("jvm") version "${context.kotlinVersion}"
+                    kotlin("plugin.compose") version "${context.kotlinVersion}"
+                    id("org.jetbrains.compose") version "${context.composeVersion}"
                     id("org.jetbrains.compose-hot-reload") version "$HOT_RELOAD_VERSION"
                     ${androidVersion?.let { "id(\"com.android.application\") version \"$it\"" }}
                 }

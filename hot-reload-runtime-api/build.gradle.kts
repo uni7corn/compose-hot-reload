@@ -1,6 +1,7 @@
 @file:OptIn(ExperimentalKotlinGradlePluginApi::class)
 
 import org.jetbrains.kotlin.gradle.ExperimentalKotlinGradlePluginApi
+import org.jetbrains.kotlin.gradle.ExperimentalWasmDsl
 import org.jetbrains.kotlin.gradle.plugin.mpp.KotlinJvmCompilation
 
 plugins {
@@ -42,6 +43,11 @@ kotlin {
     iosArm64()
     iosX64()
 
+    @OptIn(ExperimentalWasmDsl::class)
+    wasmJs()
+
+    js()
+
     sourceSets.commonMain.dependencies {
         implementation(compose.runtime)
     }
@@ -51,7 +57,7 @@ kotlin {
     }
 
     sourceSets.jvmMain.dependencies {
-        implementation(project(":hot-reload-runtime-jvm"))
+        api(project(":hot-reload-runtime-jvm"))
     }
 
     sourceSets.jvmTest.dependencies {

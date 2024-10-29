@@ -144,7 +144,7 @@ private suspend fun runGradleContinuousCompilation(): Flow<String> {
     }
 
     val port = ComposeHotReloadAgent.orchestration.port
-    logger.debug("'Compose Recompiler': Orchestration listening connecting to port '$port'")
+    logger.debug("'Compose Recompiler': Using orchestration at '$port'")
 
     val output = MutableSharedFlow<String>(
         extraBufferCapacity = 1024,

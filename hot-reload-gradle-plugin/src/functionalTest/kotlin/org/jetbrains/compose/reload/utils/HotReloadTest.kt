@@ -3,7 +3,7 @@ package org.jetbrains.compose.reload.utils
 import org.gradle.testkit.runner.GradleRunner
 import org.jetbrains.compose.reload.orchestration.ORCHESTRATION_SERVER_PORT_PROPERTY_KEY
 import org.jetbrains.compose.reload.orchestration.startOrchestrationServer
-import org.jetbrains.compose.reload.utils.HotReloadTestFixtureProvider.Companion.testFixtureKey
+import org.jetbrains.compose.reload.utils.HotReloadTestFixtureExtension.Companion.testFixtureKey
 import org.junit.jupiter.api.TestTemplate
 import org.junit.jupiter.api.extension.AfterEachCallback
 import org.junit.jupiter.api.extension.BeforeEachCallback
@@ -14,54 +14,90 @@ import org.junit.jupiter.api.extension.ParameterContext
 import org.junit.jupiter.api.extension.ParameterResolver
 import org.junit.jupiter.api.extension.TestTemplateInvocationContext
 import org.junit.jupiter.api.extension.TestTemplateInvocationContextProvider
-import org.junit.platform.commons.util.AnnotationUtils
+import org.junit.platform.commons.util.AnnotationUtils.findAnnotation
 import java.nio.file.Files
 import java.util.stream.Stream
+import kotlin.streams.asStream
 
 @TestTemplate
 @ExtendWith(HotReloadTestInvocationContextProvider::class)
 annotation class HotReloadTest
 
+annotation class TestOnlyJvm
+
+annotation class TestOnlyKmp
+
+annotation class TestOnlyLatestVersions
+
+
 internal class HotReloadTestInvocationContextProvider : TestTemplateInvocationContextProvider {
     override fun supportsTestTemplate(context: ExtensionContext): Boolean {
         if (context.testMethod.isEmpty) return false
-        return AnnotationUtils.findAnnotation(context.testMethod.get(), HotReloadTest::class.java) != null
+        return findAnnotation(context.testMethod.get(), HotReloadTest::class.java) != null
     }
 
     override fun provideTestTemplateInvocationContexts(context: ExtensionContext): Stream<TestTemplateInvocationContext> {
-        val testedVersions = TestedGradleVersion.entries.flatMap { testedGradleVersion ->
+        return TestedGradleVersion.entries.flatMap { testedGradleVersion ->
             TestedKotlinVersion.entries.flatMap { testedKotlinVersion ->
-                TestedComposeVersion.entries.map { testedComposeVersion ->
-                    TestedVersions(
-                        gradle = testedGradleVersion,
-                        kotlin = testedKotlinVersion,
-                        compose = testedComposeVersion,
-                    )
+                TestedComposeVersion.entries.flatMap { testedComposeVersion ->
+                    ProjectMode.entries.map { mode ->
+                        HotReloadTestInvocationContext(
+                            gradleVersion = testedGradleVersion,
+                            kotlinVersion = testedKotlinVersion,
+                            composeVersion = testedComposeVersion,
+                            androidVersion = null,
+                            projectMode = mode,
+                        )
+                    }
                 }
             }
         }
+            .filter { invocationContext ->
+                invocationContext.projectMode == ProjectMode.Jvm ||
+                        findAnnotation(context.testMethod, TestOnlyJvm::class.java).isEmpty
+            }
+            .filter { invocationContext ->
+                invocationContext.projectMode == ProjectMode.Kmp ||
+                        findAnnotation(context.testMethod, TestOnlyKmp::class.java).isEmpty
+            }
+            .filter { invocationContext ->
+                findAnnotation(context.testMethod, TestOnlyLatestVersions::class.java).isEmpty ||
+                        invocationContext.gradleVersion == TestedGradleVersion.entries.last() &&
+                        invocationContext.kotlinVersion == TestedKotlinVersion.entries.last() &&
+                        invocationContext.composeVersion == TestedComposeVersion.entries.last() &&
+                        (invocationContext.androidVersion == null || invocationContext.androidVersion == TestedAndroidVersion.entries.last())
+            }
 
-        return testedVersions.stream().map { versions -> HotReloadTestInvocationContext(versions) }
+            .asSequence().asStream()
     }
 }
 
-class HotReloadTestInvocationContext(
-    private val versions: TestedVersions,
+data class HotReloadTestInvocationContext(
+    val gradleVersion: TestedGradleVersion,
+    val composeVersion: TestedComposeVersion,
+    val kotlinVersion: TestedKotlinVersion,
+    val androidVersion: TestedAndroidVersion?,
+    val projectMode: ProjectMode
 ) : TestTemplateInvocationContext {
     override fun getDisplayName(invocationIndex: Int): String {
-        return "Gradle ${versions.gradle.version.version}, " +
-                "Kotlin ${versions.kotlin.version}, " +
-                "Compose ${versions.compose.version}"
+        return buildString {
+            append("$projectMode,")
+            append(" Gradle $gradleVersion,")
+            append(" Kotlin $kotlinVersion,")
+            append(" Compose $composeVersion,")
+            if (androidVersion != null) {
+                append(" Android $androidVersion")
+            }
+
+        }
     }
 
     override fun getAdditionalExtensions(): List<Extension> {
         return listOf(
-            SimpleValueProvider(versions),
-            SimpleValueProvider(versions.gradle),
-            SimpleValueProvider(versions.kotlin),
-            SimpleValueProvider(versions.compose),
-            HotReloadTestFixtureProvider(versions),
-            DefaultSettingsGradleKtsExtension(versions),
+            SimpleValueProvider(gradleVersion),
+            SimpleValueProvider(kotlinVersion),
+            SimpleValueProvider(composeVersion),
+            HotReloadTestFixtureExtension(this),
         )
     }
 }
@@ -82,7 +118,9 @@ private class SimpleValueProvider<T : Any>(
     }
 }
 
-private class HotReloadTestFixtureProvider(private val versions: TestedVersions) :
+private class HotReloadTestFixtureExtension(
+    private val context: HotReloadTestInvocationContext
+) :
     ParameterResolver, BeforeEachCallback, AfterEachCallback {
 
     companion object {
@@ -90,10 +128,11 @@ private class HotReloadTestFixtureProvider(private val versions: TestedVersions)
     }
 
     override fun beforeEach(context: ExtensionContext) {
-        context.projectMode = ProjectMode.Kmp
-        context.kotlinVersion = versions.kotlin
-        context.gradleVersion = versions.gradle
-        context.composeVersion = versions.compose
+        context.projectMode = this.context.projectMode
+        context.kotlinVersion = this.context.kotlinVersion
+        context.gradleVersion = this.context.gradleVersion
+        context.composeVersion = this.context.composeVersion
+        context.androidVersion = this.context.androidVersion
         context.getOrCreateTestFixture()
     }
 
@@ -128,22 +167,22 @@ private class HotReloadTestFixtureProvider(private val versions: TestedVersions)
         val orchestrationServer = startOrchestrationServer()
         val gradleRunner = GradleRunner.create()
             .withProjectDir(projectDir.path.toFile())
-            .withGradleVersion(versions.gradle.version.version)
+            .withGradleVersion(context.gradleVersion.version.version)
             .forwardOutput()
-            .addedArguments("-PcomposeVersion=${versions.compose}")
-            .addedArguments("-PkotlinVersion=${versions.kotlin}")
             .addedArguments("-P$ORCHESTRATION_SERVER_PORT_PROPERTY_KEY=${orchestrationServer.port}")
             .addedArguments("-D$ORCHESTRATION_SERVER_PORT_PROPERTY_KEY=${orchestrationServer.port}")
             .addedArguments("--configuration-cache")
             .addedArguments("-Pcompose.reload.headless=true")
-            //.addedArguments("-Pcompose.reload.debug=true")
             .addedArguments("-i")
             .addedArguments("-s")
 
         return HotReloadTestFixture(
-            testClass.get().name,
-            testMethod.get().name,
-            projectDir, gradleRunner, orchestrationServer
+            testClassName = testClass.get().name,
+            testMethodName = testMethod.get().name,
+            projectDir = projectDir,
+            gradleRunner = gradleRunner,
+            orchestration = orchestrationServer,
+            projectMode = context.projectMode,
         )
     }
 }

@@ -1,0 +1,74 @@
+@file:OptIn(ExperimentalCoroutinesApi::class)
+
+package org.jetbrains.compose.reload.jvm
+
+import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.runtime.Composable
+import androidx.compose.ui.ImageComposeScene
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.toAwtImage
+import androidx.compose.ui.graphics.toComposeImageBitmap
+import kotlinx.coroutines.*
+import kotlinx.coroutines.future.asCompletableFuture
+import org.jetbrains.compose.reload.agent.ComposeHotReloadAgent
+import org.jetbrains.compose.reload.orchestration.OrchestrationMessage
+import org.jetbrains.compose.reload.orchestration.OrchestrationMessage.ShutdownRequest
+import org.jetbrains.compose.reload.orchestration.asChannel
+import java.io.ByteArrayOutputStream
+import javax.imageio.ImageIO
+import kotlin.system.exitProcess
+import kotlin.time.Duration
+import kotlin.time.Duration.Companion.milliseconds
+
+private val logger = createLogger()
+
+val applicationScope = CoroutineScope(Dispatchers.Default.limitedParallelism(1) + Job())
+val orchestration = ComposeHotReloadAgent.orchestration
+val messages = orchestration.asChannel()
+
+fun startHeadlessApplication(
+    timeout: Duration,
+    width: Int, height: Int,
+    content: @Composable () -> Unit
+) {
+    val scene = ImageComposeScene(width, height, coroutineContext = applicationScope.coroutineContext)
+    scene.setContent {
+        Box(modifier = Modifier.fillMaxSize().background(Color.White)) {
+            content()
+        }
+    }
+
+    applicationScope.launch {
+        delay(timeout)
+        logger.error("Application timed out...")
+        exitProcess(-1)
+    }
+
+    /* Main loop */
+    applicationScope.launch {
+        var time = 0L
+        val delay = 64.milliseconds
+        while (isActive) {
+            scene.render(time)
+
+            val message = if (!scene.hasInvalidations()) messages.tryReceive().getOrNull() else null
+            if (message is OrchestrationMessage.TakeScreenshotRequest) {
+                val baos = ByteArrayOutputStream()
+                ImageIO.write(scene.render().toComposeImageBitmap().toAwtImage(), "png", baos)
+                orchestration.sendMessage(OrchestrationMessage.Screenshot("png", baos.toByteArray())).get()
+                logger.debug("Screenshot sent")
+            }
+
+            if (message is ShutdownRequest) {
+                applicationScope.coroutineContext.job.cancelChildren()
+                return@launch
+            }
+
+            time += delay.inWholeNanoseconds
+            delay(delay)
+        }
+    }.asCompletableFuture().join()
+}

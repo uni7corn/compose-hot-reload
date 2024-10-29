@@ -8,6 +8,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.currentCoroutineContext
+import kotlinx.coroutines.flow.consumeAsFlow
 import kotlinx.coroutines.flow.filterIsInstance
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.receiveAsFlow
@@ -31,13 +32,13 @@ import kotlin.io.path.deleteRecursively
 import kotlin.time.Duration
 import kotlin.time.Duration.Companion.minutes
 
-
 class HotReloadTestFixture(
     val testClassName: String,
     val testMethodName: String,
     val projectDir: ProjectDir,
     val gradleRunner: GradleRunner,
-    val orchestration: OrchestrationServer
+    val orchestration: OrchestrationServer,
+    val projectMode: ProjectMode
 ) : AutoCloseable {
 
     val logger: Logger = Logging.getLogger("ScreenshotTestFixture")
@@ -58,7 +59,6 @@ class HotReloadTestFixture(
         }
     }
 
-
     lateinit var testScope: TestScope
         private set
 
@@ -72,6 +72,13 @@ class HotReloadTestFixture(
         kotlinx.coroutines.test.runTest(timeout = timeout) {
             testScope = this
             daemonTestScope = CoroutineScope(currentCoroutineContext() + Job(currentCoroutineContext().job))
+
+            daemonTestScope.launch {
+                orchestration.asChannel().consumeAsFlow().collect {
+                    logger.quiet("Test: Received message: $it")
+                }
+            }
+
             try {
                 test()
             } finally {
@@ -86,6 +93,9 @@ class HotReloadTestFixture(
     override fun close() {
         orchestration.close()
         projectDir.path.deleteRecursively()
+
+        testScope.cancel()
+        daemonTestScope.cancel()
 
         resourcesLock.withLock {
             resources.forEach { resource -> resource.close() }
@@ -123,7 +133,6 @@ suspend fun HotReloadTestFixture.launchDaemonThread(block: () -> Unit): Job {
 }
 
 suspend fun HotReloadTestFixture.launchApplication(
-    projectMode: ProjectMode,
     projectPath: String = ":",
     mainClass: String = "MainKt"
 ) {
