@@ -124,6 +124,7 @@ suspend fun HotReloadTestFixture.launchDaemonThread(block: () -> Unit): Job {
 
 suspend fun HotReloadTestFixture.launchApplication(
     projectMode: ProjectMode,
+    projectPath: String = ":",
     mainClass: String = "MainKt"
 ) {
     launchDaemonThread {
@@ -137,8 +138,17 @@ suspend fun HotReloadTestFixture.launchApplication(
             ProjectMode.Jvm -> arrayOf()
         }
 
+        val runTaskPath = buildString {
+            if (projectPath != ":") {
+                append(projectPath)
+            }
+
+            append(":")
+            append(runTask)
+        }
+
         gradleRunner
-            .addedArguments("wrapper", runTask, *additionalArguments)
+            .addedArguments("wrapper", runTaskPath, *additionalArguments)
             .build()
     }
 }

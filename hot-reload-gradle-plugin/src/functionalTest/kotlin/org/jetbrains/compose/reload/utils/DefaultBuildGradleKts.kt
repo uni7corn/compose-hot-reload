@@ -5,10 +5,16 @@ import org.junit.jupiter.api.extension.BeforeTestExecutionCallback
 import org.junit.jupiter.api.extension.ExtendWith
 import org.junit.jupiter.api.extension.ExtensionContext
 import org.junit.platform.commons.support.AnnotationSupport
+import kotlin.io.path.createDirectories
+import kotlin.io.path.createParentDirectories
 import kotlin.io.path.writeText
 
+/**
+ * @param paths The relative paths to the subprojects (for example, "app", "utils/widgets").
+ * If empty, then the root project will be used
+ */
 @ExtendWith(DefaultBuildGradleKtsExtension::class)
-annotation class DefaultBuildGradleKts
+annotation class DefaultBuildGradleKts(vararg val paths: String)
 
 private class DefaultBuildGradleKtsExtension() : BeforeTestExecutionCallback {
 
@@ -17,18 +23,24 @@ private class DefaultBuildGradleKtsExtension() : BeforeTestExecutionCallback {
         if (annotation.isEmpty) return
 
         val testFixture = context.getHotReloadTestFixtureOrThrow()
-        when (context.projectMode) {
-            ProjectMode.Kmp -> testFixture.setupKmpProject()
-            ProjectMode.Jvm -> testFixture.setupJvmProject()
-            null -> return
+        val projectDirs = annotation.get().paths.map { path -> testFixture.projectDir.subproject(path) }
+            .ifEmpty { listOf(testFixture.projectDir) }
+
+        projectDirs.forEach { projectDir ->
+            projectDir.path.createDirectories()
+            when (context.projectMode) {
+                ProjectMode.Kmp -> projectDir.setupKmpProject()
+                ProjectMode.Jvm -> projectDir.setupJvmProject()
+                null -> return
+            }
         }
     }
 }
 
-fun HotReloadTestFixture.setupKmpProject(
+private fun ProjectDir.setupKmpProject(
     targets: List<String> = listOf("jvm")
 ) {
-    projectDir.buildGradleKts.writeText(
+    buildGradleKts.writeText(
         """
         plugins {
             kotlin("multiplatform")
@@ -55,8 +67,8 @@ fun HotReloadTestFixture.setupKmpProject(
     )
 }
 
-fun HotReloadTestFixture.setupJvmProject() {
-    projectDir.buildGradleKts.writeText(
+fun ProjectDir.setupJvmProject() {
+    buildGradleKts.writeText(
         """
         import org.jetbrains.compose.reload.ComposeHotRun
         
@@ -76,6 +88,7 @@ fun HotReloadTestFixture.setupJvmProject() {
         tasks.create<ComposeHotRun>("run") {
             mainClass.set("MainKt")
         }
+        
     """.trimIndent()
     )
 }

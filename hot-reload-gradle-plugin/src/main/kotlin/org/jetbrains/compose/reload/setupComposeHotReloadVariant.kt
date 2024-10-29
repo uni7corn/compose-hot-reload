@@ -46,7 +46,7 @@ private fun KotlinTarget.createComposeHotReloadVariants() {
     val main = compilations.getByName("main")
     val runtimeElements = project.configurations.getByName(runtimeElementsConfigurationName)
 
-    runtimeElements.outgoing.also outgoing@{ outgoing ->
+    runtimeElements.outgoing outgoing@{ outgoing ->
         project.logger.debug("Creating 'composeHot' variant")
 
         if (outgoing.variants.findByName("composeHot") != null) {
@@ -58,9 +58,13 @@ private fun KotlinTarget.createComposeHotReloadVariants() {
             variant.attributes.attribute(KotlinPlatformType.attribute, platformType)
             variant.attributes.attribute(Usage.USAGE_ATTRIBUTE, project.objects.named(COMPOSE_DEV_RUNTIME_USAGE))
 
-            variant.artifact(project.provider { main.output.classesDirs.singleFile }) { artifact ->
-                artifact.builtBy(main.output.allOutputs)
-                artifact.builtBy(main.compileTaskProvider)
+            project.afterEvaluate {
+                main.output.classesDirs.forEach { classesDir ->
+                    variant.artifact(classesDir) { artifact ->
+                        artifact.builtBy(main.output.allOutputs)
+                        artifact.builtBy(main.compileTaskProvider)
+                    }
+                }
             }
 
             variant.artifact(project.provider { main.output.resourcesDirProvider }) { artifact ->

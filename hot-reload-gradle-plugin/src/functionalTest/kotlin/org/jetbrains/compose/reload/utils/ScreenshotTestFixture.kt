@@ -5,6 +5,7 @@ import org.intellij.lang.annotations.Language
 import org.jetbrains.compose.reload.orchestration.OrchestrationMessage.*
 import java.nio.file.Path
 import kotlin.io.path.createParentDirectories
+import kotlin.io.path.nameWithoutExtension
 import kotlin.io.path.readText
 import kotlin.io.path.writeText
 import kotlin.test.assertEquals
@@ -28,9 +29,15 @@ suspend fun ScreenshotTestFixture.checkScreenshot(name: String) {
 }
 
 suspend infix fun ScreenshotTestFixture.initialSourceCode(source: String) {
-    writeCode(source)
+    writeCode(source = source)
+    launchApplicationAndWait()
+}
 
-    hotReloadTestFixture.launchApplication(projectMode)
+suspend fun ScreenshotTestFixture.launchApplicationAndWait(
+    projectPath: String = ":",
+    mainClass: String = "MainKt",
+) {
+    hotReloadTestFixture.launchApplication(projectMode, projectPath, mainClass)
 
     logger.quiet("Waiting for UI to render")
     run {
@@ -45,12 +52,22 @@ suspend infix fun ScreenshotTestFixture.initialSourceCode(source: String) {
 suspend fun ScreenshotTestFixture.replaceSourceCodeAndReload(
     oldValue: String, newValue: String
 ) {
-    val sourceFile = getSourceFile()
-    reloadSourceCode(sourceFile.readText().replace(oldValue, newValue))
+    replaceSourceCodeAndReload(sourceFile = getDefaultMainKtSourceFile(), oldValue, newValue)
 }
 
-suspend infix fun ScreenshotTestFixture.reloadSourceCode(source: String) {
-    writeCode(source)
+suspend fun ScreenshotTestFixture.replaceSourceCodeAndReload(
+    sourceFile: String = getDefaultMainKtSourceFile(),
+    oldValue: String, newValue: String
+) {
+    val resolvedFile = hotReloadTestFixture.projectDir.resolve(sourceFile)
+    reloadSourceCode(sourceFile, resolvedFile.readText().replace(oldValue, newValue))
+}
+
+suspend fun ScreenshotTestFixture.reloadSourceCode(
+    sourceFile: String = getDefaultMainKtSourceFile(),
+    source: String,
+) {
+    writeCode(sourceFile, source)
 
     logger.quiet("Waiting for reload request")
     val reloadRequest = run {
@@ -58,7 +75,8 @@ suspend infix fun ScreenshotTestFixture.reloadSourceCode(source: String) {
         if (reloadRequest.changedClassFiles.isEmpty()) fail("No changedClassFiles in reload request")
         if (reloadRequest.changedClassFiles.size > 1) fail("Too many changedClassFiles in reload request: ${reloadRequest.changedClassFiles}")
         val (requestedFile, changeType) = reloadRequest.changedClassFiles.entries.single()
-        requestedFile.name.assertMatchesRegex(""".*MainKt.*\.class""")
+        val sourceFileName = hotReloadTestFixture.projectDir.resolve(sourceFile).nameWithoutExtension
+        requestedFile.name.assertMatchesRegex(""".*${sourceFileName}Kt.*\.class""")
         assertEquals(ReloadClassesRequest.ChangeType.Modified, changeType)
         reloadRequest
     }
@@ -70,17 +88,20 @@ suspend infix fun ScreenshotTestFixture.reloadSourceCode(source: String) {
     }
 }
 
-
-private infix fun ScreenshotTestFixture.writeCode(@Language("kotlin") source: String) {
-    val sourceFile = getSourceFile()
-    sourceFile.createParentDirectories()
-    sourceFile.writeText(source)
+private fun ScreenshotTestFixture.writeCode(
+    sourceFile: String = getDefaultMainKtSourceFile(),
+    @Language("kotlin") source: String
+) {
+    val resolvedFile = hotReloadTestFixture.projectDir.resolve(sourceFile)
+    resolvedFile.createParentDirectories()
+    resolvedFile.writeText(source)
 }
 
-private fun ScreenshotTestFixture.getSourceFile(): Path {
+private fun ScreenshotTestFixture.getDefaultMainKtSourceFile(): String {
     return when (projectMode) {
-        ProjectMode.Kmp -> hotReloadTestFixture.projectDir.resolve("src/commonMain/kotlin/Main.kt")
-        ProjectMode.Jvm -> hotReloadTestFixture.projectDir.resolve("src/main/kotlin/Main.kt")
+        ProjectMode.Kmp -> "src/commonMain/kotlin/Main.kt"
+        ProjectMode.Jvm -> "src/main/kotlin/Main.kt"
     }
 }
+
 
