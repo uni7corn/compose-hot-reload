@@ -30,6 +30,7 @@ tasks.withType<Test>().configureEach {
 
     systemProperty("local.test.repo", rootProject.layout.buildDirectory.dir("repo").get().asFile.absolutePath)
     jvmArgs("-DlogLevel=DEBUG")
+    maxParallelForks = 4
 
     testLogging {
         showStandardStreams = true
