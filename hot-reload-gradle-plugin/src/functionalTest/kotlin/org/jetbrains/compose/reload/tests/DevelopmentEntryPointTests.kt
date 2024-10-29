@@ -39,7 +39,7 @@ class DevelopmentEntryPointTests {
         devKt.writeText(
             """
             import androidx.compose.runtime.Composable
-            import org.jetbrains.compose.reload.jvm.*
+            import org.jetbrains.compose.reload.*
 
             @Composable
             @DevelopmentEntryPoint

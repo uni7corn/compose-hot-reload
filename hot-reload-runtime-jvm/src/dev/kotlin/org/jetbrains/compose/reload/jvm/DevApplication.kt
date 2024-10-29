@@ -9,6 +9,8 @@ import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.WindowState
 import androidx.compose.ui.window.singleWindowApplication
+import org.jetbrains.compose.reload.DevelopmentEntryPoint
+import org.jetbrains.compose.reload.InternalHotReloadApi
 import java.lang.invoke.MethodHandle
 import java.lang.invoke.MethodHandles
 import java.lang.invoke.MethodType.methodType
@@ -37,8 +39,8 @@ internal fun main(args: Array<String>) {
     val method = resolvedClass.getDeclaredMethod(funName, Composer::class.java, Int::class.javaPrimitiveType)
     val annotation = method.getDeclaredAnnotation(DevelopmentEntryPoint::class.java)
 
-    if (System.getProperty("compose.reload.headless") == "true") {
-        startHeadlessApplication(
+    if (HotReloadEnvironment.isHeadless) {
+        runDevApplicationHeadless(
             width = annotation.windowWidth,
             height = annotation.windowWidth,
             timeout = 5.minutes
@@ -47,16 +49,15 @@ internal fun main(args: Array<String>) {
                 invokeUI(resolvedClass, funName)
             }
         }
-        return
-    }
-
-    singleWindowApplication(
-        title = "Dev Run",
-        alwaysOnTop = true,
-        state = WindowState(size = DpSize(annotation.windowWidth.dp, annotation.windowHeight.dp)),
-    ) {
-        JvmDevelopmentEntryPoint {
-            invokeUI(resolvedClass, funName)
+    } else {
+        singleWindowApplication(
+            title = "Dev Run",
+            alwaysOnTop = true,
+            state = WindowState(size = DpSize(annotation.windowWidth.dp, annotation.windowHeight.dp)),
+        ) {
+            JvmDevelopmentEntryPoint {
+                invokeUI(resolvedClass, funName)
+            }
         }
     }
 }

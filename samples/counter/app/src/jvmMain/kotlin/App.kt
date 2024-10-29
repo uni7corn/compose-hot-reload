@@ -10,7 +10,7 @@ import androidx.compose.ui.unit.sp
 import io.sellmair.evas.compose.EvasLaunching
 import io.sellmair.evas.compose.composeValue
 import io.sellmair.evas.set
-
+import org.jetbrains.compose.reload.DevelopmentEntryPoint
 
 @Composable
 fun App() {

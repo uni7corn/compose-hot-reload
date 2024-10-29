@@ -21,7 +21,7 @@ dependencies {
     sharedImplementation(compose.runtime)
 
     devCompileOnly(project(":hot-reload-agent"))
-    devCompileOnly(deps.hotswapAgentCore)
+    devCompileOnly(project(":hot-reload-runtime-api"))
     devImplementation(project(":hot-reload-orchestration"))
 
     devImplementation(deps.javassist)

@@ -83,8 +83,6 @@ run {
 
         println(versionProperty)
 
-        val hotswapAgentCore = deps.hotswapAgentCore.get().toString()
-        inputs.property("hotswapAgentCore", hotswapAgentCore)
 
         outputs.file(file)
 
@@ -92,8 +90,6 @@ run {
             package org.jetbrains.compose.reload
             
             internal const val HOT_RELOAD_VERSION = "$versionProperty"
-            
-            internal const val HOTSWAP_AGENT_CORE = "$hotswapAgentCore"
             """
             .trimIndent()
 

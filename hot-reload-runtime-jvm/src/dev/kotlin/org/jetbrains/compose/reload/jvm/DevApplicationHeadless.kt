@@ -1,4 +1,5 @@
 @file:OptIn(ExperimentalCoroutinesApi::class)
+@file:JvmName("DevApplicationHeadless")
 
 package org.jetbrains.compose.reload.jvm
 
@@ -13,6 +14,7 @@ import androidx.compose.ui.graphics.toAwtImage
 import androidx.compose.ui.graphics.toComposeImageBitmap
 import kotlinx.coroutines.*
 import kotlinx.coroutines.future.asCompletableFuture
+import org.jetbrains.compose.reload.InternalHotReloadApi
 import org.jetbrains.compose.reload.agent.ComposeHotReloadAgent
 import org.jetbrains.compose.reload.orchestration.OrchestrationMessage
 import org.jetbrains.compose.reload.orchestration.OrchestrationMessage.ShutdownRequest
@@ -23,17 +25,21 @@ import kotlin.system.exitProcess
 import kotlin.time.Duration
 import kotlin.time.Duration.Companion.milliseconds
 
-private val logger = createLogger()
-
-val applicationScope = CoroutineScope(Dispatchers.Default.limitedParallelism(1) + Job())
-val orchestration = ComposeHotReloadAgent.orchestration
-val messages = orchestration.asChannel()
-
-fun startHeadlessApplication(
+/**
+ * Runs a 'headless' compose application which will participate in the orchestration.
+ * This method will block until the application is finished.
+ */
+@InternalHotReloadApi
+fun runDevApplicationHeadless(
     timeout: Duration,
     width: Int, height: Int,
     content: @Composable () -> Unit
 ) {
+    val logger = createLogger()
+    val applicationScope = CoroutineScope(Dispatchers.Default.limitedParallelism(1) + Job())
+    val orchestration = ComposeHotReloadAgent.orchestration
+    val messages = orchestration.asChannel()
+
     val scene = ImageComposeScene(width, height, coroutineContext = applicationScope.coroutineContext)
     scene.setContent {
         Box(modifier = Modifier.fillMaxSize().background(Color.White)) {
@@ -67,8 +73,8 @@ fun startHeadlessApplication(
                 return@launch
             }
 
-            time += delay.inWholeNanoseconds
             delay(delay)
+            time += delay.inWholeNanoseconds
         }
     }.asCompletableFuture().join()
 }

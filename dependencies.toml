@@ -5,7 +5,6 @@ coroutines = "1.9.0"
 ktor = "3.0.0"
 slf4j = "2.0.16"
 androidGradlePlugin = "8.5.2"
-hotswapAgent = "2.0.1"
 junit = "5.10.1"
 javassist = "3.30.2-GA"
 logback = "1.5.9"
@@ -23,7 +22,6 @@ ktorClientDarwin = { module = "io.ktor:ktor-client-darwin", version.ref = "ktor"
 ktorNetwork = { module = "io.ktor:ktor-network", version.ref = "ktor" }
 
 
-hotswapAgentCore = { module = "org.hotswapagent:hotswap-agent-core", version.ref = "hotswapAgent" }
 junit-jupiter = { module = "org.junit.jupiter:junit-jupiter", version.ref = "junit" }
 junit-jupiter-engine = { module = "org.junit.jupiter:junit-jupiter-engine", version.ref = "junit" }
 javassist = { module = "org.javassist:javassist", version.ref = "javassist" }

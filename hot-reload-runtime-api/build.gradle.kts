@@ -57,7 +57,7 @@ kotlin {
     }
 
     sourceSets.jvmMain.dependencies {
-        api(project(":hot-reload-runtime-jvm"))
+        implementation(project(":hot-reload-runtime-jvm"))
     }
 
     sourceSets.jvmTest.dependencies {

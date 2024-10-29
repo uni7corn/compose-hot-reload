@@ -18,8 +18,10 @@ publishing {
 
 dependencies {
     compileOnly(project(":hot-reload-agent"))
-    implementation(project(":hot-reload-runtime-api"))
-    implementation(project(":hot-reload-orchestration"))
+    compileOnly(project(":hot-reload-orchestration"))
+    compileOnly(project(":hot-reload-runtime-api"))
+    compileOnly(project(":hot-reload-runtime-jvm"))
+
     implementation(deps.logback)
     implementation(deps.coroutines.swing)
     implementation(compose.uiTest)

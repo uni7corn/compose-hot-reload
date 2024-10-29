@@ -15,8 +15,10 @@ import kotlin.concurrent.withLock
 
 private val logger = createLogger()
 
+private val hotReloadStateLocal = staticCompositionLocalOf<HotReloadState?> { null }
+
 @Composable
-internal fun HotReload(child: @Composable () -> Unit) {
+internal fun HotReloadComposable(child: @Composable () -> Unit) {
     LaunchedEffect(Unit) {
         composeRecompilerApplication()
     }
@@ -64,5 +66,3 @@ internal fun HotReloadError(error: Throwable, modifier: Modifier = Modifier) {
         }
     }
 }
-
-internal val hotReloadStateLocal = staticCompositionLocalOf<HotReloadState?> { null }

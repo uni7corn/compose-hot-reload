@@ -1,11 +1,11 @@
 package org.jetbrains.compose.reload
 
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.InternalComposeApi
 import org.jetbrains.compose.reload.jvm.JvmDevelopmentEntryPoint
-import org.jetbrains.compose.reload.jvm.InternalHotReloadApi
 
+@OptIn(InternalComposeApi::class)
 @Composable
 public actual fun DevelopmentEntryPoint(child: @Composable () -> Unit) {
-    @OptIn(InternalHotReloadApi::class)
     JvmDevelopmentEntryPoint(child)
 }

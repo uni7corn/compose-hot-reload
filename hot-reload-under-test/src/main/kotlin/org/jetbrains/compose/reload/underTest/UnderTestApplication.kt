@@ -3,17 +3,18 @@
 package org.jetbrains.compose.reload.underTest
 
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.InternalComposeApi
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.test.ExperimentalTestApi
-import androidx.compose.ui.window.singleWindowApplication
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.filterIsInstance
 import org.jetbrains.compose.reload.DevelopmentEntryPoint
+import org.jetbrains.compose.reload.agent.ComposeHotReloadAgent.orchestration
+import org.jetbrains.compose.reload.InternalHotReloadApi
+import org.jetbrains.compose.reload.jvm.runDevApplicationHeadless
 import org.jetbrains.compose.reload.orchestration.OrchestrationMessage
 import org.jetbrains.compose.reload.orchestration.asFlow
 import org.slf4j.LoggerFactory
 import java.lang.invoke.MethodHandles
-import kotlin.system.exitProcess
 import kotlin.time.Duration.Companion.minutes
 
 internal val logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass())
@@ -48,23 +49,13 @@ object UnderTestApplication {
 /**
  * Entry points for "Applications under test"
  */
+@OptIn(InternalHotReloadApi::class)
 @Suppress("unused") // Used by integration tests
 fun underTestApplication(
     timeout: Int = 5,
     content: @Composable UnderTestApplication.() -> Unit
 ) {
-    if (System.getProperty("compose.reload.headless")?.toBoolean() == true) {
-        runHeadless(timeout, content)
-        return
-    }
-
-    /* Fallback: Actually start a real application */
-    singleWindowApplication(title = "Application Under Test") {
-        LaunchedEffect(Unit) {
-            delay(timeout.minutes)
-            exitProcess(-1)
-        }
-
+    runDevApplicationHeadless(timeout.minutes, width = 256, height = 256) {
         DevelopmentEntryPoint {
             UnderTestApplication.content()
         }
