@@ -23,6 +23,7 @@ dependencies {
     devCompileOnly(project(":hot-reload-agent"))
     devCompileOnly(project(":hot-reload-runtime-api"))
     devImplementation(project(":hot-reload-orchestration"))
+    devImplementation(deps.coroutines.swing)
 
     devImplementation(deps.javassist)
     devImplementation(deps.slf4j.api)

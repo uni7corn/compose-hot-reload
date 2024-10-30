@@ -22,7 +22,10 @@ internal fun launchReloadClassesRequestHandler(instrumentation: Instrumentation)
              */
             if (result.isSuccess) {
                 pendingChanges = emptyMap()
-                resetComposeErrors()
+            }
+
+            if (result.isFailure) {
+                logger.warn("Failed to reload classes", result.exceptionOrNull())
             }
 
             ComposeHotReloadAgent.executeAfterReloadListeners(request.messageId, result.exceptionOrNull())

@@ -22,8 +22,9 @@ fun main() {
     application {
         Window(
             onCloseRequest = ::exitApplication,
+            alwaysOnTop = true,
             state = rememberWindowState(
-                width = 600.dp, height = 800.dp, position = WindowPosition.Aligned(Alignment.Center)
+                width = 600.dp, height = 800.dp, position = WindowPosition.Aligned(Alignment.TopEnd)
             )
         ) {
             installEvas(events, states) {

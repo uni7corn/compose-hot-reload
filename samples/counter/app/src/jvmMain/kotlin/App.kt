@@ -1,7 +1,8 @@
 import androidx.compose.foundation.layout.*
-import androidx.compose.material.Button
-import androidx.compose.material.Card
-import androidx.compose.material.Text
+import androidx.compose.material3.Button
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.Text
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
@@ -10,7 +11,6 @@ import androidx.compose.ui.unit.sp
 import io.sellmair.evas.compose.EvasLaunching
 import io.sellmair.evas.compose.composeValue
 import io.sellmair.evas.set
-import org.jetbrains.compose.reload.DevelopmentEntryPoint
 
 @Composable
 fun App() {
@@ -28,7 +28,7 @@ fun App() {
 
         Spacer(Modifier.height(32.dp))
 
-        Card(elevation = 8.dp) {
+        Card(elevation = CardDefaults.elevatedCardElevation()) {
             Column(modifier = Modifier.padding(16.dp)) {
                 Row {
                     Text(
@@ -46,7 +46,7 @@ fun App() {
         Spacer(Modifier.height(32.dp))
 
 
-        Card(elevation = 8.dp) {
+        Card(elevation = CardDefaults.elevatedCardElevation()) {
             Column(modifier = Modifier.padding(16.dp)) {
                 Row {
                     Text(
@@ -64,7 +64,7 @@ fun App() {
         Spacer(Modifier.height(32.dp))
 
 
-        Card(elevation = 8.dp) {
+        Card(elevation = CardDefaults.elevatedCardElevation()) {
             Column(modifier = Modifier.padding(16.dp)) {
                 Row {
                     Text(
@@ -76,7 +76,7 @@ fun App() {
                 Spacer(Modifier.height(32.dp))
 
                 Row {
-                    Card(elevation = 16.dp) {
+                    Card(elevation = CardDefaults.elevatedCardElevation(defaultElevation = 4.dp)) {
                         Box(modifier = Modifier.padding(16.dp)) {
                             SomeWidget()
                         }

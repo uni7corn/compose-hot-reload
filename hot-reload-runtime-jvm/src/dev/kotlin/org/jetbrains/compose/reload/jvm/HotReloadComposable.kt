@@ -4,6 +4,7 @@ package org.jetbrains.compose.reload.jvm
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material.Button
 import androidx.compose.material3.Text
 import androidx.compose.runtime.*
@@ -23,7 +24,6 @@ internal fun HotReloadComposable(child: @Composable () -> Unit) {
         composeRecompilerApplication()
     }
 
-
     /* Agent */
     val hotReloadState by HotReloadHooks.hotReloadFlow.collectAsState(null)
 
@@ -34,7 +34,7 @@ internal fun HotReloadComposable(child: @Composable () -> Unit) {
             /* Show hot reload error directly in the UI (and offer retry button) */
             val hotReloadError = hotReloadState?.error
             if (hotReloadError != null) {
-                Box {
+                Box(Modifier.fillMaxSize()) {
                     child()
                     HotReloadError(hotReloadError, modifier = Modifier.matchParentSize())
                 }

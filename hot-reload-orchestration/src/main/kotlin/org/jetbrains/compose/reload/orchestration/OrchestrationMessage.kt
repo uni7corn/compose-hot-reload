@@ -100,6 +100,11 @@ public sealed class OrchestrationMessage : Serializable {
         val iteration: Int,
     ) : OrchestrationMessage()
 
+    public class UIException(
+        public val message: String?,
+        public val stacktrace: List<StackTraceElement>
+    ): OrchestrationMessage()
+
     /* Base implementation */
 
     public val messageId: UUID = UUID.randomUUID()

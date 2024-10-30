@@ -5,8 +5,11 @@ package org.jetbrains.compose.reload.jvm
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Composer
 import androidx.compose.runtime.currentComposer
+import androidx.compose.runtime.reflect.getDeclaredComposableMethod
+import androidx.compose.ui.Alignment.Companion.TopEnd
 import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.window.WindowPosition
 import androidx.compose.ui.window.WindowState
 import androidx.compose.ui.window.singleWindowApplication
 import org.jetbrains.compose.reload.DevelopmentEntryPoint
@@ -53,7 +56,9 @@ internal fun main(args: Array<String>) {
         singleWindowApplication(
             title = "Dev Run",
             alwaysOnTop = true,
-            state = WindowState(size = DpSize(annotation.windowWidth.dp, annotation.windowHeight.dp)),
+            state = WindowState(
+                position = WindowPosition.Aligned(alignment = TopEnd),
+                size = DpSize(annotation.windowWidth.dp, annotation.windowHeight.dp)),
         ) {
             JvmDevelopmentEntryPoint {
                 invokeUI(resolvedClass, funName)
@@ -65,21 +70,6 @@ internal fun main(args: Array<String>) {
 
 @Composable
 private fun invokeUI(uiClass: Class<*>, funName: String) {
-    val uiMethodHandle = MethodHandles.lookup().findStatic(
-        uiClass, funName,
-        methodType(Void.TYPE, Composer::class.java, Int::class.javaPrimitiveType)
-    )
-
-
-    invokeUI(uiMethodHandle)
-}
-
-@Composable
-private fun invokeUI(ui: MethodHandle) {
-    currentComposer.startRestartGroup(1902)
-    ui.invokeWithArguments(currentComposer, 0 /* 0 means not changed!*/)
-
-    currentComposer.endRestartGroup()?.updateScope { composer, i ->
-        ui.invokeWithArguments(composer, i)
-    }
+    uiClass.getDeclaredComposableMethod(methodName = funName)
+        .invoke(currentComposer, null)
 }

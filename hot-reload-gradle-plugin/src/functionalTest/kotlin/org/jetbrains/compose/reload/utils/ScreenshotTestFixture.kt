@@ -2,6 +2,8 @@ package org.jetbrains.compose.reload.utils
 
 import org.intellij.lang.annotations.Language
 import org.jetbrains.compose.reload.orchestration.OrchestrationMessage.*
+import java.nio.file.Path
+import kotlin.io.path.PathWalkOption
 import kotlin.io.path.createParentDirectories
 import kotlin.io.path.nameWithoutExtension
 import kotlin.io.path.readText
@@ -11,9 +13,10 @@ import kotlin.test.assertNull
 import kotlin.test.fail
 
 
-suspend infix fun HotReloadTestFixture.initialSourceCode(source: String) {
-    writeCode(source = source)
+suspend infix fun HotReloadTestFixture.initialSourceCode(source: String): Path {
+    val file = writeCode(source = source)
     launchApplicationAndWait()
+    return file
 }
 
 suspend fun HotReloadTestFixture.launchApplicationAndWait(
@@ -80,13 +83,14 @@ suspend fun HotReloadTestFixture.awaitReload() {
 private fun HotReloadTestFixture.writeCode(
     sourceFile: String = getDefaultMainKtSourceFile(),
     @Language("kotlin") source: String
-) {
+): Path {
     val resolvedFile = projectDir.resolve(sourceFile)
     resolvedFile.createParentDirectories()
     resolvedFile.writeText(source)
+    return resolvedFile
 }
 
-private fun HotReloadTestFixture.getDefaultMainKtSourceFile(): String {
+internal fun HotReloadTestFixture.getDefaultMainKtSourceFile(): String {
     return when (projectMode) {
         ProjectMode.Kmp -> "src/commonMain/kotlin/Main.kt"
         ProjectMode.Jvm -> "src/main/kotlin/Main.kt"

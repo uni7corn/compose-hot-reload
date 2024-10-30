@@ -1,5 +1,6 @@
 package org.jetbrains.compose.reload.agent
 
+import org.jetbrains.compose.reload.orchestration.Disposable
 import org.jetbrains.compose.reload.orchestration.OrchestrationMessage.ReloadClassesRequest
 import java.lang.instrument.Instrumentation
 import java.util.*
@@ -21,12 +22,22 @@ object ComposeHotReloadAgent {
 
     val orchestration by lazy { startOrchestration() }
 
-    fun invokeBeforeReload(block: (reloadRequestId: UUID) -> Unit) = reloadLock.withLock {
+    fun invokeBeforeReload(block: (reloadRequestId: UUID) -> Unit): Disposable = reloadLock.withLock {
         beforeReloadListeners.add(block)
+        Disposable {
+            reloadLock.withLock {
+                beforeReloadListeners.remove(block)
+            }
+        }
     }
 
-    fun invokeAfterReload(block: (reloadRequestId: UUID, error: Throwable?) -> Unit) = reloadLock.withLock {
+    fun invokeAfterReload(block: (reloadRequestId: UUID, error: Throwable?) -> Unit): Disposable = reloadLock.withLock {
         afterReloadListeners.add(block)
+        Disposable {
+            reloadLock.withLock {
+                afterReloadListeners.remove(block)
+            }
+        }
     }
 
     internal fun executeBeforeReloadListeners(reloadRequestId: UUID) = reloadLock.withLock {

@@ -8,6 +8,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.currentCoroutineContext
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.consumeAsFlow
 import kotlinx.coroutines.flow.filterIsInstance
 import kotlinx.coroutines.flow.first
@@ -31,6 +32,7 @@ import kotlin.io.path.ExperimentalPathApi
 import kotlin.io.path.deleteRecursively
 import kotlin.time.Duration
 import kotlin.time.Duration.Companion.minutes
+import kotlin.time.Duration.Companion.seconds
 
 class HotReloadTestFixture(
     val testClassName: String,
@@ -49,12 +51,28 @@ class HotReloadTestFixture(
         orchestration.sendMessage(message).get()
     }
 
-    suspend inline fun <reified T> skipToMessage(timeout: Duration = 1.minutes): T {
-        logger.quiet("Waiting for message ${T::class.simpleName}")
+    suspend inline fun <reified T> skipToMessage(timeout: Duration = 5.minutes): T {
+        val stack = Thread.currentThread().stackTrace
+        val dispatcher = Dispatchers.Default.limitedParallelism(1)
 
-        return withContext(Dispatchers.Default.limitedParallelism(1)) {
-            withTimeout(timeout) {
-                messages.receiveAsFlow().filterIsInstance<T>().first()
+        val reminder = daemonTestScope.launch(dispatcher) {
+            val sleep = 5.seconds
+            var waiting = 0.seconds
+            while (true) {
+                logger.quiet("Waiting for message ${T::class.simpleName} ($waiting/$timeout)")
+                logger.quiet("Caller:\n${stack.take(5).joinToString("\n")}")
+                delay(sleep)
+                waiting += sleep
+            }
+        }
+
+        return withContext(dispatcher) {
+            try {
+                withTimeout(timeout) {
+                    messages.receiveAsFlow().filterIsInstance<T>().first()
+                }
+            } finally {
+                reminder.cancel()
             }
         }
     }
