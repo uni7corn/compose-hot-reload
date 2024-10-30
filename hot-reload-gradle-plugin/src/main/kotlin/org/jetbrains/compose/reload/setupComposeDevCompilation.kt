@@ -3,6 +3,7 @@ package org.jetbrains.compose.reload
 import org.gradle.api.Project
 import org.gradle.api.tasks.JavaExec
 import org.gradle.kotlin.dsl.withType
+import org.jetbrains.compose.ComposePlugin
 import org.jetbrains.kotlin.gradle.ExternalKotlinTargetApi
 import org.jetbrains.kotlin.gradle.plugin.KotlinTarget
 import org.jetbrains.kotlin.gradle.targets.jvm.KotlinJvmTarget
@@ -20,6 +21,12 @@ private fun KotlinTarget.setupComposeDevCompilation() {
     val main = compilations.getByName("main")
     val dev = compilations.maybeCreate("dev")
     dev.associateWith(main)
+
+    dev.defaultSourceSet.dependencies {
+        project.withComposePlugin {
+            implementation(ComposePlugin.Dependencies(project).desktop.currentOs)
+        }
+    }
 
     project.tasks.register("devRun", ComposeDevRun::class.java) { task ->
         val className = project.providers.systemProperty("className")

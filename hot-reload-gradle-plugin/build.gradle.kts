@@ -48,9 +48,11 @@ gradlePlugin {
 dependencies {
     val functionalTestImplementation by configurations
 
-    compileOnly(kotlin("gradle-plugin"))
     compileOnly(gradleApi())
     compileOnly(gradleKotlinDsl())
+    compileOnly(kotlin("gradle-plugin"))
+    compileOnly(deps.compose.gradlePlugin)
+
     implementation(project(":hot-reload-orchestration"))
 
     functionalTestImplementation(gradleTestKit())

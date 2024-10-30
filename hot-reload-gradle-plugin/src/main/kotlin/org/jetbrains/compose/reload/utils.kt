@@ -15,3 +15,9 @@ internal val Project.kotlinJvmOrNull: KotlinJvmProjectExtension?
     get() = extensions.getByName("kotlin") as? KotlinJvmProjectExtension
 
 internal fun Project.files(lazy: () -> Any) = files({ lazy() })
+
+internal fun Project.withComposePlugin(block: () -> Unit) {
+    pluginManager.withPlugin("org.jetbrains.compose") {
+        block()
+    }
+}
