@@ -59,8 +59,10 @@ class HotReloadTestFixture(
             val sleep = 5.seconds
             var waiting = 0.seconds
             while (true) {
-                logger.quiet("Waiting for message ${T::class.simpleName} ($waiting/$timeout)")
-                logger.quiet("Caller:\n${stack.take(5).joinToString("\n")}")
+                logger.quiet(
+                    "Waiting for message ${T::class.simpleName} ($waiting/$timeout)" +
+                            "\n${stack.drop(1).take(5).joinToString("\n")}"
+                )
                 delay(sleep)
                 waiting += sleep
             }

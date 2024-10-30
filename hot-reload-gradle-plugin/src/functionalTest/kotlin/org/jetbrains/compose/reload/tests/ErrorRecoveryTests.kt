@@ -57,7 +57,7 @@ class ErrorRecoveryTests {
             
             fun main() {
                 Foo() // <- Use Foo here to ensure the class is loaded!
-                underTestApplication {
+                underTestApplication(width = 512, height = 512) {
                     var state by remember { mutableStateOf(0) }
                     onTestEvent {
                         state++

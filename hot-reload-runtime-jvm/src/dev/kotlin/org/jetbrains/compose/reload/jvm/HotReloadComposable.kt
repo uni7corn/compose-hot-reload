@@ -1,15 +1,10 @@
 package org.jetbrains.compose.reload.jvm
 
 
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.material.Button
-import androidx.compose.material3.Text
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import org.jetbrains.compose.reload.agent.ComposeHotReloadAgent
 import org.jetbrains.compose.reload.agent.send
 import org.jetbrains.compose.reload.orchestration.OrchestrationMessage
@@ -37,7 +32,7 @@ internal fun HotReloadComposable(child: @Composable () -> Unit) {
             if (hotReloadError != null) {
                 Box(Modifier.fillMaxSize()) {
                     child()
-                    HotReloadError(hotReloadError, modifier = Modifier.matchParentSize())
+                    HotReloadErrorWidget(hotReloadError, modifier = Modifier.matchParentSize())
                 }
             } else {
                 /* If no error is present, we just show the child directly (w/o box) */
@@ -52,16 +47,3 @@ internal fun HotReloadComposable(child: @Composable () -> Unit) {
     }
 }
 
-@Composable
-internal fun HotReloadError(error: Throwable, modifier: Modifier = Modifier) {
-    Box(modifier = modifier.background(Color.Gray.copy(alpha = 0.9f))) {
-        Column {
-            Text("Failed reloading code: ${error.message}", color = Color.White)
-            Button(onClick = {
-                ComposeHotReloadAgent.retryPendingChanges()
-            }) {
-                Text("Retry")
-            }
-        }
-    }
-}

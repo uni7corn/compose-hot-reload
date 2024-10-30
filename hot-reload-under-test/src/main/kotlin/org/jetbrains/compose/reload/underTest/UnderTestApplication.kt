@@ -53,9 +53,11 @@ object UnderTestApplication {
 @Suppress("unused") // Used by integration tests
 fun underTestApplication(
     timeout: Int = 5,
+    width: Int = 256,
+    height: Int = 256,
     content: @Composable UnderTestApplication.() -> Unit
 ) {
-    runDevApplicationHeadless(timeout.minutes, width = 256, height = 256) {
+    runDevApplicationHeadless(timeout.minutes, width = width, height = height) {
         DevelopmentEntryPoint {
             UnderTestApplication.content()
         }
