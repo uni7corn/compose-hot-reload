@@ -57,6 +57,12 @@ public sealed class OrchestrationMessage : Serializable {
         }
     }
 
+    public data class ReloadClassesResult(
+        val reloadRequestId: UUID,
+        val isSuccess: Boolean,
+        val errorMessage: String? = null
+    ): OrchestrationMessage()
+
     /**
      * Requests the client to take (and send) a screenshot:
      * Note, only special clients (e.g. clients under test) do support this.

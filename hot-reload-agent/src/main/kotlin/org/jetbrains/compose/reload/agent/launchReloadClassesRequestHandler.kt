@@ -21,11 +21,17 @@ internal fun launchReloadClassesRequestHandler(instrumentation: Instrumentation)
             Yuhuu! We reloaded the classes; We can reset the 'pending changes'; No re-try necessary
              */
             if (result.isSuccess) {
+                logger.info("Reloaded classes: ${request.messageId}")
                 pendingChanges = emptyMap()
+                OrchestrationMessage.ReloadClassesResult(request.messageId, true).send()
+
             }
 
             if (result.isFailure) {
                 logger.warn("Failed to reload classes", result.exceptionOrNull())
+                OrchestrationMessage.ReloadClassesResult(
+                    request.messageId, false, result.exceptionOrNull()?.message
+                ).send()
             }
 
             ComposeHotReloadAgent.executeAfterReloadListeners(request.messageId, result.exceptionOrNull())

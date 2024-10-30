@@ -8,7 +8,6 @@ import java.util.concurrent.locks.ReentrantLock
 import kotlin.concurrent.withLock
 
 
-
 object ComposeHotReloadAgent {
 
     val reloadLock = ReentrantLock()
@@ -59,4 +58,3 @@ object ComposeHotReloadAgent {
         launchReloadClassesRequestHandler(instrumentation)
     }
 }
-

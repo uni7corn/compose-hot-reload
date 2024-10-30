@@ -13,6 +13,7 @@ import kotlinx.coroutines.job
 import kotlinx.coroutines.runBlocking
 import org.jetbrains.compose.reload.InternalHotReloadApi
 import org.jetbrains.compose.reload.agent.ComposeHotReloadAgent
+import org.jetbrains.compose.reload.agent.send
 import org.jetbrains.compose.reload.orchestration.OrchestrationMessage
 
 private val logger = createLogger()
@@ -28,12 +29,11 @@ internal fun JvmDevelopmentEntryPoint(child: @Composable () -> Unit) {
             logger.error("Failed invoking 'JvmDevelopmentEntryPoint':", exception)
             currentRecomposeScope.invalidate()
 
-            ComposeHotReloadAgent.orchestration.sendMessage(
-                OrchestrationMessage.UIException(
-                    message = exception.message,
-                    stacktrace = exception.stackTrace.toList()
-                )
-            )
+            OrchestrationMessage.UIException(
+                message = exception.message,
+                stacktrace = exception.stackTrace.toList()
+            ).send()
+
         }.getOrThrow()
     }
 }

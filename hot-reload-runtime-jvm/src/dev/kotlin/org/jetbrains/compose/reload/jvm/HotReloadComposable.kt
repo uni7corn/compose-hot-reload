@@ -11,6 +11,7 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import org.jetbrains.compose.reload.agent.ComposeHotReloadAgent
+import org.jetbrains.compose.reload.agent.send
 import org.jetbrains.compose.reload.orchestration.OrchestrationMessage
 import kotlin.concurrent.withLock
 
@@ -47,9 +48,7 @@ internal fun HotReloadComposable(child: @Composable () -> Unit) {
 
     /* Notify orchestration about the UI being rendered */
     hotReloadState?.let { hotReloadState ->
-        ComposeHotReloadAgent.orchestration.sendMessage(
-            OrchestrationMessage.UIRendered(hotReloadState.reloadRequestId, hotReloadState.iteration)
-        )
+        OrchestrationMessage.UIRendered(hotReloadState.reloadRequestId, hotReloadState.iteration).send()
     }
 }
 
