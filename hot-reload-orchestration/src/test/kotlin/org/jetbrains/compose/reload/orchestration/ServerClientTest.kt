@@ -90,7 +90,9 @@ class ServerClientTest {
             client.sendMessage(LogMessage("A"))
         }
 
-        serverMessages.receive()
+        while (true) {
+            if (serverMessages.receive() is LogMessage) break
+        }
 
         orchestrationThread.submit {
             assertEquals(listOf(LogMessage("A")), serverReceivedMessages.toList())
