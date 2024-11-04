@@ -2,22 +2,12 @@
 
 package org.jetbrains.compose.reload.utils
 
-import kotlinx.coroutines.CompletableDeferred
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.Job
-import kotlinx.coroutines.cancel
-import kotlinx.coroutines.currentCoroutineContext
-import kotlinx.coroutines.delay
+import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.consumeAsFlow
 import kotlinx.coroutines.flow.filterIsInstance
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.receiveAsFlow
-import kotlinx.coroutines.job
-import kotlinx.coroutines.launch
 import kotlinx.coroutines.test.TestScope
-import kotlinx.coroutines.withContext
-import kotlinx.coroutines.withTimeout
 import org.gradle.api.logging.Logger
 import org.gradle.api.logging.Logging
 import org.gradle.testkit.runner.GradleRunner
@@ -61,7 +51,7 @@ class HotReloadTestFixture(
             while (true) {
                 logger.quiet(
                     "Waiting for message ${T::class.simpleName} ($waiting/$timeout)" +
-                            "\n${stack.drop(1).take(5).joinToString("\n")}"
+                        "\n${stack.drop(1).take(5).joinToString("\n") { "  $it" }}"
                 )
                 delay(sleep)
                 waiting += sleep
