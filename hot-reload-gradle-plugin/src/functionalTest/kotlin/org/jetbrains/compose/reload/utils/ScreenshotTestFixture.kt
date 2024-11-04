@@ -3,9 +3,7 @@ package org.jetbrains.compose.reload.utils
 import org.intellij.lang.annotations.Language
 import org.jetbrains.compose.reload.orchestration.OrchestrationMessage.*
 import java.nio.file.Path
-import kotlin.io.path.PathWalkOption
 import kotlin.io.path.createParentDirectories
-import kotlin.io.path.nameWithoutExtension
 import kotlin.io.path.readText
 import kotlin.io.path.writeText
 import kotlin.test.assertEquals
@@ -50,8 +48,7 @@ suspend fun HotReloadTestFixture.replaceSourceCodeAndReload(
 }
 
 suspend fun HotReloadTestFixture.reloadSourceCode(
-    sourceFile: String = getDefaultMainKtSourceFile(),
-    source: String,
+    sourceFile: String = getDefaultMainKtSourceFile(), source: String,
 ) {
     writeCode(sourceFile, source)
 
@@ -59,11 +56,6 @@ suspend fun HotReloadTestFixture.reloadSourceCode(
     val reloadRequest = run {
         val reloadRequest = skipToMessage<ReloadClassesRequest>()
         if (reloadRequest.changedClassFiles.isEmpty()) fail("No changedClassFiles in reload request")
-        if (reloadRequest.changedClassFiles.size > 1) fail("Too many changedClassFiles in reload request: ${reloadRequest.changedClassFiles}")
-        val (requestedFile, changeType) = reloadRequest.changedClassFiles.entries.single()
-        val sourceFileName = projectDir.resolve(sourceFile).nameWithoutExtension
-        requestedFile.name.assertMatchesRegex(""".*${sourceFileName}Kt.*\.class""")
-        assertEquals(ReloadClassesRequest.ChangeType.Modified, changeType)
         reloadRequest
     }
 

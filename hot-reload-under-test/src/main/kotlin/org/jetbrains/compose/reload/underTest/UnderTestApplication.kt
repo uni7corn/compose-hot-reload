@@ -1,15 +1,15 @@
 @file:OptIn(ExperimentalTestApi::class)
+@file:Suppress("unused") // Used by tests in test data
 
 package org.jetbrains.compose.reload.underTest
 
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.InternalComposeApi
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.test.ExperimentalTestApi
 import kotlinx.coroutines.flow.filterIsInstance
 import org.jetbrains.compose.reload.DevelopmentEntryPoint
-import org.jetbrains.compose.reload.agent.ComposeHotReloadAgent.orchestration
 import org.jetbrains.compose.reload.InternalHotReloadApi
+import org.jetbrains.compose.reload.agent.ComposeHotReloadAgent.orchestration
 import org.jetbrains.compose.reload.jvm.runDevApplicationHeadless
 import org.jetbrains.compose.reload.orchestration.OrchestrationMessage
 import org.jetbrains.compose.reload.orchestration.asFlow

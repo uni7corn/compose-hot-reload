@@ -1,4 +1,4 @@
-@file:Suppress("DuplicatedCode")
+@file:Suppress("DuplicatedCode", "FunctionName")
 
 package org.jetbrains.compose.reload.tests
 
@@ -160,5 +160,50 @@ class ScreenshotTests {
             "Before:", "After:"
         )
         fixture.checkScreenshot("after")
+    }
+
+    @HotReloadTest
+    @DefaultSettingsGradleKts
+    @DefaultBuildGradleKts
+    @TestOnlyLatestVersions
+    fun `test - add button`(fixture: HotReloadTestFixture) = fixture.runTest {
+        fixture initialSourceCode """
+            import androidx.compose.foundation.layout.*
+            import androidx.compose.material3.*
+            import androidx.compose.ui.unit.*
+            import androidx.compose.ui.window.*
+            import androidx.compose.runtime.*
+            import org.jetbrains.compose.reload.underTest.*
+            
+            fun main() {
+            
+            /*
+            TBD;
+            This 'x' here is used in the lambda passed to 'underTestApplication'. 
+            Lambdas which are under 'hot reload' shall be marked as non-memoizable and non-rememberable. 
+            Having those lambdas 'remembered' will result in bad code after reload. 
+            Since the 'underTestApplication' class is not changed, it cannot be instrumented to reject the 
+            remembered value.
+             */
+            var x = 0
+                underTestApplication {
+                    Column {
+                        Text("Initial", fontSize = 48.sp)
+                        println(x) // <- remove this!
+                        // Add button
+                    }
+                }
+            }
+            """.trimIndent()
+        fixture.checkScreenshot("0-before")
+
+        fixture.replaceSourceCodeAndReload(
+            """// Add button""", """
+                Button(onClick = { }) {
+                    Text("Button")
+                }
+            """.trimIndent()
+        )
+        fixture.checkScreenshot("1-withButton")
     }
 }
