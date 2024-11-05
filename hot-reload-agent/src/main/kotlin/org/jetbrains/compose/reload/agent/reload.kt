@@ -47,6 +47,27 @@ internal fun reload(
             Class.forName(clazz.name)
         }.getOrNull()
 
+        logger.debug(buildString {
+            appendLine("Reloading class:'${clazz.name}'")
+
+            if (originalClass?.superclass?.name != clazz.superclass.name) {
+                appendLine("⚠️ Superclass: '${originalClass?.superclass?.name}' -> '${clazz.superclass?.name}'")
+            }
+
+            val addedInterfaces = clazz.interfaces.map { it.name } -
+                    originalClass?.interfaces?.map { it.name }.orEmpty()
+            addedInterfaces.forEach { addedInterface ->
+                appendLine("⚠️ +Interface: '$addedInterface'")
+            }
+
+            val removedInterfaces = originalClass?.interfaces.orEmpty().map { it.name }.toSet() -
+                    clazz.interfaces.map { it.name }.toSet()
+            removedInterfaces.forEach { removedInterface ->
+                appendLine("⚠️ -Interface: '$removedInterface'")
+            }
+        }.trim())
+
+
         /**
          * Instrumenting calls to 'rememberedValue':
          * If the remembered object was a function/lambda, then we "reject" the value by returning
@@ -54,13 +75,13 @@ internal fun reload(
          */
         clazz.declaredMethods.forEach { method ->
             if (method.hasAnnotation("androidx.compose.runtime.Composable")) {
-                logger.debug("Instrumenting composable '${method.longName}'l")
                 method.instrument(object : ExprEditor() {
-                    override fun edit(m: MethodCall) {
+                    override fun edit(methodCall: MethodCall) {
                         val d = "\$"
-                        if (m.method.name == "rememberedValue") {
-                            logger.debug("Instrumenting '${m.method.longName}'")
-                            m.replace(
+                        if (methodCall.method.longName == "androidx.compose.runtime.Composer.rememberedValue()") {
+                            logger.debug("Instrumenting '${method.longName} (${methodCall.lineNumber})'")
+
+                            methodCall.replace(
                                 """
                                 {
                                     Object result = ${d}proceed($$);                                    
