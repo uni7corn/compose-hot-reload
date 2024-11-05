@@ -61,7 +61,7 @@ public sealed class OrchestrationMessage : Serializable {
         val reloadRequestId: UUID,
         val isSuccess: Boolean,
         val errorMessage: String? = null
-    ): OrchestrationMessage()
+    ) : OrchestrationMessage()
 
     /**
      * Requests the client to take (and send) a screenshot:
@@ -84,8 +84,15 @@ public sealed class OrchestrationMessage : Serializable {
      * Can be used for very important log messages, or for testing.
      */
     public data class LogMessage(
-        val log: String
-    ) : OrchestrationMessage()
+        val log: String,
+        val tag: String? = null,
+    ) : OrchestrationMessage() {
+        public companion object {
+            public const val TAG_COMPILER: String = "Compiler"
+            public const val TAG_AGENT: String = "Agent"
+            public const val TAG_RUNTIME: String = "Runtime"
+        }
+    }
 
     /**
      * An event sent for testing purposes:
@@ -109,7 +116,7 @@ public sealed class OrchestrationMessage : Serializable {
     public class UIException(
         public val message: String?,
         public val stacktrace: List<StackTraceElement>
-    ): OrchestrationMessage()
+    ) : OrchestrationMessage()
 
     /* Base implementation */
 

@@ -14,6 +14,7 @@ import java.lang.instrument.Instrumentation
 import java.lang.reflect.Modifier
 import kotlin.concurrent.withLock
 
+private val logger = createLogger()
 private const val reinitializeName = "\$cr\$clinit"
 
 private val pool = ClassPool().apply {

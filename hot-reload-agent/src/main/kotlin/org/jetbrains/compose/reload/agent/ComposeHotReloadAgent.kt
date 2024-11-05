@@ -10,6 +10,7 @@ import kotlin.concurrent.withLock
 
 object ComposeHotReloadAgent {
 
+    internal val logger = createLogger()
     val reloadLock = ReentrantLock()
 
     private val beforeReloadListeners = mutableListOf<(reloadRequestId: UUID) -> Unit>()
@@ -56,5 +57,10 @@ object ComposeHotReloadAgent {
         this.instrumentation = instrumentation
         enableComposeHotReloadMode()
         launchReloadClassesRequestHandler(instrumentation)
+        launchRecompiler()
+
+        ComposeReloadPremainExtension.load().forEach { extension ->
+            extension.premain()
+        }
     }
 }

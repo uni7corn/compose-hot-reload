@@ -98,5 +98,3 @@ fun App() {
     }
 }
 
-
-class NewClass

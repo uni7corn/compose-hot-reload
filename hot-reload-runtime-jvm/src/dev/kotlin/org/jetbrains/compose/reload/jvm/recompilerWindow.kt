@@ -19,48 +19,41 @@ import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.WindowPosition
 import androidx.compose.ui.window.WindowState
 import androidx.compose.ui.window.singleWindowApplication
-import kotlinx.coroutines.*
-import kotlinx.coroutines.channels.BufferOverflow
-import kotlinx.coroutines.flow.*
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.filter
+import kotlinx.coroutines.flow.filterIsInstance
+import kotlinx.coroutines.withContext
 import org.jetbrains.compose.reload.agent.ComposeHotReloadAgent
-import java.io.File
+import org.jetbrains.compose.reload.agent.ComposeReloadPremainExtension
+import org.jetbrains.compose.reload.orchestration.OrchestrationMessage.LogMessage
+import org.jetbrains.compose.reload.orchestration.asFlow
 import java.net.URL
-import java.util.concurrent.TimeUnit
 import kotlin.concurrent.thread
 
 private val logger = createLogger()
 
-private val composeBuildRoot: String? = System.getProperty("compose.build.root")
-private val composeBuildProject: String? = System.getProperty("compose.build.project")
-private val composeBuildCompileTask: String? = System.getProperty("compose.build.compileTask")
-
-internal suspend fun composeRecompilerApplication() {
-    /*
-    On headless mode: Don't show a window, just run gradle
-     */
-    if (HotReloadEnvironment.isHeadless) {
-        runGradleContinuousCompilation().collect()
-        return
-    }
-
-    /*
-    Otherwise, we start a new windows (application) to show gradle
-     */
-    val recompilerWindowThread = thread(name = "Compose Recompiler Window") {
-        try {
-            runRecompilerApplication()
-        } catch (_: InterruptedException) {
-
+internal class RecompilerWindowPremain : ComposeReloadPremainExtension {
+    override fun premain() {
+        /*
+        On headless mode: Don't show a window
+        */
+        if (HotReloadEnvironment.isHeadless) {
+            return
         }
 
-        logger.debug("Compose Recompiler Window finished")
-    }
+        /*
+        Otherwise, we start a new windows (application) to show gradle
+         */
+        thread(name = "Compose Recompiler Window") {
+            try {
+                runRecompilerApplication()
+            } catch (_: InterruptedException) {
 
-    currentCoroutineContext().job.invokeOnCompletion {
-        recompilerWindowThread.interrupt()
-    }
+            }
 
-    awaitCancellation()
+            logger.debug("Compose Recompiler Window finished")
+        }
+    }
 }
 
 private fun runRecompilerApplication() {
@@ -73,9 +66,9 @@ private fun runRecompilerApplication() {
         var outputLines by remember { mutableStateOf(listOf<String>()) }
 
         LaunchedEffect(Unit) {
-            runGradleContinuousCompilation().collect { output ->
-                outputLines = (outputLines + output).takeLast(1024)
-            }
+            ComposeHotReloadAgent.orchestration.asFlow().filterIsInstance<LogMessage>()
+                .filter { message -> message.tag == LogMessage.TAG_COMPILER }
+                .collect { value -> outputLines = (outputLines + value.log).takeLast(1024) }
         }
 
         var composeLogo by remember { mutableStateOf<ImageBitmap?>(null) }
@@ -85,8 +78,8 @@ private fun runRecompilerApplication() {
             withContext(Dispatchers.IO) {
                 runCatching {
                     composeLogo =
-                        URL("https://github.com/JetBrains/compose-multiplatform/blob/master/artwork/compose-logo.png?raw=true")
-                            .openStream().buffered().use { input -> loadImageBitmap(input) }
+                        URL("https://github.com/JetBrains/compose-multiplatform/blob/master/artwork/compose-logo.png?raw=true").openStream()
+                            .buffered().use { input -> loadImageBitmap(input) }
                 }.onFailure {
                     logger.error("Failed loading compose-logo.png", it)
                 }
@@ -127,86 +120,6 @@ private fun runRecompilerApplication() {
     }
 }
 
-private suspend fun runGradleContinuousCompilation(): Flow<String> {
-    val composeBuildRoot = composeBuildRoot ?: run {
-        logger.error("Missing 'compose.build.root' property")
-        return emptyFlow()
-    }
-
-    val composeBuildProject = composeBuildProject ?: run {
-        logger.error("Missing 'compose.build.project' property")
-        return emptyFlow()
-    }
-
-    val composeBuildCompileTask = composeBuildCompileTask ?: run {
-        logger.error("Missing 'compose.build.compile.task' property")
-        return emptyFlow()
-    }
-
-    val port = ComposeHotReloadAgent.orchestration.port
-    logger.debug("'Compose Recompiler': Using orchestration at '$port'")
-
-    val output = MutableSharedFlow<String>(
-        extraBufferCapacity = 1024,
-        onBufferOverflow = BufferOverflow.DROP_OLDEST
-    )
-
-    val job = currentCoroutineContext().job
-    val recompilerThread = thread(name = "Compose Recompiler") {
-        logger.debug("'Compose Recompiler' started")
-
-        val process = ProcessBuilder().directory(File(composeBuildRoot))
-            .command(
-                if ("win" in System.getProperty("os.name").lowercase()) "gradlew.bat" else "./gradlew",
-                createGradleCommand(composeBuildProject, composeBuildCompileTask),
-                "--console=plain",
-                "--no-daemon",
-                "--priority=low",
-                "-Dcompose.reload.orchestration.port=$port",
-                //"-Dorg.gradle.debug=true",
-                "-t"
-            )
-            .redirectErrorStream(true)
-            .start()
-
-        Runtime.getRuntime().addShutdownHook(thread(start = false) {
-            logger.debug("'Compose Recompiler': Destroying process")
-            process.destroy()
-        })
-
-        thread(name = "Compose Recompiler Output", isDaemon = true) {
-            process.inputStream.bufferedReader().use { reader ->
-                while (job.isActive) {
-                    val nextLine = reader.readLine() ?: break
-                    logger.debug("'Compose Recompiler' output: $nextLine")
-                    output.tryEmit(nextLine)
-                }
-            }
-        }
-        try {
-            process.waitFor()
-        } catch (_: InterruptedException) {
-
-        }
-
-        logger.debug("'Compose Recompiler': Destroying process")
-        process.destroy()
-        if (!process.waitFor(15, TimeUnit.SECONDS)) {
-            logger.debug("'Compose Recompiler': Force destroying process")
-            process.destroyForcibly()
-        }
-
-        logger.debug("'Compose Recompiler' finished")
-    }
-
-    job.invokeOnCompletion {
-        logger.debug("'Compose Recompiler': Sending close signal (${job.isActive}")
-        recompilerThread.interrupt()
-        recompilerThread.join()
-    }
-
-    return output
-}
 
 internal fun createGradleCommand(projectPath: String, task: String): String {
     if (projectPath == ":") return ":$task"

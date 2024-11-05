@@ -16,10 +16,6 @@ private val hotReloadStateLocal = staticCompositionLocalOf<HotReloadState?> { nu
 
 @Composable
 internal fun HotReloadComposable(child: @Composable () -> Unit) {
-    LaunchedEffect(Unit) {
-        composeRecompilerApplication()
-    }
-
     /* Agent */
     val hotReloadState by HotReloadHooks.hotReloadFlow.collectAsState(null)
 

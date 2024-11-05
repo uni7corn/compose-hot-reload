@@ -7,6 +7,8 @@ import java.lang.instrument.Instrumentation
 import kotlin.concurrent.withLock
 import kotlin.system.exitProcess
 
+private val logger = createLogger()
+
 internal fun launchReloadClassesRequestHandler(instrumentation: Instrumentation) {
     var pendingChanges = mapOf<File, OrchestrationMessage.ReloadClassesRequest.ChangeType>()
 
