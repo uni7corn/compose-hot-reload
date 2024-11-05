@@ -1,1 +1,2 @@
-org.jetbrains.compose.reload.jvm.RecompilerWindowPremain
+org.jetbrains.compose.reload.jvm.RecompilerWindow
+org.jetbrains.compose.reload.jvm.ErrorRecovery

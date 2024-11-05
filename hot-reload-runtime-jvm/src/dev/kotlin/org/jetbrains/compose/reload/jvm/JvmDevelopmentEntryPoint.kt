@@ -22,8 +22,6 @@ private val logger = createLogger()
 @PublishedApi
 @InternalHotReloadApi
 internal fun JvmDevelopmentEntryPoint(child: @Composable () -> Unit) {
-    launchErrorRecovery()
-
     HotReloadComposable {
         runCatching { child() }.onFailure { exception ->
             logger.error("Failed invoking 'JvmDevelopmentEntryPoint':", exception)
@@ -35,32 +33,5 @@ internal fun JvmDevelopmentEntryPoint(child: @Composable () -> Unit) {
             ).send()
 
         }.getOrThrow()
-    }
-}
-
-/**
- * As long as this composable is in the tree, successful reloads will try to call into the
- * Compose Recovery machinery.
- * Note: A public API would be great here.
- */
-@NonRestartableComposable
-@Composable
-private fun launchErrorRecovery() {
-    LaunchedEffect(Unit) {
-        val registration = ComposeHotReloadAgent.invokeAfterReload { _, exception ->
-            runBlocking(Dispatchers.Main) {
-                if (exception == null) {
-                    logger.info("Recomposer: loadStateAndComposeForHotReload")
-                    @Suppress("INVISIBLE_MEMBER", "INVISIBLE_REFERENCE")
-                    androidx.compose.runtime.Recomposer.loadStateAndComposeForHotReload(emptyList<Any>())
-                }
-            }
-        }
-
-        currentCoroutineContext().job.invokeOnCompletion {
-            logger.debug("ErrorRecovery: Goodbye")
-            registration.dispose()
-        }
-        awaitCancellation()
     }
 }

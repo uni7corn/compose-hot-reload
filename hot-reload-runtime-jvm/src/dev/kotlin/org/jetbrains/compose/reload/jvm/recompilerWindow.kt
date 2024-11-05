@@ -32,7 +32,7 @@ import kotlin.concurrent.thread
 
 private val logger = createLogger()
 
-internal class RecompilerWindowPremain : ComposeReloadPremainExtension {
+internal class RecompilerWindow : ComposeReloadPremainExtension {
     override fun premain() {
         /*
         On headless mode: Don't show a window

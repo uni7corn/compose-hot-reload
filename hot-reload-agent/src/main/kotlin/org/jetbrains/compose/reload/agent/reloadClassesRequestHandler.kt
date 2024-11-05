@@ -26,7 +26,6 @@ internal fun launchReloadClassesRequestHandler(instrumentation: Instrumentation)
                 logger.info("Reloaded classes: ${request.messageId}")
                 pendingChanges = emptyMap()
                 OrchestrationMessage.ReloadClassesResult(request.messageId, true).send()
-
             }
 
             if (result.isFailure) {
