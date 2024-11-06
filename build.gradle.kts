@@ -23,8 +23,10 @@ val publishLocally by tasks.registering {
                 val indent = line.substringBefore(declaration)
                 indent + declaration + " \"${version}\""
             }.joinToString("\n")
-            settingsFile.writeText(newText)
 
+            if(newText != text) {
+                settingsFile.writeText(newText)
+            }
         }
     }
 }
