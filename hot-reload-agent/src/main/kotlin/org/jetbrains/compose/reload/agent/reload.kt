@@ -68,40 +68,6 @@ internal fun reload(
             }
         }.trim())
 
-
-        /**
-         * Instrumenting calls to 'rememberedValue':
-         * If the remembered object was a function/lambda, then we "reject" the value by returning
-         * the 'Composer.Empty' object which will result in the re-creation and update of the remembered value.
-         */
-        clazz.declaredMethods.forEach { method ->
-            if (method.hasAnnotation("androidx.compose.runtime.Composable")) {
-                method.instrument(object : ExprEditor() {
-                    override fun edit(methodCall: MethodCall) {
-                        val d = "\$"
-                        if (methodCall.method.longName == "androidx.compose.runtime.Composer.rememberedValue()") {
-                            logger.debug("Instrumenting '${method.longName} (${methodCall.lineNumber})'")
-
-                            methodCall.replace(
-                                """
-                                {
-                                    Object result = ${d}proceed($$);                                    
-                                    if(result instanceof androidx.compose.runtime.internal.ComposableLambda ||
-                                        result instanceof kotlin.Function
-                                    ) {
-                                        ${d}_ = androidx.compose.runtime.Composer.Companion.getEmpty();
-                                    } else {
-                                        ${d}_ = result;
-                                    }
-                                }
-                            """.trimIndent()
-                            )
-                        }
-                    }
-                })
-            }
-        }
-
         /**
          * Re-initialize changed static
          * 1) We demote 'static final' to 'non-final'
