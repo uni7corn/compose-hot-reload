@@ -1,8 +1,10 @@
 package org.jetbrains.compose.reload
 
 import org.gradle.api.Project
+import org.gradle.api.provider.Property
 import org.gradle.api.provider.Provider
 import org.gradle.api.tasks.JavaExec
+import org.gradle.api.tasks.Nested
 import org.gradle.jvm.toolchain.JavaLanguageVersion
 import org.gradle.jvm.toolchain.JavaToolchainService
 import org.gradle.jvm.toolchain.JvmVendorSpec
@@ -38,9 +40,6 @@ private fun KotlinTarget.createComposeHotReloadExecTask() {
 }
 
 internal fun JavaExec.configureJavaExecTaskForHotReload(compilation: Provider<KotlinCompilation<*>>) {
-    group = "run"
-    description = "Run the Compose application (Hot Reload enabled) | -PmainClass=..."
-
     if (project.composeHotReloadExtension.useJetBrainsRuntime.get()) {
         javaLauncher.set(project.serviceOf<JavaToolchainService>().launcherFor { spec ->
             @Suppress("UnstableApiUsage")
@@ -125,7 +124,7 @@ internal fun JavaExec.configureJavaExecTaskForHotReload(compilation: Provider<Ko
     val compileTaskName = compilation.map { composeHotClasspathTaskName(it) }
     systemProperty("compose.build.root", project.rootDir.absolutePath)
     systemProperty("compose.build.project", project.path)
-    systemProperty("compose.build.compileTask", compileTaskName.get())
+    systemProperty("compose.build.compileTask", ToString(compileTaskName))
 
     doFirst {
         systemProperty("compose.build.compileTask", compileTaskName.get())
@@ -143,5 +142,12 @@ internal fun JavaExec.configureJavaExecTaskForHotReload(compilation: Provider<Ko
 
         logger.info("Running ${mainClass.get()}...")
         logger.info("Classpath:\n${classpath.joinToString("\n")}")
+    }
+}
+
+
+private class ToString(val property: Provider<String>) {
+    override fun toString(): String {
+        return property.get()
     }
 }

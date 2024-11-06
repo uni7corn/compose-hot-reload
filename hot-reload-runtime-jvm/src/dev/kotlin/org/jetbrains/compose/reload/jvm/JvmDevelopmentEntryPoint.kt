@@ -4,14 +4,7 @@ package org.jetbrains.compose.reload.jvm
 
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.CompositionLocalProvider
-import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.currentComposer
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.reflect.ComposableMethod
-import androidx.compose.runtime.reflect.asComposableMethod
-import androidx.compose.runtime.staticCompositionLocalOf
+import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -20,7 +13,7 @@ import org.jetbrains.compose.reload.InternalHotReloadApi
 import org.jetbrains.compose.reload.agent.ComposeHotReloadAgent
 import org.jetbrains.compose.reload.agent.send
 import org.jetbrains.compose.reload.orchestration.OrchestrationMessage
-import java.util.UUID
+import java.util.*
 import kotlin.concurrent.withLock
 
 private val logger = createLogger()
