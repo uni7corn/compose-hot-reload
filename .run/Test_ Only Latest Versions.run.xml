@@ -1,5 +1,5 @@
 <component name="ProjectRunConfigurationManager">
-  <configuration default="false" name="Test: Only Latest Versions" type="GradleRunConfiguration" factoryName="Gradle">
+  <configuration default="false" name="Test: Only Latest Versions" type="GradleRunConfiguration" factoryName="Gradle" folderName="Test">
     <ExternalSystemSettings>
       <option name="env">
         <map>

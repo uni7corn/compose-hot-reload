@@ -1,5 +1,5 @@
 <component name="ProjectRunConfigurationManager">
-  <configuration default="false" name="Samples/Counter: Main" type="GradleRunConfiguration" factoryName="Gradle">
+  <configuration default="false" name="Samples/Counter: Main" type="GradleRunConfiguration" factoryName="Gradle" folderName="Sample">
     <ExternalSystemSettings>
       <option name="executionName" />
       <option name="externalProjectPath" value="$PROJECT_DIR$/samples/counter/app" />
@@ -19,8 +19,6 @@
     <ExternalSystemReattachDebugProcess>true</ExternalSystemReattachDebugProcess>
     <DebugAllEnabled>false</DebugAllEnabled>
     <RunAsTest>false</RunAsTest>
-    <method v="2">
-      <option name="Gradle.BeforeRunTask" enabled="true" tasks="publishLocally" externalProjectPath="$PROJECT_DIR$" vmOptions="" scriptParameters="" />
-    </method>
+    <method v="2" />
   </configuration>
 </component>
