@@ -1,9 +1,13 @@
 package org.jetbrains.compose.reload.utils
 
+import org.gradle.internal.impldep.org.junit.AssumptionViolatedException
 import org.gradle.testkit.runner.GradleRunner
 import org.jetbrains.compose.reload.orchestration.ORCHESTRATION_SERVER_PORT_PROPERTY_KEY
 import org.jetbrains.compose.reload.orchestration.startOrchestrationServer
 import org.jetbrains.compose.reload.utils.HotReloadTestFixtureExtension.Companion.testFixtureKey
+import org.jetbrains.kotlin.tooling.core.compareTo
+import org.junit.jupiter.api.Assumptions
+import org.junit.jupiter.api.Assumptions.assumeTrue
 import org.junit.jupiter.api.TestTemplate
 import org.junit.jupiter.api.extension.AfterEachCallback
 import org.junit.jupiter.api.extension.BeforeEachCallback
@@ -17,7 +21,9 @@ import org.junit.jupiter.api.extension.TestTemplateInvocationContextProvider
 import org.junit.platform.commons.util.AnnotationUtils.findAnnotation
 import java.nio.file.Files
 import java.util.stream.Stream
+import kotlin.jvm.optionals.getOrNull
 import kotlin.streams.asStream
+import kotlin.test.assertTrue
 
 @TestTemplate
 @ExtendWith(HotReloadTestInvocationContextProvider::class)
@@ -29,6 +35,9 @@ annotation class TestOnlyKmp
 
 annotation class TestOnlyLatestVersions
 
+annotation class MinKotlinVersion(val version: String)
+
+annotation class MaxKotlinVersion(val version: String)
 
 internal class HotReloadTestInvocationContextProvider : TestTemplateInvocationContextProvider {
     override fun supportsTestTemplate(context: ExtensionContext): Boolean {
@@ -68,7 +77,22 @@ internal class HotReloadTestInvocationContextProvider : TestTemplateInvocationCo
                         invocationContext.composeVersion == TestedComposeVersion.entries.last() &&
                         (invocationContext.androidVersion == null || invocationContext.androidVersion == TestedAndroidVersion.entries.last())
             }
+            .filter { invocationContext ->
+                val kotlinVersionMin = findAnnotation(context.testMethod, MinKotlinVersion::class.java)
+                    .getOrNull()?.version
+                if (kotlinVersionMin != null && invocationContext.kotlinVersion.version < kotlinVersionMin) {
+                    return@filter false
+                }
 
+                val kotlinVersionMax = findAnnotation(context.testMethod, MaxKotlinVersion::class.java)
+                    .getOrNull()?.version
+                if (kotlinVersionMax != null && invocationContext.kotlinVersion.version > kotlinVersionMax) {
+                    return@filter false
+                }
+
+                true
+            }
+            .apply { assumeTrue(isNotEmpty(), "No matching context") }
             .asSequence().asStream()
     }
 }

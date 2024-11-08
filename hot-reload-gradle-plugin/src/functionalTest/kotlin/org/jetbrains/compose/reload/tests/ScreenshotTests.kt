@@ -167,6 +167,7 @@ class ScreenshotTests {
     @DefaultSettingsGradleKts
     @DefaultBuildGradleKts
     @TestOnlyLatestVersions
+    @MinKotlinVersion("2.1.20-dev-2637")
     fun `test - add button`(fixture: HotReloadTestFixture) = fixture.runTest {
         fixture initialSourceCode """
             import androidx.compose.foundation.layout.*
@@ -202,6 +203,7 @@ class ScreenshotTests {
     @DefaultSettingsGradleKts
     @DefaultBuildGradleKts
     @TestOnlyLatestVersions
+    @MinKotlinVersion("2.1.20-dev-2637")
     fun `test - add remembered state`(fixture: HotReloadTestFixture) = fixture.runTest {
         fixture initialSourceCode """
             import androidx.compose.foundation.layout.*
