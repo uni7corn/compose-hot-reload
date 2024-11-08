@@ -13,10 +13,14 @@ internal class ErrorRecovery : ComposeReloadPremainExtension {
             if (error != null) return@invokeAfterReload
 
             runBlocking(Dispatchers.Main) {
-                logger.info("Recomposer: loadStateAndComposeForHotReload")
-                @Suppress("INVISIBLE_MEMBER", "INVISIBLE_REFERENCE")
-                androidx.compose.runtime.Recomposer.loadStateAndComposeForHotReload(emptyList<Any>())
+                retryFailedCompositions()
             }
         }
+    }
+
+    fun retryFailedCompositions() {
+        logger.info("ErrorRecovery: retryFailedCompositions")
+        @Suppress("INVISIBLE_MEMBER", "INVISIBLE_REFERENCE")
+        androidx.compose.runtime.Recomposer.loadStateAndComposeForHotReload(emptyList<Any>())
     }
 }

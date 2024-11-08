@@ -59,7 +59,7 @@ internal fun launchRecompiler() {
                 while (true) {
                     val nextLine = reader.readLine() ?: break
                     logger.debug("'Compose Recompiler' output: $nextLine")
-                    LogMessage(nextLine, TAG_COMPILER).send()
+                    LogMessage(TAG_COMPILER, nextLine).send()
                 }
             }
         }

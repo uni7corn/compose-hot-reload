@@ -110,19 +110,19 @@ class ServerClientTest {
 
         launch {
             val firstLog = serverChannel.receiveAsFlow().filterIsInstance<LogMessage>().first()
-            assertEquals("A", firstLog.log)
+            assertEquals("A", firstLog.message)
 
             val secondLog = serverChannel.receiveAsFlow().filterIsInstance<LogMessage>().first()
-            assertEquals("B", secondLog.log)
+            assertEquals("B", secondLog.message)
         }
 
 
         launch {
             val firstLog = clientChannel.receiveAsFlow().filterIsInstance<LogMessage>().first()
-            assertEquals("A", firstLog.log)
+            assertEquals("A", firstLog.message)
 
             val secondLog = clientChannel.receiveAsFlow().filterIsInstance<LogMessage>().first()
-            assertEquals("B", secondLog.log)
+            assertEquals("B", secondLog.message)
         }
 
         client.sendMessage(LogMessage("A"))

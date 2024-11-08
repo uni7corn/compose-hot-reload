@@ -1,5 +1,6 @@
-package org.jetbrains.compose.reload.jvm
+package org.jetbrains.compose.reload.agent.tests
 
+import org.jetbrains.compose.reload.agent.createGradleCommand
 import kotlin.test.Test
 import kotlin.test.assertEquals
 

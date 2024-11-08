@@ -29,6 +29,7 @@ dependencies {
     devImplementation(deps.slf4j.api)
     devImplementation(compose.desktop.common)
     devImplementation(compose.material3)
+    devImplementation(compose.components.resources)
 
     testImplementation(kotlin("test"))
     testImplementation(deps.junit.jupiter)

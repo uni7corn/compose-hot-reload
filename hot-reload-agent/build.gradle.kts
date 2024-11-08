@@ -12,6 +12,10 @@ tasks.withType<Jar>().named(kotlin.target.artifactsTaskName).configure {
     )
 }
 
+tasks.withType<Test>().configureEach {
+    useJUnitPlatform()
+}
+
 publishing {
     publications.create("maven", MavenPublication::class) {
         from(components["java"])
@@ -23,4 +27,7 @@ dependencies {
     implementation(deps.slf4j.api)
     implementation(deps.coroutines.core)
     implementation(deps.javassist)
+    implementation(deps.junit.jupiter)
+    implementation(deps.junit.jupiter.engine)
+    implementation(kotlin("test"))
 }

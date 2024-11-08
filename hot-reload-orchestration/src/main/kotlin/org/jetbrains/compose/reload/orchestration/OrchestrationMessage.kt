@@ -84,9 +84,11 @@ public sealed class OrchestrationMessage : Serializable {
      * Can be used for very important log messages, or for testing.
      */
     public data class LogMessage(
-        val log: String,
-        val tag: String? = null,
+        val tag: String?,
+        val message: String,
     ) : OrchestrationMessage() {
+        public constructor(message: String) : this(null, message)
+
         public companion object {
             public const val TAG_COMPILER: String = "Compiler"
             public const val TAG_AGENT: String = "Agent"

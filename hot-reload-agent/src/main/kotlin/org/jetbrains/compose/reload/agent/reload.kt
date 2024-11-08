@@ -3,8 +3,6 @@ package org.jetbrains.compose.reload.agent
 import javassist.ClassPool
 import javassist.CtConstructor
 import javassist.LoaderClassPath
-import javassist.expr.ExprEditor
-import javassist.expr.MethodCall
 import org.jetbrains.compose.reload.orchestration.OrchestrationMessage
 import java.io.ByteArrayOutputStream
 import java.io.DataOutputStream
@@ -48,7 +46,7 @@ internal fun reload(
             Class.forName(clazz.name)
         }.getOrNull()
 
-        logger.debug(buildString {
+        logger.orchestration(buildString {
             appendLine("Reloading class:'${clazz.name}'")
 
             if (originalClass?.superclass?.name != clazz.superclass.name) {

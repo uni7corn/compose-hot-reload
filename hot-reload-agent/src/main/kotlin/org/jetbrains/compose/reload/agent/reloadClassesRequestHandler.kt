@@ -23,13 +23,14 @@ internal fun launchReloadClassesRequestHandler(instrumentation: Instrumentation)
             Yuhuu! We reloaded the classes; We can reset the 'pending changes'; No re-try necessary
              */
             if (result.isSuccess) {
-                logger.info("Reloaded classes: ${request.messageId}")
+                logger.orchestration("Reloaded classes: ${request.messageId}")
+                OrchestrationMessage.LogMessage(OrchestrationMessage.LogMessage.TAG_AGENT, )
                 pendingChanges = emptyMap()
                 OrchestrationMessage.ReloadClassesResult(request.messageId, true).send()
             }
 
             if (result.isFailure) {
-                logger.warn("Failed to reload classes", result.exceptionOrNull())
+                logger.orchestration("Failed to reload classes", result.exceptionOrNull())
                 OrchestrationMessage.ReloadClassesResult(
                     request.messageId, false, result.exceptionOrNull()?.message
                 ).send()
