@@ -29,7 +29,7 @@ private fun Project.onKotlinPluginApplied() {
 
     setupComposeHotReloadRuntimeDependency()
     setupComposeHotReloadVariant()
-    setupComposeHotClasspathTasks()
+    setupComposeReloadHotClasspathTasks()
     setupComposeHotReloadExecTasks()
     setupComposeHotRunConventions()
     setupComposeDevCompilation()

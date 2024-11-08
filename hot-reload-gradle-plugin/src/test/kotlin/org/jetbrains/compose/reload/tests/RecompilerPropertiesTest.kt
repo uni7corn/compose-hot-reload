@@ -23,7 +23,7 @@ class RecompilerPropertiesTest {
 
         assertEquals(project.rootDir.absolutePath, hotRun.systemProperties["compose.build.root"])
         assertEquals(":", hotRun.systemProperties["compose.build.project"])
-        assertEquals("compileKotlinJvmHotClasspath", hotRun.systemProperties["compose.build.compileTask"].toString())
+        assertEquals("reloadJvmMainClasspath", hotRun.systemProperties["compose.build.compileTask"].toString())
     }
 
     @Test
@@ -41,6 +41,6 @@ class RecompilerPropertiesTest {
 
         assertEquals(subproject.rootDir.absolutePath, hotRun.systemProperties["compose.build.root"])
         assertEquals(":foo", hotRun.systemProperties["compose.build.project"])
-        assertEquals("compileKotlinJvmHotClasspath", hotRun.systemProperties["compose.build.compileTask"].toString())
+        assertEquals("reloadJvmMainClasspath", hotRun.systemProperties["compose.build.compileTask"].toString())
     }
 }

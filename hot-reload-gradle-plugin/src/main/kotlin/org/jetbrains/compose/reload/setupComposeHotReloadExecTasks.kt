@@ -1,10 +1,8 @@
 package org.jetbrains.compose.reload
 
 import org.gradle.api.Project
-import org.gradle.api.provider.Property
 import org.gradle.api.provider.Provider
 import org.gradle.api.tasks.JavaExec
-import org.gradle.api.tasks.Nested
 import org.gradle.jvm.toolchain.JavaLanguageVersion
 import org.gradle.jvm.toolchain.JavaToolchainService
 import org.gradle.jvm.toolchain.JvmVendorSpec
@@ -121,7 +119,7 @@ internal fun JavaExec.configureJavaExecTaskForHotReload(compilation: Provider<Ko
 
 
     /* Setup re-compiler */
-    val compileTaskName = compilation.map { composeHotClasspathTaskName(it) }
+    val compileTaskName = compilation.map { composeReloadHotClasspathTaskName(it) }
     systemProperty("compose.build.root", project.rootDir.absolutePath)
     systemProperty("compose.build.project", project.path)
     systemProperty("compose.build.compileTask", ToString(compileTaskName))
