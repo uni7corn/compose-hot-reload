@@ -6,6 +6,7 @@ import java.io.ObjectOutputStream
 import java.net.InetAddress
 import java.net.Socket
 import java.util.UUID
+import java.util.concurrent.CompletableFuture
 import java.util.concurrent.ExecutorService
 import java.util.concurrent.Future
 import java.util.concurrent.atomic.AtomicBoolean
@@ -108,28 +109,42 @@ private class OrchestrationClientImpl(
     }
 
     override fun close() {
-        if (isClosed.getAndSet(true)) return
+        closeGracefully()
+    }
+
+    override fun closeGracefully(): Future<Unit> {
+        if (isClosed.getAndSet(true)) return CompletableFuture.completedFuture(Unit)
+        val finished = CompletableFuture<Unit>()
 
         orchestrationThread.submit {
-            logger.debug("Closing socket: '${socket.port}' ('${socket.localPort}')")
-            socket.close()
+            try {
+                logger.debug("Closing socket: '${socket.port}' ('${socket.localPort}')")
+                socket.close()
 
-            val closeListeners = lock.withLock {
-                try {
-                    closeListeners.toList()
-                } finally {
-                    closeListeners.clear()
+                val closeListeners = lock.withLock {
+                    try {
+                        closeListeners.toList()
+                    } finally {
+                        closeListeners.clear()
+                    }
                 }
-            }
 
-            closeListeners.forEach { listener ->
-                try {
-                    listener.invoke()
-                } catch (t: Throwable) {
-                    logger.error("Failed invoking close listener", t)
+                closeListeners.forEach { listener ->
+                    try {
+                        listener.invoke()
+                    } catch (t: Throwable) {
+                        logger.error("Failed invoking close listener", t)
+                    }
+                }
+            } finally {
+                /* Send 'finished' signal when all currently enqueued tasks were completed */
+                orchestrationThread.submit {
+                    finished.complete(Unit)
                 }
             }
         }
+
+        return finished
     }
 
     override fun closeImmediately() {

@@ -10,6 +10,11 @@ public interface OrchestrationHandle : AutoCloseable {
     public fun sendMessage(message: OrchestrationMessage): Future<Unit>
 
     /**
+     * Will gracefully close the orchestration; The returned future shall not be awaited on the orchestration thread
+     */
+    public fun closeGracefully(): Future<Unit>
+
+    /**
      * Can be used as 'Shutdown Hook' to close the sockets immediately.
      * Note: This will not invoke any close listeners! Use the default '.close' instead.
      */

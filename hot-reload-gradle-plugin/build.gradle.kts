@@ -29,8 +29,15 @@ tasks.withType<Test>().configureEach {
     dependsOn(":publishLocally")
 
     systemProperty("local.test.repo", rootProject.layout.buildDirectory.dir("repo").get().asFile.absolutePath)
+    systemProperty("junit.jupiter.execution.parallel.enabled", "true")
+    systemProperty("junit.jupiter.execution.parallel.mode.default", "concurrent")
+    systemProperty("junit.jupiter.execution.parallel.config.strategy", "fixed")
+    systemProperty("junit.jupiter.execution.parallel.config.fixed.parallelism", "4")
+
     jvmArgs("-DlogLevel=DEBUG")
-    maxParallelForks = 4
+    maxHeapSize = "4G"
+
+    maxParallelForks = 2
 
     testLogging {
         showStandardStreams = true

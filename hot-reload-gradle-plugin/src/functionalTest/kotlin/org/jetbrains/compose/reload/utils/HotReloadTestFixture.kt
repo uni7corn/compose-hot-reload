@@ -101,7 +101,8 @@ class HotReloadTestFixture(
     private val resources = mutableListOf<AutoCloseable>()
 
     override fun close() {
-        orchestration.close()
+        orchestration.sendMessage(OrchestrationMessage.ShutdownRequest()).get()
+        orchestration.closeGracefully().get()
         projectDir.path.deleteRecursively()
 
         testScope.cancel()

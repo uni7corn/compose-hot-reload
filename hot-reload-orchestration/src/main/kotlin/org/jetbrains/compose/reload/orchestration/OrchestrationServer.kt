@@ -9,6 +9,7 @@ import java.io.ObjectOutputStream
 import java.net.ServerSocket
 import java.net.Socket
 import java.util.*
+import java.util.concurrent.CompletableFuture
 import java.util.concurrent.ExecutorService
 import java.util.concurrent.Future
 import java.util.concurrent.atomic.AtomicBoolean
@@ -185,7 +186,13 @@ private class OrchestrationServerImpl(
     }
 
     override fun close() {
-        if (isClosed.getAndSet(true)) return
+        closeGracefully()
+    }
+
+    override fun closeGracefully(): Future<Unit> {
+        if (isClosed.getAndSet(true)) CompletableFuture.completedFuture(Unit)
+
+        val finished = CompletableFuture<Unit>()
         orchestrationThread.submit {
             lock.withLock {
                 try {
@@ -197,9 +204,15 @@ private class OrchestrationServerImpl(
                     closeListeners.clear()
                 } catch (t: Throwable) {
                     logger.warn("Failed closing server: '${serverSocket.localPort}'", t)
+                } finally {
+                    /* Send the 'finished' signal after all currently enqueued tasks have finished */
+                    orchestrationThread.submit {
+                        finished.complete(Unit)
+                    }
                 }
             }
         }
+        return finished
     }
 
     override fun closeImmediately() {
@@ -210,6 +223,7 @@ private class OrchestrationServerImpl(
             clients.forEach { it.close() }
             clients.clear()
             serverSocket.close()
+            orchestrationThread.shutdownNow()
         }
     }
 }
