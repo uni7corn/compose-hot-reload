@@ -2,6 +2,7 @@
 
 package org.jetbrains.compose.reload.tests
 
+import org.jetbrains.compose.reload.orchestration.OrchestrationMessage
 import org.jetbrains.compose.reload.utils.*
 import kotlin.io.path.appendLines
 import kotlin.io.path.appendText
@@ -194,5 +195,47 @@ class ScreenshotTests {
             """.trimIndent()
         )
         fixture.checkScreenshot("1-withButton")
+    }
+
+
+    @HotReloadTest
+    @DefaultSettingsGradleKts
+    @DefaultBuildGradleKts
+    @TestOnlyLatestVersions
+    fun `test - add remembered state`(fixture: HotReloadTestFixture) = fixture.runTest {
+        fixture initialSourceCode """
+            import androidx.compose.foundation.layout.*
+            import androidx.compose.material3.*
+            import androidx.compose.ui.unit.*
+            import androidx.compose.ui.window.*
+            import androidx.compose.runtime.*
+            import org.jetbrains.compose.reload.underTest.*
+            
+            fun main() {
+                underTestApplication {
+                    // add state
+                    
+                    // add effect
+                    
+                    Column {
+                        Text("Initial", fontSize = 48.sp)
+                        // Add button
+                    }
+                }
+            }
+            """.trimIndent()
+        fixture.checkScreenshot("0-before")
+
+        fixture.replaceSourceCodeAndReload("""// add state""", """var state by remember { mutableStateOf(0) }""")
+        fixture.checkScreenshot("1-addedState")
+
+        fixture.replaceSourceCodeAndReload(""""Initial"""", """"State: %state"""".replace("%", "$"))
+        fixture.checkScreenshot("2-renderState")
+
+        fixture.replaceSourceCodeAndReload("""// add effect""", """onTestEvent { state++ }""")
+        fixture.checkScreenshot("3-addedEffect")
+
+        fixture.sendTestEvent()
+        fixture.checkScreenshot("4-afterEvent")
     }
 }
