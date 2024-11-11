@@ -66,6 +66,7 @@ internal fun JavaExec.configureJavaExecTaskForHotReload(compilation: Provider<Ko
     run {
         if (project.isHeadless.orNull == true) {
             systemProperty("compose.reload.headless", true)
+            systemProperty("apple.awt.UIElement", true)
         }
     }
 

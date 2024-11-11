@@ -1,29 +1,18 @@
 package org.jetbrains.compose.reload.utils
 
-import org.gradle.internal.impldep.org.junit.AssumptionViolatedException
 import org.gradle.testkit.runner.GradleRunner
 import org.jetbrains.compose.reload.orchestration.ORCHESTRATION_SERVER_PORT_PROPERTY_KEY
 import org.jetbrains.compose.reload.orchestration.startOrchestrationServer
 import org.jetbrains.compose.reload.utils.HotReloadTestFixtureExtension.Companion.testFixtureKey
 import org.jetbrains.kotlin.tooling.core.compareTo
-import org.junit.jupiter.api.Assumptions
 import org.junit.jupiter.api.Assumptions.assumeTrue
 import org.junit.jupiter.api.TestTemplate
-import org.junit.jupiter.api.extension.AfterEachCallback
-import org.junit.jupiter.api.extension.BeforeEachCallback
-import org.junit.jupiter.api.extension.ExtendWith
-import org.junit.jupiter.api.extension.Extension
-import org.junit.jupiter.api.extension.ExtensionContext
-import org.junit.jupiter.api.extension.ParameterContext
-import org.junit.jupiter.api.extension.ParameterResolver
-import org.junit.jupiter.api.extension.TestTemplateInvocationContext
-import org.junit.jupiter.api.extension.TestTemplateInvocationContextProvider
+import org.junit.jupiter.api.extension.*
 import org.junit.platform.commons.util.AnnotationUtils.findAnnotation
 import java.nio.file.Files
 import java.util.stream.Stream
 import kotlin.jvm.optionals.getOrNull
 import kotlin.streams.asStream
-import kotlin.test.assertTrue
 
 @TestTemplate
 @ExtendWith(HotReloadTestInvocationContextProvider::class)
