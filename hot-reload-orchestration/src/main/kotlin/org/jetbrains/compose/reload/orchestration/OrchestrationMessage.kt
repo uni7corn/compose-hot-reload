@@ -94,6 +94,10 @@ public sealed class OrchestrationMessage : Serializable {
             public const val TAG_AGENT: String = "Agent"
             public const val TAG_RUNTIME: String = "Runtime"
         }
+
+        override fun toString(): String {
+            return "Log [$tag] $message"
+        }
     }
 
     /**

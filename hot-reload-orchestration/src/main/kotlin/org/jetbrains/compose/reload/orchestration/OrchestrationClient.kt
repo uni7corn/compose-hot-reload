@@ -59,11 +59,11 @@ private class OrchestrationClientImpl(
         }
     }
 
-    override fun sendMessage(message: OrchestrationMessage): Future<Unit> = orchestrationThread.submit<Unit> {
+    override fun sendMessage(message: OrchestrationMessage): Future<Unit> = writerThread.submit<Unit> {
         try {
             output.writeObject(message)
             output.flush()
-            logger.debug("Sent message: ${message.javaClass.simpleName} '${message.messageId}'")
+            logger.debug("Sent message: '${message.toString().lines().firstOrNull()}'")
         } catch (_: Throwable) {
             logger.debug("Sender: Closing client")
             close()
