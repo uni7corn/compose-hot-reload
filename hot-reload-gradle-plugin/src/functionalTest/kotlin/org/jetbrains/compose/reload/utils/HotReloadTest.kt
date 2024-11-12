@@ -8,6 +8,8 @@ import org.jetbrains.kotlin.tooling.core.compareTo
 import org.junit.jupiter.api.Assumptions.assumeTrue
 import org.junit.jupiter.api.TestTemplate
 import org.junit.jupiter.api.extension.*
+import org.junit.jupiter.api.parallel.Execution
+import org.junit.jupiter.api.parallel.ExecutionMode
 import org.junit.platform.commons.util.AnnotationUtils.findAnnotation
 import java.nio.file.Files
 import java.util.stream.Stream
@@ -17,6 +19,9 @@ import kotlin.streams.asStream
 @TestTemplate
 @ExtendWith(HotReloadTestInvocationContextProvider::class)
 annotation class HotReloadTest
+
+@Execution(ExecutionMode.SAME_THREAD)
+annotation class Debug
 
 annotation class TestOnlyJvm
 
@@ -177,18 +182,23 @@ private class HotReloadTestFixtureExtension(
     }
 
     private fun ExtensionContext.createTestFixture(): HotReloadTestFixture {
+        val debug = findAnnotation(testMethod, Debug::class.java).isPresent
         val projectDir = ProjectDir(Files.createTempDirectory("hot-reload-test"))
         val orchestrationServer = startOrchestrationServer()
         val gradleRunner = GradleRunner.create()
             .withProjectDir(projectDir.path.toFile())
             .withGradleVersion(context.gradleVersion.version.version)
             .forwardOutput()
+            .withDebug(debug)
             .addedArguments("-P$ORCHESTRATION_SERVER_PORT_PROPERTY_KEY=${orchestrationServer.port}")
             .addedArguments("-D$ORCHESTRATION_SERVER_PORT_PROPERTY_KEY=${orchestrationServer.port}")
-            .addedArguments("--configuration-cache")
             .addedArguments("-Pcompose.reload.headless=true")
             .addedArguments("-i")
             .addedArguments("-s")
+
+        if (!debug) { // We saw issues with cc and debug mode
+            gradleRunner.addedArguments("--configuration-cache")
+        }
 
         return HotReloadTestFixture(
             testClassName = testClass.get().name,
