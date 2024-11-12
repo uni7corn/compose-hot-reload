@@ -5,10 +5,8 @@ import java.io.ObjectInputStream
 import java.io.ObjectOutputStream
 import java.net.InetAddress
 import java.net.Socket
-import java.util.UUID
-import java.util.concurrent.CompletableFuture
-import java.util.concurrent.ExecutorService
-import java.util.concurrent.Future
+import java.util.*
+import java.util.concurrent.*
 import java.util.concurrent.atomic.AtomicBoolean
 import java.util.concurrent.locks.ReentrantLock
 import kotlin.concurrent.thread
@@ -35,14 +33,43 @@ private class OrchestrationClientImpl(
     override val port: Int,
 ) : OrchestrationClient {
 
-    override val clientId = UUID.randomUUID()
+    override val clientId: UUID = UUID.randomUUID()
     private val logger = LoggerFactory.getLogger("OrchestrationClient(${socket.localPort})")
     private val lock = ReentrantLock()
     private val isClosed = AtomicBoolean(false)
     private val isActive get() = !isClosed.get()
-    private val output = ObjectOutputStream(socket.getOutputStream().buffered())
     private val listeners = mutableListOf<(OrchestrationMessage) -> Unit>()
     private val closeListeners = mutableListOf<() -> Unit>()
+
+    private val writer = object : AutoCloseable {
+        private val output = ObjectOutputStream(socket.getOutputStream().buffered())
+
+        private val thread = Executors.newSingleThreadExecutor { runnable ->
+            thread(name = "Orchestration Client Writer", isDaemon = true, start = false) {
+                runnable.run()
+            }
+        }
+
+        fun sendMessage(any: Any): Future<Unit> = thread.submit<Unit> {
+            try {
+                output.writeObject(any)
+                output.flush()
+            } catch (_: Throwable) {
+                logger.debug("writer: Closing client")
+                close()
+            }
+        }
+
+        override fun close() {
+            /* Shutdown writer thread and await all messages to be written */
+            thread.shutdown()
+            if (!thread.awaitTermination(1, TimeUnit.SECONDS)) {
+                logger.warn("'writer' did not finish gracefully in 1 second")
+            }
+
+            output.close()
+        }
+    }
 
 
     override fun invokeWhenMessageReceived(action: (OrchestrationMessage) -> Unit): Disposable {
@@ -59,27 +86,12 @@ private class OrchestrationClientImpl(
         }
     }
 
-    override fun sendMessage(message: OrchestrationMessage): Future<Unit> = writerThread.submit<Unit> {
-        try {
-            output.writeObject(message)
-            output.flush()
-            logger.debug("Sent message: '${message.toString().lines().firstOrNull()}'")
-        } catch (_: Throwable) {
-            logger.debug("Sender: Closing client")
-            close()
-        }
+    override fun sendMessage(message: OrchestrationMessage): Future<Unit> {
+        return writer.sendMessage(message)
     }
 
     fun start() {
-        orchestrationThread.submit {
-            try {
-                output.writeObject(OrchestrationHandshake(clientId, role))
-                output.flush()
-            } catch (_: Throwable) {
-                logger.debug("start: Closing client")
-                close()
-            }
-        }
+        writer.sendMessage(OrchestrationHandshake(clientId, role))
 
         thread(name = "Orchestration Client Reader") {
             logger.debug("connected")
@@ -101,7 +113,7 @@ private class OrchestrationClientImpl(
                     }.get()
                 }
             } catch (t: Throwable) {
-                logger.debug("reader: closing client")
+                logger.debug("reader: closing client", t)
                 logger.trace("reader: closed with traces", t)
                 close()
             }
@@ -114,10 +126,15 @@ private class OrchestrationClientImpl(
 
     override fun closeGracefully(): Future<Unit> {
         if (isClosed.getAndSet(true)) return CompletableFuture.completedFuture(Unit)
-        val finished = CompletableFuture<Unit>()
 
+
+        /* Close socket and invoke all close listeners */
+        val finished = CompletableFuture<Unit>()
         orchestrationThread.submit {
             try {
+                logger.debug("Closing write")
+                writer.close()
+
                 logger.debug("Closing socket: '${socket.port}' ('${socket.localPort}')")
                 socket.close()
 

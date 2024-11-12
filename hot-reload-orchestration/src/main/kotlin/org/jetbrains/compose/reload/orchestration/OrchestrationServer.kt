@@ -11,11 +11,14 @@ import java.net.Socket
 import java.util.*
 import java.util.concurrent.CompletableFuture
 import java.util.concurrent.ExecutorService
+import java.util.concurrent.Executors
 import java.util.concurrent.Future
+import java.util.concurrent.TimeUnit
 import java.util.concurrent.atomic.AtomicBoolean
 import java.util.concurrent.locks.ReentrantLock
 import kotlin.concurrent.thread
 import kotlin.concurrent.withLock
+import kotlin.time.Duration.Companion.seconds
 
 public interface OrchestrationServer : OrchestrationHandle
 
@@ -49,10 +52,36 @@ private class OrchestrationServerImpl(
         val id: UUID,
         val role: OrchestrationClientRole,
         val input: ObjectInputStream,
-        val output: ObjectOutputStream
+        private val output: ObjectOutputStream
     ) : AutoCloseable {
 
+        private val writingThread = Executors.newSingleThreadExecutor { runnable ->
+            thread(
+                name = "Orchestration Client Writer (${socket.remoteSocketAddress})",
+                isDaemon = true,
+                start = false
+            ) {
+                runnable.run()
+            }
+        }
+
+        fun write(message: OrchestrationMessage): Future<Unit> = writingThread.submit<Unit> {
+            try {
+                output.writeObject(message)
+                output.flush()
+            } catch (_: Throwable) {
+                lock.withLock { clients.remove(this) }
+                logger.debug("Closing client: '$this'")
+                close()
+            }
+        }
+
         override fun close() {
+            writingThread.shutdownNow()
+            if (!writingThread.awaitTermination(1, TimeUnit.SECONDS)) {
+                logger.warn("'writerThread' did not finish gracefully in 1 second '$this'")
+            }
+
             socket.close()
             sendMessage(OrchestrationMessage.ClientDisconnected(id, role))
         }
@@ -92,18 +121,7 @@ private class OrchestrationServerImpl(
     override fun sendMessage(message: OrchestrationMessage): Future<Unit> = orchestrationThread.submit<Unit> {
         /* Send the message to all, currently connected clients */
         val clients = lock.withLock { clients.toList() }
-        clients.forEach { client ->
-            try {
-                client.output.writeObject(message)
-                client.output.flush()
-            } catch (_: Throwable) {
-                logger.debug("Closing client: '$client'")
-                client.close()
-                lock.withLock {
-                    this.clients.remove(client)
-                }
-            }
-        }
+        clients.forEach { client -> client.write(message) }
 
         /*
         Send the message to all message listeners:
@@ -118,7 +136,8 @@ private class OrchestrationServerImpl(
             while (isActive) {
                 try {
                     val clientSocket = serverSocket.accept()
-                    startClient(clientSocket)
+                    clientSocket.keepAlive = true
+                    startClientReader(clientSocket)
                 } catch (t: IOException) {
                     if (isActive) {
                         logger.warn("Server Socket exception", t)
@@ -129,7 +148,7 @@ private class OrchestrationServerImpl(
         }
     }
 
-    private fun startClient(socket: Socket) = thread(name = "Orchestration Client Reader") {
+    private fun startClientReader(socket: Socket) = thread(name = "Orchestration Client Reader") {
         /* Read Handshake and create the 'client' object */
         val client = try {
             logger.debug("Socket connected: '${socket.remoteSocketAddress}'")
