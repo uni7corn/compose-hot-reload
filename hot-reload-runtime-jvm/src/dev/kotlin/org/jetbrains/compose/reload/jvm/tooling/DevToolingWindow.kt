@@ -57,7 +57,7 @@ private fun runDevToolingApplication() {
         exitProcessOnExit = false,
     ) {
 
-        Column(Modifier.padding(16.dp)) {
+        Column(Modifier.padding(16.dp).fillMaxSize()) {
             Row {
                 ComposeLogo(modifier = Modifier.size(64.dp))
 
@@ -69,27 +69,25 @@ private fun runDevToolingApplication() {
 
             DevToolingToolbar()
 
-            Text("Compiler")
-            DevToolingConsole(
-                tag = LogMessage.TAG_COMPILER,
-                modifier = Modifier
-                    .heightIn(64.dp, 256.dp),
-            )
+            Column(
+                verticalArrangement = Arrangement.spacedBy(16.dp),
+                modifier = Modifier.fillMaxSize()
+            ) {
+                DevToolingConsole(
+                    tag = LogMessage.TAG_COMPILER,
+                    modifier = Modifier.weight(1f, fill = false)
+                )
 
+                DevToolingConsole(
+                    tag = LogMessage.TAG_AGENT,
+                    modifier = Modifier.weight(1f, fill = false),
+                )
 
-            Text("Agent")
-            DevToolingConsole(
-                tag = LogMessage.TAG_AGENT,
-                modifier = Modifier
-                    .heightIn(64.dp, 256.dp),
-            )
-
-            Text("Runtime")
-            DevToolingConsole(
-                tag = LogMessage.TAG_RUNTIME,
-                modifier = Modifier
-                    .heightIn(64.dp, 256.dp),
-            )
+                DevToolingConsole(
+                    tag = LogMessage.TAG_RUNTIME,
+                    modifier = Modifier.weight(1f, fill = false),
+                )
+            }
         }
     }
 }
