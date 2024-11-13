@@ -58,7 +58,7 @@ class ServerClientTest {
             if (serverMessages.receive() is LogMessage) break
         }
 
-        orchestrationThread.submit {
+        orchestrationExecutor.submit {
             assertEquals(listOf(LogMessage("A")), serverReceivedMessages.toList())
             assertEquals(listOf(LogMessage("A")), clientReceivedMessages.toList())
         }.get()
@@ -94,7 +94,7 @@ class ServerClientTest {
             if (serverMessages.receive() is LogMessage) break
         }
 
-        orchestrationThread.submit {
+        orchestrationExecutor.submit {
             assertEquals(listOf(LogMessage("A")), serverReceivedMessages.toList())
             assertEquals(listOf(), clientReceivedMessages)
         }.get()

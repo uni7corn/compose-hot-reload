@@ -2,6 +2,7 @@ package org.jetbrains.compose.reload.agent
 
 import org.jetbrains.compose.reload.orchestration.Disposable
 import org.jetbrains.compose.reload.orchestration.OrchestrationMessage.ReloadClassesRequest
+import org.jetbrains.compose.reload.orchestration.checkIsOrchestrationThread
 import java.lang.instrument.Instrumentation
 import java.util.*
 import java.util.concurrent.locks.ReentrantLock
@@ -42,11 +43,15 @@ object ComposeHotReloadAgent {
         }
 
     internal fun executeBeforeReloadListeners(reloadRequestId: UUID) {
+        checkIsOrchestrationThread()
+
         val listeners = synchronized(beforeReloadListeners) { beforeReloadListeners.toList() }
         listeners.forEach { listener -> listener(reloadRequestId) }
     }
 
     internal fun executeAfterReloadListeners(reloadRequestId: UUID, error: Throwable?) {
+        checkIsOrchestrationThread()
+
         val listeners = synchronized(afterReloadListeners) { afterReloadListeners.toList() }
         listeners.forEach { listener -> listener(reloadRequestId, error) }
     }

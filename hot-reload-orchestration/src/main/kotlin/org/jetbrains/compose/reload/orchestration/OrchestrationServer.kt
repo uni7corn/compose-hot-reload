@@ -18,7 +18,6 @@ import java.util.concurrent.atomic.AtomicBoolean
 import java.util.concurrent.locks.ReentrantLock
 import kotlin.concurrent.thread
 import kotlin.concurrent.withLock
-import kotlin.time.Duration.Companion.seconds
 
 public interface OrchestrationServer : OrchestrationHandle
 
@@ -29,7 +28,7 @@ public fun startOrchestrationServer(): OrchestrationServer {
     val logger = LoggerFactory.getLogger("OrchestrationServer(${serverSocket.localPort})")
     logger.debug("listening on port: ${serverSocket.localPort}")
 
-    val server = OrchestrationServerImpl(serverSocket, orchestrationThread, logger)
+    val server = OrchestrationServerImpl(serverSocket, orchestrationExecutor, logger)
     server.start()
 
     return server
