@@ -22,30 +22,33 @@ object ComposeHotReloadAgent {
 
     val orchestration by lazy { startOrchestration() }
 
-    fun invokeBeforeReload(block: (reloadRequestId: UUID) -> Unit): Disposable = reloadLock.withLock {
+    fun invokeBeforeReload(block: (reloadRequestId: UUID) -> Unit): Disposable = synchronized(beforeReloadListeners) {
         beforeReloadListeners.add(block)
         Disposable {
-            reloadLock.withLock {
+            synchronized(beforeReloadListeners) {
                 beforeReloadListeners.remove(block)
             }
         }
     }
 
-    fun invokeAfterReload(block: (reloadRequestId: UUID, error: Throwable?) -> Unit): Disposable = reloadLock.withLock {
-        afterReloadListeners.add(block)
-        Disposable {
-            reloadLock.withLock {
-                afterReloadListeners.remove(block)
+    fun invokeAfterReload(block: (reloadRequestId: UUID, error: Throwable?) -> Unit): Disposable =
+        synchronized(afterReloadListeners) {
+            afterReloadListeners.add(block)
+            Disposable {
+                synchronized(afterReloadListeners) {
+                    afterReloadListeners.remove(block)
+                }
             }
         }
+
+    internal fun executeBeforeReloadListeners(reloadRequestId: UUID) {
+        val listeners = synchronized(beforeReloadListeners) { beforeReloadListeners.toList() }
+        listeners.forEach { listener -> listener(reloadRequestId) }
     }
 
-    internal fun executeBeforeReloadListeners(reloadRequestId: UUID) = reloadLock.withLock {
-        beforeReloadListeners.forEach { it(reloadRequestId) }
-    }
-
-    internal fun executeAfterReloadListeners(reloadRequestId: UUID, error: Throwable?) = reloadLock.withLock {
-        afterReloadListeners.forEach { it(reloadRequestId, error) }
+    internal fun executeAfterReloadListeners(reloadRequestId: UUID, error: Throwable?) {
+        val listeners = synchronized(afterReloadListeners) { afterReloadListeners.toList() }
+        listeners.forEach { listener -> listener(reloadRequestId, error) }
     }
 
     fun retryPendingChanges() {
