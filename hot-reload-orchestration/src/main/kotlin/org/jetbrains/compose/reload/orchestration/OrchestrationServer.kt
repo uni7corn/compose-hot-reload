@@ -28,7 +28,7 @@ public fun startOrchestrationServer(): OrchestrationServer {
     val logger = LoggerFactory.getLogger("OrchestrationServer(${serverSocket.localPort})")
     logger.debug("listening on port: ${serverSocket.localPort}")
 
-    val server = OrchestrationServerImpl(serverSocket, orchestrationExecutor, logger)
+    val server = OrchestrationServerImpl(serverSocket, logger)
     server.start()
 
     return server
@@ -36,7 +36,6 @@ public fun startOrchestrationServer(): OrchestrationServer {
 
 private class OrchestrationServerImpl(
     private val serverSocket: ServerSocket,
-    private val orchestrationThread: ExecutorService,
     private val logger: Logger
 ) : OrchestrationServer {
     private val isClosed = AtomicBoolean(false)

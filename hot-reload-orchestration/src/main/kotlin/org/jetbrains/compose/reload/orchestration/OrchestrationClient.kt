@@ -21,7 +21,7 @@ public fun connectOrchestrationClient(role: OrchestrationClientRole, port: Int):
     val socket = Socket(InetAddress.getLocalHost(), port)
 
     socket.keepAlive = true
-    val client = OrchestrationClientImpl(role, socket, orchestrationExecutor, port)
+    val client = OrchestrationClientImpl(role, socket, port)
     client.start()
     return client
 }
@@ -29,7 +29,6 @@ public fun connectOrchestrationClient(role: OrchestrationClientRole, port: Int):
 private class OrchestrationClientImpl(
     private val role: OrchestrationClientRole,
     private val socket: Socket,
-    private val orchestrationThread: ExecutorService,
     override val port: Int,
 ) : OrchestrationClient {
 
