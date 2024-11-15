@@ -6,7 +6,6 @@ import org.junit.jupiter.api.extension.ExtendWith
 import org.junit.jupiter.api.extension.ExtensionContext
 import org.junit.platform.commons.support.AnnotationSupport
 import kotlin.io.path.createDirectories
-import kotlin.io.path.createParentDirectories
 import kotlin.io.path.writeText
 
 /**
@@ -42,11 +41,17 @@ private fun ProjectDir.setupKmpProject(
 ) {
     buildGradleKts.writeText(
         """
+        import org.jetbrains.kotlin.compose.compiler.gradle.ComposeFeatureFlag
+        
         plugins {
             kotlin("multiplatform")
             kotlin("plugin.compose")
             id("org.jetbrains.compose")
             id("org.jetbrains.compose-hot-reload")
+        }
+        
+        composeCompiler {
+            featureFlags.add(ComposeFeatureFlag.OptimizeNonSkippingGroups)
         }
         
         kotlin {
@@ -71,12 +76,17 @@ fun ProjectDir.setupJvmProject() {
     buildGradleKts.writeText(
         """
         import org.jetbrains.compose.reload.ComposeHotRun
+        import org.jetbrains.kotlin.compose.compiler.gradle.ComposeFeatureFlag
         
         plugins {
             kotlin("jvm")
             kotlin("plugin.compose")
             id("org.jetbrains.compose")
             id("org.jetbrains.compose-hot-reload")
+        }
+        
+        composeCompiler {
+            featureFlags.add(ComposeFeatureFlag.OptimizeNonSkippingGroups)
         }
         
         dependencies {

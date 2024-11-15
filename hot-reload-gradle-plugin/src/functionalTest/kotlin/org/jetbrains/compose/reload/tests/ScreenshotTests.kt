@@ -3,6 +3,7 @@
 package org.jetbrains.compose.reload.tests
 
 import org.jetbrains.compose.reload.utils.*
+import org.junit.jupiter.api.Disabled
 import kotlin.io.path.appendLines
 import kotlin.io.path.appendText
 
@@ -238,5 +239,80 @@ class ScreenshotTests {
 
         fixture.sendTestEvent()
         fixture.checkScreenshot("4-afterEvent")
+    }
+
+    @HotReloadTest
+    @DefaultSettingsGradleKts
+    @DefaultBuildGradleKts
+    @TestOnlyLatestVersions
+    @MinKotlinVersion("2.1.20-dev-2637")
+    fun `test - update remembered value`(fixture: HotReloadTestFixture) = fixture.runTest {
+        fixture initialSourceCode """
+            import androidx.compose.foundation.layout.*
+            import androidx.compose.material3.*
+            import androidx.compose.ui.unit.*
+            import androidx.compose.ui.window.*
+            import androidx.compose.runtime.*
+            import org.jetbrains.compose.reload.underTest.*
+            
+            fun main() {
+                underTestApplication {
+                    var state by remember { mutableStateOf(0) }
+                    onTestEvent { state++ }
+                    Text("Before: %state", fontSize = 48.sp)
+                }
+            }
+            """.trimIndent().replace("%", "$")
+        fixture.checkScreenshot("0-before")
+
+        fixture.sendTestEvent()
+        fixture.checkScreenshot("1-afterEvent")
+
+        fixture.replaceSourceCodeAndReload("Before:", "After:")
+        fixture.checkScreenshot("2-afterSimpleCodeChange")
+
+        fixture.replaceSourceCodeAndReload("mutableStateOf(0)", "mutableStateOf(42)")
+        fixture.checkScreenshot("3-afterChangeInsideRememberBlock")
+    }
+
+    @Disabled
+    @HotReloadTest
+    @DefaultSettingsGradleKts
+    @DefaultBuildGradleKts
+    @TestOnlyLatestVersions
+    @MinKotlinVersion("2.1.20-dev-2637")
+    fun `test - change lambda from non-capturing to capturing`(fixture: HotReloadTestFixture) = fixture.runTest {
+        fixture initialSourceCode """
+            import androidx.compose.foundation.layout.*
+            import androidx.compose.material3.*
+            import androidx.compose.ui.unit.*
+            import androidx.compose.ui.window.*
+            import androidx.compose.runtime.*
+            import org.jetbrains.compose.reload.underTest.*
+            
+            fun main() {
+                underTestApplication {
+                    var state by remember { mutableStateOf(0) }
+                   
+                    val myLambda = {
+                        // lambda body
+                    }
+                    
+                    onTestEvent {
+                        myLambda() 
+                     }
+                    
+                    Text("%state")
+                }
+            }
+            """.trimIndent().replace("%", "$")
+        fixture.checkScreenshot("0-before")
+
+        fixture.sendTestEvent()
+        fixture.checkScreenshot("0-before")
+
+        fixture.replaceSourceCodeAndReload("// lambda body", "state++")
+        fixture.sendTestEvent()
+        fixture.checkScreenshot("1-afterLambdaEngaged")
     }
 }

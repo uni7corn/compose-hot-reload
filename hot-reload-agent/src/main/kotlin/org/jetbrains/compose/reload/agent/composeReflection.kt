@@ -19,3 +19,13 @@ internal fun enableComposeHotReloadMode(moduleClassLoader: ClassLoader = Thread.
         logger.warn("Failed to enable compose hot reload mode", e)
     }
 }
+
+internal fun invalidateGroupsWithKey(key: ComposeGroupKey) {
+    val recomposerClass = Thread.currentThread().contextClassLoader.loadClass(RECOMPOSER_CLASS)
+    val recomposerCompanion = recomposerClass.getField(COMPANION_FIELD).get(null)
+    val recomposerCompanionClass = Thread.currentThread().contextClassLoader.loadClass(RECOMPOSER_COMPANION_CLASS)
+
+    recomposerCompanionClass.methods
+        .singleOrNull { it.name.contains("invalidateGroupsWithKey") }
+        ?.apply { invoke(recomposerCompanion, key.key) }
+}

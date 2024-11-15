@@ -8,6 +8,7 @@ androidGradlePlugin = "8.5.2"
 junit = "5.10.1"
 javassist = "3.30.2-GA"
 logback = "1.5.9"
+asm = "9.7.1"
 
 [libraries]
 coroutines-core = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-core", version.ref = "coroutines" }
@@ -27,3 +28,5 @@ compose-gradlePlugin = { module = "org.jetbrains.compose:org.jetbrains.compose.g
 junit-jupiter = { module = "org.junit.jupiter:junit-jupiter", version.ref = "junit" }
 junit-jupiter-engine = { module = "org.junit.jupiter:junit-jupiter-engine", version.ref = "junit" }
 javassist = { module = "org.javassist:javassist", version.ref = "javassist" }
+asm = { module = "org.ow2.asm:asm", version.ref = "asm" }
+asm-tree = { module = "org.ow2.asm:asm-tree", version.ref = "asm" }

@@ -26,6 +26,7 @@ dependencies {
     devImplementation(deps.coroutines.swing)
 
     devImplementation(deps.javassist)
+    devImplementation(deps.asm)
     devImplementation(deps.slf4j.api)
     devImplementation(compose.desktop.common)
     devImplementation(compose.material3)

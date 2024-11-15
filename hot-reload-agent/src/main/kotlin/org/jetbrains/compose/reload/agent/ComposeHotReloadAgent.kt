@@ -6,7 +6,6 @@ import org.jetbrains.compose.reload.orchestration.checkIsOrchestrationThread
 import java.lang.instrument.Instrumentation
 import java.util.*
 import java.util.concurrent.locks.ReentrantLock
-import kotlin.concurrent.withLock
 
 
 object ComposeHotReloadAgent {
@@ -64,6 +63,7 @@ object ComposeHotReloadAgent {
     fun premain(args: String?, instrumentation: Instrumentation) {
         this.instrumentation = instrumentation
         enableComposeHotReloadMode()
+        startComposeGroupInvalidationTransformation(instrumentation)
         launchReloadClassesRequestHandler(instrumentation)
         launchRecompiler()
 
