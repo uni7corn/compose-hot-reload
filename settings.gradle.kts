@@ -2,6 +2,11 @@
 
 pluginManagement {
     repositories {
+        maven("https://repo.sellmair.io") {
+            mavenContent {
+                includeGroupByRegex("org.jetbrains.kotlin.*")
+            }
+        }
         mavenCentral()
         gradlePluginPortal()
     }
@@ -19,7 +24,13 @@ dependencyResolutionManagement {
     repositories {
         repositoriesMode = RepositoriesMode.FAIL_ON_PROJECT_REPOS
 
-        mavenCentral()
+        /* Getting firework artifacts for tests (such as test compiler) */
+        maven("https://repo.sellmair.io") {
+            mavenContent {
+                includeVersionByRegex("org.jetbrains.*", ".*", ".*firework.*")
+            }
+        }
+
         google {
             mavenContent {
                 includeGroupByRegex(".*android.*")
@@ -27,6 +38,8 @@ dependencyResolutionManagement {
                 includeGroupByRegex(".*google.*")
             }
         }
+
+        mavenCentral()
     }
 }
 

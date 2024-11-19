@@ -1,5 +1,8 @@
 @file:Suppress("UnstableApiUsage")
 
+import kotlin.text.replace
+
+
 tasks.maybeCreate<Delete>("clean").apply {
     delete(layout.buildDirectory)
 }
@@ -13,6 +16,9 @@ val publishLocally by tasks.registering {
     val version = project.version.toString()
     inputs.property("version", version)
 
+    val fireworkVersion = deps.versions.firework.get()
+    inputs.property("fireworkVersion", fireworkVersion)
+
     doLast {
         logger.quiet("Found: $sampleSettings")
         sampleSettings.forEach { settingsFile ->
@@ -22,7 +28,10 @@ val publishLocally by tasks.registering {
                 if (declaration !in line) return@map line
                 val indent = line.substringBefore(declaration)
                 indent + declaration + " \"${version}\""
-            }.joinToString("\n")
+            }.joinToString("\n") { line ->
+                val fireworkVersionRegex = Regex(""""2.*-firework\..*"""")
+                line.replace(fireworkVersionRegex, "\"$fireworkVersion\"")
+            }
 
             if(newText != text) {
                 settingsFile.writeText(newText)

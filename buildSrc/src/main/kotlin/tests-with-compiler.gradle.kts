@@ -38,7 +38,9 @@ val testComposeCompiler = configurations.create("testComposeCompiler") {
 dependencies {
     testCompilerDependencies(kotlin("stdlib"))
     testCompilerDependencies(ComposePlugin.Dependencies(project).desktop.currentOs)
-    testComposeCompiler(kotlin("compose-compiler-plugin-embeddable"))
+    testComposeCompiler(
+        kotlin("compose-compiler-plugin-embeddable",
+            project.versionCatalogs.named("deps").findVersion("firework").get().requiredVersion))
 }
 
 tasks.withType<Test>().configureEach {

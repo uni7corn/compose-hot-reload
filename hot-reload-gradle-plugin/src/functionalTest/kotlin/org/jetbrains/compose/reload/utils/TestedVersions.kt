@@ -2,7 +2,6 @@ package org.jetbrains.compose.reload.utils
 
 import org.gradle.util.GradleVersion
 import org.jetbrains.kotlin.tooling.core.KotlinToolingVersion
-import org.junit.jupiter.api.extension.ExtendWith
 import org.junit.jupiter.api.extension.ExtensionContext
 
 enum class TestedGradleVersion(val version: GradleVersion) {
@@ -16,7 +15,11 @@ enum class TestedGradleVersion(val version: GradleVersion) {
 
 enum class TestedKotlinVersion(val version: KotlinToolingVersion) {
     KT_2_0(KotlinToolingVersion("2.0.21")),
-    KT_2_1(KotlinToolingVersion("2.1.0-RC")), ;
+    KT_2_1(KotlinToolingVersion("2.1.0-RC")),
+    KT_2_0_FIREWORK(
+        KotlinToolingVersion(System.getProperty("firework.version") ?: error("Missing 'firework.version'"))
+    ),
+    ;
 
     override fun toString(): String {
         return version.toString()
@@ -24,7 +27,7 @@ enum class TestedKotlinVersion(val version: KotlinToolingVersion) {
 }
 
 enum class TestedComposeVersion(val version: String) {
-    C_1_7_0(KotlinToolingVersion("1.7.0").toString()), ;
+    C_1_7(KotlinToolingVersion("1.7.1").toString()), ;
 
     override fun toString(): String {
         return version

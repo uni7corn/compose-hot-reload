@@ -17,6 +17,7 @@ run {
     val functionalTestTask = tasks.register<Test>("functionalTest") {
         testClassesDirs = functionalTest.output.classesDirs
         classpath = functionalTest.output.allOutputs + functionalTest.runtimeDependencyFiles
+        systemProperty("firework.version", deps.versions.firework.get())
     }
 
     tasks.check.configure {
