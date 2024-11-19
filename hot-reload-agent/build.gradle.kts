@@ -2,6 +2,7 @@ plugins {
     kotlin("jvm")
     `maven-publish`
     `publishing-conventions`
+    `tests-with-compiler`
 }
 
 tasks.withType<Jar>().named(kotlin.target.artifactsTaskName).configure {
@@ -31,4 +32,8 @@ dependencies {
     implementation(deps.junit.jupiter)
     implementation(deps.junit.jupiter.engine)
     implementation(kotlin("test"))
+
+    testImplementation(kotlin("compiler-embeddable"))
+    testImplementation(deps.logback)
 }
+

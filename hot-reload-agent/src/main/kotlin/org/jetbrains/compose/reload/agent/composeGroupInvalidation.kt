@@ -1,8 +1,8 @@
 package org.jetbrains.compose.reload.agent
 
 import javassist.ClassPool
-import javassist.CtMethod
 import kotlinx.coroutines.Dispatchers
+import org.objectweb.asm.AnnotationVisitor
 import org.objectweb.asm.ClassReader
 import org.objectweb.asm.ClassVisitor
 import org.objectweb.asm.Handle
@@ -18,46 +18,15 @@ import kotlin.coroutines.EmptyCoroutineContext
 
 private val logger = createLogger()
 
-private val instrumentationPool by lazy {
-    ClassPool(true)
-}
+private const val composerClazzId = "androidx/compose/runtime/Composer"
+private const val startReplaceGroupMethodName = "startReplaceGroup"
+private const val startRestartGroupMethodName = "startRestartGroup"
+private const val endReplaceGroupMethodName = "endReplaceGroup"
+private const val endRestartGroupMethodName = "endRestartGroup"
+private const val rememberedValueMethodName = "rememberedValue"
+private const val updateRememberedValueName = "updateRememberedValue"
+private const val functionKeyMetaConstructorDescriptor = "Landroidx/compose/runtime/internal/FunctionKeyMeta;"
 
-private val composerClazz by lazy {
-    instrumentationPool.get("androidx.compose.runtime.Composer")
-}
-
-private val startReplaceGroupMethod by lazy {
-    composerClazz.getDeclaredMethod(
-        "startReplaceGroup",
-        arrayOf(instrumentationPool.get(Int::class.javaPrimitiveType!!.name))
-    )
-}
-
-private val startRestartGroupMethod by lazy {
-    composerClazz.getDeclaredMethod(
-        "startRestartGroup",
-        arrayOf(instrumentationPool.get(Int::class.javaPrimitiveType!!.name))
-    )
-}
-
-private val endReplaceGroupMethod by lazy {
-    composerClazz.getDeclaredMethod("endReplaceGroup")
-}
-
-private val endRestartGroupMethod by lazy {
-    composerClazz.getDeclaredMethod("endRestartGroup")
-}
-
-private val composerRememberedValueMethod by lazy {
-    composerClazz.getDeclaredMethod("rememberedValue")
-}
-
-private val composerUpdateRememberedValueMethod by lazy {
-    composerClazz.getDeclaredMethod(
-        "updateRememberedValue",
-        arrayOf(instrumentationPool.get(Any::class.java.name))
-    )
-}
 
 /**
  * The actual key emitted by the Compose Compiler associated with the group.
@@ -93,6 +62,7 @@ internal value class ComposeGroupInvalidationKey(val key: Int)
  */
 internal data class ComposeGroupRuntimeInfo(
     val callSiteMethodFqn: String,
+    val parentComposeGroupKey: ComposeGroupKey?,
     val invalidationKey: ComposeGroupInvalidationKey,
 )
 
@@ -107,7 +77,8 @@ internal fun startComposeGroupInvalidationTransformation(instrumentation: Instru
     ComposeHotReloadAgent.invokeAfterReload { reloadRequestId, error ->
         if (error != null) return@invokeAfterReload
 
-        val invalidations = globalInvalidComposeGroupKeys.entries.toList()
+        val invalidatedKeys = hashSetOf<ComposeGroupKey>()
+        val invalidations = globalInvalidComposeGroupKeys.keys.toList()
         globalInvalidComposeGroupKeys.clear()
 
         Dispatchers.Main.dispatch(EmptyCoroutineContext) {
@@ -115,9 +86,18 @@ internal fun startComposeGroupInvalidationTransformation(instrumentation: Instru
                 logger.orchestration("All groups retained")
             }
 
-            invalidations.forEach { (groupKey, groupRuntimeInfo) ->
-                logger.orchestration("Invalidating group at '${groupRuntimeInfo.callSiteMethodFqn}' ('$groupKey')")
-                invalidateGroupsWithKey(groupKey)
+            /* Invalidate all groups, including their parents */
+            invalidations.forEach { groupKey ->
+                var currentGroupKey: ComposeGroupKey? = groupKey
+                while (currentGroupKey != null) {
+                    val currentGroupRuntimeInfo = globalComposeComposeGroupRuntimeInfo[currentGroupKey] ?: break
+                    if (!invalidatedKeys.add(currentGroupKey)) break
+
+                    logger.orchestration("Invalidating group at '${currentGroupRuntimeInfo.callSiteMethodFqn}' ('$currentGroupKey')")
+                    invalidateGroupsWithKey(currentGroupKey)
+
+                    currentGroupKey = currentGroupRuntimeInfo.parentComposeGroupKey
+                }
             }
         }
     }
@@ -163,7 +143,7 @@ internal fun refreshComposeGroupRuntimeInfos(
     }
 }
 
-private fun parseComposeGroupRuntimeInfos(classFile: ByteArray): Map<ComposeGroupKey, ComposeGroupRuntimeInfo> {
+internal fun parseComposeGroupRuntimeInfos(classFile: ByteArray): Map<ComposeGroupKey, ComposeGroupRuntimeInfo> {
     val reader = ClassReader(classFile)
     val composeGroupRuntimeInfoBuilder = ComposeGroupRuntimeInfoBuilder()
     reader.accept(composeGroupRuntimeInfoBuilder, 0)
@@ -200,6 +180,7 @@ private class ReloadKeyMethodVisitor(
     private val stack = ArrayDeque<ComposeGroupRuntimeInfoBuilder>()
 
     inner class ComposeGroupRuntimeInfoBuilder(
+        val parentComposeGroupKey: ComposeGroupKey?,
         val composeGroupKey: ComposeGroupKey,
         var isHashing: Boolean = false,
     ) {
@@ -220,8 +201,9 @@ private class ReloadKeyMethodVisitor(
 
         fun createGroupRuntimeInfo(): ComposeGroupRuntimeInfo {
             return ComposeGroupRuntimeInfo(
+                parentComposeGroupKey = parentComposeGroupKey,
                 callSiteMethodFqn = callSiteMethodFqn,
-                ComposeGroupInvalidationKey(crc.value.toInt())
+                invalidationKey = ComposeGroupInvalidationKey(crc.value.toInt())
             )
         }
     }
@@ -235,44 +217,57 @@ private class ReloadKeyMethodVisitor(
     override fun visitMethodInsn(
         opcode: Int, owner: String?, name: String?, descriptor: String?, isInterface: Boolean
     ) {
-        fun isMethod(ctMethod: CtMethod): Boolean {
-            if (descriptor != ctMethod.methodInfo.descriptor) return false
-            if (name != ctMethod.name) return false
-            if (owner != ctMethod.declaringClass.name.replace(".", "/")) return false
-            return true
-        }
-
-        if (isMethod(startRestartGroupMethod)) {
-            stack.add(ComposeGroupRuntimeInfoBuilder(ComposeGroupKey(lastIntValue)))
-        }
-
-        if (isMethod(startReplaceGroupMethod)) {
-            stack.add(ComposeGroupRuntimeInfoBuilder(ComposeGroupKey(lastIntValue)))
-        }
-
-        if (isMethod(endReplaceGroupMethod)) {
-            val element = stack.removeLastOrNull() ?: return
-            groups[element.composeGroupKey] = element.createGroupRuntimeInfo()
-        }
-
-        if (isMethod(endRestartGroupMethod)) {
-            val element = stack.removeLastOrNull() ?: return
-            groups[element.composeGroupKey] = element.createGroupRuntimeInfo()
-        }
-
-        if (isMethod(composerRememberedValueMethod)) {
-            stack.lastOrNull()?.isHashing = true
-        }
-
-        if (isMethod(composerUpdateRememberedValueMethod)) {
-            stack.lastOrNull()?.isHashing = false
-        }
 
         stack.lastOrNull()?.apply {
             pushHashIfNecessary(owner)
             pushHashIfNecessary(name)
             pushHashIfNecessary(descriptor)
             pushHashIfNecessary(isInterface)
+        }
+
+
+        if (owner == composerClazzId) {
+            if (name == startRestartGroupMethodName) {
+                stack += ComposeGroupRuntimeInfoBuilder(
+                    parentComposeGroupKey = stack.lastOrNull()?.composeGroupKey,
+                    composeGroupKey = ComposeGroupKey(lastIntValue)
+                )
+            }
+
+            if (name == startReplaceGroupMethodName) {
+                stack += ComposeGroupRuntimeInfoBuilder(
+                    parentComposeGroupKey = stack.lastOrNull()?.composeGroupKey,
+                    composeGroupKey = ComposeGroupKey(lastIntValue)
+                )
+            }
+
+            if (name == endReplaceGroupMethodName || name == endRestartGroupMethodName) {
+                val element = stack.removeLastOrNull() ?: return
+                groups[element.composeGroupKey] = element.createGroupRuntimeInfo()
+            }
+
+            if (name == rememberedValueMethodName) {
+                stack.lastOrNull()?.isHashing = true
+            }
+
+            if (name == updateRememberedValueName) {
+                stack.lastOrNull()?.isHashing = false
+            }
+        }
+    }
+
+    override fun visitAnnotation(descriptor: String?, visible: Boolean): AnnotationVisitor? {
+        if (descriptor != functionKeyMetaConstructorDescriptor) return null
+
+        return object : AnnotationVisitor(ASM9) {
+            override fun visit(name: String?, value: Any?) {
+                if (name == "key" && value is Int) {
+                    stack += ComposeGroupRuntimeInfoBuilder(
+                        parentComposeGroupKey = stack.lastOrNull()?.composeGroupKey,
+                        composeGroupKey = ComposeGroupKey(value)
+                    )
+                }
+            }
         }
     }
 
