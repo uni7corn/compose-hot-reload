@@ -4,6 +4,7 @@ package org.jetbrains.compose.reload.utils
 
 import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.consumeAsFlow
+import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.flow.filterIsInstance
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.receiveAsFlow
@@ -41,7 +42,9 @@ class HotReloadTestFixture(
         orchestration.sendMessage(message).get()
     }
 
-    suspend inline fun <reified T> skipToMessage(timeout: Duration = 5.minutes): T {
+    suspend inline fun <reified T> skipToMessage(
+        timeout: Duration = 5.minutes, crossinline filter: (T) -> Boolean = { true }
+    ): T {
         val stack = Thread.currentThread().stackTrace
         val dispatcher = Dispatchers.Default.limitedParallelism(1)
 
@@ -51,7 +54,7 @@ class HotReloadTestFixture(
             while (true) {
                 logger.quiet(
                     "Waiting for message ${T::class.simpleName} ($waiting/$timeout)" +
-                        "\n${stack.drop(1).take(5).joinToString("\n") { "  $it" }}"
+                            "\n${stack.drop(1).take(5).joinToString("\n") { "  $it" }}"
                 )
                 delay(sleep)
                 waiting += sleep
@@ -61,7 +64,7 @@ class HotReloadTestFixture(
         return withContext(dispatcher) {
             try {
                 withTimeout(timeout) {
-                    messages.receiveAsFlow().filterIsInstance<T>().first()
+                    messages.receiveAsFlow().filterIsInstance<T>().filter(filter).first()
                 }
             } finally {
                 reminder.cancel()

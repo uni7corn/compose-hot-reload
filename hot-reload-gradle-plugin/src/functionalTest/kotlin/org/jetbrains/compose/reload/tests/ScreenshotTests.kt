@@ -2,8 +2,8 @@
 
 package org.jetbrains.compose.reload.tests
 
+import org.jetbrains.compose.reload.orchestration.OrchestrationMessage
 import org.jetbrains.compose.reload.utils.*
-import org.junit.jupiter.api.Disabled
 import kotlin.io.path.appendLines
 import kotlin.io.path.appendText
 
@@ -275,7 +275,6 @@ class ScreenshotTests {
         fixture.checkScreenshot("3-afterChangeInsideRememberBlock")
     }
 
-    @Disabled
     @HotReloadTest
     @DefaultSettingsGradleKts
     @DefaultBuildGradleKts
@@ -296,10 +295,12 @@ class ScreenshotTests {
                    
                     val myLambda = {
                         // lambda body
+                        sendLog("run: myLambda")
+                        sendTestEvent("run: myLambda")
                     }
                     
-                    onTestEvent {
-                        myLambda() 
+                    onTestEvent { value ->
+                        if(value == "inc") myLambda() 
                      }
                     
                     Text("%state")
@@ -308,11 +309,16 @@ class ScreenshotTests {
             """.trimIndent().replace("%", "$")
         fixture.checkScreenshot("0-before")
 
-        fixture.sendTestEvent()
+        fixture.sendTestEvent("inc")
         fixture.checkScreenshot("0-before")
 
         fixture.replaceSourceCodeAndReload("// lambda body", "state++")
-        fixture.sendTestEvent()
+        fixture.sendTestEvent("inc")
+
+        fixture.skipToMessage<OrchestrationMessage.TestEvent> { event ->
+            event.payload == "run: myLambda"
+        }
+
         fixture.checkScreenshot("1-afterLambdaEngaged")
     }
 }

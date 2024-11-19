@@ -6,13 +6,19 @@ package org.jetbrains.compose.reload.underTest
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.test.ExperimentalTestApi
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.flow.filterIsInstance
+import kotlinx.coroutines.flow.receiveAsFlow
+import kotlinx.coroutines.launch
 import org.jetbrains.compose.reload.DevelopmentEntryPoint
 import org.jetbrains.compose.reload.InternalHotReloadApi
 import org.jetbrains.compose.reload.agent.ComposeHotReloadAgent.orchestration
 import org.jetbrains.compose.reload.jvm.runDevApplicationHeadless
 import org.jetbrains.compose.reload.orchestration.OrchestrationMessage
-import org.jetbrains.compose.reload.orchestration.asFlow
+import org.jetbrains.compose.reload.orchestration.asChannel
+import org.jetbrains.compose.reload.orchestration.invokeWhenReceived
 import org.slf4j.LoggerFactory
 import java.lang.invoke.MethodHandles
 import kotlin.time.Duration.Companion.minutes
@@ -34,14 +40,35 @@ internal val logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass
  * }
  * ```
  */
-object UnderTestApplication {
+class UnderTestApplication(
+    val applicationScope: CoroutineScope
+) {
+
+    private val orchestrationChannel = orchestration.asChannel()
+
     @Composable
     fun onTestEvent(handler: suspend (payload: Any?) -> Unit) {
         LaunchedEffect(Unit) {
-            orchestration.asFlow().filterIsInstance<OrchestrationMessage.TestEvent>().collect { value ->
+            orchestrationChannel.receiveAsFlow().filterIsInstance<OrchestrationMessage.TestEvent>().collect { value ->
                 logger.debug("TestEvent received: $value")
                 handler.invoke(value.payload)
             }
+        }
+    }
+
+    fun sendTestEvent(any: Any? = null) {
+        orchestration.sendMessage(OrchestrationMessage.TestEvent(any))
+    }
+
+    fun sendLog(any: Any?) {
+        orchestration.sendMessage(OrchestrationMessage.LogMessage("test", any.toString()))
+    }
+}
+
+fun invokeOnTestEvent(handler: suspend (payload: Any?) -> Unit) {
+    orchestration.invokeWhenReceived<OrchestrationMessage.TestEvent> { value ->
+        CoroutineScope(Dispatchers.Main + SupervisorJob()).launch {
+            handler.invoke(value.payload)
         }
     }
 }
@@ -57,9 +84,11 @@ fun underTestApplication(
     height: Int = 256,
     content: @Composable UnderTestApplication.() -> Unit
 ) {
-    runDevApplicationHeadless(timeout.minutes, width = width, height = height) {
+    runDevApplicationHeadless(
+        timeout.minutes, width = width, height = height,
+    ) { applicationScope ->
         DevelopmentEntryPoint {
-            UnderTestApplication.content()
+            UnderTestApplication(applicationScope).content()
         }
     }
 }

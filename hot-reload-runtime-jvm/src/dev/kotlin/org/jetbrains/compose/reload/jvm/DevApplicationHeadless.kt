@@ -33,7 +33,7 @@ import kotlin.time.Duration.Companion.milliseconds
 fun runDevApplicationHeadless(
     timeout: Duration,
     width: Int, height: Int,
-    content: @Composable () -> Unit
+    content: @Composable (applicationScope: CoroutineScope) -> Unit
 ) {
     val logger = createLogger()
     val applicationScope = CoroutineScope(Dispatchers.Default.limitedParallelism(1) + Job())
@@ -43,7 +43,7 @@ fun runDevApplicationHeadless(
     val scene = ImageComposeScene(width, height, coroutineContext = applicationScope.coroutineContext)
     scene.setContent {
         Box(modifier = Modifier.fillMaxSize().background(Color.White)) {
-            content()
+            content(applicationScope)
         }
     }
 
