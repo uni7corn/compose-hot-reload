@@ -15,6 +15,7 @@ tasks.withType<Jar>().named(kotlin.target.artifactsTaskName).configure {
 
 tasks.withType<Test>().configureEach {
     useJUnitPlatform()
+    jvmArgs("--add-opens=java.base/java.lang=ALL-UNNAMED")
 }
 
 publishing {

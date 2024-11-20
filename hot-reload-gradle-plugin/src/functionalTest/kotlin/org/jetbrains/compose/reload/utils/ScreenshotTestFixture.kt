@@ -39,19 +39,31 @@ suspend fun HotReloadTestFixture.replaceSourceCodeAndReload(
     replaceSourceCodeAndReload(sourceFile = getDefaultMainKtSourceFile(), oldValue, newValue)
 }
 
+fun HotReloadTestFixture.replaceSourceCode(
+    sourceFile: String,
+    oldValue: String, newValue: String
+) {
+    val resolvedFile = projectDir.resolve(sourceFile)
+    val previousText = resolvedFile.readText()
+    val updatedText = previousText.replace(oldValue, newValue)
+    if (updatedText == previousText) {
+        error("Replacement '$oldValue' -> '$newValue' not recognized did not change source code. Typo?")
+    }
+    writeCode(sourceFile, updatedText)
+}
+
+fun HotReloadTestFixture.replaceSourceCode(oldValue: String, newValue: String) =
+    replaceSourceCode(getDefaultMainKtSourceFile(), oldValue, newValue)
+
 suspend fun HotReloadTestFixture.replaceSourceCodeAndReload(
     sourceFile: String = getDefaultMainKtSourceFile(),
     oldValue: String, newValue: String
 ) {
-    val resolvedFile = projectDir.resolve(sourceFile)
-    reloadSourceCode(sourceFile, resolvedFile.readText().replace(oldValue, newValue))
+    replaceSourceCode(sourceFile, oldValue, newValue)
+    awaitSourceCodeReloaded()
 }
 
-suspend fun HotReloadTestFixture.reloadSourceCode(
-    sourceFile: String = getDefaultMainKtSourceFile(), source: String,
-) {
-    writeCode(sourceFile, source)
-
+suspend fun HotReloadTestFixture.awaitSourceCodeReloaded() {
     logger.quiet("Waiting for reload request")
     val reloadRequest = run {
         val reloadRequest = skipToMessage<ReloadClassesRequest>()

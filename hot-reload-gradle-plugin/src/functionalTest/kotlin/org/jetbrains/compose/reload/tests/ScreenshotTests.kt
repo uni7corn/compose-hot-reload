@@ -317,4 +317,32 @@ class ScreenshotTests {
 
         fixture.checkScreenshot("1-afterLambdaEngaged")
     }
+
+    @HotReloadTest
+    @DefaultSettingsGradleKts
+    @DefaultBuildGradleKts
+    @TestOnlyLatestVersions
+    fun `test - add top level value`(fixture: HotReloadTestFixture) = fixture.runTest {
+        fixture initialSourceCode """
+            import androidx.compose.material3.*
+            import androidx.compose.ui.unit.*
+            import org.jetbrains.compose.reload.underTest.*
+            
+            val foo = 42
+            // add field
+            
+            fun main() {
+                underTestApplication {
+                   Text("%foo", fontSize = 48.sp)
+                }
+            }
+            """.trimIndent().replace("%", "$")
+        fixture.checkScreenshot("0-before")
+
+        fixture.replaceSourceCode("// add field", "val bar = 1902")
+        fixture.replaceSourceCode("\$foo", "\$bar")
+        fixture.awaitSourceCodeReloaded()
+
+        fixture.checkScreenshot("1-after")
+    }
 }

@@ -13,7 +13,7 @@ import java.lang.reflect.Modifier
 import kotlin.concurrent.withLock
 
 private val logger = createLogger()
-private const val reinitializeName = "\$cr\$clinit"
+
 
 private val pool = ClassPool().apply {
     appendClassPath(LoaderClassPath(ClassLoader.getSystemClassLoader()))
@@ -66,24 +66,7 @@ internal fun reload(
             }
         }.trim())
 
-        /**
-         * Re-initialize changed static
-         * 1) We demote 'static final' to 'non-final'
-         * 2) We create a static function which contains the class initializer body
-         * 3) We call the new static function to re-initialize the class.
-         */
-        val clazzInitializer = clazz.classInitializer
-        if (clazzInitializer != null && originalClass != null) {
-            clazz.fields.forEach { field ->
-                field.modifiers = field.modifiers and Modifier.FINAL.inv()
-            }
-
-            logger.debug("Created synthetic re-initializer for '${clazz.name}")
-            val reinit = CtConstructor(clazzInitializer, clazz, null)
-            reinit.methodInfo.name = reinitializeName
-            reinit.modifiers = Modifier.PUBLIC or Modifier.STATIC
-            clazz.addConstructor(reinit)
-        }
+        clazz.transformForStaticsInitialization(originalClass)
 
         val baos = ByteArrayOutputStream()
         val daos = DataOutputStream(baos)
@@ -95,12 +78,7 @@ internal fun reload(
     instrumentation.redefineClasses(*definitions.toTypedArray())
 
     definitions.forEach { definition ->
-        val clazz = Class.forName(definition.definitionClass.name)
-        val reinit = runCatching { clazz.getDeclaredMethod(reinitializeName) }.getOrNull() ?: return@forEach
-        logger.debug("Re-initializing ${clazz.name}")
-        reinit.trySetAccessible()
-        reinit.invoke(null)
-        logger.debug("Re-initialized ${clazz.name}")
+        definition.reinitializeStaticsIfNecessary()
     }
 }
 
