@@ -17,13 +17,13 @@ The project publishes experimental builds
 ```kotlin
 pluginManagement {
     repositories {
-        maven("https://repo.sellmair.io")
+        maven("https://packages.jetbrains.team/maven/p/firework/dev")
     }
 }
 
 dependencyResolutionManagement {
     repositories {
-        maven("https://repo.sellmair.io")
+        maven("https://packages.jetbrains.team/maven/p/firework/dev")
     }
 }
 

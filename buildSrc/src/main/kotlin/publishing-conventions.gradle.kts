@@ -13,6 +13,14 @@ plugins.withType<MavenPublishPlugin>().all {
                 }
             }
 
+            maven("https://packages.jetbrains.team/maven/p/firework/dev"){
+                name = "firework"
+                credentials {
+                    username = providers.gradleProperty("spaceUsername").orNull
+                    password = providers.gradleProperty("spacePassword").orNull
+                }
+            }
+
             maven(rootProject.layout.buildDirectory.dir("repo")) {
                 name = "local"
             }

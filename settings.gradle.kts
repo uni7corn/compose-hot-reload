@@ -2,7 +2,7 @@
 
 pluginManagement {
     repositories {
-        maven("https://repo.sellmair.io") {
+        maven("https://packages.jetbrains.team/maven/p/firework/dev") {
             mavenContent {
                 includeGroupByRegex("org.jetbrains.kotlin.*")
             }
@@ -25,7 +25,7 @@ dependencyResolutionManagement {
         repositoriesMode = RepositoriesMode.FAIL_ON_PROJECT_REPOS
 
         /* Getting firework artifacts for tests (such as test compiler) */
-        maven("https://repo.sellmair.io") {
+        maven("https://packages.jetbrains.team/maven/p/firework/dev") {
             mavenContent {
                 includeVersionByRegex("org.jetbrains.*", ".*", ".*firework.*")
             }
