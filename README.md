@@ -33,10 +33,10 @@ dependencyResolutionManagement {
 
 ```kotlin
 plugins {
-    kotlin("multiplatform") version "2.0.21-firework.28"
-    kotlin("plugin.compose") version "2.0.21-firework.28"
+    kotlin("multiplatform") version "2.0.21-firework.28" // <- Use special builds of Kotlin
+    kotlin("plugin.compose") version "2.0.21-firework.28" // <- Use special builds of Kotlin/Compose Compiler
     id("org.jetbrains.compose")
-    id("org.jetbrains.compose-hot-reload") version "1.0.0-dev.28" // <- add this additionally
+    id("org.jetbrains.compose-hot-reload") version "1.0.0-dev.28.1" // <- add this additionally
 }
 ```
 
