@@ -345,4 +345,40 @@ class ScreenshotTests {
 
         fixture.checkScreenshot("1-after")
     }
+
+    @HotReloadTest
+    @DefaultSettingsGradleKts
+    @DefaultBuildGradleKts
+    @TestOnlyLatestVersions
+    fun `test - changing spacedBy`(fixture: HotReloadTestFixture) = fixture.runTest {
+        fixture initialSourceCode """
+            import androidx.compose.foundation.layout.Arrangement
+            import androidx.compose.foundation.layout.Row
+            import androidx.compose.foundation.layout.fillMaxWidth
+            import androidx.compose.material3.Text
+            import androidx.compose.runtime.Composable
+            import androidx.compose.ui.Modifier
+            import androidx.compose.ui.unit.dp
+            import org.jetbrains.compose.reload.underTest.*
+
+
+            fun main() {
+                underTestApplication {
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.spacedBy(6.dp) ,
+                    ) {
+                        Text("A")
+                        Text("B")
+                    }
+                }
+            }
+
+            """.trimIndent().replace("%", "$")
+        fixture.checkScreenshot("0-before")
+
+        /* Increase value passed to 'spacedBy' */
+        fixture.replaceSourceCodeAndReload("spacedBy(6.dp)", "spacedBy(32.dp)")
+        fixture.checkScreenshot("1-larger-spacedBy")
+    }
 }
