@@ -51,7 +51,10 @@ class ScreenshotTests {
                     onTestEvent {
                         state++
                     }
-                    Text("Before: ${d}state", fontSize = 48.sp)
+                    
+                    Group {
+                        Text("Before: ${d}state", fontSize = 48.sp)
+                    }
                 }
             }
             """.trimIndent()
@@ -256,7 +259,9 @@ class ScreenshotTests {
                 underTestApplication {
                     var state by remember { mutableStateOf(0) }
                     onTestEvent { state++ }
-                    Text("Before: %state", fontSize = 48.sp)
+                    Group {
+                        Text("Before: %state", fontSize = 48.sp)
+                    }
                 }
             }
             """.trimIndent().replace("%", "$")

@@ -56,6 +56,14 @@ class UnderTestApplication(
         }
     }
 
+    /**
+     * Intended to forcefully create a new Group/Scope.
+     */
+    @Composable
+    fun Group(child: @Composable () -> Unit) {
+        child()
+    }
+
     fun sendTestEvent(any: Any? = null) {
         orchestration.sendMessage(OrchestrationMessage.TestEvent(any))
     }

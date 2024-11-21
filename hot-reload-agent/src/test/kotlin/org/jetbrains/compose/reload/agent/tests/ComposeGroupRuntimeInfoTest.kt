@@ -131,7 +131,7 @@ class ComposeGroupRuntimeInfoTest() {
             """.trimIndent()
         )
 
-        assertEquals(
+        assertNotEquals(
             parseComposeGroupRuntimeInfos(outputBefore["FooKt.class"]!!),
             parseComposeGroupRuntimeInfos(outputAfter["FooKt.class"]!!)
         )
@@ -177,23 +177,41 @@ class ComposeGroupRuntimeInfoTest() {
             """.trimIndent()
         )
 
-        val composableLambdaBefore = outputBefore.entries.single { (className, _) ->
-            className.matches(Regex(""".*lambda.*\$1\.class"""))
+        run {
+            val composableLambdaBefore = outputBefore.entries.single { (className, _) ->
+                className.matches(Regex(""".*lambda.*\$1\.class"""))
+            }
+
+            val composableLambdaAfter = outputAfter.entries.single { (className, _) ->
+                className.matches(Regex(""".*lambda.*\$1\.class"""))
+            }
+
+            val runtimeInfoBefore = parseComposeGroupRuntimeInfos(composableLambdaBefore.value)
+                .entries.single()
+
+            val runtimeInfoAfter = parseComposeGroupRuntimeInfos(composableLambdaAfter.value)
+                .entries.single()
+
+            assertNotEquals(
+                runtimeInfoBefore.value.invalidationKey, runtimeInfoAfter.value.invalidationKey,
+                "Expected changed invalidation keys."
+            )
         }
 
-        val composableLambdaAfter = outputAfter.entries.single { (className, _) ->
-            className.matches(Regex(""".*lambda.*\$1\.class"""))
+        run {
+            val fooBefore = outputBefore.getValue("FooKt.class")
+            val fooAfter = outputAfter.getValue("FooKt.class")
+
+            val runtimeInfoBefore = parseComposeGroupRuntimeInfos(fooBefore)
+            val runtimeInfoAfter = parseComposeGroupRuntimeInfos(fooAfter)
+
+            val fooInfoBefore = runtimeInfoBefore.values.single { info -> info.callSiteMethodFqn == "FooKt.Foo" }
+            val fooInfoAfter = runtimeInfoAfter.values.single { info -> info.callSiteMethodFqn == "FooKt.Foo" }
+
+            assertEquals(
+                fooInfoBefore, fooInfoAfter,
+                "Expected change inside the lambda to only affect the innder scope"
+            )
         }
-
-        val runtimeInfoBefore = parseComposeGroupRuntimeInfos(composableLambdaBefore.value)
-            .entries.single()
-
-        val runtimeInfoAfter = parseComposeGroupRuntimeInfos(composableLambdaAfter.value)
-            .entries.single()
-
-        assertNotEquals(
-            runtimeInfoBefore.value.invalidationKey, runtimeInfoAfter.value.invalidationKey,
-            "Expected changed invalidation keys."
-        )
     }
 }

@@ -1,13 +1,7 @@
 package org.jetbrains.compose.reload.agent
 
-import javassist.ClassPool
 import kotlinx.coroutines.Dispatchers
-import org.objectweb.asm.AnnotationVisitor
-import org.objectweb.asm.ClassReader
-import org.objectweb.asm.ClassVisitor
-import org.objectweb.asm.Handle
-import org.objectweb.asm.MethodVisitor
-import org.objectweb.asm.Opcodes
+import org.objectweb.asm.*
 import org.objectweb.asm.Opcodes.ASM9
 import java.lang.instrument.ClassFileTransformer
 import java.lang.instrument.Instrumentation
@@ -23,8 +17,6 @@ private const val startReplaceGroupMethodName = "startReplaceGroup"
 private const val startRestartGroupMethodName = "startRestartGroup"
 private const val endReplaceGroupMethodName = "endReplaceGroup"
 private const val endRestartGroupMethodName = "endRestartGroup"
-private const val rememberedValueMethodName = "rememberedValue"
-private const val updateRememberedValueName = "updateRememberedValue"
 private const val functionKeyMetaConstructorDescriptor = "Landroidx/compose/runtime/internal/FunctionKeyMeta;"
 
 
@@ -77,7 +69,6 @@ internal fun startComposeGroupInvalidationTransformation(instrumentation: Instru
     ComposeHotReloadAgent.invokeAfterReload { reloadRequestId, error ->
         if (error != null) return@invokeAfterReload
 
-        val invalidatedKeys = hashSetOf<ComposeGroupKey>()
         val invalidations = globalInvalidComposeGroupKeys.keys.toList()
         globalInvalidComposeGroupKeys.clear()
 
@@ -86,18 +77,22 @@ internal fun startComposeGroupInvalidationTransformation(instrumentation: Instru
                 logger.orchestration("All groups retained")
             }
 
-            /* Invalidate all groups, including their parents */
+            val uniqueInvalidationRoots = hashSetOf<ComposeGroupKey>()
             invalidations.forEach { groupKey ->
-                var currentGroupKey: ComposeGroupKey? = groupKey
-                while (currentGroupKey != null) {
-                    val currentGroupRuntimeInfo = globalComposeComposeGroupRuntimeInfo[currentGroupKey] ?: break
-                    if (!invalidatedKeys.add(currentGroupKey)) break
-
-                    logger.orchestration("Invalidating group at '${currentGroupRuntimeInfo.callSiteMethodFqn}' ('$currentGroupKey')")
-                    invalidateGroupsWithKey(currentGroupKey)
-
-                    currentGroupKey = currentGroupRuntimeInfo.parentComposeGroupKey
+                /* Find root */
+                var root: ComposeGroupKey = groupKey
+                while (true) {
+                    root = globalComposeComposeGroupRuntimeInfo[root]?.parentComposeGroupKey ?: break
                 }
+
+                /* Add root to queue of invalidations */
+                uniqueInvalidationRoots.add(root)
+            }
+
+            uniqueInvalidationRoots.forEach { root ->
+                val rootInfo = globalComposeComposeGroupRuntimeInfo[root]
+                logger.orchestration("Invalidating group at '${rootInfo?.callSiteMethodFqn}' ('$root', '${rootInfo?.invalidationKey}')")
+                invalidateGroupsWithKey(root)
             }
         }
     }
@@ -182,12 +177,10 @@ private class ReloadKeyMethodVisitor(
     inner class ComposeGroupRuntimeInfoBuilder(
         val parentComposeGroupKey: ComposeGroupKey?,
         val composeGroupKey: ComposeGroupKey,
-        var isHashing: Boolean = false,
     ) {
         private val crc: CRC32 = CRC32()
 
         fun pushHashIfNecessary(value: Any?) {
-            if (!isHashing) return
             if (value == null) return
             when (value) {
                 is Boolean -> crc.update(if (value) 1 else 0)
@@ -244,14 +237,6 @@ private class ReloadKeyMethodVisitor(
             if (name == endReplaceGroupMethodName || name == endRestartGroupMethodName) {
                 val element = stack.removeLastOrNull() ?: return
                 groups[element.composeGroupKey] = element.createGroupRuntimeInfo()
-            }
-
-            if (name == rememberedValueMethodName) {
-                stack.lastOrNull()?.isHashing = true
-            }
-
-            if (name == updateRememberedValueName) {
-                stack.lastOrNull()?.isHashing = false
             }
         }
     }
