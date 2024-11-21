@@ -21,7 +21,7 @@ private val pool = ClassPool().apply {
 
 internal fun reload(
     instrumentation: Instrumentation, pendingChanges: Map<File, OrchestrationMessage.ReloadClassesRequest.ChangeType>
-) = ComposeHotReloadAgent.reloadLock.withLock {
+) {
     val definitions = pendingChanges.mapNotNull { (file, change) ->
         if (change == OrchestrationMessage.ReloadClassesRequest.ChangeType.Removed) {
             return@mapNotNull null

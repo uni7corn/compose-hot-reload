@@ -1,5 +1,7 @@
 package org.jetbrains.compose.reload.agent
 
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.runBlocking
 import org.jetbrains.compose.reload.orchestration.OrchestrationMessage
 import org.jetbrains.compose.reload.orchestration.invokeWhenReceived
 import java.io.File
@@ -13,7 +15,8 @@ internal fun launchReloadClassesRequestHandler(instrumentation: Instrumentation)
     var pendingChanges = mapOf<File, OrchestrationMessage.ReloadClassesRequest.ChangeType>()
 
     ComposeHotReloadAgent.orchestration.invokeWhenReceived<OrchestrationMessage.ReloadClassesRequest> { request ->
-        ComposeHotReloadAgent.reloadLock.withLock {
+        runBlocking(Dispatchers.Main) {
+
             pendingChanges = pendingChanges + request.changedClassFiles
 
             ComposeHotReloadAgent.executeBeforeReloadListeners(request.messageId)
@@ -24,7 +27,7 @@ internal fun launchReloadClassesRequestHandler(instrumentation: Instrumentation)
              */
             if (result.isSuccess) {
                 logger.orchestration("Reloaded classes: ${request.messageId}")
-                OrchestrationMessage.LogMessage(OrchestrationMessage.LogMessage.TAG_AGENT, )
+                OrchestrationMessage.LogMessage(OrchestrationMessage.LogMessage.TAG_AGENT)
                 pendingChanges = emptyMap()
                 OrchestrationMessage.ReloadClassesResult(request.messageId, true).send()
             }

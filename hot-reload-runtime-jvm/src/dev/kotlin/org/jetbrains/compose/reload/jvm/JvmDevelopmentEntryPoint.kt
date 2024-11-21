@@ -49,25 +49,24 @@ internal fun JvmDevelopmentEntryPoint(child: @Composable () -> Unit) {
     /* Agent */
     val hotReloadState by hotReloadState.collectAsState()
 
-    ComposeHotReloadAgent.reloadLock.withLock {
-        CompositionLocalProvider(hotReloadStateLocal provides hotReloadState) {
-            key(hotReloadState.key) {
-                logger.orchestration("Composing UI: $hotReloadState")
+    CompositionLocalProvider(hotReloadStateLocal provides hotReloadState) {
+        key(hotReloadState.key) {
+            logger.orchestration("Composing UI: $hotReloadState")
 
-                /* Show hot reload error directly in the UI (and offer retry button) */
-                val hotReloadError = hotReloadState.error
-                if (hotReloadError != null) {
-                    Box(Modifier.fillMaxSize()) {
-                        interceptedChild()
-                        HotReloadErrorWidget(hotReloadError, modifier = Modifier.matchParentSize())
-                    }
-                } else {
-                    /* If no error is present, we just show the child directly (w/o box) */
+            /* Show hot reload error directly in the UI (and offer retry button) */
+            val hotReloadError = hotReloadState.error
+            if (hotReloadError != null) {
+                Box(Modifier.fillMaxSize()) {
                     interceptedChild()
+                    HotReloadErrorWidget(hotReloadError, modifier = Modifier.matchParentSize())
                 }
+            } else {
+                /* If no error is present, we just show the child directly (w/o box) */
+                interceptedChild()
             }
         }
     }
+
 
     /* Notify orchestration about the UI being rendered */
     OrchestrationMessage.UIRendered(hotReloadState.reloadRequestId, hotReloadState.iteration).send()

@@ -73,28 +73,27 @@ internal fun startComposeGroupInvalidationTransformation(instrumentation: Instru
         val invalidations = globalInvalidComposeGroupKeys.keys.toList()
         globalInvalidComposeGroupKeys.clear()
 
-        runBlocking(Dispatchers.Main) {
-            if (invalidations.isEmpty()) {
-                logger.orchestration("All groups retained")
+
+        if (invalidations.isEmpty()) {
+            logger.orchestration("All groups retained")
+        }
+
+        val uniqueInvalidationRoots = hashSetOf<ComposeGroupKey>()
+        invalidations.forEach { groupKey ->
+            /* Find root */
+            var root: ComposeGroupKey = groupKey
+            while (true) {
+                root = globalComposeComposeGroupRuntimeInfo[root]?.parentComposeGroupKey ?: break
             }
 
-            val uniqueInvalidationRoots = hashSetOf<ComposeGroupKey>()
-            invalidations.forEach { groupKey ->
-                /* Find root */
-                var root: ComposeGroupKey = groupKey
-                while (true) {
-                    root = globalComposeComposeGroupRuntimeInfo[root]?.parentComposeGroupKey ?: break
-                }
+            /* Add root to queue of invalidations */
+            uniqueInvalidationRoots.add(root)
+        }
 
-                /* Add root to queue of invalidations */
-                uniqueInvalidationRoots.add(root)
-            }
-
-            uniqueInvalidationRoots.forEach { root ->
-                val rootInfo = globalComposeComposeGroupRuntimeInfo[root]
-                logger.orchestration("Invalidating group at '${rootInfo?.callSiteMethodFqn}' ('$root', '${rootInfo?.invalidationKey}')")
-                invalidateGroupsWithKey(root)
-            }
+        uniqueInvalidationRoots.forEach { root ->
+            val rootInfo = globalComposeComposeGroupRuntimeInfo[root]
+            logger.orchestration("Invalidating group at '${rootInfo?.callSiteMethodFqn}' ('$root', '${rootInfo?.invalidationKey}')")
+            invalidateGroupsWithKey(root)
         }
     }
 

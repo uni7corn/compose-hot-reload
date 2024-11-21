@@ -11,7 +11,6 @@ import java.util.concurrent.locks.ReentrantLock
 object ComposeHotReloadAgent {
 
     internal val logger = createLogger()
-    val reloadLock = ReentrantLock()
 
     private val beforeReloadListeners = mutableListOf<(reloadRequestId: UUID) -> Unit>()
     private val afterReloadListeners = mutableListOf<(reloadRequestId: UUID, error: Throwable?) -> Unit>()
@@ -42,15 +41,11 @@ object ComposeHotReloadAgent {
         }
 
     internal fun executeBeforeReloadListeners(reloadRequestId: UUID) {
-        checkIsOrchestrationThread()
-
         val listeners = synchronized(beforeReloadListeners) { beforeReloadListeners.toList() }
         listeners.forEach { listener -> listener(reloadRequestId) }
     }
 
     internal fun executeAfterReloadListeners(reloadRequestId: UUID, error: Throwable?) {
-        checkIsOrchestrationThread()
-
         val listeners = synchronized(afterReloadListeners) { afterReloadListeners.toList() }
         listeners.forEach { listener -> listener(reloadRequestId, error) }
     }
