@@ -1,12 +1,13 @@
 package org.jetbrains.compose.reload.orchestration
 
+import java.util.concurrent.ExecutorService
 import java.util.concurrent.Executors
 import java.util.concurrent.atomic.AtomicReference
 import kotlin.concurrent.thread
 
 private val orchestrationThreadReference = AtomicReference<Thread?>(null)
 
-internal val orchestrationThread = Executors.newSingleThreadExecutor { runnable ->
+public val orchestrationThread: ExecutorService = Executors.newSingleThreadExecutor { runnable ->
     val newThread = thread(
         name = "Orchestration Main",
         start = false,

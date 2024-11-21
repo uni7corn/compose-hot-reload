@@ -36,7 +36,7 @@ fun runDevApplicationHeadless(
     content: @Composable (applicationScope: CoroutineScope) -> Unit
 ) {
     val logger = createLogger()
-    val applicationScope = CoroutineScope(Dispatchers.Default.limitedParallelism(1) + Job())
+    val applicationScope = CoroutineScope(Dispatchers.Main + Job())
     val orchestration = ComposeHotReloadAgent.orchestration
     val messages = orchestration.asChannel()
 

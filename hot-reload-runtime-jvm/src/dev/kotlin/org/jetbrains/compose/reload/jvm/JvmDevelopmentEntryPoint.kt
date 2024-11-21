@@ -6,6 +6,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
+import kotlinx.coroutines.flow.update
 import org.jetbrains.compose.reload.InternalHotReloadApi
 import org.jetbrains.compose.reload.agent.ComposeHotReloadAgent
 import org.jetbrains.compose.reload.agent.orchestration
@@ -31,6 +32,11 @@ internal fun JvmDevelopmentEntryPoint(child: @Composable () -> Unit) {
     val interceptedChild: @Composable () -> Unit = {
         runCatching { child() }.onFailure { exception ->
             logger.orchestration("Failed invoking 'JvmDevelopmentEntryPoint':", exception)
+
+            /*
+            UI-Exception: Nuke state captured in the UI by incrementing the key
+             */
+            hotReloadState.update { state -> state.copy(key = state.key + 1, error = exception) }
 
             OrchestrationMessage.UIException(
                 message = exception.message,

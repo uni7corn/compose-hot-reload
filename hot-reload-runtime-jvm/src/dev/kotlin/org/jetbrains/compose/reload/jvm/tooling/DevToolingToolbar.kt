@@ -11,8 +11,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import kotlinx.coroutines.flow.update
 import org.jetbrains.compose.reload.agent.send
-import org.jetbrains.compose.reload.jvm.ErrorRecovery
 import org.jetbrains.compose.reload.jvm.hotReloadState
+import org.jetbrains.compose.reload.jvm.retryFailedCompositions
 import org.jetbrains.compose.reload.orchestration.OrchestrationMessage
 
 @Composable
@@ -28,14 +28,14 @@ fun DevToolingToolbar(modifier: Modifier = Modifier) {
         }
 
         Button(onClick = {
-            ErrorRecovery().retryFailedCompositions()
+            retryFailedCompositions()
         }) {
             Text("Retry failed compositions")
         }
 
         Button(onClick = {
             hotReloadState.update { state -> state.copy(key = state.key + 1) }
-            ErrorRecovery().retryFailedCompositions()
+            retryFailedCompositions()
         }) {
             Text("Clean composition")
         }
