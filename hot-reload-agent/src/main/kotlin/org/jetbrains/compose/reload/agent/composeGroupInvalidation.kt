@@ -1,6 +1,7 @@
 package org.jetbrains.compose.reload.agent
 
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.runBlocking
 import org.objectweb.asm.*
 import org.objectweb.asm.Opcodes.ASM9
 import java.lang.instrument.ClassFileTransformer
@@ -72,7 +73,7 @@ internal fun startComposeGroupInvalidationTransformation(instrumentation: Instru
         val invalidations = globalInvalidComposeGroupKeys.keys.toList()
         globalInvalidComposeGroupKeys.clear()
 
-        Dispatchers.Main.dispatch(EmptyCoroutineContext) {
+        runBlocking(Dispatchers.Main) {
             if (invalidations.isEmpty()) {
                 logger.orchestration("All groups retained")
             }
