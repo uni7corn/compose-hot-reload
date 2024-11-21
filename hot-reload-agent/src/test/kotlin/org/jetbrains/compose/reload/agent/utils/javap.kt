@@ -50,7 +50,9 @@ fun checkJavap(testInfo: TestInfo, name: String = "", code: Map<String, ByteArra
     val actualContent = code
         .mapKeys { (path, _) -> directory.resolve("$path.javap.txt") }
         .mapValues { (_, code) ->
-            javap(code).trim().replace(Regex("""/.*/Bytecode.class"""), "<bytecode path>")
+            javap(code).trim()
+                .replace(Regex("""/.*/Bytecode.class"""), "<bytecode path>")
+                .replace(Regex("Last modified.*;"), "Last modified <Date>;")
         }
 
     if (!directory.exists()) {

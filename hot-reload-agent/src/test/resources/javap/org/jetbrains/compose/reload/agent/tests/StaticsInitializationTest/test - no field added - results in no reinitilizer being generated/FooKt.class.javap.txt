@@ -1,5 +1,5 @@
 Classfile <bytecode path>
-  Last modified 20 Nov 2024; size 544 bytes
+  Last modified <Date>; size 544 bytes
   SHA-256 checksum f6eec64769f14c375eec5d71c0720ed9847968d010eee1cb18755a7ece102601
   Compiled from "Test.kt"
 public final class TestKt
