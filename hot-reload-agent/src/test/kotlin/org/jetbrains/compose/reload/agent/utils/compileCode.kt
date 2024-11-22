@@ -1,5 +1,7 @@
 package org.jetbrains.compose.reload.agent.utils
 
+import org.jetbrains.compose.reload.core.testFixtures.CompilerOption
+import org.jetbrains.compose.reload.core.testFixtures.CompilerOptions
 import org.jetbrains.kotlin.cli.common.arguments.K2JVMCompilerArguments
 import org.jetbrains.kotlin.cli.common.messages.MessageRenderer
 import org.jetbrains.kotlin.cli.common.messages.PrintingMessageCollector
@@ -19,7 +21,11 @@ interface Compiler {
      * @param code Map from Relative Source File Path to the source code itself.
      */
     fun compile(code: Map<String, String>): Map<String, ByteArray>
+
+    fun withOptions(options: Map<CompilerOption, Boolean>): Compiler
 }
+
+fun Compiler.withOptions(vararg option: Pair<CompilerOption, Boolean>) = withOptions(option.toMap())
 
 internal fun Compiler.compile(vararg code: Pair<String, String>): Map<String, ByteArray> {
     return compile(code.toMap())
@@ -29,6 +35,7 @@ internal fun Compiler.compile(sourceCode: String) = compile("Test.kt" to sourceC
 
 @ExtendWith(CompilerProvider::class)
 annotation class WithCompiler
+
 
 @OptIn(ExperimentalPathApi::class)
 class CompilerProvider : ParameterResolver, BeforeEachCallback, AfterEachCallback {
@@ -51,7 +58,8 @@ class CompilerProvider : ParameterResolver, BeforeEachCallback, AfterEachCallbac
 }
 
 private class CompilerImpl(
-    private val workingDir: Path
+    private val workingDir: Path,
+    private val options: Map<CompilerOption, Boolean> = CompilerOptions.default,
 ) : Compiler {
     override fun compile(code: Map<String, String>): Map<String, ByteArray> {
         code.forEach { path, sourceCode ->
@@ -74,9 +82,12 @@ private class CompilerImpl(
             .split(File.pathSeparator)
             .toTypedArray()
 
-        arguments.pluginOptions = arrayOf(
-            "plugin:androidx.compose.compiler.plugins.kotlin:featureFlag=OptimizeNonSkippingGroups",
-            "plugin:androidx.compose.compiler.plugins.kotlin:generateFunctionKeyMetaClasses=true")
+        arguments.pluginOptions = listOfNotNull(
+            "plugin:androidx.compose.compiler.plugins.kotlin:featureFlag=OptimizeNonSkippingGroups"
+                .takeIf { options[CompilerOption.OptimizeNonSkippingGroups] == true },
+            "plugin:androidx.compose.compiler.plugins.kotlin:generateFunctionKeyMetaAnnotations=true"
+                .takeIf { options[CompilerOption.GenerateFunctionKeyMetaAnnotations] == true }
+        ).toTypedArray()
 
         arguments.freeArgs = code.keys.map { path -> workingDir.resolve(path).absolutePathString() }
 
@@ -93,5 +104,9 @@ private class CompilerImpl(
         return classesDir.listDirectoryEntries("*.class").associate { path ->
             path.relativeTo(classesDir).pathString to path.readBytes()
         }
+    }
+
+    override fun withOptions(options: Map<CompilerOption, Boolean>): Compiler {
+        return CompilerImpl(workingDir, this.options + options)
     }
 }

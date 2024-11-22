@@ -244,6 +244,7 @@ class ScreenshotTests {
     @DefaultSettingsGradleKts
     @DefaultBuildGradleKts
     @TestOnlyLatestVersions
+    @TestOnlyKmp
     fun `test - update remembered value`(fixture: HotReloadTestFixture) = fixture.runTest {
         fixture initialSourceCode """
             import androidx.compose.foundation.layout.*
@@ -350,9 +351,10 @@ class ScreenshotTests {
     }
 
     @HotReloadTest
+    @TestOnlyKmp
+    @TestOnlyLatestVersions
     @DefaultSettingsGradleKts
     @DefaultBuildGradleKts
-    @TestOnlyLatestVersions
     fun `test - changing spacedBy`(fixture: HotReloadTestFixture) = fixture.runTest {
         fixture initialSourceCode """
             import androidx.compose.foundation.layout.Arrangement
@@ -426,5 +428,59 @@ class ScreenshotTests {
 
         fixture.replaceSourceCodeAndReload("Offset(50f, 0f)", "Offset(200f, 0f)")
         fixture.checkScreenshot("1-after")
+    }
+
+    @HotReloadTest
+    @DefaultSettingsGradleKts
+    @DefaultBuildGradleKts
+    @TestOnlyLatestVersions
+    fun `test - remember in two composables`(fixture: HotReloadTestFixture) = fixture.runTest {
+        fixture initialSourceCode """
+            import androidx.compose.foundation.layout.*
+            import androidx.compose.runtime.*
+            import org.jetbrains.compose.reload.underTest.*
+              
+            fun main() = underTestApplication {
+                Column {
+                    Foo()
+                }
+            }
+            
+            @Composable
+            fun Foo() {
+                var foo by remember { mutableStateOf(0) }
+                onTestEvent { value ->
+                    if(value == "foo") foo++
+                }
+                TestText("Foo: %foo")
+                Bar()
+            }
+            
+            @Composable
+            fun Bar() {
+                var bar by remember { mutableStateOf(0) }
+                onTestEvent { value ->
+                    if(value == "bar") bar++
+                }
+                TestText("Bar: %bar")
+            }
+         """.trimIndent().replace("%", "$")
+
+        fixture.checkScreenshot("0-before")
+
+        fixture.sendTestEvent("foo")
+        fixture.checkScreenshot("1-foo_1-bar_0")
+
+        fixture.sendTestEvent("foo")
+        fixture.checkScreenshot("2-foo_2-bar_0")
+
+        fixture.sendTestEvent("bar")
+        fixture.checkScreenshot("3-foo_2-bar_1")
+
+        fixture.replaceSourceCodeAndReload(
+            "var bar by remember { mutableStateOf(0) }",
+            "var bar by remember { mutableStateOf(24) }"
+        )
+        fixture.checkScreenshot("4-foo_2-bar_24-afterReload")
     }
 }

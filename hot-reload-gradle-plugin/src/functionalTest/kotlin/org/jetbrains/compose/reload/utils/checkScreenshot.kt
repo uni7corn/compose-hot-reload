@@ -1,5 +1,6 @@
 package org.jetbrains.compose.reload.utils
 
+import org.jetbrains.compose.reload.core.testFixtures.TestEnvironment
 import org.jetbrains.compose.reload.orchestration.OrchestrationMessage
 import org.jetbrains.compose.reload.orchestration.OrchestrationMessage.Screenshot
 import java.awt.Color
@@ -30,7 +31,7 @@ suspend fun HotReloadTestFixture.checkScreenshot(name: String) {
     if (!expectFile.exists()) {
         expectFile.createParentDirectories()
         expectFile.writeBytes(screenshot.data)
-        fail("Screenshot '$expectFile' did not exist; Generated")
+        fail("Screenshot '${expectFile.toUri()}' did not exist; Generated")
     }
 
     val imageDiff = describeDifference(expectFile.readBytes(), screenshot.data)

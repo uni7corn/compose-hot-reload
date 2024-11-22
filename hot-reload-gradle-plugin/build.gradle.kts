@@ -16,7 +16,6 @@ run {
     val functionalTestTask = tasks.register<Test>("functionalTest") {
         testClassesDirs = functionalTest.output.classesDirs
         classpath = functionalTest.output.allOutputs + functionalTest.runtimeDependencyFiles
-        systemProperty("firework.version", deps.versions.firework.get())
     }
 
     tasks.check.configure {
@@ -25,11 +24,6 @@ run {
 }
 
 tasks.withType<Test>().configureEach {
-    javaLauncher.set(javaToolchains.launcherFor {
-        languageVersion.set(JavaLanguageVersion.of(21))
-        vendor.set(JvmVendorSpec.JETBRAINS)
-    })
-
     useJUnitPlatform {
         if (providers.gradleProperty("host-integration-tests").orNull == "true") {
             includeTags("HostIntegrationTest")
@@ -45,19 +39,10 @@ tasks.withType<Test>().configureEach {
         systemProperty("apple.awt.UIElement", true)
     }
 
-    properties.filter { (key, _) -> key.startsWith("chr") }.forEach { (key, value) ->
-        systemProperty(key, value.toString())
-    }
 
     maxParallelForks = 2
     dependsOn(":publishLocally")
     systemProperty("local.test.repo", rootProject.layout.buildDirectory.dir("repo").get().asFile.absolutePath)
-    jvmArgs("-DlogLevel=DEBUG")
-    maxHeapSize = "4G"
-
-    testLogging {
-        showStandardStreams = true
-    }
 }
 
 gradlePlugin {
@@ -79,6 +64,7 @@ dependencies {
     implementation(project(":hot-reload-orchestration"))
 
     functionalTestImplementation(gradleTestKit())
+    functionalTestImplementation(testFixtures(project(":hot-reload-core")))
     functionalTestImplementation(testFixtures(project(":hot-reload-orchestration")))
     functionalTestImplementation(kotlin("test"))
     functionalTestImplementation(kotlin("tooling-core"))

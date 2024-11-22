@@ -1,6 +1,11 @@
 package org.jetbrains.compose.reload.utils
 
 import org.gradle.testkit.runner.GradleRunner
+import org.intellij.lang.annotations.Language
+import org.jetbrains.compose.reload.core.testFixtures.CompilerOption
+import org.jetbrains.compose.reload.core.testFixtures.CompilerOption.OptimizeNonSkippingGroups
+import org.jetbrains.compose.reload.core.testFixtures.CompilerOptions
+import org.jetbrains.compose.reload.core.testFixtures.TestEnvironment
 import org.jetbrains.compose.reload.orchestration.ORCHESTRATION_SERVER_PORT_PROPERTY_KEY
 import org.jetbrains.compose.reload.orchestration.startOrchestrationServer
 import org.jetbrains.compose.reload.utils.HotReloadTestFixtureExtension.Companion.testFixtureKey
@@ -21,11 +26,13 @@ import kotlin.streams.asStream
 annotation class HotReloadTest
 
 @Execution(ExecutionMode.SAME_THREAD)
-annotation class Debug
+annotation class Debug(@Language("RegExp") val target: String = ".*")
 
 annotation class TestOnlyJvm
 
 annotation class TestOnlyKmp
+
+annotation class TestOnlyDefaultCompilerOptions
 
 annotation class TestOnlyLatestVersions
 
@@ -50,11 +57,19 @@ internal class HotReloadTestInvocationContextProvider : TestTemplateInvocationCo
                             composeVersion = testedComposeVersion,
                             androidVersion = null,
                             projectMode = mode,
+                            compilerOptions = CompilerOptions.default,
                         )
                     }
                 }
             }
         }
+            .filter { invocationContext ->
+                /* Only run in 'Jvm' mode for 'HostIntegrationTests' */
+                if (invocationContext.projectMode == ProjectMode.Jvm) {
+                    return@filter findAnnotation(context.testMethod, HostIntegrationTest::class.java).isPresent
+                }
+                true
+            }
             .filter { invocationContext ->
                 invocationContext.projectMode == ProjectMode.Jvm ||
                         findAnnotation(context.testMethod, TestOnlyJvm::class.java).isEmpty
@@ -86,6 +101,21 @@ internal class HotReloadTestInvocationContextProvider : TestTemplateInvocationCo
 
                 true
             }
+            .run {
+                if (findAnnotation(context.testMethod, TestOnlyDefaultCompilerOptions::class.java).isEmpty) {
+                    this + this.lastOrNull()?.run {
+                        val isNonSkippingGroupsEnabled = compilerOptions[OptimizeNonSkippingGroups] == true
+                        copy(compilerOptions = compilerOptions + mapOf(OptimizeNonSkippingGroups to !isNonSkippingGroupsEnabled))
+                    }
+                } else this
+            }
+            .filterNotNull()
+            .filterIndexed filter@{ index, invocationContext ->
+                /* If the 'Debug' annotation is present, then we should filter for the desired target */
+                val debugAnnotation = findAnnotation(context.testMethod, Debug::class.java).getOrNull()
+                    ?: return@filter true
+                Regex(debugAnnotation.target).matches(invocationContext.getDisplayName(index))
+            }
             .apply { assumeTrue(isNotEmpty(), "No matching context") }
             .asSequence().asStream()
     }
@@ -96,7 +126,8 @@ data class HotReloadTestInvocationContext(
     val composeVersion: TestedComposeVersion,
     val kotlinVersion: TestedKotlinVersion,
     val androidVersion: TestedAndroidVersion?,
-    val projectMode: ProjectMode
+    val projectMode: ProjectMode,
+    val compilerOptions: Map<CompilerOption, Boolean>
 ) : TestTemplateInvocationContext {
     override fun getDisplayName(invocationIndex: Int): String {
         return buildString {
@@ -108,6 +139,10 @@ data class HotReloadTestInvocationContext(
                 append(" Android $androidVersion")
             }
 
+            /* Append 'non default' compiler options */
+            compilerOptions.filter { (key, value) -> CompilerOptions.default[key] != value }.forEach { (key, value) ->
+                append(" $key=$value,")
+            }
         }
     }
 
@@ -189,16 +224,13 @@ private class HotReloadTestFixtureExtension(
             .withProjectDir(projectDir.path.toFile())
             .withGradleVersion(context.gradleVersion.version.version)
             .forwardOutput()
-            .withDebug(debug)
             .addedArguments("-P$ORCHESTRATION_SERVER_PORT_PROPERTY_KEY=${orchestrationServer.port}")
             .addedArguments("-D$ORCHESTRATION_SERVER_PORT_PROPERTY_KEY=${orchestrationServer.port}")
             .addedArguments("-Pcompose.reload.headless=true")
             .addedArguments("-i")
             .addedArguments("-s")
 
-        if (!debug) { // We saw issues with cc and debug mode
-            gradleRunner.addedArguments("--configuration-cache")
-        }
+        gradleRunner.addedArguments("--configuration-cache")
 
         return HotReloadTestFixture(
             testClassName = testClass.get().name,
@@ -207,6 +239,8 @@ private class HotReloadTestFixtureExtension(
             gradleRunner = gradleRunner,
             orchestration = orchestrationServer,
             projectMode = context.projectMode,
+            compilerOptions = context.compilerOptions,
+            isDebug = debug
         )
     }
 }

@@ -37,7 +37,7 @@ internal class DefaultSettingsGradleKtsExtension : BeforeTestExecutionCallback {
                 repositories {
                     maven(file("${localTestRepoDirectory.absolutePath.replace("\\", "\\\\")}"))
                     mavenCentral()
-                    maven("https://repo.sellmair.io")
+                    maven("https://packages.jetbrains.team/maven/p/firework/dev")
                     google()
                 }
             }
@@ -46,7 +46,7 @@ internal class DefaultSettingsGradleKtsExtension : BeforeTestExecutionCallback {
                 repositories {
                     maven(file("${localTestRepoDirectory.absolutePath.replace("\\", "\\\\")}"))
                     mavenCentral()
-                    maven("https://repo.sellmair.io")
+                    maven("https://packages.jetbrains.team/maven/p/firework/dev")
                     google()
                 }
             }

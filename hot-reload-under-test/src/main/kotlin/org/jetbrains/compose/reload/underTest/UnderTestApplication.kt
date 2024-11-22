@@ -4,8 +4,7 @@
 package org.jetbrains.compose.reload.underTest
 
 import androidx.compose.material3.Text
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.*
 import androidx.compose.ui.test.ExperimentalTestApi
 import androidx.compose.ui.text.*
 import androidx.compose.ui.text.font.FontFamily
@@ -54,12 +53,12 @@ class UnderTestApplication(
     val applicationScope: CoroutineScope
 ) {
 
-    private val orchestrationChannel = orchestration.asChannel()
-
     @Composable
     fun onTestEvent(handler: suspend (payload: Any?) -> Unit) {
+        val channel = remember { orchestration.asChannel() }
+
         LaunchedEffect(Unit) {
-            orchestrationChannel.receiveAsFlow().filterIsInstance<OrchestrationMessage.TestEvent>().collect { value ->
+            channel.receiveAsFlow().filterIsInstance<OrchestrationMessage.TestEvent>().collect { value ->
                 logger.debug("TestEvent received: $value")
                 handler.invoke(value.payload)
             }
@@ -82,6 +81,13 @@ class UnderTestApplication(
         orchestration.sendMessage(OrchestrationMessage.LogMessage("test", any.toString()))
     }
 }
+
+@Composable
+fun onTestEvent(handler: suspend (payload: Any?) -> Unit) {
+    underTestApplicationLocal.current!!.onTestEvent(handler)
+}
+
+private val underTestApplicationLocal = staticCompositionLocalOf<UnderTestApplication?> { null }
 
 fun invokeOnTestEvent(handler: suspend (payload: Any?) -> Unit) {
     orchestration.invokeWhenReceived<OrchestrationMessage.TestEvent> { value ->
@@ -139,8 +145,11 @@ fun underTestApplication(
     runDevApplicationHeadless(
         timeout.minutes, width = width, height = height,
     ) { applicationScope ->
-        DevelopmentEntryPoint {
-            UnderTestApplication(applicationScope).content()
+        val underTestApplication = UnderTestApplication(applicationScope)
+        CompositionLocalProvider(underTestApplicationLocal provides underTestApplication) {
+            DevelopmentEntryPoint {
+                UnderTestApplication(applicationScope).content()
+            }
         }
     }
 }

@@ -1,10 +1,12 @@
 package org.jetbrains.compose.reload.utils
 
 import org.jetbrains.compose.reload.HOT_RELOAD_VERSION
+import org.jetbrains.compose.reload.core.testFixtures.CompilerOption
 import org.junit.jupiter.api.extension.BeforeTestExecutionCallback
 import org.junit.jupiter.api.extension.ExtendWith
 import org.junit.jupiter.api.extension.ExtensionContext
 import org.junit.platform.commons.support.AnnotationSupport
+import kotlin.io.path.appendText
 import kotlin.io.path.createDirectories
 import kotlin.io.path.writeText
 
@@ -33,6 +35,65 @@ private class DefaultBuildGradleKtsExtension() : BeforeTestExecutionCallback {
                 null -> return
             }
         }
+
+        if (testFixture.isDebug) {
+            projectDirs.forEach { projectDir ->
+                projectDir.buildGradleKts.appendText(
+                    """
+                    
+                    tasks.withType<JavaExec>().configureEach { 
+                        debug = true
+                        debugOptions { 
+                            enabled = true
+                            server = false
+                            suspend = true
+                            port = 5007
+                        }
+                    }
+                    
+                """.trimIndent()
+                )
+            }
+        }
+
+        testFixture.compilerOptions.forEach { key, enabled ->
+            when (key) {
+                CompilerOption.OptimizeNonSkippingGroups -> {
+
+                    projectDirs.forEach { projectDir ->
+                        if (enabled) {
+                            projectDir.buildGradleKts.appendText(
+                                """
+                               
+                                composeCompiler {
+                                    featureFlags.add(ComposeFeatureFlag.OptimizeNonSkippingGroups)
+                                }
+                                
+                            """.trimIndent()
+                            )
+                        } else {
+                            projectDir.buildGradleKts.appendText(
+                                """
+                               
+                                composeCompiler {
+                                    featureFlags.add(ComposeFeatureFlag.OptimizeNonSkippingGroups.disabled())
+                                }
+                                
+                            """.trimIndent()
+                            )
+                        }
+                    }
+
+                }
+
+
+                CompilerOption.GenerateFunctionKeyMetaAnnotations -> {
+                    if (enabled != CompilerOption.GenerateFunctionKeyMetaAnnotations.default) {
+                        error("Unsupported compiler option: $key")
+                    }
+                }
+            }
+        }
     }
 }
 
@@ -49,11 +110,7 @@ private fun ProjectDir.setupKmpProject(
             id("org.jetbrains.compose")
             id("org.jetbrains.compose-hot-reload")
         }
-        
-        composeCompiler {
-            featureFlags.add(ComposeFeatureFlag.OptimizeNonSkippingGroups)
-        }
-        
+
         kotlin {
             ${targets.joinToString("\n") { "$it()" }}
             
@@ -84,10 +141,7 @@ fun ProjectDir.setupJvmProject() {
             id("org.jetbrains.compose")
             id("org.jetbrains.compose-hot-reload")
         }
-        
-        composeCompiler {
-            featureFlags.add(ComposeFeatureFlag.OptimizeNonSkippingGroups)
-        }
+       
         
         dependencies {
             implementation(compose.desktop.currentOs)
