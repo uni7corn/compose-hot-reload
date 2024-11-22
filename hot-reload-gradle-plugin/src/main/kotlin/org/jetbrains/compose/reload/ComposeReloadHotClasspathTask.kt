@@ -15,6 +15,7 @@ import org.jetbrains.compose.reload.orchestration.OrchestrationMessage.ReloadCla
 import org.jetbrains.compose.reload.orchestration.OrchestrationMessage.ReloadClassesRequest.ChangeType
 import org.jetbrains.kotlin.gradle.plugin.KotlinCompilation
 import java.io.File
+import kotlin.system.exitProcess
 
 
 internal fun Project.setupComposeReloadHotClasspathTasks() {
@@ -60,7 +61,11 @@ internal open class ComposeReloadHotClasspathTask : DefaultTask() {
 
     @TaskAction
     fun execute(inputs: InputChanges) {
-        val client = OrchestrationClient(Compiler) ?: error("Failed to create 'OrchestrationClient'!")
+        val client = OrchestrationClient(Compiler) ?: run {
+            logger.quiet("Failed to create 'OrchestrationClient'!")
+            exitProcess(-1)
+        }
+
         client.use {
             client.sendMessage(OrchestrationMessage.GradleDaemonReady())
 
