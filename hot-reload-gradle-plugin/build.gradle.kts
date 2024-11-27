@@ -7,7 +7,6 @@ plugins {
     `publishing-conventions`
 }
 
-
 /* Setup integration test */
 run {
     val main = kotlin.target.compilations.getByName("main")
@@ -26,20 +25,35 @@ run {
 }
 
 tasks.withType<Test>().configureEach {
-    useJUnitPlatform()
-    dependsOn(":publishLocally")
+    javaLauncher.set(javaToolchains.launcherFor {
+        languageVersion.set(JavaLanguageVersion.of(21))
+        vendor.set(JvmVendorSpec.JETBRAINS)
+    })
 
-    systemProperty("local.test.repo", rootProject.layout.buildDirectory.dir("repo").get().asFile.absolutePath)
-    systemProperty("junit.jupiter.execution.parallel.enabled", "true")
-    systemProperty("junit.jupiter.execution.parallel.mode.default", "concurrent")
-    systemProperty("junit.jupiter.execution.parallel.config.strategy", "fixed")
-    systemProperty("junit.jupiter.execution.parallel.config.fixed.parallelism", "4")
-    systemProperty("apple.awt.UIElement", true)
+    useJUnitPlatform {
+        if (providers.gradleProperty("host-integration-tests").orNull == "true") {
+            includeTags("HostIntegrationTest")
+            environment("TEST_ONLY_LATEST_VERSIONS", "true")
+        }
+    }
 
-    jvmArgs("-DlogLevel=DEBUG")
-    maxHeapSize = "4G"
+    if (!providers.environmentVariable("CI").isPresent) {
+        systemProperty("junit.jupiter.execution.parallel.enabled", "true")
+        systemProperty("junit.jupiter.execution.parallel.mode.default", "concurrent")
+        systemProperty("junit.jupiter.execution.parallel.config.strategy", "fixed")
+        systemProperty("junit.jupiter.execution.parallel.config.fixed.parallelism", "4")
+        systemProperty("apple.awt.UIElement", true)
+    }
+
+    properties.filter { (key, _) -> key.startsWith("chr") }.forEach { (key, value) ->
+        systemProperty(key, value.toString())
+    }
 
     maxParallelForks = 2
+    dependsOn(":publishLocally")
+    systemProperty("local.test.repo", rootProject.layout.buildDirectory.dir("repo").get().asFile.absolutePath)
+    jvmArgs("-DlogLevel=DEBUG")
+    maxHeapSize = "4G"
 
     testLogging {
         showStandardStreams = true
