@@ -244,7 +244,7 @@ private fun checkRuntimeInfo(
         appendLine("*/")
         appendLine()
         appendLine(runtimeInfo?.render())
-    }.trim()
+    }.escapeWhiteSpace()
 
     val directory = Path("src/test/resources/runtimeInfo")
         .resolve(testInfo.testClass.get().name.asFileName().replace(".", "/"))
@@ -265,7 +265,7 @@ private fun checkRuntimeInfo(
         fail("Runtime Info '${expectFile.toUri()}' did not exist; Generated")
     }
 
-    val expectContent = expectFile.readText().trim()
+    val expectContent = expectFile.readText().escapeWhiteSpace()
     if (expectContent != actualContent) {
         expectFile.resolveSibling(expectFile.nameWithoutExtension + "-actual.txt").writeText(actualContent)
         fail("Runtime Info '${expectFile.toUri()}' did not match")
@@ -275,7 +275,7 @@ private fun checkRuntimeInfo(
 }
 
 private fun RuntimeInfo.render(): String = buildString {
-    scopes.groupBy { it.methodId.className }.forEach { (className, scopes) ->
+    scopes.groupBy { it.methodId.className }.toSortedMap().forEach { (className, scopes) ->
         appendLine("$className {")
         withIndent {
             appendLine(scopes.joinToString("\n\n") { it.render() })
@@ -283,7 +283,7 @@ private fun RuntimeInfo.render(): String = buildString {
         appendLine("}")
         appendLine()
     }
-}.trim()
+}.escapeWhiteSpace()
 
 
 private fun RuntimeScopeInfo.render(): String = buildString {
@@ -323,4 +323,9 @@ private fun RuntimeScopeInfo.render(): String = buildString {
 
 fun StringBuilder.withIndent(builder: StringBuilder.() -> Unit) {
     appendLine(buildString(builder).trim().prependIndent("    "))
+}
+
+
+private fun String.escapeWhiteSpace(): String {
+    return lines().joinToString("\n").trim()
 }

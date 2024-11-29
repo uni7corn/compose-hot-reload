@@ -21,6 +21,59 @@ fun Foo() {
  Runtime Info:
 */
 
+ComposableSingletons$FooKt {
+    <init> {
+        desc: ()V
+        key: null
+        codeHash: 3570755298
+        dependencies: []
+    }
+    
+    getLambda$-1435676418$testModule {
+        desc: ()Lkotlin/jvm/functions/Function2;
+        key: null
+        codeHash: 4084180226
+        dependencies: []
+    }
+    
+    <clinit> {
+        desc: ()V
+        key: null
+        codeHash: 2631766068
+        dependencies: []
+    }
+}
+
+ComposableSingletons$FooKt$lambda$-1435676418$1 {
+    <init> {
+        desc: ()V
+        key: null
+        codeHash: 3570755298
+        dependencies: []
+    }
+    
+    invoke {
+        desc: (Landroidx/compose/runtime/Composer;I)V
+        key: -1435676418
+        codeHash: 3397313740
+        dependencies: []
+    }
+    
+    invoke {
+        desc: (Ljava/lang/Object;Ljava/lang/Object;)Ljava/lang/Object;
+        key: null
+        codeHash: 1519915706
+        dependencies: []
+    }
+    
+    <clinit> {
+        desc: ()V
+        key: null
+        codeHash: 385586306
+        dependencies: []
+    }
+}
+
 FooKt {
     Bar {
         desc: (Lkotlin/jvm/functions/Function2;Landroidx/compose/runtime/Composer;I)V
@@ -70,58 +123,5 @@ FooKt {
         dependencies: [
             FooKt.Foo (Landroidx/compose/runtime/Composer;I)V
         ]
-    }
-}
-
-ComposableSingletons$FooKt$lambda$-1435676418$1 {
-    <init> {
-        desc: ()V
-        key: null
-        codeHash: 3570755298
-        dependencies: []
-    }
-    
-    invoke {
-        desc: (Landroidx/compose/runtime/Composer;I)V
-        key: -1435676418
-        codeHash: 3397313740
-        dependencies: []
-    }
-    
-    invoke {
-        desc: (Ljava/lang/Object;Ljava/lang/Object;)Ljava/lang/Object;
-        key: null
-        codeHash: 1519915706
-        dependencies: []
-    }
-    
-    <clinit> {
-        desc: ()V
-        key: null
-        codeHash: 385586306
-        dependencies: []
-    }
-}
-
-ComposableSingletons$FooKt {
-    <init> {
-        desc: ()V
-        key: null
-        codeHash: 3570755298
-        dependencies: []
-    }
-    
-    getLambda$-1435676418$testModule {
-        desc: ()Lkotlin/jvm/functions/Function2;
-        key: null
-        codeHash: 4084180226
-        dependencies: []
-    }
-    
-    <clinit> {
-        desc: ()V
-        key: null
-        codeHash: 2631766068
-        dependencies: []
     }
 }

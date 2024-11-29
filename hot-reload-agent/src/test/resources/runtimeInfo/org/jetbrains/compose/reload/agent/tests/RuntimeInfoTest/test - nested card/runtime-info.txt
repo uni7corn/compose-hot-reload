@@ -24,29 +24,33 @@ fun Foo() {
  Runtime Info:
 */
 
-FooKt {
-    Foo {
-        desc: (Landroidx/compose/runtime/Composer;I)V
-        key: -965539098
-        codeHash: 3981682454
-        dependencies: [
-            FooKt.Foo$lambda$0 (ILandroidx/compose/runtime/Composer;I)Lkotlin/Unit;
-        ]
-    
-        RestartGroup {
-            key: -965539098
-            codeHash: 780318152
-            dependencies: []
-        }
+ComposableSingletons$FooKt {
+    <init> {
+        desc: ()V
+        key: null
+        codeHash: 3570755298
+        dependencies: []
     }
     
-    Foo$lambda$0 {
-        desc: (ILandroidx/compose/runtime/Composer;I)Lkotlin/Unit;
+    getLambda$1969856002$testModule {
+        desc: ()Lkotlin/jvm/functions/Function3;
         key: null
-        codeHash: 3190275455
-        dependencies: [
-            FooKt.Foo (Landroidx/compose/runtime/Composer;I)V
-        ]
+        codeHash: 2196316711
+        dependencies: []
+    }
+    
+    getLambda$904522804$testModule {
+        desc: ()Lkotlin/jvm/functions/Function3;
+        key: null
+        codeHash: 304986901
+        dependencies: []
+    }
+    
+    <clinit> {
+        desc: ()V
+        key: null
+        codeHash: 2144001912
+        dependencies: []
     }
 }
 
@@ -110,32 +114,28 @@ ComposableSingletons$FooKt$lambda$904522804$1 {
     }
 }
 
-ComposableSingletons$FooKt {
-    <init> {
-        desc: ()V
-        key: null
-        codeHash: 3570755298
-        dependencies: []
+FooKt {
+    Foo {
+        desc: (Landroidx/compose/runtime/Composer;I)V
+        key: -965539098
+        codeHash: 3981682454
+        dependencies: [
+            FooKt.Foo$lambda$0 (ILandroidx/compose/runtime/Composer;I)Lkotlin/Unit;
+        ]
+    
+        RestartGroup {
+            key: -965539098
+            codeHash: 780318152
+            dependencies: []
+        }
     }
     
-    getLambda$1969856002$testModule {
-        desc: ()Lkotlin/jvm/functions/Function3;
+    Foo$lambda$0 {
+        desc: (ILandroidx/compose/runtime/Composer;I)Lkotlin/Unit;
         key: null
-        codeHash: 2196316711
-        dependencies: []
-    }
-    
-    getLambda$904522804$testModule {
-        desc: ()Lkotlin/jvm/functions/Function3;
-        key: null
-        codeHash: 304986901
-        dependencies: []
-    }
-    
-    <clinit> {
-        desc: ()V
-        key: null
-        codeHash: 2144001912
-        dependencies: []
+        codeHash: 3190275455
+        dependencies: [
+            FooKt.Foo (Landroidx/compose/runtime/Composer;I)V
+        ]
     }
 }
