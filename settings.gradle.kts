@@ -56,10 +56,13 @@ include(":hot-reload-runtime-jvm")
 include(":hot-reload-orchestration")
 include(":hot-reload-under-test")
 
-gradle.lifecycle.beforeProject {
+gradle.beforeProject {
     group = "org.jetbrains.compose"
     version = project.providers.gradleProperty("version").get()
 
     plugins.apply("test-conventions")
     plugins.apply("kotlin-conventions")
 }
+
+
+gradle.lifecycle
