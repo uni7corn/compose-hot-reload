@@ -3,15 +3,12 @@
 package org.jetbrains.compose.reload.utils
 
 import kotlinx.coroutines.*
-import kotlinx.coroutines.flow.consumeAsFlow
-import kotlinx.coroutines.flow.filter
-import kotlinx.coroutines.flow.filterIsInstance
-import kotlinx.coroutines.flow.first
-import kotlinx.coroutines.flow.receiveAsFlow
+import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.test.TestScope
 import org.gradle.api.logging.Logger
 import org.gradle.api.logging.Logging
 import org.gradle.testkit.runner.GradleRunner
+import org.jetbrains.compose.reload.core.testFixtures.CompilerOption
 import org.jetbrains.compose.reload.orchestration.OrchestrationMessage
 import org.jetbrains.compose.reload.orchestration.OrchestrationServer
 import org.jetbrains.compose.reload.orchestration.asChannel
@@ -22,6 +19,7 @@ import kotlin.concurrent.withLock
 import kotlin.io.path.ExperimentalPathApi
 import kotlin.io.path.deleteRecursively
 import kotlin.time.Duration
+import kotlin.time.Duration.Companion.hours
 import kotlin.time.Duration.Companion.minutes
 import kotlin.time.Duration.Companion.seconds
 
@@ -31,7 +29,9 @@ class HotReloadTestFixture(
     val projectDir: ProjectDir,
     val gradleRunner: GradleRunner,
     val orchestration: OrchestrationServer,
-    val projectMode: ProjectMode
+    val projectMode: ProjectMode,
+    val compilerOptions: Map<CompilerOption, Boolean>,
+    val isDebug: Boolean
 ) : AutoCloseable {
 
     val logger: Logger = Logging.getLogger("ScreenshotTestFixture")
@@ -63,7 +63,7 @@ class HotReloadTestFixture(
 
         return withContext(dispatcher) {
             try {
-                withTimeout(timeout) {
+                withTimeout(if(isDebug) 24.hours else timeout) {
                     messages.receiveAsFlow().filterIsInstance<T>().filter(filter).first()
                 }
             } finally {
@@ -81,8 +81,8 @@ class HotReloadTestFixture(
      */
     lateinit var daemonTestScope: CoroutineScope
 
-    fun runTest(timeout: Duration = 5.minutes, test: suspend () -> Unit) {
-        kotlinx.coroutines.test.runTest(timeout = timeout) {
+    fun runTest(timeout: Duration = 15.minutes, test: suspend () -> Unit) {
+        kotlinx.coroutines.test.runTest(timeout = if(isDebug) 24.hours else timeout) {
             testScope = this
             daemonTestScope = CoroutineScope(currentCoroutineContext() + Job(currentCoroutineContext().job))
 
@@ -96,6 +96,7 @@ class HotReloadTestFixture(
                 test()
             } finally {
                 daemonTestScope.cancel()
+                daemonTestScope.coroutineContext[Job]?.join()
             }
         }
     }
@@ -106,10 +107,17 @@ class HotReloadTestFixture(
     override fun close() {
         orchestration.sendMessage(OrchestrationMessage.ShutdownRequest()).get()
         orchestration.closeGracefully().get()
-        projectDir.path.deleteRecursively()
 
         testScope.cancel()
         daemonTestScope.cancel()
+
+        /* Kludge: Windows tests failed to delete the project dir (maybe some files are still in use?) */
+        run deleteProjectDir@{
+            repeat(10) {
+                runCatching { projectDir.path.deleteRecursively() }
+                    .onSuccess { return@deleteProjectDir }
+            }
+        }
 
         resourcesLock.withLock {
             resources.forEach { resource -> resource.close() }

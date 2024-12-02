@@ -1,5 +1,6 @@
 package org.jetbrains.compose.reload.utils
 
+import org.jetbrains.compose.reload.core.testFixtures.CompilerOptions
 import org.jetbrains.compose.reload.utils.ProjectMode.Kmp
 import org.junit.jupiter.api.TestTemplate
 import org.junit.jupiter.api.extension.ExtendWith
@@ -34,6 +35,7 @@ class AndroidScreenshotTestInvocationContextProvider : TestTemplateInvocationCon
                 composeVersion = TestedComposeVersion.entries.last(),
                 androidVersion = androidVersion,
                 projectMode = Kmp,
+                compilerOptions = CompilerOptions.default,
             )
         }.asSequence().asStream()
     }
