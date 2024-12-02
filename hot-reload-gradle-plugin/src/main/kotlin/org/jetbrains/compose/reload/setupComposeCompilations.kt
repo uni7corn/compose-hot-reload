@@ -17,7 +17,7 @@ internal fun Project.setupComposeCompilations() {
 
             // TODO: Use pluginOptions instead
             task.compilerOptions.freeCompilerArgs.addAll(
-                "-P", "plugin:androidx.compose.compiler.plugins.kotlin:generateFunctionKeyMetaAnnotations=true"
+                "-P", "plugin:androidx.compose.compiler.plugins.kotlin:generateFunctionKeyMetaAnnotations=function"
             )
         }
     }
