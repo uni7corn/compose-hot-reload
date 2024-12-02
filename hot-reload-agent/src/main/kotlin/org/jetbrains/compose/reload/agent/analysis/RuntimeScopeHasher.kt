@@ -1,5 +1,6 @@
 package org.jetbrains.compose.reload.agent.analysis
 
+import org.jetbrains.compose.reload.agent.analysis.MethodIds.Composer.traceEventStart
 import org.objectweb.asm.tree.*
 
 internal object RuntimeScopeHasher : RuntimeInstructionAnalyzer {
@@ -21,6 +22,16 @@ internal object RuntimeScopeHasher : RuntimeInstructionAnalyzer {
             }
 
             is LdcInsnNode -> {
+                val nextInstruction = instructionNode.next
+
+                /*
+                We want to ignore constants pushed into 'traceEventStart' as this traces will include
+                line numbers. Such calls also don't contribute to implementation of the method.
+                 */
+                if (nextInstruction is MethodInsnNode && MethodId(nextInstruction) == traceEventStart) {
+                    return
+                }
+
                 scope.pushHash(instructionNode.cst)
             }
 

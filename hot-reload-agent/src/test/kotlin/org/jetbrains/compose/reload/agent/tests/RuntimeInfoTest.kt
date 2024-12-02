@@ -213,6 +213,44 @@ class RuntimeInfoTest {
             )
         }
     }
+
+    @Test
+    fun `test - whitespace do not affect code hashes`(compiler: Compiler, testInfo: TestInfo) {
+        val code = """
+            import androidx.compose.runtime.*
+            import androidx.compose.material3.Text
+                
+            @Composable
+            fun Foo() {
+                //<foo>
+                Text("Foo")
+                Bar()
+            }
+            
+            @Composable
+            fun Bar() {
+                //<bar>
+                Text("Bar")
+            }
+        """.trimIndent()
+
+        val runtimeInfoBefore = checkRuntimeInfo(
+            testInfo, compiler.withOptions(CompilerOption.OptimizeNonSkippingGroups to false),
+            mapOf("Foo.kt" to code), name = "before"
+        ) ?: fail("Missing 'runtimeInfo'")
+
+
+        val codeAfter = code.replace("//<foo>", "\n\n\n\n")
+            .replace("//<bar>", "\n\n\n\n")
+
+        val runtimeInfoAfter = checkRuntimeInfo(
+            testInfo, compiler.withOptions(CompilerOption.OptimizeNonSkippingGroups to false),
+            mapOf("Foo.kt" to codeAfter), name = "after"
+        ) ?: fail("Missing 'runtimeInfo'")
+
+        assertNotEquals(code, codeAfter)
+        assertEquals(runtimeInfoBefore, runtimeInfoAfter)
+    }
 }
 
 private fun checkRuntimeInfo(

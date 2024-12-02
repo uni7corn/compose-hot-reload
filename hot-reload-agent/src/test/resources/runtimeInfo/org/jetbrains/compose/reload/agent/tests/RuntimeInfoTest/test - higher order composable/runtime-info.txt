@@ -55,7 +55,7 @@ ComposableSingletons$FooKt$lambda$-1435676418$1 {
     invoke {
         desc: (Landroidx/compose/runtime/Composer;I)V
         key: -1435676418
-        codeHash: 3397313740
+        codeHash: 3730114898
         dependencies: []
     }
     
@@ -85,7 +85,7 @@ FooKt {
     
         RestartGroup {
             key: 490236094
-            codeHash: 3377921461
+            codeHash: 537491698
             dependencies: []
         }
     }
@@ -100,7 +100,7 @@ FooKt {
     
         RestartGroup {
             key: -965539098
-            codeHash: 4196952277
+            codeHash: 3733101977
             dependencies: [
                 FooKt.Bar (Lkotlin/jvm/functions/Function2;Landroidx/compose/runtime/Composer;I)V
             ]

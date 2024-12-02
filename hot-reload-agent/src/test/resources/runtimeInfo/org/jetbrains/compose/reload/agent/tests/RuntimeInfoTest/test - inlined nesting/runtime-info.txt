@@ -47,7 +47,7 @@ FooKt {
     
         RestartGroup {
             key: -965539098
-            codeHash: 1878360
+            codeHash: 399208238
             dependencies: []
         }
     }

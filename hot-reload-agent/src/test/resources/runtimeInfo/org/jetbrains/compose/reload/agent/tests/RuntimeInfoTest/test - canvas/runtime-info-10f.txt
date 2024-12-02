@@ -44,7 +44,7 @@ FooKt {
     
         RestartGroup {
             key: 857161579
-            codeHash: 1254337785
+            codeHash: 1955788785
             dependencies: [
                 FooKt.App$lambda$2$lambda$1$lambda$0 (Landroidx/compose/ui/graphics/drawscope/DrawScope;)Lkotlin/Unit;
             ]
