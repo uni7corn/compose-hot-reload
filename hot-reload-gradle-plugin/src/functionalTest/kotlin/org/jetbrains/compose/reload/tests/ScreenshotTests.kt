@@ -483,4 +483,90 @@ class ScreenshotTests {
         )
         fixture.checkScreenshot("4-foo_2-bar_24-afterReload")
     }
+
+
+    @HotReloadTest
+    @DefaultSettingsGradleKts
+    @DefaultBuildGradleKts
+    @TestOnlyLatestVersions
+    @TestOnlyDefaultCompilerOptions
+    fun `test - change line numbers - by adding whitespace`(fixture: HotReloadTestFixture) = fixture.runTest {
+        fixture initialSourceCode """
+            import androidx.compose.foundation.layout.*
+            import androidx.compose.runtime.*
+            import org.jetbrains.compose.reload.underTest.*
+              
+            fun main() = underTestApplication {
+                Column {
+                    Foo()
+                }
+            }
+            
+            fun decoy() {
+                //add whitespace
+            }
+            
+            @Composable
+            fun Foo() {
+                var foo by remember { mutableStateOf(0) }
+                onTestEvent { value ->
+                    if(value == "foo") foo++
+                }
+                TestText("Foo: %foo")
+            }
+         """.trimIndent().replace("%", "$")
+
+        fixture.checkScreenshot("0-before")
+
+        fixture.sendTestEvent("foo")
+        fixture.checkScreenshot("1-foo_1")
+
+        fixture.replaceSourceCodeAndReload("//add whitespace", "\n\n\n\n")
+        fixture.checkScreenshot("2-foo_1")
+    }
+
+    @HotReloadTest
+    @DefaultSettingsGradleKts
+    @DefaultBuildGradleKts
+    @TestOnlyLatestVersions
+    @TestOnlyDefaultCompilerOptions
+    fun `test - change line numbers - by adding whitespace and code`(fixture: HotReloadTestFixture) = fixture.runTest {
+        fixture initialSourceCode """
+            import androidx.compose.foundation.layout.*
+            import androidx.compose.runtime.*
+            import org.jetbrains.compose.reload.underTest.*
+              
+            fun main() = underTestApplication {
+                Column {
+                    Foo()
+                }
+            }
+            
+            fun decoy() {
+                //add whitespace
+            }
+            
+            @Composable
+            fun Foo() {
+                var foo by remember { mutableStateOf(0) }
+                onTestEvent { value ->
+                    if(value == "foo") foo++
+                }
+                TestText("Foo: %foo")
+            }
+         """.trimIndent().replace("%", "$")
+
+        fixture.checkScreenshot("0-before")
+
+        fixture.sendTestEvent("foo")
+        fixture.checkScreenshot("1-foo_1")
+
+        fixture.replaceSourceCodeAndReload("//add whitespace", """
+            |
+            |
+            | println("new code")
+            | 
+            """.trimMargin())
+        fixture.checkScreenshot("2-foo_1")
+    }
 }
