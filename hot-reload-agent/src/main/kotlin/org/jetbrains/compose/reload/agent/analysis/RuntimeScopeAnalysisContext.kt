@@ -47,11 +47,7 @@ internal fun RuntimeScopeInfo(
     context: RuntimeScopeAnalysisContext,
     parentGroup: ComposeGroupKey? = null
 ): RuntimeScopeInfo = RuntimeScopeInfo(
-    methodId = MethodId(
-        className = context.classNode.name,
-        methodName = context.methodNode.name,
-        methodDescriptor = context.methodNode.desc,
-    ),
+    methodId = MethodId(context.classNode, context.methodNode),
     type = context.type,
     group = context.group,
     parentGroup = parentGroup,

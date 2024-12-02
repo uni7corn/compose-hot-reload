@@ -17,14 +17,7 @@ internal object RuntimeScopeMethodDependencyAnalyzer : RuntimeInstructionAnalyze
 
         if (instructionNode is MethodInsnNode && instructionNode.opcode == Opcodes.INVOKESTATIC) {
             if (isIgnoredClassId(instructionNode.owner)) return
-
-            scope.attachDependency(
-                MethodId(
-                    className = instructionNode.owner,
-                    methodName = instructionNode.name,
-                    methodDescriptor = instructionNode.desc
-                )
-            )
+            scope.attachDependency(MethodId(instructionNode))
         }
 
         if (instructionNode is InvokeDynamicInsnNode &&
@@ -32,13 +25,7 @@ internal object RuntimeScopeMethodDependencyAnalyzer : RuntimeInstructionAnalyze
             instructionNode.bsm.name == metafactoryMethodName
         ) {
             val handle = instructionNode.bsmArgs.getOrNull(1) as? Handle ?: return
-            scope.attachDependency(
-                MethodId(
-                    className = handle.owner,
-                    methodName = handle.name,
-                    methodDescriptor = handle.desc
-                )
-            )
+            scope.attachDependency(MethodId(handle))
         }
     }
 }

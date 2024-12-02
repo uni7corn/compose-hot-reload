@@ -3,40 +3,35 @@ package org.jetbrains.compose.reload.agent.analysis
 import org.objectweb.asm.tree.AbstractInsnNode
 import org.objectweb.asm.tree.MethodInsnNode
 
-private const val composerClazzId = "androidx/compose/runtime/Composer"
-private const val startReplaceGroupMethodName = "startReplaceGroup"
-private const val startRestartGroupMethodName = "startRestartGroup"
-private const val sourceInformationMarkerStartMethodName = "sourceInformationMarkerStart"
-
-private const val endReplaceGroupMethodName = "endReplaceGroup"
-private const val endRestartGroupMethodName = "endRestartGroup"
-private const val sourceInformationMarkerEndMethodName = "sourceInformationMarkerEnd"
-
-
 internal object RuntimeScopeComposeGroupAnalyzer : RuntimeInstructionAnalyzer {
     override fun analyze(
         context: RuntimeMethodAnalysisContext, instructionNode: AbstractInsnNode
     ) {
         if (instructionNode !is MethodInsnNode) return
-        if (instructionNode.owner != composerClazzId) return
 
-
-        when (instructionNode.name) {
-            startReplaceGroupMethodName -> context.pushStartReplaceGroup(
+        when (MethodId(instructionNode)) {
+            /* Restart Groups */
+            MethodIds.Composer.startRestartGroup -> context.pushStartRestartGroup(
                 ComposeGroupKey(instructionNode.previous.intValueOrNull() ?: return)
             )
 
-            startRestartGroupMethodName -> context.pushStartRestartGroup(
+            MethodIds.Composer.endRestartGroup -> context.popEndRestartGroup()
+
+
+            /* Replace Groups */
+            MethodIds.Composer.startReplaceGroup -> context.pushStartReplaceGroup(
                 ComposeGroupKey(instructionNode.previous.intValueOrNull() ?: return)
             )
 
-            sourceInformationMarkerStartMethodName -> context.pushSourceInformationMarkerStart(
-                ComposeGroupKey(instructionNode.previous.intValueOrNull() ?: return)
-            )
+            MethodIds.Composer.endReplaceGroup -> context.popEndReplaceGroup()
 
-            endReplaceGroupMethodName -> context.popEndReplaceGroup()
-            endRestartGroupMethodName -> context.popEndRestartGroup()
-            sourceInformationMarkerEndMethodName -> context.popSourceInformationMarkerEnd()
+            /* Source Information Marker */
+
+            MethodIds.Composer.sourceInformationMarkerStart -> Unit /*context.pushSourceInformationMarkerStart(
+                ComposeGroupKey(instructionNode.previous.intValueOrNull() ?: return)
+            ) */
+
+            MethodIds.Composer.sourceInformationMarkerEnd -> Unit //context.popSourceInformationMarkerEnd()
             else -> Unit
         }
     }

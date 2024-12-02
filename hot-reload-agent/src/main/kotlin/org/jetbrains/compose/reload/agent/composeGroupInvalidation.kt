@@ -46,7 +46,7 @@ internal fun startComposeGroupInvalidationTransformation(instrumentation: Instru
             val methods = newRuntime?.groups[group].orEmpty()
                 .map { scope -> scope.methodId }.toSet()
                 .joinToString(", ", prefix = "(", postfix = ")") { methodId ->
-                    "${methodId.className}.${methodId.methodName}"
+                    "${methodId.classId}.${methodId.methodName}"
                 }
 
             logger.orchestration("Invalidating group '${group.key}' $methods")

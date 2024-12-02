@@ -1,9 +1,8 @@
 package org.jetbrains.compose.reload.agent.tests
 
 import org.jetbrains.compose.reload.agent.analysis.RuntimeInfo
-import org.jetbrains.compose.reload.agent.analysis.RuntimeScopeInfo
-import org.jetbrains.compose.reload.agent.analysis.RuntimeScopeType.*
 import org.jetbrains.compose.reload.agent.analysis.SpecialComposeGroupKeys
+import org.jetbrains.compose.reload.agent.analysis.render
 import org.jetbrains.compose.reload.agent.utils.Compiler
 import org.jetbrains.compose.reload.agent.utils.WithCompiler
 import org.jetbrains.compose.reload.agent.utils.javap
@@ -243,7 +242,7 @@ private fun checkRuntimeInfo(
         appendLine(" Runtime Info:")
         appendLine("*/")
         appendLine()
-        appendLine(runtimeInfo?.render())
+        appendLine(runtimeInfo?.render()?.escapeWhiteSpace())
     }.escapeWhiteSpace()
 
     val directory = Path("src/test/resources/runtimeInfo")
@@ -272,57 +271,6 @@ private fun checkRuntimeInfo(
     }
 
     return runtimeInfo
-}
-
-private fun RuntimeInfo.render(): String = buildString {
-    scopes.groupBy { it.methodId.className }.toSortedMap().forEach { (className, scopes) ->
-        appendLine("$className {")
-        withIndent {
-            appendLine(scopes.joinToString("\n\n") { it.render() })
-        }
-        appendLine("}")
-        appendLine()
-    }
-}.escapeWhiteSpace()
-
-
-private fun RuntimeScopeInfo.render(): String = buildString {
-    when (type) {
-        Method -> appendLine("${methodId.methodName} {")
-        RestartGroup -> appendLine("RestartGroup {")
-        ReplaceGroup -> appendLine("ReplaceGroup {")
-        SourceInformationMarker -> appendLine("SourceInformationMarker {")
-    }
-
-    withIndent {
-        if (type == Method) {
-            appendLine("desc: ${methodId.methodDescriptor}")
-        }
-
-        appendLine("key: ${group?.key}")
-        appendLine("codeHash: ${hash.value}")
-        if (dependencies.isEmpty()) {
-            appendLine("dependencies: []")
-        } else {
-            appendLine("dependencies: [")
-            withIndent {
-                append(dependencies.joinToString(",\n"))
-            }
-            appendLine("]")
-        }
-
-        if (children.isNotEmpty()) {
-            appendLine()
-            appendLine(children.joinToString("\n\n") { it.render() }).trim()
-            appendLine()
-        }
-    }
-
-    append("}")
-}
-
-fun StringBuilder.withIndent(builder: StringBuilder.() -> Unit) {
-    appendLine(buildString(builder).trim().prependIndent("    "))
 }
 
 

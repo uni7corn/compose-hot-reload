@@ -28,12 +28,23 @@ internal data class RuntimeInfo(val scopes: List<RuntimeScopeInfo>) {
 }
 
 internal data class MethodId(
-    val className: String,
+    val classId: ClassId,
     val methodName: String,
     val methodDescriptor: String,
 ) {
     override fun toString(): String {
-        return "$className.$methodName $methodDescriptor"
+        return "$classId.$methodName $methodDescriptor"
+    }
+}
+
+@JvmInline
+internal value class ClassId(val value: String) : Comparable<ClassId> {
+    override fun compareTo(other: ClassId): Int {
+        return value.compareTo(other.value)
+    }
+
+    override fun toString(): String {
+        return value
     }
 }
 
@@ -60,7 +71,7 @@ internal fun RuntimeInfo(bytecode: ByteArray): RuntimeInfo? {
 }
 
 internal fun RuntimeInfo(classNode: ClassNode): RuntimeInfo? {
-    if(isIgnoredClassId(classNode.name)) return null
+    if (isIgnoredClassId(classNode.name)) return null
     return RuntimeInfo(classNode.methods.mapNotNull { methodNode -> RuntimeScopeInfo(classNode, methodNode) })
 }
 
