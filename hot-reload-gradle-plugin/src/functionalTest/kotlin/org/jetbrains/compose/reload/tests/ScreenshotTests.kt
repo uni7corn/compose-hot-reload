@@ -15,14 +15,13 @@ class ScreenshotTests {
     fun `test - simple change`(fixture: HotReloadTestFixture) = fixture.runTest {
         fixture initialSourceCode """
             import androidx.compose.foundation.layout.*
-            import androidx.compose.material3.Text
             import androidx.compose.ui.unit.sp
             import androidx.compose.ui.window.*
             import org.jetbrains.compose.reload.underTest.*
             
             fun main() {
                 underTestApplication {
-                    Text("Hello", fontSize = 48.sp)
+                    TestText("Hello")
                 }
             }
             """.trimIndent()
@@ -32,6 +31,7 @@ class ScreenshotTests {
         fixture.checkScreenshot("after")
     }
 
+    @HostIntegrationTest
     @HotReloadTest
     @DefaultSettingsGradleKts
     @DefaultBuildGradleKts
@@ -53,7 +53,7 @@ class ScreenshotTests {
                     }
                     
                     Group {
-                        Text("Before: ${d}state", fontSize = 48.sp)
+                        TestText("Before: ${d}state")
                     }
                 }
             }
@@ -76,14 +76,13 @@ class ScreenshotTests {
     fun `test - kmp with android and jvm`(fixture: HotReloadTestFixture) = fixture.runTest {
         fixture initialSourceCode """
             import androidx.compose.foundation.layout.*
-            import androidx.compose.material3.Text
             import androidx.compose.ui.unit.sp
             import androidx.compose.ui.window.*
             import org.jetbrains.compose.reload.underTest.*
             
             fun main() {
                 underTestApplication {
-                    Text("Hello", fontSize = 48.sp)
+                    TestText("Hello")
                 }
             }
             """.trimIndent()
@@ -129,13 +128,13 @@ class ScreenshotTests {
 
         fixture.projectDir.writeText(
             "widgets/src/${fixture.projectMode.fold("commonMain", "main")}/kotlin/Widget.kt", """
-            import androidx.compose.material3.Text
             import androidx.compose.runtime.Composable
             import androidx.compose.ui.unit.sp
+            import org.jetbrains.compose.reload.underTest.*
             
             @Composable
             fun Widget(text: String) {
-                Text("Before: " + text, fontSize = 48.sp)
+                TestText("Before: " + text)
             }
             """.trimIndent()
         )
@@ -143,7 +142,6 @@ class ScreenshotTests {
         fixture.projectDir.writeText(
             "app/src/${fixture.projectMode.fold("commonMain", "main")}/kotlin/Main.kt", """
             import androidx.compose.foundation.layout.*
-            import androidx.compose.material3.Text
             import androidx.compose.ui.unit.sp
             import androidx.compose.ui.window.*
             import org.jetbrains.compose.reload.underTest.*
@@ -182,7 +180,7 @@ class ScreenshotTests {
             fun main() {
                 underTestApplication {
                     Column {
-                        Text("Initial", fontSize = 48.sp)
+                        TestText("Initial")
                         // Add button
                     }
                 }
@@ -193,7 +191,7 @@ class ScreenshotTests {
         fixture.replaceSourceCodeAndReload(
             """// Add button""", """
                 Button(onClick = { }) {
-                    Text("Button")
+                    TestText("Button")
                 }
             """.trimIndent()
         )
@@ -221,7 +219,7 @@ class ScreenshotTests {
                     // add effect
                     
                     Column {
-                        Text("Initial", fontSize = 48.sp)
+                        TestText("Initial")
                         // Add button
                     }
                 }
@@ -246,6 +244,7 @@ class ScreenshotTests {
     @DefaultSettingsGradleKts
     @DefaultBuildGradleKts
     @TestOnlyLatestVersions
+    @TestOnlyKmp
     fun `test - update remembered value`(fixture: HotReloadTestFixture) = fixture.runTest {
         fixture initialSourceCode """
             import androidx.compose.foundation.layout.*
@@ -260,7 +259,7 @@ class ScreenshotTests {
                     var state by remember { mutableStateOf(0) }
                     onTestEvent { state++ }
                     Group {
-                        Text("Before: %state", fontSize = 48.sp)
+                        TestText("Before: %state")
                     }
                 }
             }
@@ -304,7 +303,7 @@ class ScreenshotTests {
                         if(value == "inc") myLambda() 
                      }
                     
-                    Text("%state")
+                    TestText("%state")
                 }
             }
             """.trimIndent().replace("%", "$")
@@ -338,7 +337,7 @@ class ScreenshotTests {
             
             fun main() {
                 underTestApplication {
-                   Text("%foo", fontSize = 48.sp)
+                   TestText("%foo")
                 }
             }
             """.trimIndent().replace("%", "$")
@@ -352,15 +351,15 @@ class ScreenshotTests {
     }
 
     @HotReloadTest
+    @TestOnlyKmp
+    @TestOnlyLatestVersions
     @DefaultSettingsGradleKts
     @DefaultBuildGradleKts
-    @TestOnlyLatestVersions
     fun `test - changing spacedBy`(fixture: HotReloadTestFixture) = fixture.runTest {
         fixture initialSourceCode """
             import androidx.compose.foundation.layout.Arrangement
             import androidx.compose.foundation.layout.Row
             import androidx.compose.foundation.layout.fillMaxWidth
-            import androidx.compose.material3.Text
             import androidx.compose.runtime.Composable
             import androidx.compose.ui.Modifier
             import androidx.compose.ui.unit.dp
@@ -373,8 +372,8 @@ class ScreenshotTests {
                         modifier = Modifier.fillMaxWidth(),
                         horizontalArrangement = Arrangement.spacedBy(6.dp) ,
                     ) {
-                        Text("A")
-                        Text("B")
+                        TestText("A")
+                        TestText("B")
                     }
                 }
             }
@@ -385,5 +384,247 @@ class ScreenshotTests {
         /* Increase value passed to 'spacedBy' */
         fixture.replaceSourceCodeAndReload("spacedBy(6.dp)", "spacedBy(32.dp)")
         fixture.checkScreenshot("1-larger-spacedBy")
+    }
+
+    @HotReloadTest
+    @DefaultSettingsGradleKts
+    @DefaultBuildGradleKts
+    @TestOnlyLatestVersions
+    @TestOnlyKmp
+    fun `test - change in canvas draw coordinates`(fixture: HotReloadTestFixture) = fixture.runTest {
+        fixture initialSourceCode """
+            import androidx.compose.foundation.Canvas
+            import androidx.compose.foundation.layout.Box
+            import androidx.compose.foundation.layout.fillMaxSize
+            import androidx.compose.foundation.layout.size
+            import androidx.compose.foundation.progressSemantics
+            import androidx.compose.runtime.Composable
+            import androidx.compose.ui.Alignment
+            import androidx.compose.ui.Modifier
+            import androidx.compose.ui.geometry.Offset
+            import androidx.compose.ui.graphics.Color
+            import androidx.compose.ui.unit.dp
+            import org.jetbrains.compose.reload.underTest.*
+              
+            fun main() = underTestApplication {
+                Box(contentAlignment = Alignment.Center, modifier = Modifier.fillMaxSize()) {
+                    Canvas(
+                       Modifier
+                       .progressSemantics()
+                       .size(200.dp, 200.dp)
+                    ) {
+                        drawLine(
+                            color = Color.Black,
+                            Offset(0f, 0f),
+                            Offset(50f, 0f),
+                            20f,
+                        )
+                   }
+               }
+            }
+         """.trimIndent()
+
+        fixture.checkScreenshot("0-before")
+
+        fixture.replaceSourceCodeAndReload("Offset(50f, 0f)", "Offset(200f, 0f)")
+        fixture.checkScreenshot("1-after")
+    }
+
+    @HotReloadTest
+    @DefaultSettingsGradleKts
+    @DefaultBuildGradleKts
+    @TestOnlyLatestVersions
+    fun `test - remember in two composables`(fixture: HotReloadTestFixture) = fixture.runTest {
+        fixture initialSourceCode """
+            import androidx.compose.foundation.layout.*
+            import androidx.compose.runtime.*
+            import org.jetbrains.compose.reload.underTest.*
+              
+            fun main() = underTestApplication {
+                Column {
+                    Foo()
+                }
+            }
+            
+            @Composable
+            fun Foo() {
+                var foo by remember { mutableStateOf(0) }
+                onTestEvent { value ->
+                    if(value == "foo") foo++
+                }
+                TestText("Foo: %foo")
+                Bar()
+            }
+            
+            @Composable
+            fun Bar() {
+                var bar by remember { mutableStateOf(0) }
+                onTestEvent { value ->
+                    if(value == "bar") bar++
+                }
+                TestText("Bar: %bar")
+            }
+         """.trimIndent().replace("%", "$")
+
+        fixture.checkScreenshot("0-before")
+
+        fixture.sendTestEvent("foo")
+        fixture.checkScreenshot("1-foo_1-bar_0")
+
+        fixture.sendTestEvent("foo")
+        fixture.checkScreenshot("2-foo_2-bar_0")
+
+        fixture.sendTestEvent("bar")
+        fixture.checkScreenshot("3-foo_2-bar_1")
+
+        fixture.replaceSourceCodeAndReload(
+            "var bar by remember { mutableStateOf(0) }",
+            "var bar by remember { mutableStateOf(24) }"
+        )
+        fixture.checkScreenshot("4-foo_2-bar_24-afterReload")
+    }
+
+
+    @HotReloadTest
+    @DefaultSettingsGradleKts
+    @DefaultBuildGradleKts
+    @TestOnlyLatestVersions
+    @TestOnlyDefaultCompilerOptions
+    fun `test - change line numbers - by adding whitespace`(fixture: HotReloadTestFixture) = fixture.runTest {
+        fixture initialSourceCode """
+            import androidx.compose.foundation.layout.*
+            import androidx.compose.runtime.*
+            import org.jetbrains.compose.reload.underTest.*
+              
+            fun main() = underTestApplication {
+                Column {
+                    Foo()
+                }
+            }
+            
+            fun decoy() {
+                //add whitespace
+            }
+            
+            @Composable
+            fun Foo() {
+                var foo by remember { mutableStateOf(0) }
+                onTestEvent { value ->
+                    if(value == "foo") foo++
+                }
+                TestText("Foo: %foo")
+            }
+         """.trimIndent().replace("%", "$")
+
+        fixture.checkScreenshot("0-before")
+
+        fixture.sendTestEvent("foo")
+        fixture.checkScreenshot("1-foo_1")
+
+        fixture.replaceSourceCodeAndReload("//add whitespace", "\n\n\n\n")
+        fixture.checkScreenshot("2-foo_1")
+    }
+
+    @HotReloadTest
+    @DefaultSettingsGradleKts
+    @DefaultBuildGradleKts
+    @TestOnlyLatestVersions
+    @TestOnlyDefaultCompilerOptions
+    fun `test - change line numbers - by adding whitespace and code`(fixture: HotReloadTestFixture) = fixture.runTest {
+        fixture initialSourceCode """
+            import androidx.compose.foundation.layout.*
+            import androidx.compose.runtime.*
+            import org.jetbrains.compose.reload.underTest.*
+              
+            fun main() = underTestApplication {
+                Column {
+                    Foo()
+                }
+            }
+            
+            fun decoy() {
+                //add whitespace
+            }
+            
+            @Composable
+            fun Foo() {
+                var foo by remember { mutableStateOf(0) }
+                onTestEvent { value ->
+                    if(value == "foo") foo++
+                }
+                TestText("Foo: %foo")
+            }
+         """.trimIndent().replace("%", "$")
+
+        fixture.checkScreenshot("0-before")
+
+        fixture.sendTestEvent("foo")
+        fixture.checkScreenshot("1-foo_1")
+
+        fixture.replaceSourceCodeAndReload(
+            "//add whitespace", """
+            |
+            |
+            | println("new code")
+            | 
+            """.trimMargin()
+        )
+        fixture.checkScreenshot("2-foo_1")
+    }
+
+    @HotReloadTest
+    @DefaultSettingsGradleKts
+    @DefaultBuildGradleKts
+    @TestOnlyLatestVersions
+    @TestOnlyDefaultCompilerOptions
+    fun `test - if branch`(fixture: HotReloadTestFixture) = fixture.runTest {
+        fixture initialSourceCode """
+            import androidx.compose.foundation.layout.*
+            import androidx.compose.runtime.*
+            import org.jetbrains.compose.reload.underTest.*
+              
+            fun main() = underTestApplication {
+                Column {
+                    Foo(true)
+                }
+            }
+            
+            @Composable
+            fun Foo(value: Boolean) {
+                if(value) {
+                    var state by remember { mutableStateOf(0) }
+                    onTestEvent { value -> if(value == "inc") state++ }
+                    TestText("Foo: %state")
+                } else {
+                    TestText("Value is 'false'")
+                }
+            }
+        """.replace("%", "$").trimIndent()
+
+        fixture.checkScreenshot("0-true-0")
+        fixture.sendTestEvent("inc")
+        fixture.checkScreenshot("1-true-1")
+
+        fixture.replaceSourceCodeAndReload(
+            "Foo(true)", """
+            | 
+            | Foo(
+            |    true
+            | )
+        """.trimMargin()
+        )
+        fixture.checkScreenshot("2-afterWhitespaceChangeInMain-true-1")
+
+        fixture.replaceSourceCodeAndReload("""Value is 'false'""", """Value is <false>""")
+        fixture.checkScreenshot("3-afterChangeInElse-true-1")
+
+        fixture.replaceSourceCodeAndReload(
+            """
+            | Foo(
+            |    true
+            | )
+            """.trimMargin(), """Foo(false)"""
+        )
+        fixture.checkScreenshot("4-false-0")
     }
 }

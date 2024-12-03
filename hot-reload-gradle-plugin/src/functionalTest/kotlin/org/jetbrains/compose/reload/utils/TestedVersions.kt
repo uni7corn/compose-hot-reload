@@ -1,6 +1,7 @@
 package org.jetbrains.compose.reload.utils
 
 import org.gradle.util.GradleVersion
+import org.jetbrains.compose.reload.core.testFixtures.TestEnvironment
 import org.jetbrains.kotlin.tooling.core.KotlinToolingVersion
 import org.junit.jupiter.api.extension.ExtensionContext
 
@@ -14,10 +15,8 @@ enum class TestedGradleVersion(val version: GradleVersion) {
 }
 
 enum class TestedKotlinVersion(val version: KotlinToolingVersion) {
-    KT_2_0(KotlinToolingVersion("2.0.21")),
-    KT_2_1(KotlinToolingVersion("2.1.0-RC")),
-    KT_2_0_FIREWORK(
-        KotlinToolingVersion(System.getProperty("firework.version") ?: error("Missing 'firework.version'"))
+    KT_2_1_FIREWORK(
+        KotlinToolingVersion(TestEnvironment.fireworkVersion ?: error("Missing 'firework.version'"))
     ),
     ;
 
