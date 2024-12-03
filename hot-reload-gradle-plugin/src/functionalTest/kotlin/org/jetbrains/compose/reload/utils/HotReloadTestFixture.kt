@@ -34,7 +34,7 @@ class HotReloadTestFixture(
     val isDebug: Boolean
 ) : AutoCloseable {
 
-    val logger: Logger = Logging.getLogger("ScreenshotTestFixture")
+    val logger: Logger by lazy { Logging.getLogger("ScreenshotTestFixture") }
 
     val messages = orchestration.asChannel()
 
@@ -63,7 +63,7 @@ class HotReloadTestFixture(
 
         return withContext(dispatcher) {
             try {
-                withTimeout(if(isDebug) 24.hours else timeout) {
+                withTimeout(if (isDebug) 24.hours else timeout) {
                     messages.receiveAsFlow().filterIsInstance<T>().filter(filter).first()
                 }
             } finally {
@@ -82,7 +82,7 @@ class HotReloadTestFixture(
     lateinit var daemonTestScope: CoroutineScope
 
     fun runTest(timeout: Duration = 15.minutes, test: suspend () -> Unit) {
-        kotlinx.coroutines.test.runTest(timeout = if(isDebug) 24.hours else timeout) {
+        kotlinx.coroutines.test.runTest(timeout = if (isDebug) 24.hours else timeout) {
             testScope = this
             daemonTestScope = CoroutineScope(currentCoroutineContext() + Job(currentCoroutineContext().job))
 

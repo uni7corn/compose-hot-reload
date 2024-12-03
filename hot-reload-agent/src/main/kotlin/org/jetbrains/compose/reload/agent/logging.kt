@@ -7,13 +7,6 @@ import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import java.lang.invoke.MethodHandles
 
-
-@Suppress("NOTHING_TO_INLINE") // We want the caller class!
-@JvmName("createLookupLogger")
-internal inline fun createLogger() = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass())
-
-internal inline fun <reified T : Any> createLogger() = LoggerFactory.getLogger(T::class.java)
-
 @Suppress("NOTHING_TO_INLINE") // We want the caller class!
 public inline fun Logger.orchestration(message: String, throwable: Throwable? = null) {
     if (throwable != null) {

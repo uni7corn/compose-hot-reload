@@ -36,6 +36,7 @@ val testComposeCompiler = configurations.create("testComposeCompiler") {
 }
 
 dependencies {
+    testImplementation(kotlin("compiler-embeddable"))
     testCompilerDependencies(kotlin("stdlib"))
     testCompilerDependencies(ComposePlugin.Dependencies(project).desktop.currentOs)
     testCompilerDependencies(ComposePlugin.Dependencies(project).material3)

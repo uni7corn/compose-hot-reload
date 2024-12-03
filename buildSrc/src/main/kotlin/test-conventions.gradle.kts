@@ -38,5 +38,9 @@ plugins.withType<KotlinPluginWrapper> {
         if (project.name != "hot-reload-core") {
             "testImplementation"(testFixtures(project(":hot-reload-core")))
         }
+
+        "testImplementation"(kotlin("test"))
+        "testImplementation"(project.versionCatalogs.named("deps").findLibrary("junit-jupiter").get())
+        "testImplementation"(project.versionCatalogs.named("deps").findLibrary("junit-jupiter-engine").get())
     }
 }

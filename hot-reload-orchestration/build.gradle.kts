@@ -5,12 +5,6 @@ plugins {
     `java-test-fixtures`
 }
 
-publishing {
-    publications.create<MavenPublication>("maven") {
-        from(components["java"])
-    }
-}
-
 kotlin {
     compilerOptions {
         explicitApi()
@@ -34,5 +28,11 @@ tasks.withType<Test> {
     useJUnitPlatform()
     testLogging {
         showStandardStreams = true
+    }
+}
+
+publishing {
+    publications.create("maven", MavenPublication::class) {
+        from(components["java"])
     }
 }

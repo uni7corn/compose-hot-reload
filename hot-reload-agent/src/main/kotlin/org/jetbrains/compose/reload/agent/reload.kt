@@ -1,19 +1,16 @@
 package org.jetbrains.compose.reload.agent
 
 import javassist.ClassPool
-import javassist.CtConstructor
 import javassist.LoaderClassPath
+import org.jetbrains.compose.reload.core.createLogger
 import org.jetbrains.compose.reload.orchestration.OrchestrationMessage
 import java.io.ByteArrayOutputStream
 import java.io.DataOutputStream
 import java.io.File
 import java.lang.instrument.ClassDefinition
 import java.lang.instrument.Instrumentation
-import java.lang.reflect.Modifier
-import kotlin.concurrent.withLock
 
 private val logger = createLogger()
-
 
 private val pool = ClassPool().apply {
     appendClassPath(LoaderClassPath(ClassLoader.getSystemClassLoader()))

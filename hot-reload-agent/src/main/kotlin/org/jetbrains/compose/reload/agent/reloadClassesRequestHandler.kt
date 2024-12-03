@@ -2,11 +2,11 @@ package org.jetbrains.compose.reload.agent
 
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.runBlocking
+import org.jetbrains.compose.reload.core.createLogger
 import org.jetbrains.compose.reload.orchestration.OrchestrationMessage
 import org.jetbrains.compose.reload.orchestration.invokeWhenReceived
 import java.io.File
 import java.lang.instrument.Instrumentation
-import kotlin.concurrent.withLock
 import kotlin.system.exitProcess
 
 private val logger = createLogger()

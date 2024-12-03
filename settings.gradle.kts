@@ -49,6 +49,7 @@ dependencyResolutionManagement {
 }
 
 include(":hot-reload-core")
+include(":hot-reload-analysis")
 include(":hot-reload-agent")
 include(":hot-reload-gradle-plugin")
 include(":hot-reload-runtime-api")
@@ -61,8 +62,6 @@ gradle.beforeProject {
     version = project.providers.gradleProperty("version").get()
 
     plugins.apply("test-conventions")
+    plugins.apply("main-conventions")
     plugins.apply("kotlin-conventions")
 }
-
-
-gradle.lifecycle

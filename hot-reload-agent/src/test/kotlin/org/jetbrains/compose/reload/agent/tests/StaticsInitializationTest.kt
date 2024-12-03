@@ -2,14 +2,12 @@ package org.jetbrains.compose.reload.agent.tests
 
 import javassist.ClassPool
 import javassist.Modifier
-import org.jetbrains.compose.reload.agent.ComposeReloadPremainExtension.Companion.load
 import org.jetbrains.compose.reload.agent.transformForStaticsInitialization
-import org.jetbrains.compose.reload.agent.utils.Compiler
-import org.jetbrains.compose.reload.agent.utils.WithCompiler
-import org.jetbrains.compose.reload.agent.utils.checkJavap
-import org.jetbrains.compose.reload.agent.utils.compile
+import org.jetbrains.compose.reload.core.testFixtures.Compiler
+import org.jetbrains.compose.reload.core.testFixtures.WithCompiler
+import org.jetbrains.compose.reload.core.testFixtures.checkJavap
+import org.jetbrains.compose.reload.core.testFixtures.compile
 import org.junit.jupiter.api.TestInfo
-import java.lang.ClassLoader
 import kotlin.test.Test
 import kotlin.test.assertEquals
 

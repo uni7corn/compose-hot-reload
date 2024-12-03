@@ -1,9 +1,10 @@
 package org.jetbrains.compose.reload.agent
 
-import org.jetbrains.compose.reload.agent.analysis.RuntimeInfo
-import org.jetbrains.compose.reload.agent.analysis.plus
-import org.jetbrains.compose.reload.agent.analysis.resolveInvalidationKey
-import org.jetbrains.compose.reload.agent.analysis.update
+import org.jetbrains.compose.reload.analysis.RuntimeInfo
+import org.jetbrains.compose.reload.analysis.plus
+import org.jetbrains.compose.reload.analysis.resolveInvalidationKey
+import org.jetbrains.compose.reload.core.createLogger
+import org.jetbrains.compose.reload.core.update
 import java.lang.instrument.ClassFileTransformer
 import java.lang.instrument.Instrumentation
 import java.security.ProtectionDomain

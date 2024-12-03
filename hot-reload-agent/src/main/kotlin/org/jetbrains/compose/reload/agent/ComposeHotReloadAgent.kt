@@ -1,11 +1,10 @@
 package org.jetbrains.compose.reload.agent
 
+import org.jetbrains.compose.reload.core.createLogger
 import org.jetbrains.compose.reload.orchestration.Disposable
 import org.jetbrains.compose.reload.orchestration.OrchestrationMessage.ReloadClassesRequest
-import org.jetbrains.compose.reload.orchestration.checkIsOrchestrationThread
 import java.lang.instrument.Instrumentation
 import java.util.*
-import java.util.concurrent.locks.ReentrantLock
 
 
 object ComposeHotReloadAgent {

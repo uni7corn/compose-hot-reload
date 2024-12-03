@@ -2,9 +2,9 @@ package org.jetbrains.compose.reload.agent
 
 import javassist.CtClass
 import javassist.CtConstructor
+import org.jetbrains.compose.reload.core.createLogger
 import java.lang.instrument.ClassDefinition
 import java.lang.reflect.Modifier
-
 
 private val logger = createLogger()
 
