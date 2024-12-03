@@ -561,12 +561,70 @@ class ScreenshotTests {
         fixture.sendTestEvent("foo")
         fixture.checkScreenshot("1-foo_1")
 
-        fixture.replaceSourceCodeAndReload("//add whitespace", """
+        fixture.replaceSourceCodeAndReload(
+            "//add whitespace", """
             |
             |
             | println("new code")
             | 
-            """.trimMargin())
+            """.trimMargin()
+        )
         fixture.checkScreenshot("2-foo_1")
+    }
+
+    @HotReloadTest
+    @DefaultSettingsGradleKts
+    @DefaultBuildGradleKts
+    @TestOnlyLatestVersions
+    @TestOnlyDefaultCompilerOptions
+    fun `test - if branch`(fixture: HotReloadTestFixture) = fixture.runTest {
+        fixture initialSourceCode """
+            import androidx.compose.foundation.layout.*
+            import androidx.compose.runtime.*
+            import org.jetbrains.compose.reload.underTest.*
+              
+            fun main() = underTestApplication {
+                Column {
+                    Foo(true)
+                }
+            }
+            
+            @Composable
+            fun Foo(value: Boolean) {
+                if(value) {
+                    var state by remember { mutableStateOf(0) }
+                    onTestEvent { value -> if(value == "inc") state++ }
+                    TestText("Foo: %state")
+                } else {
+                    TestText("Value is 'false'")
+                }
+            }
+        """.replace("%", "$").trimIndent()
+
+        fixture.checkScreenshot("0-true-0")
+        fixture.sendTestEvent("inc")
+        fixture.checkScreenshot("1-true-1")
+
+        fixture.replaceSourceCodeAndReload(
+            "Foo(true)", """
+            | 
+            | Foo(
+            |    true
+            | )
+        """.trimMargin()
+        )
+        fixture.checkScreenshot("2-afterWhitespaceChangeInMain-true-1")
+
+        fixture.replaceSourceCodeAndReload("""Value is 'false'""", """Value is <false>""")
+        fixture.checkScreenshot("3-afterChangeInElse-true-1")
+
+        fixture.replaceSourceCodeAndReload(
+            """
+            | Foo(
+            |    true
+            | )
+            """.trimMargin(), """Foo(false)"""
+        )
+        fixture.checkScreenshot("4-false-0")
     }
 }

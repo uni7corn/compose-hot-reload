@@ -54,7 +54,7 @@ class HotReloadTestFixture(
             while (true) {
                 logger.quiet(
                     "Waiting for message ${T::class.simpleName} ($waiting/$timeout)" +
-                            "\n${stack.drop(1).take(5).joinToString("\n") { "  $it" }}"
+                            "\n${stack.drop(1).take(7).joinToString("\n") { "  $it" }}"
                 )
                 delay(sleep)
                 waiting += sleep
