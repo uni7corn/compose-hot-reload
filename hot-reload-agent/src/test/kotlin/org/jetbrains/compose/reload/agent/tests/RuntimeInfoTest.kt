@@ -8,7 +8,6 @@ import org.jetbrains.compose.reload.agent.utils.WithCompiler
 import org.jetbrains.compose.reload.agent.utils.javap
 import org.jetbrains.compose.reload.agent.utils.withOptions
 import org.jetbrains.compose.reload.core.testFixtures.CompilerOption
-import org.jetbrains.compose.reload.core.testFixtures.MinFireworkVersion
 import org.jetbrains.compose.reload.core.testFixtures.TestEnvironment
 import org.jetbrains.kotlin.util.prefixIfNot
 import org.junit.jupiter.api.TestInfo
@@ -182,7 +181,6 @@ class RuntimeInfoTest {
         )
     }
 
-    @MinFireworkVersion("2.1.20-SNAPSHOT")
     @Test
     fun `test - remember`(compiler: Compiler, testInfo: TestInfo) {
         val runtimeInfo = checkRuntimeInfo(
