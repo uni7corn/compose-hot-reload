@@ -31,9 +31,9 @@ dependencies {
     implementation(deps.javassist)
     implementation(deps.asm)
     implementation(deps.asm.tree)
-    implementation(deps.junit.jupiter)
-    implementation(deps.junit.jupiter.engine)
-    implementation(kotlin("test"))
+    testImplementation(deps.junit.jupiter)
+    testImplementation(deps.junit.jupiter.engine)
+    testImplementation(kotlin("test"))
 
     testImplementation(kotlin("compiler-embeddable"))
     testImplementation(deps.logback)
