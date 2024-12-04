@@ -7,7 +7,7 @@ import org.junit.jupiter.api.extension.ExtensionContext
 
 enum class TestedGradleVersion(val version: GradleVersion) {
     G_8_7(GradleVersion.version("8.7")),
-    G_8_10(GradleVersion.version("8.10.2"));
+    G_8_11(GradleVersion.version("8.11.1"));
 
     override fun toString(): String {
         return version.version
