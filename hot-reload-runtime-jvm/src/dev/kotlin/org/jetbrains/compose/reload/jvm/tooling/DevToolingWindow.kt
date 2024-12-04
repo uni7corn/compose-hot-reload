@@ -7,7 +7,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.compose.ui.window.WindowDecoration
 import androidx.compose.ui.window.WindowPosition
 import androidx.compose.ui.window.WindowState
 import androidx.compose.ui.window.singleWindowApplication
@@ -22,10 +21,10 @@ private val logger = createLogger()
 
 internal class DevToolingWindow : ComposeReloadPremainExtension {
     override fun premain() {
-        /*
-        On headless mode: Don't show a window
-        */
-        if (HotReloadEnvironment.isHeadless) {
+        if (
+            !HotReloadEnvironment.showDevTooling ||
+            HotReloadEnvironment.isHeadless // On headless mode: Don't show a window
+        ) {
             return
         }
 

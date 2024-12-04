@@ -1,3 +1,5 @@
+@file:Suppress("NullableBooleanElvis")
+
 package org.jetbrains.compose.reload
 
 import org.gradle.api.Project
@@ -69,6 +71,9 @@ internal fun JavaExec.configureJavaExecTaskForHotReload(compilation: Provider<Ko
             systemProperty("apple.awt.UIElement", true)
         }
     }
+
+    /* Configure dev tooling window */
+    systemProperty("compose.reload.showDevTooling", project.showDevTooling.orNull ?: true)
 
 
     /* Generic JVM args for hot reload*/
