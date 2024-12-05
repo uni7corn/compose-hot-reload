@@ -6,7 +6,7 @@ import org.jetbrains.compose.reload.analysis.RuntimeScopeType.RestartGroup
 import org.jetbrains.compose.reload.analysis.RuntimeScopeType.SourceInformationMarker
 
 
-internal fun RuntimeInfo.render(): String = buildString {
+fun RuntimeInfo.render(): String = buildString {
     scopes.groupBy { it.methodId.classId }.toSortedMap().forEach { (className, scopes) ->
         appendLine("$className {")
         withIndent {

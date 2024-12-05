@@ -3,6 +3,7 @@ package org.jetbrains.compose.reload.analysis
 import java.io.PrintWriter
 import java.io.StringWriter
 import java.nio.file.Files
+import java.nio.file.Path
 import java.util.spi.ToolProvider
 import kotlin.io.path.absolutePathString
 import kotlin.io.path.writeBytes
@@ -19,6 +20,15 @@ fun javap(bytecode: ByteArray): String {
 
     javap.run(PrintWriter(out), PrintWriter(err), "-v", "-p", targetFile.absolutePathString())
 
+    return out.toString() + err.toString()
+}
+
+fun javap(path: Path): String  {
+    val javap = ToolProvider.findFirst("javap").orElseThrow()
+    val out = StringWriter()
+    val err = StringWriter()
+
+    javap.run(PrintWriter(out), PrintWriter(err), "-v", "-p", path.absolutePathString())
     return out.toString() + err.toString()
 }
 
