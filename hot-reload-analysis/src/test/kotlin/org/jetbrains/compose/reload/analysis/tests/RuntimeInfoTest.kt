@@ -7,7 +7,7 @@ import org.jetbrains.compose.reload.core.testFixtures.Compiler
 import org.jetbrains.compose.reload.core.testFixtures.CompilerOption
 import org.jetbrains.compose.reload.core.testFixtures.TestEnvironment
 import org.jetbrains.compose.reload.core.testFixtures.WithCompiler
-import org.jetbrains.compose.reload.core.testFixtures.javap
+import org.jetbrains.compose.reload.analysis.javap
 import org.jetbrains.compose.reload.core.testFixtures.withOptions
 import org.jetbrains.kotlin.util.prefixIfNot
 import org.junit.jupiter.api.Test

@@ -3,7 +3,7 @@ plugins {
     `maven-publish`
     `publishing-conventions`
     `tests-with-compiler`
-
+    `java-test-fixtures`
 }
 
 dependencies {
@@ -14,6 +14,9 @@ dependencies {
     implementation(deps.asm.tree)
 
     testImplementation(deps.logback)
+
+    testFixturesImplementation(kotlin("test"))
+    testFixturesImplementation(deps.junit.jupiter)
 }
 
 publishing {

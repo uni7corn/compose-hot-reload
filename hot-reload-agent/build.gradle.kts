@@ -27,6 +27,7 @@ dependencies {
     implementation(deps.coroutines.core)
     implementation(deps.javassist)
 
+    testImplementation(testFixtures(project(":hot-reload-analysis")))
     testImplementation(deps.logback)
 }
 

@@ -5,7 +5,7 @@ import javassist.Modifier
 import org.jetbrains.compose.reload.agent.transformForStaticsInitialization
 import org.jetbrains.compose.reload.core.testFixtures.Compiler
 import org.jetbrains.compose.reload.core.testFixtures.WithCompiler
-import org.jetbrains.compose.reload.core.testFixtures.checkJavap
+import org.jetbrains.compose.reload.analysis.testFixtures.checkJavap
 import org.jetbrains.compose.reload.core.testFixtures.compile
 import org.junit.jupiter.api.TestInfo
 import kotlin.test.Test
