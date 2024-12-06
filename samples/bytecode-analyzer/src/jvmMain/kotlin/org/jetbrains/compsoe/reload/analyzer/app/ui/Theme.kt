@@ -83,7 +83,6 @@ private val darkScheme = darkColorScheme(
 )
 
 
-
 @Composable
 fun AppTheme(
     darkTheme: Boolean = isSystemInDarkTheme(),
@@ -99,4 +98,3 @@ fun AppTheme(
         content = content
     )
 }
-

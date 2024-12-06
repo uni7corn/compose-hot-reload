@@ -41,7 +41,9 @@ internal class ComposeDevJavaRuntimeCompatibilityRule : AttributeCompatibilityRu
     }
 }
 
-dependencies.attributesSchema.attribute(Usage.USAGE_ATTRIBUTE).compatibilityRules.add(ComposeDevJavaRuntimeCompatibilityRule::class.java)
+dependencies.attributesSchema.attribute(Usage.USAGE_ATTRIBUTE).compatibilityRules.add(
+    ComposeDevJavaRuntimeCompatibilityRule::class.java
+)
 
 configurations.compileClasspath {
     attributes.attribute(Usage.USAGE_ATTRIBUTE, project.objects.named("compose-dev-java-runtime"))

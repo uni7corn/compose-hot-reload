@@ -23,7 +23,7 @@ fun javap(bytecode: ByteArray): String {
     return out.toString() + err.toString()
 }
 
-fun javap(path: Path): String  {
+fun javap(path: Path): String {
     val javap = ToolProvider.findFirst("javap").orElseThrow()
     val out = StringWriter()
     val err = StringWriter()

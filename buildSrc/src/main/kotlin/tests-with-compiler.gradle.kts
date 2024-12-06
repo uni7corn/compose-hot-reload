@@ -41,8 +41,11 @@ dependencies {
     testCompilerDependencies(ComposePlugin.Dependencies(project).desktop.currentOs)
     testCompilerDependencies(ComposePlugin.Dependencies(project).material3)
     testComposeCompiler(
-        kotlin("compose-compiler-plugin-embeddable",
-            project.versionCatalogs.named("deps").findVersion("firework").get().requiredVersion))
+        kotlin(
+            "compose-compiler-plugin-embeddable",
+            project.versionCatalogs.named("deps").findVersion("firework").get().requiredVersion
+        )
+    )
 }
 
 tasks.withType<Test>().configureEach {

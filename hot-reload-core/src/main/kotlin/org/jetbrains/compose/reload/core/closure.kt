@@ -14,7 +14,7 @@ package org.jetbrains.compose.reload.core
  * @param edges: Producer function from one node to all its children. This implementation can handle loops and self references gracefully.
  * @return Note: The order of the set is guaranteed to be bfs
  */
-public  inline fun <reified T> T.closure(edges: (T) -> Iterable<T>): Set<T> {
+public inline fun <reified T> T.closure(edges: (T) -> Iterable<T>): Set<T> {
     val initialEdges = edges(this)
 
     val dequeue = if (initialEdges is Collection) {
@@ -364,4 +364,3 @@ internal inline fun <reified T> createDequeueFromIterable(elements: Iterable<T>)
 internal fun <T> createResultSet(initialSize: Int = 16): MutableSet<T> {
     return LinkedHashSet(initialSize)
 }
-

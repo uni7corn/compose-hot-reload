@@ -33,7 +33,7 @@ val publishLocally by tasks.registering {
                 line.replace(fireworkVersionRegex, "\"$fireworkVersion\"")
             }
 
-            if(newText != text) {
+            if (newText != text) {
                 settingsFile.writeText(newText)
             }
         }
