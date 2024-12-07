@@ -1,3 +1,5 @@
+import org.jetbrains.kotlin.compose.compiler.gradle.ComposeFeatureFlag
+
 plugins {
     kotlin("multiplatform")
     kotlin("plugin.compose")
@@ -8,6 +10,10 @@ plugins {
 kotlin {
     jvm()
     jvmToolchain(17)
+
+    composeCompiler {
+        featureFlags.add(ComposeFeatureFlag.OptimizeNonSkippingGroups)
+    }
 
     sourceSets.commonMain.dependencies {
         implementation("io.sellmair:evas:1.1.0")
