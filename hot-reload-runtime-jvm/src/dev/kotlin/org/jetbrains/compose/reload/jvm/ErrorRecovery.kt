@@ -1,6 +1,7 @@
 package org.jetbrains.compose.reload.jvm
 
 import org.jetbrains.compose.reload.agent.orchestration
+import org.jetbrains.compose.reload.core.createLogger
 
 private val logger = createLogger()
 

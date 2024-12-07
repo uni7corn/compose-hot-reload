@@ -18,23 +18,21 @@ tasks.withType<Test>().configureEach {
     jvmArgs("--add-opens=java.base/java.lang=ALL-UNNAMED")
 }
 
+dependencies {
+    implementation(project(":hot-reload-core"))
+    implementation(project(":hot-reload-orchestration"))
+    implementation(project(":hot-reload-analysis"))
+
+    implementation(deps.slf4j.api)
+    implementation(deps.coroutines.core)
+    implementation(deps.javassist)
+
+    testImplementation(testFixtures(project(":hot-reload-analysis")))
+    testImplementation(deps.logback)
+}
+
 publishing {
     publications.create("maven", MavenPublication::class) {
         from(components["java"])
     }
 }
-
-dependencies {
-    implementation(project(":hot-reload-orchestration"))
-    implementation(deps.slf4j.api)
-    implementation(deps.coroutines.core)
-    implementation(deps.javassist)
-    implementation(deps.asm)
-    implementation(deps.junit.jupiter)
-    implementation(deps.junit.jupiter.engine)
-    implementation(kotlin("test"))
-
-    testImplementation(kotlin("compiler-embeddable"))
-    testImplementation(deps.logback)
-}
-
