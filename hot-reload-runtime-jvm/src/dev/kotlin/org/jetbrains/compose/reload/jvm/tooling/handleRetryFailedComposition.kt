@@ -1,18 +1,22 @@
 package org.jetbrains.compose.reload.jvm.tooling
 
+import kotlinx.coroutines.flow.filterIsInstance
+import kotlinx.coroutines.launch
 import org.jetbrains.compose.reload.agent.ComposeHotReloadAgent
 import org.jetbrains.compose.reload.agent.ComposeReloadPremainExtension
 import org.jetbrains.compose.reload.agent.orchestration
 import org.jetbrains.compose.reload.core.createLogger
-import org.jetbrains.compose.reload.orchestration.OrchestrationMessage
-import org.jetbrains.compose.reload.orchestration.invokeWhenReceived
+import org.jetbrains.compose.reload.orchestration.OrchestrationMessage.RetryFailedCompositionRequest
+import org.jetbrains.compose.reload.orchestration.asFlow
 
 private val logger = createLogger()
 
 internal class RetryFailedCompositionHandler : ComposeReloadPremainExtension {
     override fun premain() {
-        ComposeHotReloadAgent.orchestration.invokeWhenReceived<OrchestrationMessage.RetryFailedCompositionRequest> {
-            retryFailedCompositions()
+        devToolingScope.launch {
+            ComposeHotReloadAgent.orchestration.asFlow().filterIsInstance<RetryFailedCompositionRequest>().collect {
+                retryFailedCompositions()
+            }
         }
     }
 
