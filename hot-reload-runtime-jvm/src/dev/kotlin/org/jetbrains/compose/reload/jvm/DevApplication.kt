@@ -58,7 +58,8 @@ internal fun main(args: Array<String>) {
             alwaysOnTop = true,
             state = WindowState(
                 position = WindowPosition.Aligned(alignment = TopEnd),
-                size = DpSize(annotation.windowWidth.dp, annotation.windowHeight.dp)),
+                size = DpSize(annotation.windowWidth.dp, annotation.windowHeight.dp)
+            ),
         ) {
             JvmDevelopmentEntryPoint {
                 invokeUI(resolvedClass, funName)

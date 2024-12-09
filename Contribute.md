@@ -36,10 +36,11 @@ changes.
 
 # Use locally built version in your project
 
-1. Make code changes. 
+1. Make code changes.
 2. Change the version in `gradle.properties`, e.g. to `1.0.0-DEBUG`.
 3. Run `gradlew publishAllPublicationsToLocalRepository`.
 4. In your local project, add the following entries to your `settings.gradle.kts`:
+
 ```gradle
 pluginManagement {
     repositories {
@@ -53,8 +54,11 @@ dependencyResolutionManagement {
     }
 }
 ```
+
 5. In your local project, update the version of `compose-hot-reload` to whatever you set in step 1:
+
 ```
 id("org.jetbrains.compose-hot-reload") version "1.0.0-DEBUG"
 ```
+
 6. Run project as usual.

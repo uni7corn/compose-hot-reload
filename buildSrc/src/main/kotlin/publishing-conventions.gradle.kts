@@ -3,7 +3,7 @@ plugins {
 }
 
 plugins.withType<MavenPublishPlugin>().all {
-    extensions.configure<PublishingExtension> {
+    publishing {
         repositories {
             maven("https://repo.sellmair.io") {
                 name = "sellmair"
@@ -13,7 +13,7 @@ plugins.withType<MavenPublishPlugin>().all {
                 }
             }
 
-            maven("https://packages.jetbrains.team/maven/p/firework/dev"){
+            maven("https://packages.jetbrains.team/maven/p/firework/dev") {
                 name = "firework"
                 credentials {
                     username = providers.gradleProperty("spaceUsername").orNull

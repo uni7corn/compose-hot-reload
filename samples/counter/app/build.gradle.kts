@@ -13,6 +13,7 @@ composeCompiler {
 
 kotlin {
     jvm()
+    jvmToolchain(17)
 
     sourceSets.commonMain.dependencies {
         implementation("io.sellmair:evas:1.1.0")

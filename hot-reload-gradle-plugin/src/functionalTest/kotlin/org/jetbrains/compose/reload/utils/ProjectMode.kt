@@ -6,7 +6,7 @@ enum class ProjectMode {
     Kmp, Jvm
 }
 
-fun<T> ProjectMode.fold(kmp: T, jvm: T): T =
+fun <T> ProjectMode.fold(kmp: T, jvm: T): T =
     when (this) {
         ProjectMode.Kmp -> kmp
         ProjectMode.Jvm -> jvm

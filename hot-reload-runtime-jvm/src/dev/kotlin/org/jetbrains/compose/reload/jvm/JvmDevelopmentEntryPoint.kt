@@ -8,11 +8,10 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import kotlinx.coroutines.flow.update
 import org.jetbrains.compose.reload.InternalHotReloadApi
-import org.jetbrains.compose.reload.agent.ComposeHotReloadAgent
 import org.jetbrains.compose.reload.agent.orchestration
 import org.jetbrains.compose.reload.agent.send
+import org.jetbrains.compose.reload.core.createLogger
 import org.jetbrains.compose.reload.orchestration.OrchestrationMessage
-import kotlin.concurrent.withLock
 
 private val logger = createLogger()
 

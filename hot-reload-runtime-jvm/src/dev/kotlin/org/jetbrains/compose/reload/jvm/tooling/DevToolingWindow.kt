@@ -7,13 +7,12 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.compose.ui.window.WindowDecoration
 import androidx.compose.ui.window.WindowPosition
 import androidx.compose.ui.window.WindowState
 import androidx.compose.ui.window.singleWindowApplication
 import org.jetbrains.compose.reload.agent.ComposeReloadPremainExtension
+import org.jetbrains.compose.reload.core.createLogger
 import org.jetbrains.compose.reload.jvm.HotReloadEnvironment
-import org.jetbrains.compose.reload.jvm.createLogger
 import org.jetbrains.compose.reload.orchestration.OrchestrationMessage.LogMessage
 import org.jetbrains.compose.resources.ExperimentalResourceApi
 import kotlin.concurrent.thread
@@ -22,10 +21,10 @@ private val logger = createLogger()
 
 internal class DevToolingWindow : ComposeReloadPremainExtension {
     override fun premain() {
-        /*
-        On headless mode: Don't show a window
-        */
-        if (HotReloadEnvironment.isHeadless) {
+        if (
+            !HotReloadEnvironment.showDevTooling ||
+            HotReloadEnvironment.isHeadless // On headless mode: Don't show a window
+        ) {
             return
         }
 
