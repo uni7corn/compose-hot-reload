@@ -124,6 +124,18 @@ public sealed class OrchestrationMessage : Serializable {
         public val stacktrace: List<StackTraceElement>
     ) : OrchestrationMessage()
 
+
+    /**
+     * Will try to clean the composition (all remembered values will be discarded)
+     */
+    public class CleanCompositionRequest: OrchestrationMessage()
+
+    /**
+     * Will try to re-run all failed compositions
+     */
+    public class RetryFailedCompositionRequest(): OrchestrationMessage()
+
+
     /* Base implementation */
 
     public val messageId: UUID = UUID.randomUUID()
