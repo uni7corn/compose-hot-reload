@@ -1,12 +1,12 @@
 package org.jetbrains.compose.reload.agent
 
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.runBlocking
+
 import org.jetbrains.compose.reload.core.createLogger
 import org.jetbrains.compose.reload.orchestration.OrchestrationMessage
 import org.jetbrains.compose.reload.orchestration.invokeWhenReceived
 import java.io.File
 import java.lang.instrument.Instrumentation
+import javax.swing.SwingUtilities
 import kotlin.system.exitProcess
 
 private val logger = createLogger()
@@ -15,7 +15,7 @@ internal fun launchReloadClassesRequestHandler(instrumentation: Instrumentation)
     var pendingChanges = mapOf<File, OrchestrationMessage.ReloadClassesRequest.ChangeType>()
 
     ComposeHotReloadAgent.orchestration.invokeWhenReceived<OrchestrationMessage.ReloadClassesRequest> { request ->
-        runBlocking(Dispatchers.Main) {
+        SwingUtilities.invokeAndWait {
 
             pendingChanges = pendingChanges + request.changedClassFiles
 

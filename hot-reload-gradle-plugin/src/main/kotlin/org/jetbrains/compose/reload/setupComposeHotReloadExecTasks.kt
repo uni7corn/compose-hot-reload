@@ -17,7 +17,6 @@ import org.jetbrains.kotlin.gradle.plugin.KotlinCompilation
 import org.jetbrains.kotlin.gradle.plugin.KotlinTarget
 import org.jetbrains.kotlin.gradle.targets.jvm.KotlinJvmTarget
 import org.jetbrains.kotlin.gradle.targets.jvm.tasks.KotlinJvmRun
-import org.jetbrains.kotlin.konan.file.File.Companion.pathSeparator
 
 
 internal fun Project.setupComposeHotReloadExecTasks() {
@@ -48,7 +47,10 @@ internal fun JavaExec.configureJavaExecTaskForHotReload(compilation: Provider<Ko
         })
     }
 
-    classpath = project.files { compilation.get().createComposeHotReloadRunClasspath() }
+    classpath = project.files(
+        project.composeHotReloadAgentClasspath(),
+        project.files { compilation.get().createComposeHotReloadRunClasspath() }
+    )
 
 
     /* Setup debugging capabilities */
@@ -69,6 +71,10 @@ internal fun JavaExec.configureJavaExecTaskForHotReload(compilation: Provider<Ko
 
     /* Configure dev tooling window */
     systemProperty("compose.reload.showDevTooling", project.showDevTooling.orNull ?: true)
+    if (project.showDevTooling.orElse(true).get()) {
+        inputs.files(project.composeHotReloadDevToolsConfiguration)
+        systemProperty("compose.reload.devToolsClasspath", project.composeHotReloadDevToolsConfiguration.asPath)
+    }
 
     /* Setup re-compiler */
     val compileTaskName = compilation.map { composeReloadHotClasspathTaskName(it) }
@@ -86,7 +92,8 @@ internal fun JavaExec.configureJavaExecTaskForHotReload(compilation: Provider<Ko
 
         inputs.files(project.composeHotReloadAgentConfiguration.files)
         dependsOn(project.composeHotReloadAgentConfiguration.buildDependencies)
-        jvmArgs("-javaagent:" + project.composeHotReloadAgentConfiguration.files.joinToString(pathSeparator))
+        jvmArgs("-javaagent:" + project.composeHotReloadAgentJar().asPath)
+        systemProperty("compose.reload.agentClasspath", project.composeHotReloadAgentClasspath().asPath)
     }
 
     /* JBR args */

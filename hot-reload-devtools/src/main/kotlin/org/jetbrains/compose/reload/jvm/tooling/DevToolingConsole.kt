@@ -19,43 +19,38 @@ import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import kotlinx.coroutines.flow.filter
-import kotlinx.coroutines.flow.filterIsInstance
-import org.jetbrains.compose.reload.agent.ComposeHotReloadAgent
-import org.jetbrains.compose.reload.orchestration.OrchestrationMessage.LogMessage
-import org.jetbrains.compose.reload.orchestration.asFlow
+import io.sellmair.evas.compose.composeValue
+import org.jetbrains.compose.reload.jvm.tooling.states.ConsoleLogState
 
 @Composable
 fun DevToolingConsole(tag: String, modifier: Modifier) {
     val listState = rememberLazyListState()
-    var outputLines by remember { mutableStateOf(listOf<String>()) }
     var isExpanded by remember { mutableStateOf(true) }
+    val logState = ConsoleLogState.Key(tag).composeValue()
 
-    LaunchedEffect(Unit) {
-        ComposeHotReloadAgent.orchestration.asFlow().filterIsInstance<LogMessage>()
-            .filter { message -> message.tag == tag }
-            .collect { value ->
-                outputLines = (outputLines + value.message).takeLast(2048)
-                listState.scrollToItem(outputLines.lastIndex)
-            }
+    LaunchedEffect(logState) {
+        if(logState.logs.isEmpty()) return@LaunchedEffect
+        listState.scrollToItem(logState.logs.lastIndex)
     }
 
     Column(modifier = modifier) {
         ExpandButton(
             isExpanded = isExpanded,
             onClick = { expanded -> isExpanded = expanded },
-            Modifier.padding(horizontal = 16.dp)
         ) {
             Text(tag, fontSize = 16.sp, fontWeight = androidx.compose.ui.text.font.FontWeight.Bold)
         }
 
         AnimatedVisibility(isExpanded) {
-            Card(Modifier.padding(16.dp).fillMaxWidth()) {
-                Box(Modifier.padding(16.dp)) {
+            Card(Modifier.padding(8.dp).fillMaxWidth()) {
+                Box(Modifier.padding(8.dp)) {
                     LazyColumn(state = listState, modifier = Modifier.wrapContentHeight()) {
-                        items(outputLines) { text ->
+                        items(logState.logs) { text ->
                             Row {
-                                Text(text, fontFamily = FontFamily.Monospace)
+                                Text(
+                                    text, fontFamily = FontFamily.Monospace,
+                                    fontSize = 12.sp
+                                )
                             }
                         }
                     }

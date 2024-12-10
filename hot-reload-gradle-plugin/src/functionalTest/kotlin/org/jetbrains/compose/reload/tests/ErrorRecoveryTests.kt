@@ -85,7 +85,6 @@ class ErrorRecoveryTests {
             val result = fixture.skipToMessage<OrchestrationMessage.ReloadClassesResult>()
             assertEquals(request.messageId, result.reloadRequestId)
             assertFalse(result.isSuccess)
-            fixture.checkScreenshot("2-failed-reload")
         }
 
         /*

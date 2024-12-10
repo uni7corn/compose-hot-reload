@@ -9,11 +9,11 @@ kotlin {
     compilerOptions {
         explicitApi()
     }
-
-    target.compilations.create("coroutines")
 }
 
 dependencies {
+    implementation(project(":hot-reload-core"))
+
     implementation(deps.slf4j.api)
     compileOnly(deps.coroutines.core)
 

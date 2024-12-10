@@ -1,5 +1,6 @@
 package org.jetbrains.compose.reload.orchestration
 
+import org.jetbrains.compose.reload.core.WindowId
 import java.io.File
 import java.io.Serializable
 import java.util.*
@@ -107,6 +108,18 @@ public sealed class OrchestrationMessage : Serializable {
      */
     public data class TestEvent(val payload: Any?) : OrchestrationMessage()
 
+    public data class ApplicationWindowPositioned(
+        val windowId: WindowId,
+        val x: Int,
+        val y: Int,
+        val width: Int,
+        val height: Int,
+    ) : OrchestrationMessage()
+
+    public data class ApplicationWindowGone(
+        val windowId: WindowId
+    ) : OrchestrationMessage()
+
     /**
      * Sent once the UI was rendered
      * @param reloadRequestId: The uuid of the [ReloadClassesRequest] which caused the rendering
@@ -115,11 +128,13 @@ public sealed class OrchestrationMessage : Serializable {
      * @param iteration How often was the UI already re-rendered
      */
     public data class UIRendered(
+        val windowId: WindowId?,
         val reloadRequestId: UUID?,
         val iteration: Int,
     ) : OrchestrationMessage()
 
     public class UIException(
+        public val windowId: WindowId?,
         public val message: String?,
         public val stacktrace: List<StackTraceElement>
     ) : OrchestrationMessage()
@@ -128,12 +143,12 @@ public sealed class OrchestrationMessage : Serializable {
     /**
      * Will try to clean the composition (all remembered values will be discarded)
      */
-    public class CleanCompositionRequest: OrchestrationMessage()
+    public class CleanCompositionRequest : OrchestrationMessage()
 
     /**
      * Will try to re-run all failed compositions
      */
-    public class RetryFailedCompositionRequest(): OrchestrationMessage()
+    public class RetryFailedCompositionRequest() : OrchestrationMessage()
 
 
     /* Base implementation */

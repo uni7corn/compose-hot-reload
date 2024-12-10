@@ -60,6 +60,7 @@ object ComposeHotReloadAgent {
         startComposeGroupInvalidationTransformation(instrumentation)
         launchReloadClassesRequestHandler(instrumentation)
         launchRecompiler()
+        launchDevtoolsApplication()
 
         ComposeReloadPremainExtension.load().forEach { extension ->
             extension.premain()

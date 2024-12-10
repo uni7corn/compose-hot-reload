@@ -20,18 +20,11 @@ kotlin {
 dependencies {
     sharedImplementation(compose.runtime)
 
+    devCompileOnly(project(":hot-reload-core"))
     devCompileOnly(project(":hot-reload-agent"))
     devCompileOnly(project(":hot-reload-runtime-api"))
-
-    devImplementation(project(":hot-reload-analysis"))
-    devImplementation(project(":hot-reload-core"))
-    devImplementation(project(":hot-reload-orchestration"))
-
-    devImplementation(deps.javassist)
-    devImplementation(compose.desktop.common)
-    devImplementation(compose.material3)
-    devImplementation(compose.components.resources)
-    devImplementation(deps.coroutines.swing)
+    devCompileOnly(project(":hot-reload-orchestration"))
+    devCompileOnly(compose.desktop.common)
 
     testImplementation(kotlin("test"))
     testImplementation(deps.junit.jupiter)

@@ -60,9 +60,6 @@ class RunClasspathTest {
                 PathRegex(".*/producer/build/processedResources/jvm/main"),
                 PathRegex(".*/hot-reload-runtime-api-jvm.*\\.jar"),
                 PathRegex(".*/hot-reload-runtime-jvm-$HOT_RELOAD_VERSION-dev.jar"),
-                PathRegex(".*/hot-reload-orchestration-$HOT_RELOAD_VERSION.jar"),
-                PathRegex(".*/hot-reload-core-$HOT_RELOAD_VERSION.jar"),
-                PathRegex(".*/hot-reload-analysis-$HOT_RELOAD_VERSION.jar"),
                 PathRegex(".*/userHome/.*") // Transitive maven dependencies
             )
         }
@@ -114,9 +111,6 @@ class RunClasspathTest {
                 PathRegex(".*/producer/build/libs/producer-jvm.jar"), // Now we resolve against the .jar
                 PathRegex(".*/hot-reload-runtime-api-jvm.*\\.jar"),
                 PathRegex(".*/hot-reload-runtime-jvm-$HOT_RELOAD_VERSION-dev.jar"),
-                PathRegex(".*/hot-reload-orchestration-$HOT_RELOAD_VERSION.jar"),
-                PathRegex(".*/hot-reload-core-$HOT_RELOAD_VERSION.jar"),
-                PathRegex(".*/hot-reload-analysis-$HOT_RELOAD_VERSION.jar"),
                 PathRegex(".*/userHome/.*") // Transitive maven dependencies
             )
         }
@@ -135,9 +129,6 @@ class RunClasspathTest {
             PathRegex(".*/userHome/.*"), // Transitive maven dependencies
             PathRegex(".*/hot-reload-runtime-api-jvm.*\\.jar"),
             PathRegex(".*/hot-reload-runtime-jvm-$HOT_RELOAD_VERSION-dev.jar"),
-            PathRegex(".*/hot-reload-orchestration-$HOT_RELOAD_VERSION.jar"),
-            PathRegex(".*/hot-reload-core-$HOT_RELOAD_VERSION.jar"),
-            PathRegex(".*/hot-reload-analysis-$HOT_RELOAD_VERSION.jar"),
         )
     }
 }

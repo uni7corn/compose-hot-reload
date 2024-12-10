@@ -9,6 +9,11 @@ public enum class OrchestrationClientRole : Serializable {
     Application,
 
     /**
+     * Additional tools, which are connected to the orchestration (e.g., dev tool window)
+     */
+    Tooling,
+
+    /**
      * The compiler, which is expected to send updates for .class files:
      * Can be a Build System like Gradle or Amper, or can be the IDE
      */

@@ -24,7 +24,6 @@ dependencies {
     implementation(project(":hot-reload-analysis"))
 
     implementation(deps.slf4j.api)
-    implementation(deps.coroutines.core)
     implementation(deps.javassist)
 
     testImplementation(testFixtures(project(":hot-reload-analysis")))

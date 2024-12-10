@@ -2,19 +2,29 @@
 
 package org.jetbrains.compose.reload.jvm
 
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.*
-import androidx.compose.ui.Modifier
+import kotlinx.coroutines.awaitCancellation
+import kotlinx.coroutines.currentCoroutineContext
+import kotlinx.coroutines.flow.filterIsInstance
 import kotlinx.coroutines.flow.update
+import kotlinx.coroutines.job
+import kotlinx.coroutines.launch
 import org.jetbrains.compose.reload.InternalHotReloadApi
+import org.jetbrains.compose.reload.agent.ComposeHotReloadAgent
 import org.jetbrains.compose.reload.agent.orchestration
 import org.jetbrains.compose.reload.agent.send
 import org.jetbrains.compose.reload.core.createLogger
 import org.jetbrains.compose.reload.orchestration.OrchestrationMessage
+import org.jetbrains.compose.reload.orchestration.OrchestrationMessage.*
+import org.jetbrains.compose.reload.orchestration.asFlow
+import java.awt.Window
+import java.awt.event.ComponentAdapter
+import java.awt.event.ComponentEvent
+import java.awt.event.WindowAdapter
+import java.awt.event.WindowEvent
+import java.util.*
 
 private val logger = createLogger()
-
 
 @Composable
 @PublishedApi
@@ -26,47 +36,47 @@ internal fun JvmDevelopmentEntryPoint(child: @Composable () -> Unit) {
         return
     }
 
+    val windowId = startWindowManager()
 
-    /* Wrap the child to get access to exceptions, which we can forward into the orchestration */
-    val interceptedChild: @Composable () -> Unit = {
-        runCatching { child() }.onFailure { exception ->
-            logger.orchestration("Failed invoking 'JvmDevelopmentEntryPoint':", exception)
+    LaunchedEffect(Unit) {
+        ComposeHotReloadAgent.orchestration.asFlow().filterIsInstance<CleanCompositionRequest>().collect { value ->
+            cleanComposition()
+        }
+    }
 
-            /*
-            UI-Exception: Nuke state captured in the UI by incrementing the key
-             */
-            hotReloadState.update { state -> state.copy(key = state.key + 1, error = exception) }
-
-            OrchestrationMessage.UIException(
-                message = exception.message,
-                stacktrace = exception.stackTrace.toList()
-            ).send()
-
-        }.getOrThrow()
+    LaunchedEffect(Unit) {
+        ComposeHotReloadAgent.orchestration.asFlow().filterIsInstance<RetryFailedCompositionRequest>().collect {
+            retryFailedCompositions()
+        }
     }
 
     /* Agent */
-    val hotReloadState by hotReloadState.collectAsState()
+    val currentHotReloadState by hotReloadState.collectAsState()
 
-    CompositionLocalProvider(hotReloadStateLocal provides hotReloadState) {
-        key(hotReloadState.key) {
-            logger.orchestration("Composing UI: $hotReloadState")
+    CompositionLocalProvider(hotReloadStateLocal provides currentHotReloadState) {
+        key(currentHotReloadState.key) {
+            logger.orchestration("Composing UI: $currentHotReloadState")
+            runCatching { child() }.onFailure { exception ->
+                logger.orchestration("Failed invoking 'JvmDevelopmentEntryPoint':", exception)
 
-            /* Show hot reload error directly in the UI (and offer retry button) */
-            val hotReloadError = hotReloadState.error
-            if (hotReloadError != null) {
-                Box(Modifier.fillMaxSize()) {
-                    interceptedChild()
-                    HotReloadErrorWidget(hotReloadError, modifier = Modifier.matchParentSize())
-                }
-            } else {
-                /* If no error is present, we just show the child directly (w/o box) */
-                interceptedChild()
-            }
+                /*
+                UI-Exception: Nuke state captured in the UI by incrementing the key
+                 */
+                hotReloadState.update { state -> state.copy(key = state.key + 1, error = exception) }
+
+                UIException(
+                    windowId = windowId,
+                    message = exception.message,
+                    stacktrace = exception.stackTrace.toList()
+                ).send()
+
+            }.getOrThrow()
         }
     }
 
 
     /* Notify orchestration about the UI being rendered */
-    OrchestrationMessage.UIRendered(hotReloadState.reloadRequestId, hotReloadState.iteration).send()
+    UIRendered(
+        windowId = windowId, reloadRequestId = currentHotReloadState.reloadRequestId, currentHotReloadState.iteration
+    ).send()
 }

@@ -1,39 +1,40 @@
 package org.jetbrains.compose.reload.jvm.tooling
 
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.ExperimentalLayoutApi
+import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Button
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import org.jetbrains.compose.reload.agent.send
+import androidx.compose.ui.unit.sp
 import org.jetbrains.compose.reload.orchestration.OrchestrationMessage
 
+@OptIn(ExperimentalLayoutApi::class)
 @Composable
 fun DevToolingToolbar(modifier: Modifier = Modifier) {
-    Row(
-        modifier = modifier.height(128.dp).padding(16.dp),
+    FlowRow(
+        modifier = modifier.padding(8.dp),
         horizontalArrangement = Arrangement.spacedBy(8.dp),
     ) {
         Button(onClick = {
             OrchestrationMessage.ShutdownRequest().send()
         }) {
-            Text("Exit")
+            Text("Exit", fontSize = 12.sp)
         }
 
         Button(onClick = {
-            RetryFailedCompositionHandler.retryFailedCompositions()
+            OrchestrationMessage.RetryFailedCompositionRequest().send()
         }) {
-            Text("Retry failed compositions")
+            Text("Retry failed compositions", fontSize = 12.sp)
         }
 
         Button(onClick = {
-            CleanCompositionHandler.cleanComposition()
+            OrchestrationMessage.CleanCompositionRequest().send()
         }) {
-            Text("Clean composition")
+            Text("Clean composition", fontSize = 12.sp)
         }
     }
 }
