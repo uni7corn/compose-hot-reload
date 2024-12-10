@@ -17,7 +17,7 @@ import org.jetbrains.kotlin.gradle.plugin.KotlinCompilation
 import org.jetbrains.kotlin.gradle.plugin.KotlinTarget
 import org.jetbrains.kotlin.gradle.targets.jvm.KotlinJvmTarget
 import org.jetbrains.kotlin.gradle.targets.jvm.tasks.KotlinJvmRun
-import org.jetbrains.kotlin.konan.file.File
+import org.jetbrains.kotlin.konan.file.File.Companion.pathSeparator
 
 
 internal fun Project.setupComposeHotReloadExecTasks() {
@@ -48,12 +48,7 @@ internal fun JavaExec.configureJavaExecTaskForHotReload(compilation: Provider<Ko
         })
     }
 
-
-    /* We do rely on the hotswap-agent */
-    inputs.files(project.composeHotReloadAgentConfiguration.files)
-    dependsOn(project.composeHotReloadAgentConfiguration.buildDependencies)
-
-    setClasspath(project.files { compilation.get().createComposeHotReloadRunClasspath() })
+    classpath = project.files { compilation.get().createComposeHotReloadRunClasspath() }
 
 
     /* Setup debugging capabilities */
@@ -75,6 +70,12 @@ internal fun JavaExec.configureJavaExecTaskForHotReload(compilation: Provider<Ko
     /* Configure dev tooling window */
     systemProperty("compose.reload.showDevTooling", project.showDevTooling.orNull ?: true)
 
+    /* Setup re-compiler */
+    val compileTaskName = compilation.map { composeReloadHotClasspathTaskName(it) }
+    systemProperty("compose.build.root", project.rootDir.absolutePath)
+    systemProperty("compose.build.project", project.path)
+    systemProperty("compose.build.compileTask", ToString(compileTaskName))
+
 
     /* Generic JVM args for hot reload*/
     run {
@@ -83,11 +84,9 @@ internal fun JavaExec.configureJavaExecTaskForHotReload(compilation: Provider<Ko
             jvmArgs("-Xlog:redefine+class*=info")
         }
 
-        /* Setup the hotswap agent (using autoHotswap) */
-        jvmArgs(
-            "-javaagent:" +
-                    project.composeHotReloadAgentConfiguration.files.joinToString(File.pathSeparator)
-        )
+        inputs.files(project.composeHotReloadAgentConfiguration.files)
+        dependsOn(project.composeHotReloadAgentConfiguration.buildDependencies)
+        jvmArgs("-javaagent:" + project.composeHotReloadAgentConfiguration.files.joinToString(pathSeparator))
     }
 
     /* JBR args */
@@ -97,23 +96,8 @@ internal fun JavaExec.configureJavaExecTaskForHotReload(compilation: Provider<Ko
 
         /* Enable DCEVM enhanced hotswap capabilities */
         jvmArgs("-XX:+AllowEnhancedClassRedefinition")
-
-        /* We're providing the HotswapAgent by providing the har from 'hotswapAgentConfiguration' */
-        jvmArgs("-XX:HotswapAgent=external")
     }
 
-    /* Support for non jbr */
-    if (!project.composeHotReloadExtension.useJetBrainsRuntime.get()) {
-
-        /* Required for Hotswap Agent on non JBR */
-        jvmArgs("--add-opens=java.base/java.lang=ALL-UNNAMED")
-        jvmArgs("--add-opens=java.base/java.ref=ALL-UNNAMED")
-        jvmArgs("--add-opens=java.base/jdk.internal.loader=ALL-UNNAMED")
-        jvmArgs("--add-opens=java.base/java.io=ALL-UNNAMED")
-        jvmArgs("--add-opens=java.desktop/com.sun.beans=ALL-UNNAMED")
-        jvmArgs("--add-opens=java.desktop/com.sun.beans.introspect=ALL-UNNAMED")
-        jvmArgs("--add-opens=java.desktop/com.sun.beans.util=ALL-UNNAMED")
-    }
 
     /* Setup orchestration */
     run {
@@ -121,17 +105,6 @@ internal fun JavaExec.configureJavaExecTaskForHotReload(compilation: Provider<Ko
             logger.quiet("Using orchestration server port: $port")
             systemProperty(ORCHESTRATION_SERVER_PORT_PROPERTY_KEY, port.toInt())
         }
-    }
-
-
-    /* Setup re-compiler */
-    val compileTaskName = compilation.map { composeReloadHotClasspathTaskName(it) }
-    systemProperty("compose.build.root", project.rootDir.absolutePath)
-    systemProperty("compose.build.project", project.path)
-    systemProperty("compose.build.compileTask", ToString(compileTaskName))
-
-    doFirst {
-        systemProperty("compose.build.compileTask", compileTaskName.get())
     }
 
     mainClass.value(
@@ -148,7 +121,6 @@ internal fun JavaExec.configureJavaExecTaskForHotReload(compilation: Provider<Ko
         logger.info("Classpath:\n${classpath.joinToString("\n")}")
     }
 }
-
 
 private class ToString(val property: Provider<String>) {
     override fun toString(): String {
