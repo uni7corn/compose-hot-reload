@@ -6,11 +6,12 @@ import org.jetbrains.compose.reload.core.withClosure
 import org.objectweb.asm.tree.ClassNode
 import org.objectweb.asm.tree.MethodNode
 
-data class RuntimeInfo(val scopes: List<RuntimeScopeInfo>) {
+data class RuntimeInfo(
+    val scopes: List<RuntimeScopeInfo>,
     /**
      * Index from [MethodId] to the 'root scopes' belonging to this method id
      */
-    val methods: Map<MethodId, List<RuntimeScopeInfo>> = scopes.groupBy { info -> info.methodId }
+    val methods: Map<MethodId, List<RuntimeScopeInfo>> = scopes.groupBy { info -> info.methodId },
 
     /**
      * Index from [ComposeGroupKey] to *all* scopes that are associated with this group.
@@ -19,7 +20,8 @@ data class RuntimeInfo(val scopes: List<RuntimeScopeInfo>) {
     val groups: Map<ComposeGroupKey?, List<RuntimeScopeInfo>> =
         scopes.withClosure<RuntimeScopeInfo> { info -> info.children }
             .groupBy { info -> info.tree.group }
-}
+
+)
 
 fun RuntimeInfo(bytecode: ByteArray): RuntimeInfo? {
     return RuntimeInfo(ClassNode(bytecode))

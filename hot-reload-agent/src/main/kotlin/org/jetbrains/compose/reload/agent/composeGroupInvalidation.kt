@@ -12,10 +12,6 @@ import java.util.concurrent.atomic.AtomicReference
 
 private val logger = createLogger()
 
-private val runtimeInfo = AtomicReference<RuntimeInfo?>(null)
-
-private val runtimeInfoRedefinitions = AtomicReference<RuntimeInfo?>(null)
-
 internal fun startComposeGroupInvalidationTransformation(instrumentation: Instrumentation) {
 
     /*
@@ -27,13 +23,12 @@ internal fun startComposeGroupInvalidationTransformation(instrumentation: Instru
         /*
         Capture and update global runtime info state
          */
-        val runtimeInfoRedefinitions = runtimeInfoRedefinitions.getAndSet(null) ?: return@invokeAfterReload
-        val (previousRuntime, newRuntime) = runtimeInfo.update { info -> info + runtimeInfoRedefinitions }
+        val (previousRuntime, newRuntime) = redefineRuntimeInfo().get()
 
-        val invalidations = newRuntime?.groups.orEmpty().filter { (group, _) ->
+        val invalidations = newRuntime.groups.filter { (group, _) ->
             if (group == null) return@filter false
-            val currentInvalidationKey = previousRuntime?.resolveInvalidationKey(group) ?: return@filter false
-            val newInvalidationKey = newRuntime?.resolveInvalidationKey(group) ?: return@filter true // defensive.
+            val currentInvalidationKey = previousRuntime.resolveInvalidationKey(group) ?: return@filter false
+            val newInvalidationKey = newRuntime.resolveInvalidationKey(group) ?: return@filter true // defensive.
             currentInvalidationKey != newInvalidationKey
         }
 
@@ -44,7 +39,7 @@ internal fun startComposeGroupInvalidationTransformation(instrumentation: Instru
         invalidations.forEach { group, _ ->
             if (group == null) return@forEach
 
-            val methods = newRuntime?.groups[group].orEmpty()
+            val methods = newRuntime.groups[group].orEmpty()
                 .map { scope -> scope.methodId }.toSet()
                 .joinToString(", ", prefix = "(", postfix = ")") { methodId ->
                     "${methodId.classId}.${methodId.methodName}"
@@ -70,24 +65,7 @@ internal object ComposeGroupInvalidationKeyTransformer : ClassFileTransformer {
         loader: ClassLoader?, className: String?, classBeingRedefined: Class<*>?,
         protectionDomain: ProtectionDomain?, classfileBuffer: ByteArray
     ): ByteArray? {
-        try {
-            val classInfo = RuntimeInfo(classfileBuffer) ?: return null
-
-            if (classBeingRedefined == null) {
-                logger.debug("Parsed 'RuntimeInfo' for '$className'")
-            } else {
-                logger.debug("Parsed 'RuntimeInfo' for '$className' (redefined)")
-            }
-
-            /* If we're redefining a class, then we want to add this to 'pending' */
-            val state = if (classBeingRedefined == null) runtimeInfo else runtimeInfoRedefinitions
-            state.updateAndGet { runtimeInfo ->
-                runtimeInfo + classInfo
-            }
-        } catch (t: Throwable) {
-            logger.error("Failed parsing 'RuntimeInfo' for '$className'", t)
-        }
-
+        enqueueRuntimeAnalysis(className, classBeingRedefined, classfileBuffer)
         return null
     }
 }
