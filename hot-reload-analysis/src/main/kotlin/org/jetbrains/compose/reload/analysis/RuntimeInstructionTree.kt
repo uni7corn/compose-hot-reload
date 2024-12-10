@@ -27,6 +27,14 @@ data class RuntimeInstructionTree(
 )
 
 internal fun parseRuntimeInstructionTreeLenient(methodId: MethodId, methodNode: MethodNode): RuntimeInstructionTree {
+    /* Handle methods w/o bodies */
+    if (methodNode.instructions.size() == 0) {
+        return RuntimeInstructionTree(
+            group = methodNode.readFunctionKeyMetaAnnotation(), type = RuntimeScopeType.Method,
+            startIndex = -1, lastIndex = -1, tokens = emptyList(), children = emptyList()
+        )
+    }
+
     val tokens = tokenizeRuntimeInstructions(methodNode.instructions.toList()).leftOr { right ->
         /* Fallback for methods that even fail to tokenize */
         logger.warn("'tokenizeRuntimeInstructions' failed on $methodId: $right")
