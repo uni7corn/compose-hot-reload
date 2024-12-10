@@ -9,10 +9,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import kotlinx.coroutines.flow.update
 import org.jetbrains.compose.reload.agent.send
-import org.jetbrains.compose.reload.jvm.hotReloadState
-import org.jetbrains.compose.reload.jvm.retryFailedCompositions
 import org.jetbrains.compose.reload.orchestration.OrchestrationMessage
 
 @Composable
@@ -28,14 +25,13 @@ fun DevToolingToolbar(modifier: Modifier = Modifier) {
         }
 
         Button(onClick = {
-            retryFailedCompositions()
+            RetryFailedCompositionHandler.retryFailedCompositions()
         }) {
             Text("Retry failed compositions")
         }
 
         Button(onClick = {
-            hotReloadState.update { state -> state.copy(key = state.key + 1) }
-            retryFailedCompositions()
+            CleanCompositionHandler.cleanComposition()
         }) {
             Text("Clean composition")
         }

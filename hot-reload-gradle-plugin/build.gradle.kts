@@ -7,17 +7,33 @@ plugins {
     `publishing-conventions`
 }
 
-
 /* Setup integration test */
 run {
     val main = kotlin.target.compilations.getByName("main")
     val functionalTest = kotlin.target.compilations.create("functionalTest")
     functionalTest.associateWith(main)
 
-    val functionalTestTask = tasks.register<Test>("functionalTest") {
+    val functionalTestWarmup by tasks.registering(Test::class) {
         testClassesDirs = functionalTest.output.classesDirs
         classpath = functionalTest.output.allOutputs + functionalTest.runtimeDependencyFiles
         systemProperty("firework.version", deps.versions.firework.get())
+        useJUnitPlatform { includeTags("Warmup") }
+
+        val outputMarker = layout.buildDirectory.file("gradle-test-kit/functionalTestWarmup.marker")
+        outputs.file(outputMarker)
+        outputs.upToDateWhen { outputMarker.get().asFile.exists() }
+        onlyIf { !outputMarker.get().asFile.exists() }
+
+        doLast {
+            outputMarker.get().asFile.writeText("Warmup done")
+        }
+    }
+
+    val functionalTestTask = tasks.register<Test>("functionalTest") {
+        dependsOn(functionalTestWarmup)
+        testClassesDirs = functionalTest.output.classesDirs
+        classpath = functionalTest.output.allOutputs + functionalTest.runtimeDependencyFiles
+        useJUnitPlatform { excludeTags("Warmup") }
     }
 
     tasks.check.configure {
@@ -26,24 +42,26 @@ run {
 }
 
 tasks.withType<Test>().configureEach {
-    useJUnitPlatform()
-    dependsOn(":publishLocally")
+    useJUnitPlatform {
+        if (providers.gradleProperty("host-integration-tests").orNull == "true") {
+            includeTags("HostIntegrationTest")
+            environment("TEST_ONLY_LATEST_VERSIONS", "true")
+        }
+    }
 
-    systemProperty("local.test.repo", rootProject.layout.buildDirectory.dir("repo").get().asFile.absolutePath)
-    systemProperty("junit.jupiter.execution.parallel.enabled", "true")
-    systemProperty("junit.jupiter.execution.parallel.mode.default", "concurrent")
-    systemProperty("junit.jupiter.execution.parallel.config.strategy", "fixed")
-    systemProperty("junit.jupiter.execution.parallel.config.fixed.parallelism", "4")
+    if (!providers.environmentVariable("CI").isPresent) {
+        systemProperty("junit.jupiter.execution.parallel.enabled", "true")
+        systemProperty("junit.jupiter.execution.parallel.mode.default", "concurrent")
+        systemProperty("junit.jupiter.execution.parallel.config.strategy", "fixed")
+        systemProperty("junit.jupiter.execution.parallel.config.fixed.parallelism", "4")
+    }
+
+    /* We do not want to open actual windows */
     systemProperty("apple.awt.UIElement", true)
 
-    jvmArgs("-DlogLevel=DEBUG")
-    maxHeapSize = "4G"
-
     maxParallelForks = 2
-
-    testLogging {
-        showStandardStreams = true
-    }
+    dependsOn(":publishLocally")
+    systemProperty("local.test.repo", rootProject.layout.buildDirectory.dir("repo").get().asFile.absolutePath)
 }
 
 gradlePlugin {
@@ -65,6 +83,7 @@ dependencies {
     implementation(project(":hot-reload-orchestration"))
 
     functionalTestImplementation(gradleTestKit())
+    functionalTestImplementation(testFixtures(project(":hot-reload-core")))
     functionalTestImplementation(testFixtures(project(":hot-reload-orchestration")))
     functionalTestImplementation(kotlin("test"))
     functionalTestImplementation(kotlin("tooling-core"))

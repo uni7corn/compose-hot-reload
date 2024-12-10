@@ -22,15 +22,16 @@ dependencies {
 
     devCompileOnly(project(":hot-reload-agent"))
     devCompileOnly(project(":hot-reload-runtime-api"))
+
+    devImplementation(project(":hot-reload-analysis"))
+    devImplementation(project(":hot-reload-core"))
     devImplementation(project(":hot-reload-orchestration"))
-    devImplementation(deps.coroutines.swing)
 
     devImplementation(deps.javassist)
-    devImplementation(deps.asm)
-    devImplementation(deps.slf4j.api)
     devImplementation(compose.desktop.common)
     devImplementation(compose.material3)
     devImplementation(compose.components.resources)
+    devImplementation(deps.coroutines.swing)
 
     testImplementation(kotlin("test"))
     testImplementation(deps.junit.jupiter)
@@ -42,7 +43,7 @@ tasks.withType<Test>().configureEach {
 }
 
 publishing {
-    publications.register<MavenPublication>("maven") {
+    publications.create("maven", MavenPublication::class) {
         from(components["java"])
     }
 }

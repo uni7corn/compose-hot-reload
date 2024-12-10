@@ -49,7 +49,7 @@ fun DevToolingConsole(tag: String, modifier: Modifier) {
             Text(tag, fontSize = 16.sp, fontWeight = androidx.compose.ui.text.font.FontWeight.Bold)
         }
 
-        AnimatedVisibility (isExpanded) {
+        AnimatedVisibility(isExpanded) {
             Card(Modifier.padding(16.dp).fillMaxWidth()) {
                 Box(Modifier.padding(16.dp)) {
                     LazyColumn(state = listState, modifier = Modifier.wrapContentHeight()) {
@@ -72,7 +72,7 @@ fun ExpandButton(
     modifier: Modifier = Modifier,
     children: @Composable () -> Unit
 ) {
-    val rotation by animateFloatAsState(if(isExpanded) 0f else -90f)
+    val rotation by animateFloatAsState(if (isExpanded) 0f else -90f)
 
     Row(modifier.clickable(onClick = {
         onClick(!isExpanded)

@@ -1,5 +1,6 @@
 package org.jetbrains.compose.reload.agent
 
+import org.jetbrains.compose.reload.core.createLogger
 import org.jetbrains.compose.reload.orchestration.OrchestrationMessage.LogMessage
 import org.jetbrains.compose.reload.orchestration.OrchestrationMessage.LogMessage.Companion.TAG_COMPILER
 import java.io.File

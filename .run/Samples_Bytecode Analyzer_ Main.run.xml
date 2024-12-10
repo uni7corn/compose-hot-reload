@@ -1,0 +1,26 @@
+<component name="ProjectRunConfigurationManager">
+  <configuration default="false" name="Samples/Bytecode Analyzer: Main" type="GradleRunConfiguration" factoryName="Gradle" folderName="Sample">
+    <ExternalSystemSettings>
+      <option name="executionName" />
+      <option name="externalProjectPath" value="$PROJECT_DIR$/samples/bytecode-analyzer" />
+      <option name="externalSystemIdString" value="GRADLE" />
+      <option name="scriptParameters" value="-DmainClass=org.jetbrains.compsoe.reload.analyzer.app.MainKt --quiet" />
+      <option name="taskDescriptions">
+        <list />
+      </option>
+      <option name="taskNames">
+        <list>
+          <option value=":jvmRun" />
+        </list>
+      </option>
+      <option name="vmOptions" />
+    </ExternalSystemSettings>
+    <ExternalSystemDebugServerProcess>false</ExternalSystemDebugServerProcess>
+    <ExternalSystemReattachDebugProcess>true</ExternalSystemReattachDebugProcess>
+    <DebugAllEnabled>false</DebugAllEnabled>
+    <RunAsTest>false</RunAsTest>
+    <method v="2">
+      <option name="Gradle.BeforeRunTask" enabled="true" tasks="publishLocally" externalProjectPath="$PROJECT_DIR$" vmOptions="" scriptParameters="" />
+    </method>
+  </configuration>
+</component>
