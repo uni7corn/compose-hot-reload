@@ -14,6 +14,7 @@ import androidx.compose.ui.window.WindowState
 import androidx.compose.ui.window.singleWindowApplication
 import org.jetbrains.compose.reload.DevelopmentEntryPoint
 import org.jetbrains.compose.reload.InternalHotReloadApi
+import org.jetbrains.compose.reload.core.HotReloadEnvironment
 import kotlin.time.Duration.Companion.minutes
 
 @OptIn(InternalHotReloadApi::class)

@@ -2,11 +2,11 @@ package org.jetbrains.compose.reload.utils
 
 import org.gradle.testkit.runner.GradleRunner
 import org.intellij.lang.annotations.Language
+import org.jetbrains.compose.reload.core.HotReloadProperty
 import org.jetbrains.compose.reload.core.testFixtures.CompilerOption
 import org.jetbrains.compose.reload.core.testFixtures.CompilerOption.OptimizeNonSkippingGroups
 import org.jetbrains.compose.reload.core.testFixtures.CompilerOptions
 import org.jetbrains.compose.reload.core.testFixtures.TestEnvironment
-import org.jetbrains.compose.reload.orchestration.ORCHESTRATION_SERVER_PORT_PROPERTY_KEY
 import org.jetbrains.compose.reload.orchestration.startOrchestrationServer
 import org.jetbrains.compose.reload.utils.HotReloadTestFixtureExtension.Companion.testFixtureKey
 import org.jetbrains.kotlin.tooling.core.compareTo
@@ -227,9 +227,8 @@ private class HotReloadTestFixtureExtension(
             .withProjectDir(projectDir.path.toFile())
             .withGradleVersion(context.gradleVersion.version.version)
             .forwardOutput()
-            .addedArguments("-P$ORCHESTRATION_SERVER_PORT_PROPERTY_KEY=${orchestrationServer.port}")
-            .addedArguments("-D$ORCHESTRATION_SERVER_PORT_PROPERTY_KEY=${orchestrationServer.port}")
-            .addedArguments("-Pcompose.reload.headless=true")
+            .addedArguments("-P${HotReloadProperty.OrchestrationPort.key}=${orchestrationServer.port}")
+            .addedArguments("-P${HotReloadProperty.IsHeadless.key}=true")
             .addedArguments("-i")
             .addedArguments("-s")
 

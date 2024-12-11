@@ -1,5 +1,6 @@
 package org.jetbrains.compose.reload.agent
 
+import org.jetbrains.compose.reload.core.HotReloadEnvironment
 import org.jetbrains.compose.reload.core.createLogger
 import org.jetbrains.compose.reload.orchestration.OrchestrationMessage.LogMessage
 import org.jetbrains.compose.reload.orchestration.OrchestrationMessage.LogMessage.Companion.TAG_COMPILER
@@ -8,9 +9,9 @@ import java.util.concurrent.TimeUnit
 import kotlin.concurrent.thread
 
 private val logger = createLogger()
-private val composeBuildRoot: String? = System.getProperty("compose.build.root")
-private val composeBuildProject: String? = System.getProperty("compose.build.project")
-private val composeBuildCompileTask: String? = System.getProperty("compose.build.compileTask")
+private val composeBuildRoot: String? = HotReloadEnvironment.composeBuildRoot
+private val composeBuildProject: String? = HotReloadEnvironment.composeBuildProject
+private val composeBuildTask: String? = HotReloadEnvironment.composeBuildTask
 
 
 internal fun launchRecompiler() {
@@ -24,7 +25,7 @@ internal fun launchRecompiler() {
         return
     }
 
-    val composeBuildCompileTask = composeBuildCompileTask ?: run {
+    val composeBuildCompileTask = composeBuildTask ?: run {
         logger.error("Missing 'compose.build.compile.task' property")
         return
     }

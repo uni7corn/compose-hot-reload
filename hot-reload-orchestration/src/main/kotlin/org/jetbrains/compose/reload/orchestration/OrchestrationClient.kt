@@ -1,5 +1,6 @@
 package org.jetbrains.compose.reload.orchestration
 
+import org.jetbrains.compose.reload.core.HotReloadEnvironment
 import org.slf4j.LoggerFactory
 import java.io.ObjectInputStream
 import java.io.ObjectOutputStream
@@ -15,6 +16,13 @@ import kotlin.concurrent.withLock
 
 public interface OrchestrationClient : OrchestrationHandle {
     public val clientId: UUID
+}
+
+public fun OrchestrationClient(role: OrchestrationClientRole): OrchestrationClient? {
+    val port = HotReloadEnvironment.orchestrationPort
+    if (port == null) return null
+
+    return connectOrchestrationClient(role, port = port)
 }
 
 public fun connectOrchestrationClient(role: OrchestrationClientRole, port: Int): OrchestrationClient {

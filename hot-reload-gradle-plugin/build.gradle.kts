@@ -80,6 +80,7 @@ dependencies {
     compileOnly(kotlin("gradle-plugin"))
     compileOnly(deps.compose.gradlePlugin)
 
+    implementation(project(":hot-reload-core"))
     implementation(project(":hot-reload-orchestration"))
 
     functionalTestImplementation(gradleTestKit())
@@ -144,5 +145,3 @@ run {
         dependsOn(writeBuildConfig)
     }
 }
-
-

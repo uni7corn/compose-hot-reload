@@ -11,7 +11,8 @@ import org.gradle.jvm.toolchain.JvmVendorSpec
 import org.gradle.kotlin.dsl.register
 import org.gradle.kotlin.dsl.support.serviceOf
 import org.gradle.kotlin.dsl.withType
-import org.jetbrains.compose.reload.orchestration.ORCHESTRATION_SERVER_PORT_PROPERTY_KEY
+import org.jetbrains.compose.reload.core.HotReloadProperty
+import org.jetbrains.compose.reload.core.HotReloadProperty.DevToolsClasspath
 import org.jetbrains.kotlin.gradle.InternalKotlinGradlePluginApi
 import org.jetbrains.kotlin.gradle.plugin.KotlinCompilation
 import org.jetbrains.kotlin.gradle.plugin.KotlinTarget
@@ -64,7 +65,7 @@ internal fun JavaExec.configureJavaExecTaskForHotReload(compilation: Provider<Ko
     /* Support headless mode */
     run {
         if (project.isHeadless.orNull == true) {
-            systemProperty("compose.reload.headless", true)
+            systemProperty(HotReloadProperty.IsHeadless.key, true)
             systemProperty("apple.awt.UIElement", true)
         }
     }
@@ -73,14 +74,14 @@ internal fun JavaExec.configureJavaExecTaskForHotReload(compilation: Provider<Ko
     systemProperty("compose.reload.showDevTooling", project.showDevTooling.orNull ?: true)
     if (project.showDevTooling.orElse(true).get()) {
         inputs.files(project.composeHotReloadDevToolsConfiguration)
-        systemProperty("compose.reload.devToolsClasspath", project.composeHotReloadDevToolsConfiguration.asPath)
+        systemProperty(DevToolsClasspath.key, project.composeHotReloadDevToolsConfiguration.asPath)
     }
 
     /* Setup re-compiler */
     val compileTaskName = compilation.map { composeReloadHotClasspathTaskName(it) }
-    systemProperty("compose.build.root", project.rootDir.absolutePath)
-    systemProperty("compose.build.project", project.path)
-    systemProperty("compose.build.compileTask", ToString(compileTaskName))
+    systemProperty(HotReloadProperty.ComposeBuildRoot.key, project.rootDir.absolutePath)
+    systemProperty(HotReloadProperty.ComposeBuildProject.key, project.path)
+    systemProperty(HotReloadProperty.ComposeBuildTask.key, ToString(compileTaskName))
 
 
     /* Generic JVM args for hot reload*/
@@ -93,7 +94,6 @@ internal fun JavaExec.configureJavaExecTaskForHotReload(compilation: Provider<Ko
         inputs.files(project.composeHotReloadAgentConfiguration.files)
         dependsOn(project.composeHotReloadAgentConfiguration.buildDependencies)
         jvmArgs("-javaagent:" + project.composeHotReloadAgentJar().asPath)
-        systemProperty("compose.reload.agentClasspath", project.composeHotReloadAgentClasspath().asPath)
     }
 
     /* JBR args */
@@ -110,7 +110,7 @@ internal fun JavaExec.configureJavaExecTaskForHotReload(compilation: Provider<Ko
     run {
         project.orchestrationPort.orNull?.let { port ->
             logger.quiet("Using orchestration server port: $port")
-            systemProperty(ORCHESTRATION_SERVER_PORT_PROPERTY_KEY, port.toInt())
+            systemProperty(HotReloadProperty.OrchestrationPort.key, port.toInt())
         }
     }
 
