@@ -79,6 +79,9 @@ internal fun JavaExec.configureJavaExecTaskForHotReload(compilation: Provider<Ko
 
     /* Setup re-compiler */
     val compileTaskName = compilation.map { composeReloadHotClasspathTaskName(it) }
+    project.providers.systemProperty("java.home").orNull?.let { javaHome ->
+        systemProperty(HotReloadProperty.GradleJavaHome.key, javaHome)
+    }
     systemProperty(HotReloadProperty.ComposeBuildRoot.key, project.rootDir.absolutePath)
     systemProperty(HotReloadProperty.ComposeBuildProject.key, project.path)
     systemProperty(HotReloadProperty.ComposeBuildTask.key, ToString(compileTaskName))

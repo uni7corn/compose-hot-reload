@@ -25,6 +25,7 @@ class RecompilerPropertiesTest {
         assertEquals(project.rootDir.absolutePath, hotRun.systemProperties[ComposeBuildRoot.key])
         assertEquals(":", hotRun.systemProperties[ComposeBuildProject.key])
         assertEquals("reloadJvmMainClasspath", hotRun.systemProperties[ComposeBuildTask.key].toString())
+        assertEquals(System.getProperty("java.home"), hotRun.systemProperties[GradleJavaHome.key].toString())
     }
 
     @Test

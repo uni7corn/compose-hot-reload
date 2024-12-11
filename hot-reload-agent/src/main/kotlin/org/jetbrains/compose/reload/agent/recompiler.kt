@@ -1,12 +1,14 @@
 package org.jetbrains.compose.reload.agent
 
 import org.jetbrains.compose.reload.core.HotReloadEnvironment
+import org.jetbrains.compose.reload.core.HotReloadProperty
 import org.jetbrains.compose.reload.core.createLogger
 import org.jetbrains.compose.reload.orchestration.OrchestrationMessage.LogMessage
 import org.jetbrains.compose.reload.orchestration.OrchestrationMessage.LogMessage.Companion.TAG_COMPILER
 import java.io.File
 import java.util.concurrent.TimeUnit
 import kotlin.concurrent.thread
+import kotlin.io.path.pathString
 
 private val logger = createLogger()
 private val composeBuildRoot: String? = HotReloadEnvironment.composeBuildRoot
@@ -43,18 +45,23 @@ internal fun launchRecompiler() {
             arrayOf("./gradlew")
         }
 
-        val process = ProcessBuilder().directory(File(composeBuildRoot))
-            .command(
+        if (HotReloadEnvironment.gradleJavaHome == null) {
+            logger.warn("Missing '${HotReloadProperty.GradleJavaHome}' property. Using system java")
+        }
+
+        val process = ProcessBuilder().directory(File(composeBuildRoot)).command(
+            listOfNotNull(
                 *gradleScriptCommand,
                 createGradleCommand(composeBuildProject, composeBuildCompileTask),
                 "--console=plain",
                 "--no-daemon",
                 "--priority=low",
-                "-Dcompose.reload.orchestration.port=$port",
-                //"-Dorg.gradle.debug=true",
+                "-D${HotReloadProperty.OrchestrationPort.key}=$port",
+                "-D${HotReloadProperty.GradleJavaHome.key}=${HotReloadEnvironment.gradleJavaHome?.pathString}"
+                    .takeIf { HotReloadEnvironment.gradleJavaHome != null },
                 "-t"
             )
-            .redirectErrorStream(true)
+        ).redirectErrorStream(true)
             .start()
 
         Runtime.getRuntime().addShutdownHook(thread(start = false) {

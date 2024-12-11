@@ -9,6 +9,7 @@ public enum class HotReloadProperty(public val key: String) {
     OrchestrationPort("compose.reload.orchestration.port"),
     IsHeadless("compose.reload.headless"),
 
+    GradleJavaHome("org.gradle.java.home"),
     ComposeBuildRoot("compose.build.root"),
     ComposeBuildProject("compose.build.project"),
     ComposeBuildTask("compose.build.task"),
@@ -27,6 +28,7 @@ public object HotReloadEnvironment {
     public val orchestrationPort: Int? = systemInt(HotReloadProperty.OrchestrationPort)
     public val isHeadless: Boolean = systemBoolean(HotReloadProperty.IsHeadless, false)
 
+    public val gradleJavaHome: Path? = system(HotReloadProperty.GradleJavaHome)?.let(::Path)
     public val composeBuildRoot: String? = system(HotReloadProperty.ComposeBuildRoot)
     public val composeBuildProject: String? = system(HotReloadProperty.ComposeBuildProject)
     public val composeBuildTask: String? = system(HotReloadProperty.ComposeBuildTask)
