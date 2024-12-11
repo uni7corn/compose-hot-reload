@@ -1,6 +1,9 @@
 package org.jetbrains.compose.reload.jvm.tooling
 
+import androidx.compose.animation.*
+import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.animateDpAsState
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.*
@@ -23,19 +26,54 @@ import androidx.compose.ui.window.WindowPosition
 import androidx.compose.ui.window.WindowState
 import io.sellmair.evas.compose.composeState
 import io.sellmair.evas.compose.composeValue
+import kotlinx.coroutines.delay
 import org.jetbrains.compose.reload.jvm.tooling.states.ReloadState
+import kotlin.time.Duration.Companion.milliseconds
 
 @Composable
-fun ApplicationScope.DevToolingSidebar(windowState: WindowState) {
-    val sidecarWidth = 512.dp
+fun ApplicationScope.DevToolingSidecar(windowState: WindowState) {
+    val animationDuration = 256
+    var isExpanded by remember { mutableStateOf(false) }
+    var sideCarWidth by remember { mutableStateOf(if (isExpanded) 512.dp else 64.dp) }
 
-    val x by animateDpAsState(targetValue = windowState.position.x - sidecarWidth)
-    val y by animateDpAsState(targetValue = windowState.position.y)
+    if (isExpanded) {
+        sideCarWidth = 512.dp
+    }
+
+    if (!isExpanded) {
+        LaunchedEffect(Unit) {
+            delay(animationDuration.milliseconds)
+            sideCarWidth = 64.dp
+        }
+    }
+
+    val targetX = windowState.position.x - sideCarWidth.value.dp
+    val targetY = windowState.position.y
+
+    val xAnimatable = remember { Animatable(targetX.value) }
+    val yAnimatable = remember { Animatable(targetY.value) }
+
+    val x by xAnimatable.asState()
+    val y by yAnimatable.asState()
+
     val height by animateDpAsState(targetValue = windowState.size.height)
 
+    LaunchedEffect(windowState.position) {
+        xAnimatable.animateTo(targetX.value)
+    }
+
+    LaunchedEffect(windowState.position) {
+        yAnimatable.animateTo(targetY.value)
+    }
+
+    LaunchedEffect(sideCarWidth) {
+        xAnimatable.snapTo(targetX.value)
+        yAnimatable.snapTo(targetY.value)
+    }
+
     val sidecarWindowState = WindowState(
-        width = sidecarWidth, height = height,
-        position = WindowPosition(x = x, y = y)
+        width = sideCarWidth, height = height,
+        position = WindowPosition(x = x.dp, y = y.dp)
     )
 
     Window(
@@ -47,7 +85,6 @@ fun ApplicationScope.DevToolingSidebar(windowState: WindowState) {
         focusable = true,
         alwaysOnTop = true
     ) {
-        var isExpanded by remember { mutableStateOf(false) }
         val reloadState by ReloadState.composeState()
         val reloadStateColor by animateReloadStateColor(reloadState)
 
@@ -59,7 +96,6 @@ fun ApplicationScope.DevToolingSidebar(windowState: WindowState) {
                 Column(
                     modifier = Modifier
                         .heightIn(max = windowState.size.height)
-                        .widthIn(max = sidecarWidth)
                         .padding(4.dp)
                         .then(
                             if (reloadState is ReloadState.Reloading)
@@ -69,18 +105,29 @@ fun ApplicationScope.DevToolingSidebar(windowState: WindowState) {
                             else if (isExpanded) Modifier.border(2.dp, Color.LightGray, RoundedCornerShape(8.dp))
                             else Modifier
                         )
-                        .then(if(!isExpanded) Modifier.padding(4.dp) else Modifier)
+                        .then(if (!isExpanded) Modifier.padding(4.dp) else Modifier)
                         .clip(RoundedCornerShape(8.dp))
                         .background((if (isExpanded) Color.White else animateReloadStateColor().value).copy(alpha = 0.3f))
                         .background(Color.White.copy(alpha = 0.75f))
                 ) {
                     Row(
-                        Modifier.align(Alignment.End).padding(4.dp),
+                        Modifier.align(Alignment.End).padding(4.dp).animateContentSize(tween(animationDuration)),
                         verticalAlignment = Alignment.CenterVertically,
                     ) {
+
+                        AnimatedVisibility(
+                            isExpanded,
+                            enter = fadeIn(tween(animationDuration)) +
+                                    scaleIn(tween(animationDuration), initialScale = 0.7f),
+                            exit = fadeOut(tween(animationDuration)) +
+                                    scaleOut(tween(animationDuration), targetScale = 0.7f)
+                        ) {
+                            Row(verticalAlignment = Alignment.CenterVertically) {
+                                ComposeLogo(modifier = Modifier.size(32.dp))
+                                Text("Save your code to recompile!", fontSize = 16.0f.sp)
+                            }
+                        }
                         if (isExpanded) {
-                            ComposeLogo(modifier = Modifier.size(32.dp))
-                            Text("Save your code to recompile!", fontSize = 16.0f.sp)
                             Spacer(Modifier.weight(1f))
                         }
                         IconButton(
@@ -89,13 +136,24 @@ fun ApplicationScope.DevToolingSidebar(windowState: WindowState) {
                                 .padding(2.dp)
                                 .size(24.dp)
                         ) {
-                            if (isExpanded) Icon(Icons.Default.Close, contentDescription = "Close")
+                            if (isExpanded)
+                                Icon(
+                                    Icons.Default.Close, contentDescription = "Close",
+                                    modifier = Modifier.fillMaxSize()
+                                )
                             else ComposeLogo(Modifier.fillMaxSize())
                         }
                     }
 
-
-                    if (isExpanded) {
+                    AnimatedVisibility(
+                        visible = isExpanded,
+                        enter = fadeIn(tween(animationDuration)) +
+                                scaleIn(tween(animationDuration), initialScale = 0.7f) +
+                                expandIn(expandFrom = Alignment.Center, animationSpec = tween(animationDuration)),
+                        exit = fadeOut(tween(animationDuration)) +
+                                scaleOut(tween(animationDuration), targetScale = 0.7f) +
+                                shrinkOut(shrinkTowards = Alignment.Center, animationSpec = tween(animationDuration))
+                    ) {
                         DevToolingWidget(Modifier.padding(8.dp).fillMaxSize())
                     }
 

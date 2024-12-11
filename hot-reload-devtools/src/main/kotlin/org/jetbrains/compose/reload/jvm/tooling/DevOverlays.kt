@@ -12,7 +12,7 @@ import org.jetbrains.compose.reload.jvm.tooling.states.WindowsState
 fun ApplicationScope.DevOverlays() {
     val windows = WindowsState.composeValue().windows
     windows.forEach { (windowId, windowState) ->
-        DevToolingSidebar(windowState)
+        DevToolingSidecar(windowState)
         DevToolingErrorOverlay(windowId, windowState)
     }
 }
