@@ -39,6 +39,7 @@ dependencies {
     implementation(compose.components.resources)
     implementation(deps.coroutines.swing)
     implementation(deps.logback)
+    implementation(deps.kotlinxDatetime)
 
     implementation(deps.evas)
     implementation(deps.evas.compose)

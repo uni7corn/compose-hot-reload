@@ -6,7 +6,6 @@ import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -22,7 +21,9 @@ import androidx.compose.ui.window.ApplicationScope
 import androidx.compose.ui.window.Window
 import androidx.compose.ui.window.WindowPosition
 import androidx.compose.ui.window.WindowState
-import org.jetbrains.compose.reload.orchestration.OrchestrationMessage.LogMessage
+import io.sellmair.evas.compose.composeState
+import io.sellmair.evas.compose.composeValue
+import org.jetbrains.compose.reload.jvm.tooling.states.ReloadState
 
 @Composable
 fun ApplicationScope.DevToolingSidebar(windowState: WindowState) {
@@ -46,68 +47,64 @@ fun ApplicationScope.DevToolingSidebar(windowState: WindowState) {
         focusable = true,
         alwaysOnTop = true
     ) {
-        var isShown by remember { mutableStateOf(false) }
+        var isExpanded by remember { mutableStateOf(false) }
+        val reloadState by ReloadState.composeState()
+        val reloadStateColor by animateReloadStateColor(reloadState)
 
         Column(
             modifier = Modifier.fillMaxSize(),
             horizontalAlignment = Alignment.End,
         ) {
-
-            Column(
-                modifier = Modifier
-                    .heightIn(max = windowState.size.height)
-                    .widthIn(max = sidecarWidth)
-                    .border(1.dp, Color.Black, RoundedCornerShape(8.dp))
-                    .clip(RoundedCornerShape(8.dp))
-                    .background(Color.White.copy(alpha = 0.85f))
-            ) {
-                Row(
-                    Modifier.align(Alignment.End).padding(4.dp),
-                    verticalAlignment = Alignment.CenterVertically,
+            Row {
+                Column(
+                    modifier = Modifier
+                        .heightIn(max = windowState.size.height)
+                        .widthIn(max = sidecarWidth)
+                        .padding(4.dp)
+                        .then(
+                            if (reloadState is ReloadState.Reloading)
+                                Modifier.border(2.dp, animatedReloadStateBrush(), RoundedCornerShape(8.dp))
+                            else if (reloadState is ReloadState.Failed)
+                                Modifier.border(2.dp, reloadStateColor, RoundedCornerShape(8.dp))
+                            else if (isExpanded) Modifier.border(2.dp, Color.LightGray, RoundedCornerShape(8.dp))
+                            else Modifier
+                        )
+                        .then(if(!isExpanded) Modifier.padding(4.dp) else Modifier)
+                        .clip(RoundedCornerShape(8.dp))
+                        .background((if (isExpanded) Color.White else animateReloadStateColor().value).copy(alpha = 0.3f))
+                        .background(Color.White.copy(alpha = 0.75f))
                 ) {
-
-                    if (isShown) {
-                        ComposeLogo(modifier = Modifier.size(32.dp))
-                        Text("Save your code to recompile!", fontSize = 16.0f.sp)
-                        Spacer(Modifier.weight(1f))
-                    }
-                    IconButton(
-                        onClick = { isShown = !isShown },
-                        modifier = Modifier
-                            .padding(4.dp)
-                            .size(24.dp)
+                    Row(
+                        Modifier.align(Alignment.End).padding(4.dp),
+                        verticalAlignment = Alignment.CenterVertically,
                     ) {
-                        if (isShown) Icon(Icons.Default.Close, contentDescription = "Close")
-                        else Icon(Icons.AutoMirrored.Default.ArrowBack, contentDescription = "Open")
+                        if (isExpanded) {
+                            ComposeLogo(modifier = Modifier.size(32.dp))
+                            Text("Save your code to recompile!", fontSize = 16.0f.sp)
+                            Spacer(Modifier.weight(1f))
+                        }
+                        IconButton(
+                            onClick = { isExpanded = !isExpanded },
+                            modifier = Modifier
+                                .padding(2.dp)
+                                .size(24.dp)
+                        ) {
+                            if (isExpanded) Icon(Icons.Default.Close, contentDescription = "Close")
+                            else ComposeLogo(Modifier.fillMaxSize())
+                        }
                     }
+
+
+                    if (isExpanded) {
+                        DevToolingWidget(Modifier.padding(8.dp).fillMaxSize())
+                    }
+
                 }
 
-
-                if (!isShown) return@Column
-
-                Column(Modifier.padding(8.dp).fillMaxSize()) {
-                    DevToolingToolbar()
-
-                    Column(
-                        verticalArrangement = Arrangement.spacedBy(16.dp),
-                        modifier = Modifier.fillMaxSize()
-                    ) {
-                        DevToolingConsole(
-                            tag = LogMessage.TAG_COMPILER,
-                            modifier = Modifier.weight(1f, fill = false)
-                        )
-
-                        DevToolingConsole(
-                            tag = LogMessage.TAG_AGENT,
-                            modifier = Modifier.weight(1f, fill = false),
-                        )
-
-                        DevToolingConsole(
-                            tag = LogMessage.TAG_RUNTIME,
-                            modifier = Modifier.weight(1f, fill = false),
-                        )
-                    }
-                }
+                ReloadStateBanner(
+                    ReloadState.composeValue(),
+                    modifier = Modifier.fillMaxHeight()
+                )
             }
         }
     }

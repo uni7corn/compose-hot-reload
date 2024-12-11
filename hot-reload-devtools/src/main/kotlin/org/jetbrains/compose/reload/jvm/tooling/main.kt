@@ -8,6 +8,7 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
 import org.jetbrains.compose.reload.jvm.tooling.states.launchConsoleLogState
+import org.jetbrains.compose.reload.jvm.tooling.states.launchReloadState
 import org.jetbrains.compose.reload.jvm.tooling.states.launchUIErrorState
 import org.jetbrains.compose.reload.jvm.tooling.states.launchWindowsState
 
@@ -17,5 +18,6 @@ fun main() {
     applicationScope.launchConsoleLogState()
     applicationScope.launchWindowsState()
     applicationScope.launchUIErrorState()
+    applicationScope.launchReloadState()
     runDevToolingApplication()
 }

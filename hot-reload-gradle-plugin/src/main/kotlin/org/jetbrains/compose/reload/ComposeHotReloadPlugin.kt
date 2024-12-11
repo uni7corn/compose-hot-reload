@@ -34,5 +34,4 @@ private fun Project.onKotlinPluginApplied() {
     setupComposeHotRunConventions()
     setupComposeDevCompilation()
     setupComposeCompilations()
-
 }
