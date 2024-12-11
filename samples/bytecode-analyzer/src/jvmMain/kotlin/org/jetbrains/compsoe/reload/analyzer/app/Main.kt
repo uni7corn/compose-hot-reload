@@ -15,24 +15,26 @@ import io.sellmair.evas.States
 import io.sellmair.evas.compose.installEvas
 import io.sellmair.evas.eventsOrThrow
 import io.sellmair.evas.statesOrThrow
+import kotlinx.coroutines.CoroutineExceptionHandler
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
 import org.jetbrains.compose.reload.DevelopmentEntryPoint
-import org.jetbrains.compsoe.reload.analyzer.app.states.launchFileTreeState
-import org.jetbrains.compsoe.reload.analyzer.app.states.launchRuntimeTreeState
-import org.jetbrains.compsoe.reload.analyzer.app.states.launchJavapState
-import org.jetbrains.compsoe.reload.analyzer.app.states.launchOpenFileState
-import org.jetbrains.compsoe.reload.analyzer.app.states.launchRuntimeInfoState
+import org.jetbrains.compose.reload.core.createLogger
+import org.jetbrains.compsoe.reload.analyzer.app.states.*
 import org.jetbrains.compsoe.reload.analyzer.app.ui.AppTheme
 import org.jetbrains.compsoe.reload.analyzer.app.ui.FileView
 import org.jetbrains.compsoe.reload.analyzer.app.ui.NavigationBar
 
-private val applicationScope = CoroutineScope(SupervisorJob() + Dispatchers.Main + Events() + States())
+private val logger = createLogger()
+
+private val applicationScope = CoroutineScope(
+    SupervisorJob() + Dispatchers.Main + Events() + States() +
+            CoroutineExceptionHandler { context, throwable -> logger.error("Unhandled exception", throwable) }
+)
 
 fun main() {
     applicationScope.launchFileTreeState()
-    applicationScope.launchOpenFileState()
     applicationScope.launchJavapState()
     applicationScope.launchRuntimeInfoState()
     applicationScope.launchRuntimeTreeState()

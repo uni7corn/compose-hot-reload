@@ -19,16 +19,11 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import io.sellmair.evas.compose.composeValue
 import io.sellmair.evas.compose.rememberEvasCoroutineScope
-import io.sellmair.evas.emit
+import io.sellmair.evas.update
 import kotlinx.coroutines.launch
-import org.jetbrains.compsoe.reload.analyzer.app.events.RegularFileOpenEvent
-import org.jetbrains.compsoe.reload.analyzer.app.states.DirectoryFileState
-import org.jetbrains.compsoe.reload.analyzer.app.states.FileState
-import org.jetbrains.compsoe.reload.analyzer.app.states.RegularFileState
-import org.jetbrains.compsoe.reload.analyzer.app.states.WorkingDirectoryState
+import org.jetbrains.compsoe.reload.analyzer.app.states.*
 import java.nio.file.Path
 import kotlin.io.path.name
-
 
 val navigationBarWidth = 512.dp
 
@@ -103,7 +98,7 @@ fun RegularFileTreeElement(state: RegularFileState, modifier: Modifier = Modifie
 
     Row(modifier.clickable {
         scope.launch {
-            RegularFileOpenEvent(state.path).emit()
+            OpenedFileState.update { OpenedFileState(state.path) }
         }
     }) {
         Spacer(modifier = Modifier.width(24.dp))
