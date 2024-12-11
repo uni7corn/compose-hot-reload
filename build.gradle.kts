@@ -8,7 +8,7 @@ val updateVersions = tasks.register<UpdateVersionTask>("updateVersions") {
     sources = fileTree("samples") {
         include("**/settings.gradle.kts")
         include("**/build.gradle.kts")
-    }
+    } + files("README.md")
 
     projectVersion = project.version.toString()
     kotlinFireworkVersion = deps.versions.firework.get()
