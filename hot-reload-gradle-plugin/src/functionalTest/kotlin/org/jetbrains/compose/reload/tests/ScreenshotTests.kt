@@ -93,6 +93,7 @@ class ScreenshotTests {
     }
 
     @HotReloadTest
+    @HostIntegrationTest
     @DefaultSettingsGradleKts
     @DefaultBuildGradleKts("app", "widgets")
     fun `test - change in dependency project`(fixture: HotReloadTestFixture) = fixture.runTest {

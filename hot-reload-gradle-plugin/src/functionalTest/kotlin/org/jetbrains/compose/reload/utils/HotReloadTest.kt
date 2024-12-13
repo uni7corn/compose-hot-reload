@@ -223,7 +223,7 @@ private class HotReloadTestFixtureExtension(
         val projectDir = ProjectDir(Files.createTempDirectory("hot-reload-test"))
         val orchestrationServer = startOrchestrationServer()
         val gradleRunner = GradleRunner.create()
-            .withTestKitDir(Path("build/gradle-test-kit").toAbsolutePath().toFile())
+            .withProjectTestKitDir()
             .withProjectDir(projectDir.path.toFile())
             .withGradleVersion(context.gradleVersion.version.version)
             .forwardOutput()

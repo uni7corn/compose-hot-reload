@@ -21,9 +21,9 @@ internal val KotlinCompilation<*>.composeDevRuntimeDependencies: Configuration b
 
     project.configurations.create(runtimeConfigurationName + "ComposeDev").apply {
         extendsFrom(runtimeConfiguration)
+        attributes.attribute(KotlinPlatformType.attribute, KotlinPlatformType.jvm)
         attributes.attribute(Usage.USAGE_ATTRIBUTE, project.objects.named(COMPOSE_DEV_RUNTIME_USAGE))
         attributes.attribute(Category.CATEGORY_ATTRIBUTE, project.objects.named(Category.LIBRARY))
-        attributes.attribute(KotlinPlatformType.attribute, KotlinPlatformType.jvm)
         attributes.attribute(TARGET_JVM_ENVIRONMENT_ATTRIBUTE, project.objects.named(TargetJvmEnvironment.STANDARD_JVM))
     }
 }

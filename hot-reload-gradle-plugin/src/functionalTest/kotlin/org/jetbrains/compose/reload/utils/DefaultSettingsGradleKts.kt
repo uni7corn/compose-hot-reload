@@ -23,37 +23,47 @@ internal class DefaultSettingsGradleKtsExtension : BeforeTestExecutionCallback {
         val androidVersion = context.androidVersion
         projectDir.settingsGradleKts.createFile()
         projectDir.settingsGradleKts.writeText(
-            """
-            pluginManagement {
-                plugins {
-                    kotlin("multiplatform") version "${context.kotlinVersion}"
-                    kotlin("jvm") version "${context.kotlinVersion}"
-                    kotlin("plugin.compose") version "${context.kotlinVersion}"
-                    id("org.jetbrains.compose") version "${context.composeVersion}"
-                    id("org.jetbrains.compose-hot-reload") version "$HOT_RELOAD_VERSION"
-                    ${androidVersion?.let { "id(\"com.android.application\") version \"$it\"" }}
-                }
-                
-                repositories {
-                    maven(file("${localTestRepoDirectory.absolutePath.replace("\\", "\\\\")}"))
-                    mavenCentral()
-                    maven("https://packages.jetbrains.team/maven/p/firework/dev")
-                    google()
-                }
-            }
-
-            dependencyResolutionManagement {
-                repositories {
-                    maven(file("${localTestRepoDirectory.absolutePath.replace("\\", "\\\\")}"))
-                    mavenCentral()
-                    maven("https://packages.jetbrains.team/maven/p/firework/dev")
-                    google()
-                }
-            }
-        """.trimIndent()
+          createDefaultSettingsGradleKtsContent(
+              kotlinVersion = context.kotlinVersion,
+              composeVersion = context.composeVersion,
+              androidVersion = androidVersion,
+          )
         )
     }
 }
+
+fun createDefaultSettingsGradleKtsContent(
+    kotlinVersion: TestedKotlinVersion? = TestedKotlinVersion.entries.last(),
+    composeVersion: TestedComposeVersion? = TestedComposeVersion.entries.last(),
+    androidVersion: TestedAndroidVersion? = null,
+): String = """
+    pluginManagement {
+        plugins {
+            kotlin("multiplatform") version "$kotlinVersion"
+            kotlin("jvm") version "$kotlinVersion"
+            kotlin("plugin.compose") version "$kotlinVersion"
+            id("org.jetbrains.compose") version "$composeVersion"
+            id("org.jetbrains.compose-hot-reload") version "$HOT_RELOAD_VERSION"
+            ${androidVersion?.let { "id(\"com.android.application\") version \"$it\"" }}
+        }
+        
+        repositories {
+            maven(file("${localTestRepoDirectory.absolutePath.replace("\\", "\\\\")}"))
+            mavenCentral()
+            maven("https://packages.jetbrains.team/maven/p/firework/dev")
+            google()
+        }
+    }
+    
+    dependencyResolutionManagement {
+        repositories {
+            maven(file("${localTestRepoDirectory.absolutePath.replace("\\", "\\\\")}"))
+            mavenCentral()
+            maven("https://packages.jetbrains.team/maven/p/firework/dev")
+            google()
+        }
+    }
+   """.trimIndent()
 
 private val localTestRepoDirectory: File
     get() {

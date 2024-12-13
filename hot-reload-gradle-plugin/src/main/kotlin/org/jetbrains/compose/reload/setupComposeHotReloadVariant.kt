@@ -2,8 +2,12 @@ package org.jetbrains.compose.reload
 
 import org.gradle.api.Project
 import org.gradle.api.attributes.AttributeCompatibilityRule
+import org.gradle.api.attributes.Category
 import org.gradle.api.attributes.CompatibilityCheckDetails
 import org.gradle.api.attributes.Usage
+import org.gradle.api.attributes.java.TargetJvmEnvironment
+import org.gradle.api.attributes.java.TargetJvmEnvironment.STANDARD_JVM
+import org.gradle.api.attributes.java.TargetJvmEnvironment.TARGET_JVM_ENVIRONMENT_ATTRIBUTE
 import org.gradle.kotlin.dsl.named
 import org.gradle.kotlin.dsl.withType
 import org.jetbrains.kotlin.gradle.plugin.KotlinPlatformType
@@ -20,12 +24,12 @@ internal fun Project.setupComposeHotReloadVariant() {
         .compatibilityRules.add(ComposeHotReloadCompatibility::class.java)
 
     kotlinJvmOrNull?.apply {
-        target.createComposeHotReloadVariants()
+        target.createComposeHotReloadRuntimeElements()
     }
 
     kotlinMultiplatformOrNull?.apply {
         targets.withType<KotlinJvmTarget>().all { target ->
-            target.createComposeHotReloadVariants()
+            target.createComposeHotReloadRuntimeElements()
         }
     }
 }
@@ -42,35 +46,32 @@ internal class ComposeHotReloadCompatibility : AttributeCompatibilityRule<Usage>
     }
 }
 
-private fun KotlinTarget.createComposeHotReloadVariants() {
+private fun KotlinTarget.createComposeHotReloadRuntimeElements() {
     val main = compilations.getByName("main")
-    val runtimeElements = project.configurations.getByName(runtimeElementsConfigurationName)
+    val runtimeConfigurationName = main.runtimeDependencyConfigurationName + "ComposeHot"
+    project.configurations.findByName(runtimeConfigurationName)?.let { return }
+        ?: project.configurations.create(runtimeConfigurationName) { configuration ->
 
-    runtimeElements.outgoing outgoing@{ outgoing ->
-        project.logger.debug("Creating 'composeHot' variant")
+            configuration.attributes.attribute(KotlinPlatformType.attribute, platformType)
+            configuration.attributes.attribute(Usage.USAGE_ATTRIBUTE, project.objects.named(COMPOSE_DEV_RUNTIME_USAGE))
+            configuration.attributes.attribute(Category.CATEGORY_ATTRIBUTE, project.objects.named(Category.LIBRARY))
+            configuration.attributes.attribute(TARGET_JVM_ENVIRONMENT_ATTRIBUTE, project.objects.named(STANDARD_JVM))
 
-        if (outgoing.variants.findByName("composeHot") != null) {
-            project.logger.error("Could not create 'composeHot' variant: Variant already exists!", Throwable())
-            return@outgoing
-        }
-
-        outgoing.variants.create("composeHot") { variant ->
-            variant.attributes.attribute(KotlinPlatformType.attribute, platformType)
-            variant.attributes.attribute(Usage.USAGE_ATTRIBUTE, project.objects.named(COMPOSE_DEV_RUNTIME_USAGE))
+            configuration.isCanBeResolved = false
+            configuration.isCanBeConsumed = true
 
             project.afterEvaluate {
                 main.output.classesDirs.forEach { classesDir ->
-                    variant.artifact(classesDir) { artifact ->
+                    configuration.outgoing.artifact(classesDir) { artifact ->
                         artifact.builtBy(main.output.allOutputs)
                         artifact.builtBy(main.compileTaskProvider)
                     }
                 }
             }
 
-            variant.artifact(project.provider { main.output.resourcesDirProvider }) { artifact ->
+            configuration.outgoing.artifact(project.provider { main.output.resourcesDirProvider }) { artifact ->
                 artifact.builtBy(main.output.allOutputs)
                 artifact.builtBy(main.compileTaskProvider)
             }
         }
-    }
 }
