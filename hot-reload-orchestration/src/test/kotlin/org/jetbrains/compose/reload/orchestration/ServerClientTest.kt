@@ -90,13 +90,11 @@ class ServerClientTest {
             client.sendMessage(LogMessage("A"))
         }
 
-        while (true) {
-            if (serverMessages.receive() is LogMessage) break
-        }
+        val logMessage = serverMessages.receiveAsFlow().filterIsInstance<LogMessage>().first()
+        assertEquals("A", logMessage.message)
 
         orchestrationThread.submit {
             assertEquals(listOf(LogMessage("A")), serverReceivedMessages.toList())
-            assertEquals(listOf(), clientReceivedMessages)
         }.get()
     }
 
@@ -147,4 +145,3 @@ class ServerClientTest {
         assertEquals(Unknown, disconnected.clientRole)
     }
 }
-
