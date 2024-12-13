@@ -28,7 +28,7 @@ private fun Project.onKotlinPluginApplied() {
     }
 
     setupComposeHotReloadRuntimeDependency()
-    setupComposeHotReloadVariant()
+    setupComposeHotReloadRuntimeElements()
     setupComposeReloadHotClasspathTasks()
     setupComposeHotReloadExecTasks()
     setupComposeHotRunConventions()

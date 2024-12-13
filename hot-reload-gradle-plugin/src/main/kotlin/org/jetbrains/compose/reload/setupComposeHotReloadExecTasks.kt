@@ -48,11 +48,8 @@ internal fun JavaExec.configureJavaExecTaskForHotReload(compilation: Provider<Ko
         })
     }
 
-    classpath = project.files(
-        project.composeHotReloadAgentClasspath(),
-        project.files { compilation.get().createComposeHotReloadRunClasspath() }
-    )
-
+    classpath = project.files(compilation.map { it.applicationClasspath })
+    systemProperty(HotReloadProperty.HotClasspath.key, ToString(compilation.map { it.hotApplicationClasspath.asPath }))
 
     /* Setup debugging capabilities */
     run {

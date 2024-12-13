@@ -29,6 +29,6 @@ internal fun Project.composeHotReloadAgentJar(): FileCollection {
     }.files
 }
 
-internal fun Project.composeHotReloadAgentClasspath(): FileCollection {
+internal fun Project.composeHotReloadAgentRuntimeClasspath(): FileCollection {
     return composeHotReloadAgentConfiguration.incoming.files
 }

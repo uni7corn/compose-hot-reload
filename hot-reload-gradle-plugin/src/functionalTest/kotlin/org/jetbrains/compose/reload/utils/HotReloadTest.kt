@@ -227,6 +227,7 @@ private class HotReloadTestFixtureExtension(
             .withProjectDir(projectDir.path.toFile())
             .withGradleVersion(context.gradleVersion.version.version)
             .forwardOutput()
+            .addedArguments("-Dorg.gradle.jvmargs=-Xmx2G")
             .addedArguments("-P${HotReloadProperty.OrchestrationPort.key}=${orchestrationServer.port}")
             .addedArguments("-P${HotReloadProperty.IsHeadless.key}=true")
             .addedArguments("-i")

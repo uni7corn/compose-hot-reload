@@ -35,9 +35,12 @@ internal fun Project.setupComposeReloadHotClasspathTasks() {
 internal fun Project.setupComposeReloadHotClasspathTask(compilation: KotlinCompilation<*>): TaskProvider<ComposeReloadHotClasspathTask> {
     val name = composeReloadHotClasspathTaskName(compilation)
     if (name in tasks.names) return tasks.named(name, ComposeReloadHotClasspathTask::class.java)
+    val hotRuntimeClasses = compilation.hotRuntimeClasspath
+    val hotApplicationClasses = compilation.hotApplicationClasspath
 
     return tasks.register(name, ComposeReloadHotClasspathTask::class.java) { task ->
-        task.classpath.from(compilation.createComposeHotReloadRunClasspath())
+        task.classpath.from(hotRuntimeClasses)
+        task.finalizedBy(hotApplicationClasses)
     }
 }
 

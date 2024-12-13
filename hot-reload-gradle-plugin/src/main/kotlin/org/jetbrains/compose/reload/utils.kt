@@ -21,3 +21,5 @@ internal fun Project.withComposePlugin(block: () -> Unit) {
         block()
     }
 }
+
+internal fun String.asFileName(): String = replace("""\\W+""", "_")

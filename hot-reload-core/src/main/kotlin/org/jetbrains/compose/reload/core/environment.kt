@@ -8,6 +8,8 @@ import kotlin.io.path.Path
 public enum class HotReloadProperty(public val key: String) {
     OrchestrationPort("compose.reload.orchestration.port"),
     IsHeadless("compose.reload.headless"),
+    HotClasspath("compose.reload.hotApplicationClasspath"),
+
 
     GradleJavaHome("org.gradle.java.home"),
     ComposeBuildRoot("compose.build.root"),
@@ -27,6 +29,7 @@ public enum class HotReloadProperty(public val key: String) {
 public object HotReloadEnvironment {
     public val orchestrationPort: Int? = systemInt(HotReloadProperty.OrchestrationPort)
     public val isHeadless: Boolean = systemBoolean(HotReloadProperty.IsHeadless, false)
+    public val hotApplicationClasspath: List<Path>? = systemFiles(HotReloadProperty.HotClasspath)
 
     public val gradleJavaHome: Path? = system(HotReloadProperty.GradleJavaHome)?.let(::Path)
     public val composeBuildRoot: String? = system(HotReloadProperty.ComposeBuildRoot)
