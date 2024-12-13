@@ -1,5 +1,6 @@
 package org.jetbrains.compose.reload.utils
 
+import org.jetbrains.compose.reload.core.asFileName
 import org.jetbrains.compose.reload.core.testFixtures.TestEnvironment
 import org.jetbrains.compose.reload.orchestration.OrchestrationMessage
 import org.jetbrains.compose.reload.orchestration.OrchestrationMessage.Screenshot
@@ -43,9 +44,6 @@ suspend fun HotReloadTestFixture.checkScreenshot(name: String) {
     }
 }
 
-private fun String.asFileName(): String {
-    return replace("""\\W+""", "_")
-}
 
 /**
  * @param expected The binary representation of the expected image
@@ -147,4 +145,3 @@ internal fun describeDifference(
 
     return diffs
 }
-

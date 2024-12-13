@@ -17,6 +17,7 @@ dependencies {
 
     testFixturesImplementation(kotlin("test"))
     testFixturesImplementation(deps.junit.jupiter)
+    testFixturesImplementation(project(":hot-reload-core"))
 }
 
 publishing {

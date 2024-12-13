@@ -5,6 +5,7 @@ import org.jetbrains.compose.reload.analysis.RuntimeScopeInfo
 import org.jetbrains.compose.reload.analysis.SpecialComposeGroupKeys
 import org.jetbrains.compose.reload.analysis.javap
 import org.jetbrains.compose.reload.analysis.render
+import org.jetbrains.compose.reload.core.asFileName
 import org.jetbrains.compose.reload.core.testFixtures.*
 import org.jetbrains.compose.reload.core.withClosure
 import org.jetbrains.kotlin.util.prefixIfNot
@@ -266,8 +267,6 @@ private fun checkRuntimeInfo(
     val runtimeInfo = output.values
         .map { bytecode -> RuntimeInfo(bytecode) }
         .reduce { info, next -> RuntimeInfo(info?.scopes.orEmpty() + next?.scopes.orEmpty()) }
-
-    fun String.asFileName(): String = replace("""\\W+""", "_")
 
     val actualContent = buildString {
         appendLine("/*")

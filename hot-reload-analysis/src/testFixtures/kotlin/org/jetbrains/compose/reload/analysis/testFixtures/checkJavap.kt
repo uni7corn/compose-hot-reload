@@ -7,6 +7,7 @@ import kotlin.collections.component1
 import kotlin.collections.component2
 import kotlin.io.path.Path
 import kotlin.io.path.createParentDirectories
+import org.jetbrains.compose.reload.core.asFileName
 import kotlin.io.path.exists
 import kotlin.io.path.listDirectoryEntries
 import kotlin.io.path.nameWithoutExtension
@@ -15,7 +16,6 @@ import kotlin.io.path.readText
 import kotlin.io.path.writeText
 
 fun checkJavap(testInfo: TestInfo, name: String = "", code: Map<String, ByteArray>) {
-    fun String.asFileName(): String = replace("""\\W+""", "_")
 
     val directory = Path("src/test/resources/javap")
         .resolve(testInfo.testClass.get().name.asFileName().replace(".", "/"))

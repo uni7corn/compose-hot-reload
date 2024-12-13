@@ -103,6 +103,9 @@ jobs:
   test-windows:
     runs-on: windows-latest
     steps:
+      - name: Setup git
+        run: git config --system core.longpaths true
+
       - name: Checkout sources
         uses: actions/checkout@v4
 
