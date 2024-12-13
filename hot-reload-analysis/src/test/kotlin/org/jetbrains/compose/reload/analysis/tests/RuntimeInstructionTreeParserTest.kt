@@ -2,10 +2,10 @@ package org.jetbrains.compose.reload.analysis.tests
 
 import org.jetbrains.compose.reload.analysis.plusAssign
 import org.jetbrains.compose.reload.analysis.renderRuntimeInstructionTree
+import org.jetbrains.compose.reload.core.asFileName
 import org.jetbrains.compose.reload.core.testFixtures.Compiler
 import org.jetbrains.compose.reload.core.testFixtures.TestEnvironment
 import org.jetbrains.compose.reload.core.testFixtures.WithCompiler
-import org.jetbrains.compose.reload.core.testFixtures.asFileName
 import org.jetbrains.compose.reload.core.testFixtures.sanitized
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.TestInfo
