@@ -21,6 +21,7 @@ internal fun launchDevtoolsApplication() {
     val process = ProcessBuilder(
         java, "-cp", classpath.joinToString(File.pathSeparator),
         "-D${HotReloadProperty.OrchestrationPort.key}=${ComposeHotReloadAgent.orchestration.port}",
+        "-Dapple.awt.UIElement=true",
         "org.jetbrains.compose.reload.jvm.tooling.Main",
     ).inheritIO().start()
 
