@@ -61,7 +61,7 @@ internal fun launchRecompiler() {
                     .takeIf { HotReloadEnvironment.gradleJavaHome != null },
                 "-t"
             )
-        )
+        ).apply { environment().putIfAbsent("JAVA_HOME", HotReloadEnvironment.gradleJavaHome?.pathString ?: "") }
             .redirectErrorStream(true)
             .start()
 
