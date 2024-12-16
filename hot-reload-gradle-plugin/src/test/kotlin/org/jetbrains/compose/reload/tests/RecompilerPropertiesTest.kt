@@ -22,9 +22,9 @@ class RecompilerPropertiesTest {
 
         val hotRun = project.tasks.create<ComposeHotRun>("runHot")
 
-        assertEquals(project.rootDir.absolutePath, hotRun.systemProperties[ComposeBuildRoot.key])
-        assertEquals(":", hotRun.systemProperties[ComposeBuildProject.key])
-        assertEquals("reloadJvmMainClasspath", hotRun.systemProperties[ComposeBuildTask.key].toString())
+        assertEquals(project.rootDir.absolutePath, hotRun.systemProperties[GradleBuildRoot.key])
+        assertEquals(":", hotRun.systemProperties[GradleBuildProject.key])
+        assertEquals("reloadJvmMainClasspath", hotRun.systemProperties[GradleBuildTask.key].toString())
         assertEquals(System.getProperty("java.home"), hotRun.systemProperties[GradleJavaHome.key].toString())
     }
 
@@ -41,8 +41,8 @@ class RecompilerPropertiesTest {
 
         val hotRun = subproject.tasks.create<ComposeHotRun>("runHot")
 
-        assertEquals(subproject.rootDir.absolutePath, hotRun.systemProperties[ComposeBuildRoot.key])
-        assertEquals(":foo", hotRun.systemProperties[ComposeBuildProject.key])
-        assertEquals("reloadJvmMainClasspath", hotRun.systemProperties[ComposeBuildTask.key].toString())
+        assertEquals(subproject.rootDir.absolutePath, hotRun.systemProperties[GradleBuildRoot.key])
+        assertEquals(":foo", hotRun.systemProperties[GradleBuildProject.key])
+        assertEquals("reloadJvmMainClasspath", hotRun.systemProperties[GradleBuildTask.key].toString())
     }
 }

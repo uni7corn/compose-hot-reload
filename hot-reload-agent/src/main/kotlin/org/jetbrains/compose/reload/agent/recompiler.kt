@@ -61,7 +61,8 @@ internal fun launchRecompiler() {
                     .takeIf { HotReloadEnvironment.gradleJavaHome != null },
                 "-t"
             )
-        ).redirectErrorStream(true)
+        )
+            .redirectErrorStream(true)
             .start()
 
         Runtime.getRuntime().addShutdownHook(thread(start = false) {
