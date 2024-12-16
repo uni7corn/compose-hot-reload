@@ -7,6 +7,7 @@ import org.gradle.api.file.DuplicatesStrategy
 import org.gradle.api.file.FileCollection
 import org.gradle.api.tasks.Sync
 import org.gradle.internal.component.local.model.OpaqueComponentArtifactIdentifier
+import org.jetbrains.compose.reload.runBuildDirectory
 import org.jetbrains.kotlin.gradle.plugin.KotlinCompilation
 
 /**
@@ -70,9 +71,7 @@ internal val KotlinCompilation<*>.applicationClasspath: FileCollection by lazyPr
  * delete said classes).
  */
 internal val KotlinCompilation<*>.hotApplicationClasspath: FileCollection by lazyProperty {
-    val targetDirectory = project.layout.buildDirectory.dir(
-        "run/${target.name}${compilationName.capitalized}/classes",
-    )
+    val targetDirectory = runBuildDirectory("classes")
 
     val syncTask = project.tasks.register(
         "sync${target.name}${name.capitalized}ApplicationClasses", Sync::class.java

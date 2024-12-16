@@ -56,6 +56,7 @@ object ComposeHotReloadAgent {
     @JvmStatic
     fun premain(args: String?, instrumentation: Instrumentation) {
         this.instrumentation = instrumentation
+        createPidFile()
         enableComposeHotReloadMode()
         startComposeGroupInvalidationTransformation(instrumentation)
         launchReloadClassesRequestHandler(instrumentation)

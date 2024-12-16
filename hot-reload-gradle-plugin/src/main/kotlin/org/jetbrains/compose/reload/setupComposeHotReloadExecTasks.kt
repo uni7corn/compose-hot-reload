@@ -67,8 +67,14 @@ internal fun JavaExec.configureJavaExecTaskForHotReload(compilation: Provider<Ko
         }
     }
 
+    /* Configure Pid File */
+    systemProperty(
+        HotReloadProperty.PidFile.key,
+        ToString(compilation.map { compilation -> compilation.runBuildFile("$name.pid").get().asFile.absolutePath })
+    )
+
     /* Configure dev tooling window */
-    systemProperty("compose.reload.showDevTooling", project.showDevTooling.orNull ?: true)
+    systemProperty(HotReloadProperty.DevToolsEnabled.key, project.showDevTooling.orNull ?: true)
     if (project.showDevTooling.orElse(true).get()) {
         inputs.files(project.composeHotReloadDevToolsConfiguration)
         systemProperty(DevToolsClasspath.key, project.composeHotReloadDevToolsConfiguration.asPath)
@@ -114,6 +120,7 @@ internal fun JavaExec.configureJavaExecTaskForHotReload(compilation: Provider<Ko
             systemProperty(HotReloadProperty.OrchestrationPort.key, port.toInt())
         }
     }
+
 
     mainClass.value(
         project.providers.gradleProperty("mainClass")
