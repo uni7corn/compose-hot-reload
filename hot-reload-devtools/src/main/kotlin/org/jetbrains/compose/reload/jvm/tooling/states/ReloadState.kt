@@ -37,10 +37,14 @@ fun CoroutineScope.launchReloadState() = launchState(ReloadState) {
     var currentReloadRequest: OrchestrationMessage.ReloadClassesRequest? = null
 
     orchestration.asFlow().collect { message ->
+        if (message is OrchestrationMessage.RecompileRequest) {
+            ReloadState.Reloading().emit()
+        }
+
         if (message is OrchestrationMessage.LogMessage && message.tag == OrchestrationMessage.LogMessage.TAG_COMPILER) {
             if (message.message.contains("executing build...")) {
                 currentReloadRequest = null
-                ReloadState.Reloading(time = Clock.System.now()).emit()
+                ReloadState.Reloading().emit()
             }
 
             if (message.message.contains("BUILD FAILED")) {
@@ -71,7 +75,7 @@ fun CoroutineScope.launchReloadState() = launchState(ReloadState) {
         }
 
         if (message is OrchestrationMessage.ReloadClassesResult) {
-            if(message.isSuccess) ReloadState.Ok(time = Clock.System.now()).emit()
+            if (message.isSuccess) ReloadState.Ok(time = Clock.System.now()).emit()
             else ReloadState.Failed("Failed reloading classes (${message.errorMessage})").emit()
         }
     }
