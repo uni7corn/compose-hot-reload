@@ -2,6 +2,7 @@ package org.jetbrains.compose.reload.utils
 
 import org.intellij.lang.annotations.Language
 import org.jetbrains.compose.reload.orchestration.OrchestrationMessage.*
+import org.jetbrains.compose.reload.orchestration.asChannel
 import java.nio.file.Path
 import kotlin.io.path.createParentDirectories
 import kotlin.io.path.readText
@@ -21,16 +22,17 @@ suspend fun HotReloadTestFixture.launchApplicationAndWait(
     projectPath: String = ":",
     mainClass: String = "MainKt",
 ) {
+    val uiRenderedChannel = orchestration.asChannel()
+    val recompilerReadyChannel = orchestration.asChannel()
+
     launchApplication(projectPath, mainClass)
 
     logger.quiet("Waiting for UI to render")
-    run {
-        val rendered = skipToMessage<UIRendered>()
-        assertNull(rendered.reloadRequestId)
-    }
+    val rendered = skipToMessage<UIRendered>(uiRenderedChannel)
+    assertNull(rendered.reloadRequestId)
 
     logger.quiet("Waiting for Daemon to become ready")
-    skipToMessage<GradleDaemonReady>()
+    skipToMessage<RecompilerReady>(recompilerReadyChannel)
 }
 
 suspend fun HotReloadTestFixture.replaceSourceCodeAndReload(
@@ -100,4 +102,3 @@ internal fun HotReloadTestFixture.getDefaultMainKtSourceFile(): String {
         ProjectMode.Jvm -> "src/main/kotlin/Main.kt"
     }
 }
-

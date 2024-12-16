@@ -82,6 +82,7 @@ internal fun JavaExec.configureJavaExecTaskForHotReload(compilation: Provider<Ko
     systemProperty(HotReloadProperty.GradleBuildRoot.key, project.rootDir.absolutePath)
     systemProperty(HotReloadProperty.GradleBuildProject.key, project.path)
     systemProperty(HotReloadProperty.GradleBuildTask.key, ToString(compileTaskName))
+    systemProperty(HotReloadProperty.GradleBuildContinuous.key, project.isRecompileContinuous.orNull ?: true)
 
 
     /* Generic JVM args for hot reload*/

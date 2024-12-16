@@ -39,9 +39,33 @@ public sealed class OrchestrationMessage : Serializable {
     }
 
     /**
-     * Indicates that the 'Gradle Daemon' which is listening for changed source code, then recompiling is ready.
+     * Indicates that the 'recompiler' is ready to receive requests.
+     * If the build is continuous, then this is sent by the Gradle daemon which gets alive.
+     * If the build is not continuous, then the message will be sent once the agent is ready to
+     * handle recompile requests.
+     *
+     * Note: This message can be sent multiple times!
      */
-    public class GradleDaemonReady : OrchestrationMessage()
+    public class RecompilerReady : OrchestrationMessage()
+
+    /**
+     * If the compilation is not setup 'continuously', then a [RecompileRequest] will signal to
+     * start a compile-step potentially leading to a reload (if the classes have changed)
+     */
+    public class RecompileRequest : OrchestrationMessage()
+
+    /**
+     * Response to a given [RecompileRequest].
+     * The exitCode is optional, as it may happen that the process gets interrupted.
+     */
+    public class RecompileResult(
+        public val recompileRequestId: UUID,
+        /**
+         * The exitCode of the recompilation process, or null if the process failed to launch or
+         * was interrupted before finishing.
+         */
+        public val exitCode: Int?
+    ) : OrchestrationMessage()
 
     /**
      * Signals to the application (agent) that it should reload the provided classes.

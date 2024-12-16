@@ -1,6 +1,6 @@
 package org.jetbrains.compose.reload.utils
 
-import org.jetbrains.compose.reload.orchestration.OrchestrationMessage.GradleDaemonReady
+import org.jetbrains.compose.reload.orchestration.OrchestrationMessage.RecompilerReady
 import org.jetbrains.compose.reload.orchestration.OrchestrationMessage.UIRendered
 
 suspend fun HotReloadTestFixture.launchDevApplicationAndWait(
@@ -10,7 +10,7 @@ suspend fun HotReloadTestFixture.launchDevApplicationAndWait(
 ) {
     launchDevApplication(projectPath, className, funName)
     skipToMessage<UIRendered>()
-    skipToMessage<GradleDaemonReady>()
+    skipToMessage<RecompilerReady>()
 }
 
 suspend fun HotReloadTestFixture.launchDevApplication(

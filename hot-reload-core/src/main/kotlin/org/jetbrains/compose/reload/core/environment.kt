@@ -15,6 +15,7 @@ public enum class HotReloadProperty(public val key: String) {
     GradleBuildRoot("gradle.build.root"),
     GradleBuildProject("gradle.build.project"),
     GradleBuildTask("gradle.build.task"),
+    GradleBuildContinuous("gradle.build.continuous"),
 
     DevToolsEnabled("compose.reload.devToolsEnabled"),
     DevToolsClasspath("compose.reload.devToolsClasspath"),
@@ -23,6 +24,7 @@ public enum class HotReloadProperty(public val key: String) {
     override fun toString(): String {
         return key
     }
+
 }
 
 public object HotReloadEnvironment {
@@ -31,9 +33,10 @@ public object HotReloadEnvironment {
     public val hotApplicationClasspath: List<Path>? = systemFiles(HotReloadProperty.HotClasspath)
 
     public val gradleJavaHome: Path? = system(HotReloadProperty.GradleJavaHome)?.let(::Path)
-    public val composeBuildRoot: String? = system(HotReloadProperty.GradleBuildRoot)
-    public val composeBuildProject: String? = system(HotReloadProperty.GradleBuildProject)
-    public val composeBuildTask: String? = system(HotReloadProperty.GradleBuildTask)
+    public val gradleBuildRoot: String? = system(HotReloadProperty.GradleBuildRoot)
+    public val gradleBuildProject: String? = system(HotReloadProperty.GradleBuildProject)
+    public val gradleBuildTask: String? = system(HotReloadProperty.GradleBuildTask)
+    public val gradleBuildContinuous: Boolean = systemBoolean(HotReloadProperty.GradleBuildContinuous, false)
 
     public val devToolsEnabled: Boolean = systemBoolean(HotReloadProperty.DevToolsEnabled, true)
     public val devToolsClasspath: List<Path>? = systemFiles(HotReloadProperty.DevToolsClasspath)

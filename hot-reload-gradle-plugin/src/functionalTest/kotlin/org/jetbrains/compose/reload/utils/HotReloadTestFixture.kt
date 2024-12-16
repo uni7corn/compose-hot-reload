@@ -3,6 +3,8 @@
 package org.jetbrains.compose.reload.utils
 
 import kotlinx.coroutines.*
+import kotlinx.coroutines.channels.Channel
+import kotlinx.coroutines.channels.ReceiveChannel
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.test.TestScope
 import org.gradle.api.logging.Logger
@@ -43,6 +45,7 @@ class HotReloadTestFixture(
     }
 
     suspend inline fun <reified T> skipToMessage(
+        messages: ReceiveChannel<OrchestrationMessage> = this.messages,
         timeout: Duration = 5.minutes, crossinline filter: (T) -> Boolean = { true }
     ): T {
         val stack = Thread.currentThread().stackTrace

@@ -10,6 +10,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import org.jetbrains.compose.reload.core.HotReloadEnvironment
 import org.jetbrains.compose.reload.orchestration.OrchestrationMessage
 
 @OptIn(ExperimentalLayoutApi::class)
@@ -19,6 +20,15 @@ fun DevToolingToolbar(modifier: Modifier = Modifier) {
         modifier = modifier.padding(8.dp),
         horizontalArrangement = Arrangement.spacedBy(8.dp),
     ) {
+
+        if (!HotReloadEnvironment.gradleBuildContinuous) {
+            Button(onClick = {
+                OrchestrationMessage.RecompileRequest().send()
+            }) {
+                Text("Reload", fontSize = 12.sp)
+            }
+        }
+
         Button(onClick = {
             OrchestrationMessage.ShutdownRequest().send()
         }) {
