@@ -43,8 +43,9 @@ class NonContinuousRecompileTest {
 
         fixture.sendMessage(recompileRequest)
 
-        val result = fixture.skipToMessage<OrchestrationMessage.RecompileResult>(recompileResultChannel)
-        assertEquals(recompileRequest.messageId, result.recompileRequestId)
+        val result = fixture.skipToMessage<OrchestrationMessage.RecompileResult>(recompileResultChannel) {
+            it.recompileRequestId == recompileRequest.messageId
+        }
         assertEquals(0, result.exitCode)
 
         fixture.skipToMessage<OrchestrationMessage.ReloadClassesRequest>(uiRenderedChannel)
