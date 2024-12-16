@@ -27,8 +27,9 @@ private val recompileRequests = LinkedBlockingQueue<RecompileRequest>(
      This request is the start signal, starting a single continuous build for Gradle.
 
     For non-continuous builds:
-      This will warm-up the recompiler. For Gradle, in particular, the tracking of the classpath
-      is incremental, this means that the file collection has to be built initially (with this request)
+      This will warm up the recompiler.
+      For Gradle, in particular, the tracking of the classpath
+      is incremental; this means that the file collection has to be built initially (with this request)
      */
     listOf(RecompileRequest())
 )
