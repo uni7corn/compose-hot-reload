@@ -17,6 +17,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.ApplicationScope
@@ -144,11 +145,11 @@ private fun DevToolingToolbar(
     modifier: Modifier = Modifier,
 ) {
     Row(
-        modifier = modifier.padding(4.dp),
+        modifier = modifier.padding(horizontal = 16.dp, vertical = 4.dp),
         verticalAlignment = Alignment.CenterVertically,
     ) {
         ComposeLogo(modifier = Modifier.size(32.dp))
-        Text("Save your code to recompile!", fontSize = 16.0f.sp)
+        Text("Compose Hot Reload Tooling", fontSize = 16.0f.sp, fontWeight = FontWeight.Bold)
         Spacer(Modifier.weight(1f))
         IconButton(
             onClick = onClose,

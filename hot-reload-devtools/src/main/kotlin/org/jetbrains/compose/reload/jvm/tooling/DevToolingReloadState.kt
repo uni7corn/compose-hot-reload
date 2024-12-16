@@ -141,7 +141,7 @@ internal fun animateReloadStateColor(
 }
 
 @Composable
-private fun animateReloadingIndicatorBrush(): Brush {
+internal fun animateReloadingIndicatorBrush(): Brush {
     val infiniteTransition = rememberInfiniteTransition()
     val gradientShift by infiniteTransition.animateFloat(
         initialValue = 0f,

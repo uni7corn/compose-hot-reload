@@ -1,5 +1,7 @@
 package org.jetbrains.compose.reload.jvm.tooling
 
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.window.application
 import io.sellmair.evas.compose.installEvas
 import io.sellmair.evas.eventsOrThrow
@@ -16,7 +18,13 @@ internal fun runDevToolingApplication() {
             applicationScope.coroutineContext.eventsOrThrow,
             applicationScope.coroutineContext.statesOrThrow
         ) {
-            DevOverlays()
+            MaterialTheme(
+                colorScheme = MaterialTheme.colorScheme.copy(
+                    primary = Color.Black,
+                )
+            ) {
+                DevOverlays()
+            }
         }
     }
 }
