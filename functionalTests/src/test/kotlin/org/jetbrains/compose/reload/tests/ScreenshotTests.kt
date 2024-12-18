@@ -5,8 +5,6 @@ package org.jetbrains.compose.reload.tests
 import org.jetbrains.compose.reload.core.createLogger
 import org.jetbrains.compose.reload.orchestration.OrchestrationMessage
 import org.jetbrains.compose.reload.utils.*
-import kotlin.io.path.appendLines
-import kotlin.io.path.appendText
 
 class ScreenshotTests {
     private val logger = createLogger()
@@ -259,7 +257,6 @@ class ScreenshotTests {
         fixture.checkScreenshot("1-afterLambdaEngaged")
     }
 
-    @MinKotlinVersion("2.1.0-beta")
     @HotReloadTest
     @DefaultSettingsGradleKts
     @DefaultBuildGradleKts
