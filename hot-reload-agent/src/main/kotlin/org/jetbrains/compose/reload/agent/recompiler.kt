@@ -18,7 +18,7 @@ import kotlin.io.path.pathString
 
 private val logger = createLogger()
 
-private val buildSystem: BuildSystem = HotReloadEnvironment.buildSystem 
+private val buildSystem: BuildSystem = HotReloadEnvironment.buildSystem
 
 private val gradleBuildRoot: String? = HotReloadEnvironment.gradleBuildRoot
 private val gradleBuildProject: String? = HotReloadEnvironment.gradleBuildProject
@@ -90,7 +90,7 @@ internal fun launchRecompiler() {
             )
         }
     }
-    
+
 
     val recompilerThread = thread(name = "Recompiler") {
         logger.debug("'Recompiler' started")
@@ -247,7 +247,7 @@ private fun createRecompilerAmperCommandLineArgs(amperBuildTask: String): List<S
     } else {
         arrayOf("./amper")
     }
-    
+
     return listOfNotNull(
         *amperScriptCommand,
         "task",

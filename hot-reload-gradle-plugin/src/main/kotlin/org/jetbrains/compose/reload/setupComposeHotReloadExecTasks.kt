@@ -11,6 +11,7 @@ import org.gradle.jvm.toolchain.JvmVendorSpec
 import org.gradle.kotlin.dsl.register
 import org.gradle.kotlin.dsl.support.serviceOf
 import org.gradle.kotlin.dsl.withType
+import org.jetbrains.compose.reload.core.BuildSystem
 import org.jetbrains.compose.reload.core.HotReloadProperty
 import org.jetbrains.compose.reload.core.HotReloadProperty.DevToolsClasspath
 import org.jetbrains.kotlin.gradle.InternalKotlinGradlePluginApi
@@ -85,6 +86,7 @@ internal fun JavaExec.configureJavaExecTaskForHotReload(compilation: Provider<Ko
     project.providers.systemProperty("java.home").orNull?.let { javaHome ->
         systemProperty(HotReloadProperty.GradleJavaHome.key, javaHome)
     }
+    systemProperty(HotReloadProperty.BuildSystem.key, BuildSystem.Gradle.name)
     systemProperty(HotReloadProperty.GradleBuildRoot.key, project.rootDir.absolutePath)
     systemProperty(HotReloadProperty.GradleBuildProject.key, project.path)
     systemProperty(HotReloadProperty.GradleBuildTask.key, ToString(compileTaskName))
