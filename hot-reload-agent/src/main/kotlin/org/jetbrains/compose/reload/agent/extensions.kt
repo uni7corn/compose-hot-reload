@@ -10,7 +10,9 @@ interface ComposeReloadPremainExtension {
 
     companion object {
         fun load(): Sequence<ComposeReloadPremainExtension> {
-            return ServiceLoader.load(ComposeReloadPremainExtension::class.java).asSequence()
+            return ServiceLoader.load(
+                ComposeReloadPremainExtension::class.java, ClassLoader.getSystemClassLoader()
+            ).asSequence()
         }
     }
 }

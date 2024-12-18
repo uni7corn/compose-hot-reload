@@ -3,6 +3,7 @@ package org.jetbrains.compose.reload.tests
 import org.gradle.kotlin.dsl.create
 import org.gradle.testfixtures.ProjectBuilder
 import org.jetbrains.compose.reload.ComposeHotRun
+import org.jetbrains.compose.reload.core.HotReloadProperty.*
 import org.jetbrains.compose.reload.kotlinMultiplatformOrNull
 import org.jetbrains.compose.reload.utils.withRepositories
 import kotlin.test.Test
@@ -21,9 +22,10 @@ class RecompilerPropertiesTest {
 
         val hotRun = project.tasks.create<ComposeHotRun>("runHot")
 
-        assertEquals(project.rootDir.absolutePath, hotRun.systemProperties["compose.build.root"])
-        assertEquals(":", hotRun.systemProperties["compose.build.project"])
-        assertEquals("reloadJvmMainClasspath", hotRun.systemProperties["compose.build.compileTask"].toString())
+        assertEquals(project.rootDir.absolutePath, hotRun.systemProperties[GradleBuildRoot.key])
+        assertEquals(":", hotRun.systemProperties[GradleBuildProject.key])
+        assertEquals("reloadJvmMainClasspath", hotRun.systemProperties[GradleBuildTask.key].toString())
+        assertEquals(System.getProperty("java.home"), hotRun.systemProperties[GradleJavaHome.key].toString())
     }
 
     @Test
@@ -39,8 +41,8 @@ class RecompilerPropertiesTest {
 
         val hotRun = subproject.tasks.create<ComposeHotRun>("runHot")
 
-        assertEquals(subproject.rootDir.absolutePath, hotRun.systemProperties["compose.build.root"])
-        assertEquals(":foo", hotRun.systemProperties["compose.build.project"])
-        assertEquals("reloadJvmMainClasspath", hotRun.systemProperties["compose.build.compileTask"].toString())
+        assertEquals(subproject.rootDir.absolutePath, hotRun.systemProperties[GradleBuildRoot.key])
+        assertEquals(":foo", hotRun.systemProperties[GradleBuildProject.key])
+        assertEquals("reloadJvmMainClasspath", hotRun.systemProperties[GradleBuildTask.key].toString())
     }
 }

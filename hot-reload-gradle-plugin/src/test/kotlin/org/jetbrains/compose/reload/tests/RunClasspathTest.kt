@@ -2,14 +2,8 @@ package org.jetbrains.compose.reload.tests
 
 import org.gradle.testfixtures.ProjectBuilder
 import org.jetbrains.compose.reload.*
-import org.jetbrains.compose.reload.HOT_RELOAD_VERSION
-import org.jetbrains.compose.reload.createComposeHotReloadRunClasspath
-import org.jetbrains.compose.reload.kotlinMultiplatformOrNull
-import org.jetbrains.compose.reload.utils.PathRegex
-import org.jetbrains.compose.reload.utils.evaluate
-import org.jetbrains.compose.reload.utils.main
-import org.jetbrains.compose.reload.utils.assertMatches
-import org.jetbrains.compose.reload.utils.withRepositories
+import org.jetbrains.compose.reload.core.HOT_RELOAD_VERSION
+import org.jetbrains.compose.reload.utils.*
 import org.junit.jupiter.api.Test
 
 class RunClasspathTest {
@@ -53,14 +47,10 @@ class RunClasspathTest {
         consumer.evaluate()
 
         consumer.kotlinMultiplatformOrNull!!.run {
-            val classpath = jvm().compilations.main.createComposeHotReloadRunClasspath()
+            val classpath = jvm().compilations.main.applicationClasspath
             classpath.assertMatches(
-                PathRegex(".*/consumer/.*"),
-                PathRegex(".*/producer/build/classes/kotlin/jvm/main"),
-                PathRegex(".*/producer/build/processedResources/jvm/main"),
-                PathRegex(".*/hot-reload-runtime-api-jvm.*\\.jar"),
-                PathRegex(".*/hot-reload-runtime-jvm-$HOT_RELOAD_VERSION-dev.jar"),
-                PathRegex(".*/hot-reload-orchestration-$HOT_RELOAD_VERSION.jar"),
+                PathRegex(".*/consumer/build/run/jvmMain/classes"),
+                *hotReloadDependencies,
                 PathRegex(".*/userHome/.*") // Transitive maven dependencies
             )
         }
@@ -106,13 +96,10 @@ class RunClasspathTest {
         consumer.evaluate()
 
         consumer.kotlinMultiplatformOrNull!!.run {
-            val classpath = jvm().compilations.main.createComposeHotReloadRunClasspath()
+            val classpath = jvm().compilations.main.applicationClasspath
             classpath.assertMatches(
-                PathRegex(".*/consumer/.*"),
-                PathRegex(".*/producer/build/libs/producer-jvm.jar"), // Now we resolve against the .jar
-                PathRegex(".*/hot-reload-runtime-api-jvm.*\\.jar"),
-                PathRegex(".*/hot-reload-runtime-jvm-$HOT_RELOAD_VERSION-dev.jar"),
-                PathRegex(".*/hot-reload-orchestration-$HOT_RELOAD_VERSION.jar"),
+                PathRegex(".*/consumer/build/run/jvmMain/classes"),
+                *hotReloadDependencies,
                 PathRegex(".*/userHome/.*") // Transitive maven dependencies
             )
         }
@@ -125,13 +112,19 @@ class RunClasspathTest {
         project.plugins.apply("org.jetbrains.kotlin.jvm")
         project.plugins.apply(ComposeHotReloadPlugin::class.java)
 
-        project.kotlinJvmOrNull!!.target.compilations.main.createComposeHotReloadRunClasspath().assertMatches(
-            PathRegex(".*/build/classes/.*"),
-            PathRegex(".*/build/resources/.*"),
+        project.kotlinJvmOrNull!!.target.compilations.main.applicationClasspath.assertMatches(
+            PathRegex(".*/build/run/Main/classes"),
+            *hotReloadDependencies,
             PathRegex(".*/userHome/.*"), // Transitive maven dependencies
-            PathRegex(".*/hot-reload-runtime-api-jvm.*\\.jar"),
-            PathRegex(".*/hot-reload-runtime-jvm-$HOT_RELOAD_VERSION-dev.jar"),
-            PathRegex(".*/hot-reload-orchestration-$HOT_RELOAD_VERSION.jar"),
         )
     }
 }
+
+private val hotReloadDependencies: Array<FileMatcher> = arrayOf(
+    PathRegex(".*/hot-reload-agent-$HOT_RELOAD_VERSION.jar"),
+    PathRegex(".*/hot-reload-analysis-$HOT_RELOAD_VERSION.jar"),
+    PathRegex(".*/hot-reload-core-$HOT_RELOAD_VERSION.jar"),
+    PathRegex(".*/hot-reload-orchestration-$HOT_RELOAD_VERSION.jar"),
+    PathRegex(".*/hot-reload-runtime-api-jvm-$HOT_RELOAD_VERSION.jar"),
+    PathRegex(".*/hot-reload-runtime-jvm-$HOT_RELOAD_VERSION-dev.jar"),
+)

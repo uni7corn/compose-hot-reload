@@ -14,9 +14,7 @@ import androidx.compose.ui.window.WindowState
 import androidx.compose.ui.window.singleWindowApplication
 import org.jetbrains.compose.reload.DevelopmentEntryPoint
 import org.jetbrains.compose.reload.InternalHotReloadApi
-import java.lang.invoke.MethodHandle
-import java.lang.invoke.MethodHandles
-import java.lang.invoke.MethodType.methodType
+import org.jetbrains.compose.reload.core.HotReloadEnvironment
 import kotlin.time.Duration.Companion.minutes
 
 @OptIn(InternalHotReloadApi::class)
@@ -58,7 +56,8 @@ internal fun main(args: Array<String>) {
             alwaysOnTop = true,
             state = WindowState(
                 position = WindowPosition.Aligned(alignment = TopEnd),
-                size = DpSize(annotation.windowWidth.dp, annotation.windowHeight.dp)),
+                size = DpSize(annotation.windowWidth.dp, annotation.windowHeight.dp)
+            ),
         ) {
             JvmDevelopmentEntryPoint {
                 invokeUI(resolvedClass, funName)

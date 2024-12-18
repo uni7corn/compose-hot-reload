@@ -17,7 +17,7 @@ internal data class HotReloadState(
             append("{ ")
             append("iteration=$iteration, ")
             append("key=$key, ")
-            if(error != null) append("error=${error.message}, ")
+            if (error != null) append("error=${error.message}, ")
             append(" }")
         }
     }
