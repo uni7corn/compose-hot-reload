@@ -54,5 +54,6 @@ suspend fun HotReloadTestFixture.sendTestEvent(
     return sendMessage(event) {
         if(await == null) awaitAck(event)
         else this.await(event)
+        sync()
     }
 }

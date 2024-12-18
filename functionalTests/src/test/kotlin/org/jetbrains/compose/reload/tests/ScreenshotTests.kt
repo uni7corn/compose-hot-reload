@@ -259,6 +259,53 @@ class ScreenshotTests {
         fixture.checkScreenshot("1-afterLambdaEngaged")
     }
 
+    @MinKotlinVersion("2.1.0-beta")
+    @HotReloadTest
+    @DefaultSettingsGradleKts
+    @DefaultBuildGradleKts
+    @TestOnlyLatestVersions
+    fun `test - change lambda from non-capturing to capturing - wrapper`(
+        fixture: HotReloadTestFixture
+    ) = fixture.runTest {
+        fixture initialSourceCode """
+            import androidx.compose.foundation.layout.*
+            import androidx.compose.runtime.*
+            import org.jetbrains.compose.reload.underTest.*
+            
+            @Composable fun Wrapper(child: @Composable () -> Unit) {
+                child()
+            }
+            
+            @Composable fun Actor(
+                onEvent: () -> Unit, 
+                child: @Composable () -> Unit,
+            ) {
+                onTestEvent { onEvent() }
+                child()
+            }
+            
+            fun main() = underTestApplication {
+                var state by remember { mutableStateOf(0) }
+                Wrapper {
+                    Actor(onEvent = { /* lambda body */ }) {
+                        TestText("%state")
+                     }
+                }
+            }
+            """.trimIndent().replace("%", "$")
+
+        fixture.checkScreenshot("0-before-0")
+
+        fixture.sendTestEvent()
+        fixture.checkScreenshot("1-afterEventWithoutAction-0")
+
+        fixture.replaceSourceCodeAndReload("/* lambda body */", "state++")
+        fixture.checkScreenshot("2-afterLambdaEngaged-0")
+
+        fixture.sendTestEvent()
+        fixture.checkScreenshot("3-afterEventWithLambdaEngaged-1")
+    }
+
     @HotReloadTest
     @DefaultSettingsGradleKts
     @DefaultBuildGradleKts

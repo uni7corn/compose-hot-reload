@@ -156,7 +156,6 @@ class TransactionScope(
     ) {
         replaceSourceCode(sourceFile, oldValue, newValue)
         awaitReload()
-
     }
 
     fun replaceSourceCode(
