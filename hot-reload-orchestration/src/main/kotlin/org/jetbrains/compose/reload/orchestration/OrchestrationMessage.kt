@@ -1,5 +1,6 @@
 package org.jetbrains.compose.reload.orchestration
 
+import org.jetbrains.compose.reload.core.WindowId
 import java.io.File
 import java.io.Serializable
 import java.util.*
@@ -38,9 +39,33 @@ public sealed class OrchestrationMessage : Serializable {
     }
 
     /**
-     * Indicates that the 'Gradle Daemon' which is listening for changed source code, then recompiling is ready.
+     * Indicates that the 'recompiler' is ready to receive requests.
+     * If the build is continuous, then this is sent by the Gradle daemon which gets alive.
+     * If the build is not continuous, then the message will be sent once the agent is ready to
+     * handle recompile requests.
+     *
+     * Note: This message can be sent multiple times!
      */
-    public class GradleDaemonReady : OrchestrationMessage()
+    public class RecompilerReady : OrchestrationMessage()
+
+    /**
+     * If the compilation is not setup 'continuously', then a [RecompileRequest] will signal to
+     * start a compile-step potentially leading to a reload (if the classes have changed)
+     */
+    public class RecompileRequest : OrchestrationMessage()
+
+    /**
+     * Response to a given [RecompileRequest].
+     * The exitCode is optional, as it may happen that the process gets interrupted.
+     */
+    public class RecompileResult(
+        public val recompileRequestId: UUID,
+        /**
+         * The exitCode of the recompilation process, or null if the process failed to launch or
+         * was interrupted before finishing.
+         */
+        public val exitCode: Int?
+    ) : OrchestrationMessage()
 
     /**
      * Signals to the application (agent) that it should reload the provided classes.
@@ -60,7 +85,8 @@ public sealed class OrchestrationMessage : Serializable {
     public data class ReloadClassesResult(
         val reloadRequestId: UUID,
         val isSuccess: Boolean,
-        val errorMessage: String? = null
+        val errorMessage: String? = null,
+        val errorStacktrace: List<StackTraceElement>? = null,
     ) : OrchestrationMessage()
 
     /**
@@ -101,11 +127,36 @@ public sealed class OrchestrationMessage : Serializable {
     }
 
     /**
+     * Noop empty message used to ping, or sync with the application.
+     */
+    public class Ping() : OrchestrationMessage()
+
+    /**
+     * Acknowledgement for a given message.
+     * Note: There is no guarantee for acks, this message can be used by tooling or in tests if needed
+     */
+    public data class Ack(
+        val acknowledgedMessageId: UUID
+    ) : OrchestrationMessage()
+
+    /**
      * An event sent for testing purposes:
      * For example, integration tests will send such payloads to communicate with
      * the 'application under test'
      */
     public data class TestEvent(val payload: Any?) : OrchestrationMessage()
+
+    public data class ApplicationWindowPositioned(
+        val windowId: WindowId,
+        val x: Int,
+        val y: Int,
+        val width: Int,
+        val height: Int,
+    ) : OrchestrationMessage()
+
+    public data class ApplicationWindowGone(
+        val windowId: WindowId
+    ) : OrchestrationMessage()
 
     /**
      * Sent once the UI was rendered
@@ -115,14 +166,28 @@ public sealed class OrchestrationMessage : Serializable {
      * @param iteration How often was the UI already re-rendered
      */
     public data class UIRendered(
+        val windowId: WindowId?,
         val reloadRequestId: UUID?,
         val iteration: Int,
     ) : OrchestrationMessage()
 
     public class UIException(
+        public val windowId: WindowId?,
         public val message: String?,
         public val stacktrace: List<StackTraceElement>
     ) : OrchestrationMessage()
+
+
+    /**
+     * Will try to clean the composition (all remembered values will be discarded)
+     */
+    public class CleanCompositionRequest : OrchestrationMessage()
+
+    /**
+     * Will try to re-run all failed compositions
+     */
+    public class RetryFailedCompositionRequest() : OrchestrationMessage()
+
 
     /* Base implementation */
 

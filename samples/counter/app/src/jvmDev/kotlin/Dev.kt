@@ -1,3 +1,4 @@
+import androidx.compose.foundation.layout.Column
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import io.sellmair.evas.Events
@@ -12,6 +13,8 @@ fun AppEntryPoint() {
     val states = remember { States() }
 
     installEvas(events, states) {
-        App()
+        Column {
+            App()
+        }
     }
 }

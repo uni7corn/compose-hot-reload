@@ -9,6 +9,7 @@ import io.sellmair.evas.States
 import io.sellmair.evas.compose.installEvas
 import org.jetbrains.compose.reload.DevelopmentEntryPoint
 import org.slf4j.LoggerFactory
+import java.awt.Color
 import java.io.File
 
 fun main() {
@@ -27,6 +28,7 @@ fun main() {
                 width = 600.dp, height = 800.dp, position = WindowPosition.Aligned(Alignment.TopEnd)
             )
         ) {
+            window.background = Color.WHITE
             installEvas(events, states) {
                 DevelopmentEntryPoint {
                     App()

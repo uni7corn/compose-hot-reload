@@ -1,3 +1,5 @@
+@file:Suppress("NullableBooleanElvis")
+
 package org.jetbrains.compose.reload
 
 import org.gradle.api.Project
@@ -9,13 +11,14 @@ import org.gradle.jvm.toolchain.JvmVendorSpec
 import org.gradle.kotlin.dsl.register
 import org.gradle.kotlin.dsl.support.serviceOf
 import org.gradle.kotlin.dsl.withType
-import org.jetbrains.compose.reload.orchestration.ORCHESTRATION_SERVER_PORT_PROPERTY_KEY
+import org.jetbrains.compose.reload.core.BuildSystem
+import org.jetbrains.compose.reload.core.HotReloadProperty
+import org.jetbrains.compose.reload.core.HotReloadProperty.DevToolsClasspath
 import org.jetbrains.kotlin.gradle.InternalKotlinGradlePluginApi
 import org.jetbrains.kotlin.gradle.plugin.KotlinCompilation
 import org.jetbrains.kotlin.gradle.plugin.KotlinTarget
 import org.jetbrains.kotlin.gradle.targets.jvm.KotlinJvmTarget
 import org.jetbrains.kotlin.gradle.targets.jvm.tasks.KotlinJvmRun
-import org.jetbrains.kotlin.konan.file.File
 
 
 internal fun Project.setupComposeHotReloadExecTasks() {
@@ -46,13 +49,8 @@ internal fun JavaExec.configureJavaExecTaskForHotReload(compilation: Provider<Ko
         })
     }
 
-
-    /* We do rely on the hotswap-agent */
-    inputs.files(project.composeHotReloadAgentConfiguration.files)
-    dependsOn(project.composeHotReloadAgentConfiguration.buildDependencies)
-
-    setClasspath(project.files { compilation.get().createComposeHotReloadRunClasspath() })
-
+    classpath = project.files(compilation.map { it.applicationClasspath })
+    systemProperty(HotReloadProperty.HotClasspath.key, ToString(compilation.map { it.hotApplicationClasspath.asPath }))
 
     /* Setup debugging capabilities */
     run {
@@ -65,10 +63,34 @@ internal fun JavaExec.configureJavaExecTaskForHotReload(compilation: Provider<Ko
     /* Support headless mode */
     run {
         if (project.isHeadless.orNull == true) {
-            systemProperty("compose.reload.headless", true)
+            systemProperty(HotReloadProperty.IsHeadless.key, true)
             systemProperty("apple.awt.UIElement", true)
         }
     }
+
+    /* Configure Pid File */
+    systemProperty(
+        HotReloadProperty.PidFile.key,
+        ToString(compilation.map { compilation -> compilation.runBuildFile("$name.pid").get().asFile.absolutePath })
+    )
+
+    /* Configure dev tooling window */
+    systemProperty(HotReloadProperty.DevToolsEnabled.key, project.showDevTooling.orNull ?: true)
+    if (project.showDevTooling.orElse(true).get()) {
+        inputs.files(project.composeHotReloadDevToolsConfiguration)
+        systemProperty(DevToolsClasspath.key, project.composeHotReloadDevToolsConfiguration.asPath)
+    }
+
+    /* Setup re-compiler */
+    val compileTaskName = compilation.map { composeReloadHotClasspathTaskName(it) }
+    project.providers.systemProperty("java.home").orNull?.let { javaHome ->
+        systemProperty(HotReloadProperty.GradleJavaHome.key, javaHome)
+    }
+    systemProperty(HotReloadProperty.BuildSystem.key, BuildSystem.Gradle.name)
+    systemProperty(HotReloadProperty.GradleBuildRoot.key, project.rootDir.absolutePath)
+    systemProperty(HotReloadProperty.GradleBuildProject.key, project.path)
+    systemProperty(HotReloadProperty.GradleBuildTask.key, ToString(compileTaskName))
+    systemProperty(HotReloadProperty.GradleBuildContinuous.key, project.isRecompileContinuous.orNull ?: true)
 
 
     /* Generic JVM args for hot reload*/
@@ -78,11 +100,9 @@ internal fun JavaExec.configureJavaExecTaskForHotReload(compilation: Provider<Ko
             jvmArgs("-Xlog:redefine+class*=info")
         }
 
-        /* Setup the hotswap agent (using autoHotswap) */
-        jvmArgs(
-            "-javaagent:" +
-                    project.composeHotReloadAgentConfiguration.files.joinToString(File.pathSeparator)
-        )
+        inputs.files(project.composeHotReloadAgentConfiguration.files)
+        dependsOn(project.composeHotReloadAgentConfiguration.buildDependencies)
+        jvmArgs("-javaagent:" + project.composeHotReloadAgentJar().asPath)
     }
 
     /* JBR args */
@@ -92,42 +112,17 @@ internal fun JavaExec.configureJavaExecTaskForHotReload(compilation: Provider<Ko
 
         /* Enable DCEVM enhanced hotswap capabilities */
         jvmArgs("-XX:+AllowEnhancedClassRedefinition")
-
-        /* We're providing the HotswapAgent by providing the har from 'hotswapAgentConfiguration' */
-        jvmArgs("-XX:HotswapAgent=external")
     }
 
-    /* Support for non jbr */
-    if (!project.composeHotReloadExtension.useJetBrainsRuntime.get()) {
-
-        /* Required for Hotswap Agent on non JBR */
-        jvmArgs("--add-opens=java.base/java.lang=ALL-UNNAMED")
-        jvmArgs("--add-opens=java.base/java.ref=ALL-UNNAMED")
-        jvmArgs("--add-opens=java.base/jdk.internal.loader=ALL-UNNAMED")
-        jvmArgs("--add-opens=java.base/java.io=ALL-UNNAMED")
-        jvmArgs("--add-opens=java.desktop/com.sun.beans=ALL-UNNAMED")
-        jvmArgs("--add-opens=java.desktop/com.sun.beans.introspect=ALL-UNNAMED")
-        jvmArgs("--add-opens=java.desktop/com.sun.beans.util=ALL-UNNAMED")
-    }
 
     /* Setup orchestration */
     run {
         project.orchestrationPort.orNull?.let { port ->
             logger.quiet("Using orchestration server port: $port")
-            systemProperty(ORCHESTRATION_SERVER_PORT_PROPERTY_KEY, port.toInt())
+            systemProperty(HotReloadProperty.OrchestrationPort.key, port.toInt())
         }
     }
 
-
-    /* Setup re-compiler */
-    val compileTaskName = compilation.map { composeReloadHotClasspathTaskName(it) }
-    systemProperty("compose.build.root", project.rootDir.absolutePath)
-    systemProperty("compose.build.project", project.path)
-    systemProperty("compose.build.compileTask", ToString(compileTaskName))
-
-    doFirst {
-        systemProperty("compose.build.compileTask", compileTaskName.get())
-    }
 
     mainClass.value(
         project.providers.gradleProperty("mainClass")
@@ -143,7 +138,6 @@ internal fun JavaExec.configureJavaExecTaskForHotReload(compilation: Provider<Ko
         logger.info("Classpath:\n${classpath.joinToString("\n")}")
     }
 }
-
 
 private class ToString(val property: Provider<String>) {
     override fun toString(): String {
