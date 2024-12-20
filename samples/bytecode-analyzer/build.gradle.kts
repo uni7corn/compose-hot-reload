@@ -19,8 +19,8 @@ kotlin {
         implementation("org.jetbrains.compose:hot-reload-core:1.0.0-dev.32.1")
         implementation("org.jetbrains.compose:hot-reload-analysis:1.0.0-dev.32.1")
 
-        implementation("io.sellmair:evas:1.1.0")
-        implementation("io.sellmair:evas-compose:1.1.0")
+        implementation("io.sellmair:evas:1.2.0-RC")
+        implementation("io.sellmair:evas-compose:1.2.0-RC")
         implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.9.0")
         implementation("org.jetbrains.kotlinx:kotlinx-coroutines-swing:1.9.0")
         implementation("ch.qos.logback:logback-classic:1.5.9")
