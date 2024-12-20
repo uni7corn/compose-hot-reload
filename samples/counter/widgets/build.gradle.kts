@@ -16,8 +16,8 @@ kotlin {
     jvm()
 
     sourceSets.jvmMain.dependencies {
-        implementation("io.sellmair:evas:1.2.0-RC")
-        implementation("io.sellmair:evas-compose:1.2.0-RC")
+        implementation("io.sellmair:evas:1.2.0")
+        implementation("io.sellmair:evas-compose:1.2.0")
         implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.9.0")
         implementation(compose.desktop.currentOs)
         implementation(compose.foundation)

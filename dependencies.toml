@@ -4,14 +4,13 @@ firework = "2.1.0-firework.32"
 compose = "1.7.3"
 coroutines = "1.10.0"
 kotlinxDatetime = "0.6.1"
-ktor = "3.0.1"
 slf4j = "2.0.16"
 androidGradlePlugin = "8.7.1"
 junit = "5.11.3"
 javassist = "3.30.2-GA"
 logback = "1.5.9"
 asm = "9.7.1"
-evas = "1.2.0-RC"
+evas = "1.2.0"
 
 [libraries]
 coroutines-core = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-core", version.ref = "coroutines" }

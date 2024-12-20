@@ -16,8 +16,8 @@ kotlin {
     jvmToolchain(17)
 
     sourceSets.commonMain.dependencies {
-        implementation("io.sellmair:evas:1.2.0-RC")
-        implementation("io.sellmair:evas-compose:1.2.0-RC")
+        implementation("io.sellmair:evas:1.2.0")
+        implementation("io.sellmair:evas-compose:1.2.0")
         implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.9.0")
         implementation("ch.qos.logback:logback-classic:1.5.9")
         implementation(compose.desktop.currentOs)
