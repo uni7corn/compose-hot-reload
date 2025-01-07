@@ -10,6 +10,7 @@ import kotlinx.coroutines.launch
 import org.jetbrains.compose.reload.agent.ComposeHotReloadAgent
 import org.jetbrains.compose.reload.agent.send
 import org.jetbrains.compose.reload.core.WindowId
+import org.jetbrains.compose.reload.core.createLogger
 import org.jetbrains.compose.reload.orchestration.OrchestrationMessage
 import org.jetbrains.compose.reload.orchestration.OrchestrationMessage.ApplicationWindowPositioned
 import org.jetbrains.compose.reload.orchestration.OrchestrationMessage.ClientConnected
@@ -23,6 +24,8 @@ import java.util.*
 
 private val windowsIds = WeakHashMap<Window, WindowId>()
 
+private val logger = createLogger()
+
 @Composable
 @Suppress("INVISIBLE_REFERENCE")
 internal fun startWindowManager(): WindowId? {
@@ -33,44 +36,68 @@ internal fun startWindowManager(): WindowId? {
         if (window == null || windowId == null) return@LaunchedEffect
 
         fun broadcastWindowPosition() {
-            ApplicationWindowPositioned(windowId, window.x, window.y, window.width, window.height).send()
+            ApplicationWindowPositioned(
+                windowId, window.x, window.y, window.width, window.height, isAlwaysOnTop = window.isAlwaysOnTop
+            ).send()
         }
 
         broadcastWindowPosition()
 
         val windowListener = object : WindowAdapter() {
             override fun windowIconified(e: WindowEvent?) {
+                logger.debug("$windowId: $windowId: windowIconified")
                 OrchestrationMessage.ApplicationWindowGone(windowId).send()
             }
 
             override fun windowDeiconified(e: WindowEvent?) {
+                logger.debug("$windowId: windowDeiconified")
                 broadcastWindowPosition()
             }
 
             override fun windowClosed(e: WindowEvent?) {
+                logger.debug("$windowId: windowClosed")
                 OrchestrationMessage.ApplicationWindowGone(windowId).send()
+            }
+
+            override fun windowGainedFocus(e: WindowEvent?) {
+                logger.debug("$windowId: windowGainedFocus")
+                OrchestrationMessage.ApplicationWindowGainedFocus(windowId).send()
+                super.windowGainedFocus(e)
+            }
+
+            override fun windowActivated(e: WindowEvent?) {
+                logger.debug("$windowId: windowActivated")
+                broadcastWindowPosition()
+                super.windowActivated(e)
             }
         }
 
         val componentListener = object : ComponentAdapter() {
             override fun componentHidden(e: ComponentEvent?) {
+                logger.debug("$windowId: componentHidden")
                 OrchestrationMessage.ApplicationWindowGone(windowId).send()
             }
 
+
             override fun componentShown(e: ComponentEvent?) {
+                logger.debug("$windowId: componentShown")
                 broadcastWindowPosition()
             }
 
             override fun componentResized(e: ComponentEvent?) {
+                logger.debug("$windowId: componentResized")
                 broadcastWindowPosition()
             }
 
             override fun componentMoved(e: ComponentEvent?) {
+                logger.debug("$windowId: componentMoved")
                 broadcastWindowPosition()
             }
         }
 
         window.addWindowListener(windowListener)
+        window.addWindowStateListener(windowListener)
+        window.addWindowFocusListener(windowListener)
         window.addComponentListener(componentListener)
 
         launch {

@@ -152,11 +152,16 @@ public sealed class OrchestrationMessage : Serializable {
         val y: Int,
         val width: Int,
         val height: Int,
+        val isAlwaysOnTop: Boolean,
     ) : OrchestrationMessage()
 
     public data class ApplicationWindowGone(
         val windowId: WindowId
     ) : OrchestrationMessage()
+
+    public data class ApplicationWindowGainedFocus(
+        val windowId: WindowId
+    ): OrchestrationMessage()
 
     /**
      * Sent once the UI was rendered

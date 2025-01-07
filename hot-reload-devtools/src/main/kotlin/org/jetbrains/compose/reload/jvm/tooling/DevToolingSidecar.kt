@@ -26,13 +26,20 @@ import androidx.compose.ui.window.WindowPosition
 import androidx.compose.ui.window.WindowState
 import io.sellmair.evas.compose.composeValue
 import kotlinx.coroutines.delay
+import org.jetbrains.compose.reload.core.WindowId
+import org.jetbrains.compose.reload.core.createLogger
 import org.jetbrains.compose.reload.jvm.tooling.states.ReloadState
+import org.jetbrains.compose.reload.orchestration.OrchestrationMessage.ApplicationWindowGainedFocus
 import kotlin.time.Duration.Companion.milliseconds
+
+private val logger = createLogger()
 
 private val DevToolingSidecarShape = RoundedCornerShape(8.dp)
 
 @Composable
-fun ApplicationScope.DevToolingSidecar(windowState: WindowState) {
+fun ApplicationScope.DevToolingSidecar(
+    windowId: WindowId, windowState: WindowState, isAlwaysOnTop: Boolean
+) {
     val animationDuration = 512
     var isExpanded by remember { mutableStateOf(false) }
     var sideCarWidth by remember { mutableStateOf(if (isExpanded) 512.dp else 64.dp) }
@@ -84,9 +91,16 @@ fun ApplicationScope.DevToolingSidecar(windowState: WindowState) {
         transparent = true,
         resizable = false,
         focusable = true,
-        alwaysOnTop = true
+        alwaysOnTop = isAlwaysOnTop
     ) {
         window.background = java.awt.Color(0, 0, 0, 0)
+
+        invokeWhenMessageReceived<ApplicationWindowGainedFocus> { event ->
+            if (event.windowId == windowId) {
+                logger.debug("$windowId: Sidecar window 'toFront()'")
+                window.toFront()
+            }
+        }
 
         Row(
             modifier = Modifier.fillMaxSize(),
@@ -112,16 +126,17 @@ fun ApplicationScope.DevToolingSidecar(windowState: WindowState) {
                 contentAlignment = Alignment.TopEnd,
             ) { expandedState ->
                 if (!expandedState) {
-                        IconButton(
-                            onClick = { isExpanded = true },
-                            modifier = Modifier
-                                .animateEnterExit(
-                                    enter = fadeIn(tween(220)),
-                                    exit = fadeOut(tween(50)))
-                                .size(32.dp)
-                        ) {
-                            ComposeLogo(Modifier.size(24.dp))
-                        }
+                    IconButton(
+                        onClick = { isExpanded = true },
+                        modifier = Modifier
+                            .animateEnterExit(
+                                enter = fadeIn(tween(220)),
+                                exit = fadeOut(tween(50))
+                            )
+                            .size(32.dp)
+                    ) {
+                        ComposeLogo(Modifier.size(24.dp))
+                    }
 
                 } else {
                     Column {

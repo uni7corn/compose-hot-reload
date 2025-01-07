@@ -14,19 +14,21 @@ import org.jetbrains.compose.reload.orchestration.OrchestrationMessage
 import org.jetbrains.compose.reload.orchestration.asFlow
 
 data class WindowsState(
-    val windows: Map<WindowId, WindowState>
+    val windows: Map<WindowId, WindowState>,
+    val alwaysOnTop: Map<WindowId, Boolean>
 ) : State {
 
     companion object Key : State.Key<WindowsState> {
-        override val default: WindowsState = WindowsState(windows = emptyMap())
+        override val default: WindowsState = WindowsState(windows = emptyMap(), alwaysOnTop = emptyMap())
     }
 }
 
 fun CoroutineScope.launchWindowsState() = launchState(WindowsState.Key) {
     val windows = mutableMapOf<WindowId, WindowState>()
+    val alwaysOnTop = mutableMapOf<WindowId, Boolean>()
 
     suspend fun update() {
-        WindowsState(windows = windows.toMap()).emit()
+        WindowsState(windows = windows.toMap(), alwaysOnTop = alwaysOnTop.toMap()).emit()
     }
 
     orchestration.asFlow().collect { message ->
@@ -36,6 +38,7 @@ fun CoroutineScope.launchWindowsState() = launchState(WindowsState.Key) {
                 position = WindowPosition(message.x.dp, message.y.dp),
                 size = DpSize(message.width.dp, message.height.dp)
             )
+            alwaysOnTop[message.windowId] = message.isAlwaysOnTop
             update()
         }
 

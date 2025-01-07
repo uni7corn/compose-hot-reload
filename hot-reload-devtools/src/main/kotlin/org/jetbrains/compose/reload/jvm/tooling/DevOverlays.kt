@@ -10,9 +10,9 @@ import org.jetbrains.compose.reload.jvm.tooling.states.WindowsState
 
 @Composable
 fun ApplicationScope.DevOverlays() {
-    val windows = WindowsState.composeValue().windows
-    windows.forEach { (windowId, windowState) ->
-        DevToolingSidecar(windowState)
+    val windowsState = WindowsState.composeValue()
+    windowsState.windows.forEach { (windowId, windowState) ->
+        DevToolingSidecar(windowId, windowState, isAlwaysOnTop = windowsState.alwaysOnTop[windowId] == true)
         DevToolingErrorOverlay(windowId, windowState)
     }
 }
