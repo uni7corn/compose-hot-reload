@@ -1,6 +1,6 @@
 pluginManagement {
     plugins {
-        id("org.jetbrains.compose-hot-reload") version "1.0.0-dev.32.2"
+        id("org.jetbrains.compose-hot-reload") version "1.0.0-dev.33.1"
     }
 
     repositories {
@@ -11,8 +11,8 @@ pluginManagement {
     }
 
     plugins {
-        kotlin("multiplatform") version "2.1.0-firework.32"
-        kotlin("plugin.compose") version "2.1.0-firework.32"
+        kotlin("multiplatform") version "2.1.10-firework.33"
+        kotlin("plugin.compose") version "2.1.10-firework.33"
         id("org.jetbrains.compose") version "1.7.1"
     }
 }
