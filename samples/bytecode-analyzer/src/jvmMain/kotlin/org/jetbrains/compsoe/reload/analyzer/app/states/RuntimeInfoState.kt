@@ -5,6 +5,7 @@ import io.sellmair.evas.launchState
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
+import org.jetbrains.compose.reload.analysis.ClassInfo
 import org.jetbrains.compose.reload.analysis.RuntimeInfo
 import org.jetbrains.compose.reload.analysis.render
 import java.nio.file.Path
@@ -31,12 +32,13 @@ fun CoroutineScope.launchRuntimeInfoState() = launchState(
     while (true) {
         runCatching {
             val bytes = key.path.toFile().readBytes()
-            val info = RuntimeInfo(bytes) ?: run {
+            val classInfo = ClassInfo(bytes) ?: run {
                 RuntimeInfoState.Error(null, "Failed to parse runtime info").emit()
                 return@runCatching
             }
 
-            RuntimeInfoState.Result(info, info.render()).emit()
+            val runtimeInfo = RuntimeInfo(mapOf(classInfo.classId to classInfo))
+            RuntimeInfoState.Result(runtimeInfo, runtimeInfo.render()).emit()
         }.onFailure { exception ->
             RuntimeInfoState.Error(exception).emit()
         }

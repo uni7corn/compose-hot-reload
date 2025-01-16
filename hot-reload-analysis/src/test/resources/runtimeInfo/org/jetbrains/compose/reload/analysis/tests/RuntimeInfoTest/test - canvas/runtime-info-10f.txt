@@ -38,16 +38,18 @@ FooKt {
         desc: (Landroidx/compose/runtime/Composer;I)V
         key: 857161579
         codeHash: 2724877903
-        dependencies: [
+        methodDependencies: [
             FooKt.App$lambda$3 (ILandroidx/compose/runtime/Composer;I)Lkotlin/Unit;
         ]
+        fieldDependencies: []
     
         RestartGroup {
             key: 857161579
             codeHash: 2079618684
-            dependencies: [
+            methodDependencies: [
                 FooKt.App$lambda$2$lambda$1$lambda$0 (Landroidx/compose/ui/graphics/drawscope/DrawScope;)Lkotlin/Unit;
             ]
+            fieldDependencies: []
         }
     }
     
@@ -55,15 +57,17 @@ FooKt {
         desc: (Landroidx/compose/ui/graphics/drawscope/DrawScope;)Lkotlin/Unit;
         key: null
         codeHash: 3684579625
-        dependencies: []
+        methodDependencies: []
+        fieldDependencies: []
     }
     
     App$lambda$3 {
         desc: (ILandroidx/compose/runtime/Composer;I)Lkotlin/Unit;
         key: null
         codeHash: 186677020
-        dependencies: [
+        methodDependencies: [
             FooKt.App (Landroidx/compose/runtime/Composer;I)V
         ]
+        fieldDependencies: []
     }
 }

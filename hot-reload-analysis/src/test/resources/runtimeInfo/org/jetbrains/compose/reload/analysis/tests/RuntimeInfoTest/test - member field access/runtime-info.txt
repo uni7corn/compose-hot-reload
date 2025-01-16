@@ -1,0 +1,114 @@
+/*
+ Original Code:
+*/
+
+// Foo.kt
+import androidx.compose.runtime.*
+
+class Bar {
+    val x = 42
+}
+
+val bar = Bar()
+
+@Composable
+fun Foo() {
+    remember { bar.x }
+}
+
+/*
+ Runtime Info:
+*/
+
+Bar {
+    val x: I
+    val $stable: I
+
+    <init> {
+        desc: ()V
+        key: null
+        codeHash: 460411085
+        methodDependencies: []
+        fieldDependencies: [
+            Bar.x I
+        ]
+    }
+    
+    getX {
+        desc: ()I
+        key: null
+        codeHash: 3935943372
+        methodDependencies: []
+        fieldDependencies: [
+            Bar.x I
+        ]
+    }
+    
+    <clinit> {
+        desc: ()V
+        key: null
+        codeHash: 2636274694
+        methodDependencies: []
+        fieldDependencies: []
+    }
+}
+
+FooKt {
+    val bar: LBar;
+
+    getBar {
+        desc: ()LBar;
+        key: null
+        codeHash: 886555225
+        methodDependencies: []
+        fieldDependencies: [
+            FooKt.bar LBar;
+        ]
+    }
+    
+    Foo {
+        desc: (Landroidx/compose/runtime/Composer;I)V
+        key: -965539098
+        codeHash: 1869626530
+        methodDependencies: [
+            FooKt.Foo$lambda$1 (ILandroidx/compose/runtime/Composer;I)Lkotlin/Unit;
+        ]
+        fieldDependencies: []
+    
+        RestartGroup {
+            key: -965539098
+            codeHash: 3757456798
+            methodDependencies: []
+            fieldDependencies: []
+    
+            ReplaceGroup {
+                key: 1849434622
+                codeHash: 880027027
+                methodDependencies: []
+                fieldDependencies: [
+                    FooKt.bar LBar;
+                ]
+            }
+        }
+    }
+    
+    Foo$lambda$1 {
+        desc: (ILandroidx/compose/runtime/Composer;I)Lkotlin/Unit;
+        key: null
+        codeHash: 3190275455
+        methodDependencies: [
+            FooKt.Foo (Landroidx/compose/runtime/Composer;I)V
+        ]
+        fieldDependencies: []
+    }
+    
+    <clinit> {
+        desc: ()V
+        key: null
+        codeHash: 1891533309
+        methodDependencies: []
+        fieldDependencies: [
+            FooKt.bar LBar;
+        ]
+    }
+}

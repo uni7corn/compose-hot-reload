@@ -5,10 +5,11 @@
 // Foo.kt
 import androidx.compose.runtime.*
 
+val x = 42
+
 @Composable
 fun Foo() {
-    remember { "Hello" }
-    remember { 1902 }
+    remember { x }
 }
 
 /*
@@ -16,38 +17,45 @@ fun Foo() {
 */
 
 FooKt {
+    val x: I
+
+    getX {
+        desc: ()I
+        key: null
+        codeHash: 3555685996
+        methodDependencies: []
+        fieldDependencies: [
+            FooKt.x I
+        ]
+    }
+    
     Foo {
         desc: (Landroidx/compose/runtime/Composer;I)V
         key: -965539098
-        codeHash: 1773621320
+        codeHash: 1869626530
         methodDependencies: [
-            FooKt.Foo$lambda$2 (ILandroidx/compose/runtime/Composer;I)Lkotlin/Unit;
+            FooKt.Foo$lambda$1 (ILandroidx/compose/runtime/Composer;I)Lkotlin/Unit;
         ]
         fieldDependencies: []
     
         RestartGroup {
             key: -965539098
-            codeHash: 3034049798
+            codeHash: 3757456798
             methodDependencies: []
             fieldDependencies: []
     
             ReplaceGroup {
                 key: 1849434622
-                codeHash: 498681312
+                codeHash: 2314845980
                 methodDependencies: []
-                fieldDependencies: []
-            }
-    
-            ReplaceGroup {
-                key: 1849434622
-                codeHash: 2457322313
-                methodDependencies: []
-                fieldDependencies: []
+                fieldDependencies: [
+                    FooKt.x I
+                ]
             }
         }
     }
     
-    Foo$lambda$2 {
+    Foo$lambda$1 {
         desc: (ILandroidx/compose/runtime/Composer;I)Lkotlin/Unit;
         key: null
         codeHash: 3190275455
@@ -55,5 +63,15 @@ FooKt {
             FooKt.Foo (Landroidx/compose/runtime/Composer;I)V
         ]
         fieldDependencies: []
+    }
+    
+    <clinit> {
+        desc: ()V
+        key: null
+        codeHash: 2373262093
+        methodDependencies: []
+        fieldDependencies: [
+            FooKt.x I
+        ]
     }
 }

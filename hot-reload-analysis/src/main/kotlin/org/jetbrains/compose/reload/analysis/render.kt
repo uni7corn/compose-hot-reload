@@ -17,11 +17,19 @@ import org.objectweb.asm.tree.MethodNode
 
 
 fun RuntimeInfo.render(): String = buildString {
-    scopes.groupBy { it.methodId.classId }.toSortedMap().forEach { (className, scopes) ->
-        appendLine("$className {")
-        withIndent {
-            appendLine(scopes.joinToString("\n\n") { it.render() })
+    classes.toSortedMap().forEach { (classId, classInfo) ->
+        appendLine("$classId {")
+
+        if (classInfo.fields.isNotEmpty()) {
+            appendLine(classInfo.fields.values.joinToString("\n") { it.render() }.indent())
+            appendLine()
         }
+
+        withIndent {
+            appendLine(classInfo.methods.values.joinToString("\n\n") { it.render() })
+        }
+
+
         appendLine("}")
         appendLine()
     }
@@ -43,12 +51,22 @@ internal fun RuntimeScopeInfo.render(): String = buildString {
 
         appendLine("key: ${tree.group?.key}")
         appendLine("codeHash: ${hash.value}")
-        if (dependencies.isEmpty()) {
-            appendLine("dependencies: []")
+        if (methodDependencies.isEmpty()) {
+            appendLine("methodDependencies: []")
         } else {
-            appendLine("dependencies: [")
+            appendLine("methodDependencies: [")
             withIndent {
-                append(dependencies.joinToString(",\n"))
+                append(methodDependencies.joinToString(",\n"))
+            }
+            appendLine("]")
+        }
+
+        if (fieldDependencies.isEmpty()) {
+            appendLine("fieldDependencies: []")
+        } else {
+            appendLine("fieldDependencies: [")
+            withIndent {
+                append(fieldDependencies.joinToString(",\n"))
             }
             appendLine("]")
         }
@@ -62,6 +80,9 @@ internal fun RuntimeScopeInfo.render(): String = buildString {
 
     this += "}"
 }.trim()
+
+fun FieldInfo.render(): String = "val ${fieldId.fieldName}: ${fieldId.fieldDescriptor}"
+
 
 fun MethodNode.render(tokens: List<RuntimeInstructionToken>): String = buildString {
     appendLine("fun ${name}${desc} {")

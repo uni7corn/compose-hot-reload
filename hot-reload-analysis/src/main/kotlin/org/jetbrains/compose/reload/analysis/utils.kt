@@ -4,6 +4,10 @@ import java.nio.ByteBuffer
 import java.util.concurrent.atomic.AtomicReference
 import java.util.zip.Checksum
 
+internal fun Checksum.updateBoolean(value: Boolean) {
+    update(if (value) 1 else 0)
+}
+
 internal fun Checksum.updateInt(value: Int) {
     val buffer = ByteBuffer.allocate(4).putInt(value).array()
     update(buffer)
@@ -22,4 +26,9 @@ internal fun Checksum.updateLong(value: Long) {
 internal fun Checksum.updateDouble(value: Double) {
     val buffer = ByteBuffer.allocate(8).putDouble(value).array()
     update(buffer)
+}
+
+internal fun Checksum.updateString(value: String) {
+    updateInt(value.length)
+    update(value.encodeToByteArray())
 }

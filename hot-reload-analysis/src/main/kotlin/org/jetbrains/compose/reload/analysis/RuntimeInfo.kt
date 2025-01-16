@@ -3,33 +3,70 @@
 package org.jetbrains.compose.reload.analysis
 
 import org.jetbrains.compose.reload.core.withClosure
+import org.objectweb.asm.Opcodes
 import org.objectweb.asm.tree.ClassNode
 import org.objectweb.asm.tree.MethodNode
 
 data class RuntimeInfo(
-    val scopes: List<RuntimeScopeInfo>,
+    val classes: Map<ClassId, ClassInfo>,
+
     /**
      * Index from [MethodId] to the 'root scopes' belonging to this method id
      */
-    val methods: Map<MethodId, List<RuntimeScopeInfo>> = scopes.groupBy { info -> info.methodId },
+    val methods: Map<MethodId, List<RuntimeScopeInfo>> = classes.values.flatMap { it.methods.values }
+        .groupBy { info -> info.methodId },
 
     /**
      * Index from [ComposeGroupKey] to *all* scopes that are associated with this group.
      * (null as key means 'no known group')
      */
     val groups: Map<ComposeGroupKey?, List<RuntimeScopeInfo>> =
-        scopes.withClosure<RuntimeScopeInfo> { info -> info.children }
-            .groupBy { info -> info.tree.group }
-
+        classes.values.flatMap { it.methods.values }.withClosure<RuntimeScopeInfo> { info -> info.children }
+            .groupBy { info -> info.tree.group },
 )
 
-fun RuntimeInfo(bytecode: ByteArray): RuntimeInfo? {
-    return RuntimeInfo(ClassNode(bytecode))
+data class ClassInfo(
+    val classId: ClassId,
+    val fields: Map<FieldId, FieldInfo>,
+    val methods: Map<MethodId, RuntimeScopeInfo>
+)
+
+data class FieldInfo(
+    val fieldId: FieldId,
+    val isStatic: Boolean,
+    val initialValue: Any?,
+)
+
+fun ClassInfo(bytecode: ByteArray): ClassInfo? {
+    return ClassInfo(ClassNode(bytecode))
+}
+
+internal fun ClassInfo(classNode: ClassNode): ClassInfo? {
+    if (isIgnoredClassId(classNode.name)) return null
+    val classId = ClassId(classNode)
+
+    val methods = classNode.methods.mapNotNull { methodNode ->
+        MethodId(classNode, methodNode) to (RuntimeScopeInfo(classNode, methodNode) ?: return@mapNotNull null)
+    }.toMap()
+
+    val fields = classNode.fields.associate { fieldNode ->
+        FieldId(classNode, fieldNode) to FieldInfo(
+            fieldId = FieldId(classNode, fieldNode),
+            isStatic = fieldNode.access and (Opcodes.ACC_STATIC) != 0,
+            initialValue = fieldNode.value
+        )
+    }
+
+    return ClassInfo(
+        classId = classId,
+        fields = fields,
+        methods = methods
+    )
 }
 
 internal fun RuntimeInfo(classNode: ClassNode): RuntimeInfo? {
-    if (isIgnoredClassId(classNode.name)) return null
-    return RuntimeInfo(classNode.methods.mapNotNull { methodNode -> RuntimeScopeInfo(classNode, methodNode) })
+    val classInfo = ClassInfo(classNode) ?: return null
+    return RuntimeInfo(classes = mapOf(classInfo.classId to classInfo))
 }
 
 internal fun RuntimeScopeInfo(classNode: ClassNode, methodNode: MethodNode): RuntimeScopeInfo? {
@@ -38,16 +75,6 @@ internal fun RuntimeScopeInfo(classNode: ClassNode, methodNode: MethodNode): Run
     return createRuntimeScopeInfo(methodId, runtimeInstructionTree)
 }
 
-/**
- * Creates a new [RuntimeInfo] by updating [this] RuntimeInfo with 'new' scopes from [other]
- */
-operator fun RuntimeInfo?.plus(other: RuntimeInfo?): RuntimeInfo {
-    if (this == null) return other ?: RuntimeInfo(emptyList())
-    if (other == null) return this
-    val newMethods = this.methods + other.methods
-    val newScopes = newMethods.values.flatten()
-    return RuntimeInfo(newScopes)
-}
 
 internal fun createRuntimeScopeInfo(
     methodId: MethodId,
@@ -56,7 +83,8 @@ internal fun createRuntimeScopeInfo(
     return RuntimeScopeInfo(
         methodId = methodId,
         tree = tree,
-        dependencies = tree.dependencies(),
+        methodDependencies = tree.methodDependencies(),
+        fieldDependencies = tree.fieldDependencies(),
         children = tree.children.map { child -> createRuntimeScopeInfo(methodId, child) },
         hash = tree.codeHash()
     )

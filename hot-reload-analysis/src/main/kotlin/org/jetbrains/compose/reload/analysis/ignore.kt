@@ -16,5 +16,6 @@ internal fun isIgnoredClassId(classId: String): Boolean = with(classId) {
             startsWith("org/jetbrains/skia/") ||
             startsWith("org/jetbrains/skiko/") ||
             startsWith("com/intellij") ||
-            startsWith("com/jetbrains")
+            startsWith("com/jetbrains") ||
+            startsWith("org/objectweb")
 }

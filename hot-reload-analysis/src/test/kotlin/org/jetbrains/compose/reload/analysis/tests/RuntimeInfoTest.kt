@@ -1,5 +1,6 @@
 package org.jetbrains.compose.reload.analysis.tests
 
+import org.jetbrains.compose.reload.analysis.ClassInfo
 import org.jetbrains.compose.reload.analysis.RuntimeInfo
 import org.jetbrains.compose.reload.analysis.RuntimeScopeInfo
 import org.jetbrains.compose.reload.analysis.SpecialComposeGroupKeys
@@ -247,16 +248,61 @@ class RuntimeInfoTest {
 
         assertNotEquals(code, codeAfter)
 
-        val beforeScopes = runtimeInfoBefore.scopes.withClosure<RuntimeScopeInfo> { scope -> scope.children }.toList()
-        val afterScopes = runtimeInfoAfter.scopes.withClosure<RuntimeScopeInfo> { scope -> scope.children }.toList()
+        val beforeScopes = runtimeInfoBefore.methods.values
+            .flatten().withClosure<RuntimeScopeInfo> { scope -> scope.children }.toList()
+
+        val afterScopes = runtimeInfoAfter.methods.values
+            .flatten().withClosure<RuntimeScopeInfo> { scope -> scope.children }.toList()
 
         beforeScopes.forEachIndexed { index, beforeScope ->
             val afterScope = afterScopes[index]
             assertEquals(beforeScope.tree.group, afterScope.tree.group)
             assertEquals(beforeScope.tree.type, afterScope.tree.type)
-            assertEquals(beforeScope.dependencies, afterScope.dependencies)
+            assertEquals(beforeScope.methodDependencies, afterScope.methodDependencies)
             assertEquals(beforeScope.hash, afterScope.hash)
         }
+    }
+
+    @Test
+    fun `test - static field access`(compiler: Compiler, testInfo: TestInfo) {
+        checkRuntimeInfo(
+            testInfo, compiler.withOptions(CompilerOption.OptimizeNonSkippingGroups to false), mapOf(
+                "Foo.kt" to """
+                import androidx.compose.runtime.*
+                
+                val x = 42
+                
+                @Composable
+                fun Foo() {
+                    remember { x }
+                }
+            """.trimIndent()
+            )
+        ) ?: fail("Missing 'runtimeInfo'")
+
+    }
+
+    @Test
+    fun `test - member field access`(compiler: Compiler, testInfo: TestInfo) {
+        checkRuntimeInfo(
+            testInfo, compiler.withOptions(CompilerOption.OptimizeNonSkippingGroups to false), mapOf(
+                "Foo.kt" to """
+                import androidx.compose.runtime.*
+                
+                class Bar {
+                    val x = 42
+                }
+                
+                val bar = Bar()
+                
+                @Composable
+                fun Foo() {
+                    remember { bar.x }
+                }
+            """.trimIndent()
+            )
+        ) ?: fail("Missing 'runtimeInfo'")
+
     }
 }
 
@@ -265,8 +311,8 @@ private fun checkRuntimeInfo(
 ): RuntimeInfo? {
     val output = compiler.compile(code)
     val runtimeInfo = output.values
-        .map { bytecode -> RuntimeInfo(bytecode) }
-        .reduce { info, next -> RuntimeInfo(info?.scopes.orEmpty() + next?.scopes.orEmpty()) }
+        .mapNotNull { bytecode -> ClassInfo(bytecode) }
+        .let { classInfos -> RuntimeInfo(classInfos.associateBy { info -> info.classId }) }
 
     val actualContent = buildString {
         appendLine("/*")
@@ -285,7 +331,7 @@ private fun checkRuntimeInfo(
         appendLine(" Runtime Info:")
         appendLine("*/")
         appendLine()
-        appendLine(runtimeInfo?.render()?.sanitized())
+        appendLine(runtimeInfo.render().sanitized())
     }.sanitized()
 
     val directory = Path("src/test/resources/runtimeInfo")

@@ -6,6 +6,8 @@ import org.objectweb.asm.Opcodes
 import org.objectweb.asm.Opcodes.ASM9
 import org.objectweb.asm.tree.AbstractInsnNode
 import org.objectweb.asm.tree.ClassNode
+import org.objectweb.asm.tree.FieldInsnNode
+import org.objectweb.asm.tree.FieldNode
 import org.objectweb.asm.tree.LdcInsnNode
 import org.objectweb.asm.tree.MethodInsnNode
 import org.objectweb.asm.tree.MethodNode
@@ -64,4 +66,16 @@ internal fun MethodId(methodInsnNode: MethodInsnNode): MethodId = MethodId(
     classId = ClassId(methodInsnNode.owner),
     methodName = methodInsnNode.name,
     methodDescriptor = methodInsnNode.desc
+)
+
+internal fun FieldId(fieldIsnNode: FieldInsnNode): FieldId = FieldId(
+    classId = ClassId(fieldIsnNode.owner),
+    fieldName = fieldIsnNode.name,
+    fieldDescriptor = fieldIsnNode.desc
+)
+
+internal fun FieldId(classNode: ClassNode, fieldNode: FieldNode): FieldId = FieldId(
+    classId = ClassId(classNode),
+    fieldName = fieldNode.name,
+    fieldDescriptor = fieldNode.desc
 )

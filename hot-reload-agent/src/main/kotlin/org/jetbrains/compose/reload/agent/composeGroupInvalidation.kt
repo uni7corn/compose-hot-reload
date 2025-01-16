@@ -3,7 +3,6 @@ package org.jetbrains.compose.reload.agent
 import org.jetbrains.compose.reload.analysis.resolveInvalidationKey
 import org.jetbrains.compose.reload.core.createLogger
 import org.jetbrains.compose.reload.core.isFailure
-import org.jetbrains.compose.reload.core.isSuccess
 import java.lang.instrument.ClassFileTransformer
 import java.lang.instrument.Instrumentation
 import java.security.ProtectionDomain

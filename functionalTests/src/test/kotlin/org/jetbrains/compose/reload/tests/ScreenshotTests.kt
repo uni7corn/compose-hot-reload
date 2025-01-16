@@ -655,4 +655,29 @@ class ScreenshotTests {
         fixture.sendTestEvent("C")
         fixture.checkScreenshot("2-after-c-selected")
     }
+
+    @HotReloadTest
+    @DefaultSettingsGradleKts
+    @DefaultBuildGradleKts
+    @TestOnlyLatestVersions
+    @TestOnlyDefaultCompilerOptions
+    fun `test - change in static field`(fixture: HotReloadTestFixture) = fixture.runTest {
+        fixture initialSourceCode """
+            import androidx.compose.foundation.layout.*
+            import androidx.compose.runtime.*
+            import org.jetbrains.compose.reload.underTest.*
+            
+            val foo = 42
+          
+            fun main() = underTestApplication {
+                val state by remember { mutableStateOf(foo) }
+                TestText("state: %state")
+            }
+         """.trimIndent().replace("%", "$")
+
+        fixture.checkScreenshot("0-before")
+
+        fixture.replaceSourceCodeAndReload("val foo = 42", "val foo = 1902")
+        fixture.checkScreenshot("1-after-foo-changed")
+    }
 }

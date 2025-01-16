@@ -3,6 +3,10 @@ package org.jetbrains.compose.reload.agent.tests
 import javassist.ClassPool
 import javassist.Modifier
 import org.jetbrains.compose.reload.agent.transformForStaticsInitialization
+import org.jetbrains.compose.reload.analysis.ClassInfo
+import org.jetbrains.compose.reload.analysis.RuntimeInfo
+import org.jetbrains.compose.reload.analysis.classInitializerMethodId
+import org.jetbrains.compose.reload.analysis.resolveInvalidationKey
 import org.jetbrains.compose.reload.core.testFixtures.Compiler
 import org.jetbrains.compose.reload.core.testFixtures.WithCompiler
 import org.jetbrains.compose.reload.analysis.testFixtures.checkJavap
@@ -10,6 +14,7 @@ import org.jetbrains.compose.reload.core.testFixtures.compile
 import org.junit.jupiter.api.TestInfo
 import kotlin.test.Test
 import kotlin.test.assertEquals
+import kotlin.test.fail
 
 @WithCompiler
 class StaticsInitializationTest() {
@@ -46,15 +51,15 @@ class StaticsInitializationTest() {
     }
 
     @Test
-    fun `test - no field added - results in no reinitilizer being generated`(compiler: Compiler, info: TestInfo) {
+    fun `test - no field added - same runtime invalidation key`(compiler: Compiler, info: TestInfo) {
         val beforeCode = compiler.compile(
             "Test.kt" to """
              val empty = 42
             """.trimIndent()
         ).getValue("TestKt.class")
-        val beforeCtClazz = pool.makeClass(beforeCode.inputStream())
-        val beforeClazz = beforeCtClazz.toClass(loader, javaClass.protectionDomain)
-        beforeCtClazz.defrost()
+
+        val beforeClassInfo = ClassInfo(beforeCode) ?: fail("Missing 'ClassInfo' for 'TestKt'")
+
 
         val afterBytecode = compiler.compile(
             "Test.kt" to """
@@ -63,9 +68,24 @@ class StaticsInitializationTest() {
             """.trimIndent()
         )
 
-        val afterCtClazz = pool.makeClass(afterBytecode.getValue("TestKt.class").inputStream())
-        afterCtClazz.transformForStaticsInitialization(beforeClazz)
+        val afterClassInfo = ClassInfo(afterBytecode.getValue("TestKt.class"))
+            ?: fail("Missing 'ClassInfo' for 'TestKt'")
 
-        checkJavap(info, code = mapOf("FooKt.class" to afterCtClazz.toBytecode()))
+
+        val beforeClinit = beforeClassInfo.methods.getValue(beforeClassInfo.classId.classInitializerMethodId)
+        val afterClinit = afterClassInfo.methods.getValue(afterClassInfo.classId.classInitializerMethodId)
+
+        val beforeRuntimeInfo = RuntimeInfo(mapOf(beforeClassInfo.classId to beforeClassInfo))
+        val afterRuntimeInfo = RuntimeInfo(mapOf(afterClassInfo.classId to afterClassInfo))
+
+        val beforeInvalidationKey = beforeRuntimeInfo.resolveInvalidationKey(beforeClinit.methodId)
+            ?: fail("Missing 'InvalidationKey' for ${beforeClinit.methodId}")
+
+        val afterInvalidationKey = afterRuntimeInfo.resolveInvalidationKey(afterClinit.methodId)
+            ?: fail("Missing 'InvalidationKey' for '${afterClinit.methodId}'")
+
+        assertEquals(
+            beforeInvalidationKey, afterInvalidationKey,
+        )
     }
 }

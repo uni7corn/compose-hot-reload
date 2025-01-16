@@ -24,26 +24,17 @@ internal const val reinitializeName = "\$chr\$clinit"
 internal fun CtClass.transformForStaticsInitialization(originalClass: Class<*>?) {
     if (originalClass == null) return
 
-    val originalFields = originalClass.declaredFields.associate { field ->
-        field.name to field.type.name
+    val clazzInitializer = classInitializer ?: return
+
+    declaredFields.forEach { field ->
+        field.modifiers = field.modifiers and Modifier.FINAL.inv()
     }
 
-    val newFields = declaredFields.associate { field ->
-        field.name to field.type.name
-    }
-
-    val clazzInitializer = classInitializer
-    if (clazzInitializer != null && originalFields != newFields) {
-        declaredFields.forEach { field ->
-            field.modifiers = field.modifiers and Modifier.FINAL.inv()
-        }
-
-        logger.debug("Created synthetic re-initializer for '${name}")
-        val reinit = CtConstructor(clazzInitializer, this, null)
-        reinit.methodInfo.name = reinitializeName
-        reinit.modifiers = Modifier.PUBLIC or Modifier.STATIC
-        addConstructor(reinit)
-    }
+    logger.debug("Created synthetic re-initializer for '${name}")
+    val reinit = CtConstructor(clazzInitializer, this, null)
+    reinit.methodInfo.name = reinitializeName
+    reinit.modifiers = Modifier.PUBLIC or Modifier.STATIC
+    addConstructor(reinit)
 }
 
 /**
@@ -73,7 +64,7 @@ internal fun reinitializeStaticsIfNecessary(
 
     val classInitializerDependencies = dirtyClasses.associateWith { clazz ->
         newRuntime.methods[clazz.classId.classInitializerMethodId].orEmpty()
-            .flatMap { it.dependencies }
+            .flatMap { it.methodDependencies }
             .mapNotNull { dependencyMethodId -> dirtyClassIds[dependencyMethodId.classId].takeIf { it != clazz } }
     }
 
