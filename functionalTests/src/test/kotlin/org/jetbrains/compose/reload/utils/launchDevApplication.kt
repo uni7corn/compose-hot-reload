@@ -1,8 +1,6 @@
 package org.jetbrains.compose.reload.utils
 
 import kotlinx.coroutines.launch
-import org.jetbrains.compose.reload.orchestration.OrchestrationMessage.RecompilerReady
-import org.jetbrains.compose.reload.orchestration.OrchestrationMessage.UIRendered
 
 suspend fun HotReloadTestFixture.launchDevApplicationAndWait(
     projectPath: String = ":",

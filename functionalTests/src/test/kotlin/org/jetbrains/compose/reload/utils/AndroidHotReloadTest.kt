@@ -21,7 +21,7 @@ class AndroidScreenshotTestInvocationContextProvider : TestTemplateInvocationCon
 
     override fun supportsTestTemplate(context: ExtensionContext): Boolean {
         return hotReloadInvocationContextProvider.supportsTestTemplate(context) &&
-                AnnotationUtils.findAnnotation(context.testMethod, AndroidHotReloadTest::class.java).isPresent
+            AnnotationUtils.findAnnotation(context.testMethod, AndroidHotReloadTest::class.java).isPresent
     }
 
     override fun provideTestTemplateInvocationContexts(

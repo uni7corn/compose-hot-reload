@@ -1,6 +1,5 @@
 @file:OptIn(ExperimentalComposeLibrary::class)
 
-import org.gradle.kotlin.dsl.withType
 import org.jetbrains.compose.ExperimentalComposeLibrary
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 import org.jetbrains.kotlin.gradle.tasks.KotlinJvmCompile

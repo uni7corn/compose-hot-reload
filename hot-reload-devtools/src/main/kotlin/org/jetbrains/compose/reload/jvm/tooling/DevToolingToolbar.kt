@@ -59,7 +59,7 @@ fun ActionButton(text: String, modifier: Modifier = Modifier, onClick: () -> Uni
         shape = ButtonDefaults.outlinedShape,
         colors = ButtonDefaults.outlinedButtonColors(),
         border = ButtonDefaults.outlinedButtonBorder(true).run {
-            if(reloadState is ReloadState.Reloading) copy(brush = reloadBrush)
+            if (reloadState is ReloadState.Reloading) copy(brush = reloadBrush)
             else copy(brush = SolidColor(reloadColor))
         },
         interactionSource = null,

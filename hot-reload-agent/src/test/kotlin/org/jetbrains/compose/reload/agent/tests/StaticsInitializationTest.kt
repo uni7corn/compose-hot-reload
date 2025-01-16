@@ -7,9 +7,9 @@ import org.jetbrains.compose.reload.analysis.ClassInfo
 import org.jetbrains.compose.reload.analysis.RuntimeInfo
 import org.jetbrains.compose.reload.analysis.classInitializerMethodId
 import org.jetbrains.compose.reload.analysis.resolveInvalidationKey
+import org.jetbrains.compose.reload.analysis.testFixtures.checkJavap
 import org.jetbrains.compose.reload.core.testFixtures.Compiler
 import org.jetbrains.compose.reload.core.testFixtures.WithCompiler
-import org.jetbrains.compose.reload.analysis.testFixtures.checkJavap
 import org.jetbrains.compose.reload.core.testFixtures.compile
 import org.junit.jupiter.api.TestInfo
 import kotlin.test.Test

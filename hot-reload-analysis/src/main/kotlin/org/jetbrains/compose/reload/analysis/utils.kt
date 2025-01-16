@@ -1,7 +1,6 @@
 package org.jetbrains.compose.reload.analysis
 
 import java.nio.ByteBuffer
-import java.util.concurrent.atomic.AtomicReference
 import java.util.zip.Checksum
 
 internal fun Checksum.updateBoolean(value: Boolean) {

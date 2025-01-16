@@ -1,5 +1,3 @@
-import org.gradle.internal.impldep.org.junit.platform.launcher.TagFilter.includeTags
-
 plugins {
     kotlin("jvm")
 }

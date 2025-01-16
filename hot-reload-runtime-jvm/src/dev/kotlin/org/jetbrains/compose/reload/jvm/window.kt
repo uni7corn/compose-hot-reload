@@ -20,7 +20,7 @@ import java.awt.event.ComponentAdapter
 import java.awt.event.ComponentEvent
 import java.awt.event.WindowAdapter
 import java.awt.event.WindowEvent
-import java.util.*
+import java.util.WeakHashMap
 
 private val windowsIds = WeakHashMap<Window, WindowId>()
 

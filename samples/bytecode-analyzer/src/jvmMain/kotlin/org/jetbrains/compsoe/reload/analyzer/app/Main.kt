@@ -30,7 +30,7 @@ private val logger = createLogger()
 
 private val applicationScope = CoroutineScope(
     SupervisorJob() + Dispatchers.Main + Events() + States() +
-            CoroutineExceptionHandler { context, throwable -> logger.error("Unhandled exception", throwable) }
+        CoroutineExceptionHandler { context, throwable -> logger.error("Unhandled exception", throwable) }
 )
 
 fun main() {

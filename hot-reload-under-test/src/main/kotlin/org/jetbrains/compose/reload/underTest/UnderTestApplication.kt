@@ -4,9 +4,19 @@
 package org.jetbrains.compose.reload.underTest
 
 import androidx.compose.material3.Text
-import androidx.compose.runtime.*
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.staticCompositionLocalOf
 import androidx.compose.ui.test.ExperimentalTestApi
-import androidx.compose.ui.text.*
+import androidx.compose.ui.text.ExperimentalTextApi
+import androidx.compose.ui.text.FontHinting
+import androidx.compose.ui.text.FontRasterizationSettings
+import androidx.compose.ui.text.FontSmoothing
+import androidx.compose.ui.text.PlatformParagraphStyle
+import androidx.compose.ui.text.PlatformTextStyle
+import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight

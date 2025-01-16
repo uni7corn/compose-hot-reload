@@ -4,7 +4,6 @@ import org.jetbrains.compose.reload.orchestration.OrchestrationMessage
 import org.jetbrains.compose.reload.orchestration.OrchestrationMessage.LogMessage.Companion.TAG_AGENT
 import org.jetbrains.compose.reload.orchestration.OrchestrationMessage.LogMessage.Companion.TAG_RUNTIME
 import org.slf4j.Logger
-import org.slf4j.LoggerFactory
 import java.lang.invoke.MethodHandles
 
 @Suppress("NOTHING_TO_INLINE") // We want the caller class!

@@ -1,9 +1,17 @@
 package org.jetbrains.compose.reload.tests
 
 import org.gradle.testfixtures.ProjectBuilder
-import org.jetbrains.compose.reload.*
+import org.jetbrains.compose.reload.ComposeHotReloadPlugin
+import org.jetbrains.compose.reload.applicationClasspath
 import org.jetbrains.compose.reload.core.HOT_RELOAD_VERSION
-import org.jetbrains.compose.reload.utils.*
+import org.jetbrains.compose.reload.kotlinJvmOrNull
+import org.jetbrains.compose.reload.kotlinMultiplatformOrNull
+import org.jetbrains.compose.reload.utils.FileMatcher
+import org.jetbrains.compose.reload.utils.PathRegex
+import org.jetbrains.compose.reload.utils.assertMatches
+import org.jetbrains.compose.reload.utils.evaluate
+import org.jetbrains.compose.reload.utils.main
+import org.jetbrains.compose.reload.utils.withRepositories
 import org.junit.jupiter.api.Test
 
 class RunClasspathTest {

@@ -9,7 +9,13 @@ import org.jetbrains.compose.reload.core.testFixtures.WithCompiler
 import org.jetbrains.compose.reload.core.testFixtures.sanitized
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.TestInfo
-import kotlin.io.path.*
+import kotlin.io.path.Path
+import kotlin.io.path.createParentDirectories
+import kotlin.io.path.exists
+import kotlin.io.path.nameWithoutExtension
+import kotlin.io.path.readText
+import kotlin.io.path.writeBytes
+import kotlin.io.path.writeText
 
 @WithCompiler
 class RuntimeInstructionTreeParserTest {

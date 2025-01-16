@@ -117,7 +117,7 @@ private fun MethodNode.render(node: AbstractInsnNode): String {
         is LdcInsnNode -> "LdcInsnNode(${node.cst}) [${node.opcode}]"
         is LabelNode -> "LabelNode(L${indexOfLabel(node.label)})"
         is JumpInsnNode -> "JumpInsNode(L${indexOfLabel(node.label.label)})) " +
-                "[${if (node.opcode == Opcodes.GOTO) "GOTO" else node.opcode}])"
+            "[${if (node.opcode == Opcodes.GOTO) "GOTO" else node.opcode}])"
 
         else -> "${node.javaClass.simpleName} [${node.opcode}]"
     }

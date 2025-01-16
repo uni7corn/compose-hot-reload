@@ -66,7 +66,7 @@ private fun RuntimeInfo.resolveInvalidationKey(
         Resolve field dependencies
          */
         scope.fieldDependencies.forEach forEachField@{ fieldId ->
-            if(!visitedFields.add(fieldId)) return@forEachField
+            if (!visitedFields.add(fieldId)) return@forEachField
             val fieldOwner = classes[fieldId.classId] ?: return@forEachField
             val field = fieldOwner.fields[fieldId] ?: return@forEachField
 

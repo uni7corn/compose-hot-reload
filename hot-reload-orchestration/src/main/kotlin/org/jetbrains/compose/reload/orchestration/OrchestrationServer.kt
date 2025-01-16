@@ -8,9 +8,8 @@ import java.io.ObjectInputStream
 import java.io.ObjectOutputStream
 import java.net.ServerSocket
 import java.net.Socket
-import java.util.*
+import java.util.UUID
 import java.util.concurrent.CompletableFuture
-import java.util.concurrent.ExecutorService
 import java.util.concurrent.Executors
 import java.util.concurrent.Future
 import java.util.concurrent.RejectedExecutionException
@@ -193,7 +192,7 @@ private class OrchestrationServerImpl(
 
             logger.trace(
                 "Received message: ${message.javaClass.simpleName} " +
-                        "'$client': '${message.messageId}'"
+                    "'$client': '${message.messageId}'"
             )
 
             /* Broadcasting the message to all clients (including the one it came from) */

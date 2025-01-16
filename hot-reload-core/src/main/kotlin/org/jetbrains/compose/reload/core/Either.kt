@@ -1,7 +1,5 @@
 package org.jetbrains.compose.reload.core
 
-import kotlin.coroutines.cancellation.CancellationException
-
 
 public sealed class Either<out L, out R> {
     public fun leftOrNull(): L? = if (this is Left) value else null
@@ -20,8 +18,8 @@ public data class Right<Right>(val value: Right) : Either<Nothing, Right>() {
     }
 }
 
-public fun <T> T.toLeft() = Left(this)
-public fun <T> T.toRight() = Right(this)
+public fun <T> T.toLeft(): Left<T> = Left(this)
+public fun <T> T.toRight(): Right<T> = Right(this)
 
 public inline fun <L, R> Either<L, R>.leftOr(alternative: (Right<R>) -> L): L {
     return when (this) {

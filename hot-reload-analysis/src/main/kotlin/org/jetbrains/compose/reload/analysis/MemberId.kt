@@ -21,7 +21,7 @@ data class FieldId(
     override val classId: ClassId,
     val fieldName: String,
     val fieldDescriptor: String,
-): MemberId() {
+) : MemberId() {
     override fun toString(): String {
         return "$classId.$fieldName $fieldDescriptor"
     }

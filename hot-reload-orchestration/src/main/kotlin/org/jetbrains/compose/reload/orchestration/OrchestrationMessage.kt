@@ -3,7 +3,7 @@ package org.jetbrains.compose.reload.orchestration
 import org.jetbrains.compose.reload.core.WindowId
 import java.io.File
 import java.io.Serializable
-import java.util.*
+import java.util.UUID
 
 public sealed class OrchestrationMessage : Serializable {
     /**
@@ -161,7 +161,7 @@ public sealed class OrchestrationMessage : Serializable {
 
     public data class ApplicationWindowGainedFocus(
         val windowId: WindowId
-    ): OrchestrationMessage()
+    ) : OrchestrationMessage()
 
     /**
      * Sent once the UI was rendered

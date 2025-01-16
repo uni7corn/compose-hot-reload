@@ -1,6 +1,13 @@
 package org.jetbrains.compose.reload.analysis
 
-import org.jetbrains.compose.reload.analysis.RuntimeInstructionToken.*
+import org.jetbrains.compose.reload.analysis.RuntimeInstructionToken.BockToken
+import org.jetbrains.compose.reload.analysis.RuntimeInstructionToken.EndReplaceGroup
+import org.jetbrains.compose.reload.analysis.RuntimeInstructionToken.EndRestartGroup
+import org.jetbrains.compose.reload.analysis.RuntimeInstructionToken.JumpToken
+import org.jetbrains.compose.reload.analysis.RuntimeInstructionToken.LabelToken
+import org.jetbrains.compose.reload.analysis.RuntimeInstructionToken.ReturnToken
+import org.jetbrains.compose.reload.analysis.RuntimeInstructionToken.StartReplaceGroup
+import org.jetbrains.compose.reload.analysis.RuntimeInstructionToken.StartRestartGroup
 import org.jetbrains.compose.reload.core.Either
 import org.jetbrains.compose.reload.core.Failure
 import org.jetbrains.compose.reload.core.createLogger

@@ -1,6 +1,5 @@
 package org.jetbrains.compose.reload.utils
 
-import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.channels.ReceiveChannel
@@ -64,7 +63,7 @@ class TransactionScope(
             while (true) {
                 logger.info(
                     "Waiting for message $title ($waiting/$timeout)" +
-                            "\n${stack.drop(1).take(7).joinToString("\n") { "  $it" }}"
+                        "\n${stack.drop(1).take(7).joinToString("\n") { "  $it" }}"
                 )
                 delay(sleep)
                 waiting += sleep

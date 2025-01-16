@@ -1,7 +1,19 @@
 package org.jetbrains.compose.reload.tests.gradle
 
 import org.jetbrains.compose.reload.core.HOT_RELOAD_VERSION
-import org.jetbrains.compose.reload.utils.*
+import org.jetbrains.compose.reload.utils.DefaultBuildGradleKts
+import org.jetbrains.compose.reload.utils.DefaultSettingsGradleKts
+import org.jetbrains.compose.reload.utils.HostIntegrationTest
+import org.jetbrains.compose.reload.utils.HotReloadTest
+import org.jetbrains.compose.reload.utils.HotReloadTestFixture
+import org.jetbrains.compose.reload.utils.ProjectMode
+import org.jetbrains.compose.reload.utils.TestOnlyDefaultCompilerOptions
+import org.jetbrains.compose.reload.utils.TestOnlyLatestVersions
+import org.jetbrains.compose.reload.utils.checkScreenshot
+import org.jetbrains.compose.reload.utils.fold
+import org.jetbrains.compose.reload.utils.launchApplicationAndWait
+import org.jetbrains.compose.reload.utils.replaceSourceCodeAndReload
+import org.jetbrains.compose.reload.utils.writeText
 import kotlin.io.path.appendLines
 import kotlin.io.path.appendText
 import kotlin.io.path.createParentDirectories

@@ -4,10 +4,8 @@ import org.jetbrains.compose.reload.core.Try
 import org.jetbrains.compose.reload.core.createLogger
 import org.jetbrains.compose.reload.orchestration.Disposable
 import org.jetbrains.compose.reload.orchestration.OrchestrationMessage.ReloadClassesRequest
-import java.lang.instrument.ClassDefinition
 import java.lang.instrument.Instrumentation
-import java.util.*
-import java.util.concurrent.atomic.AtomicReference
+import java.util.UUID
 
 
 object ComposeHotReloadAgent {

@@ -11,9 +11,6 @@ import org.objectweb.asm.tree.FieldNode
 import org.objectweb.asm.tree.LdcInsnNode
 import org.objectweb.asm.tree.MethodInsnNode
 import org.objectweb.asm.tree.MethodNode
-import kotlin.collections.find
-import kotlin.collections.orEmpty
-import kotlin.collections.zipWithNext
 
 internal fun AbstractInsnNode.intValueOrNull(): Int? {
     if (this is LdcInsnNode) return this.cst as? Int

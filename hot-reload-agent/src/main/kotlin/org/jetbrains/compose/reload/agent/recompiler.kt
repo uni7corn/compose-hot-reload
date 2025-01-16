@@ -1,7 +1,8 @@
 package org.jetbrains.compose.reload.agent
 
 import org.jetbrains.compose.reload.core.BuildSystem
-import org.jetbrains.compose.reload.core.BuildSystem.*
+import org.jetbrains.compose.reload.core.BuildSystem.Amper
+import org.jetbrains.compose.reload.core.BuildSystem.Gradle
 import org.jetbrains.compose.reload.core.HotReloadEnvironment
 import org.jetbrains.compose.reload.core.HotReloadProperty
 import org.jetbrains.compose.reload.core.createLogger

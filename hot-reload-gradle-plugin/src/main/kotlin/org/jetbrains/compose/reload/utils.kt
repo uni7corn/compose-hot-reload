@@ -3,7 +3,7 @@ package org.jetbrains.compose.reload
 import org.gradle.api.Project
 import org.jetbrains.kotlin.gradle.dsl.KotlinJvmProjectExtension
 import org.jetbrains.kotlin.gradle.dsl.KotlinMultiplatformExtension
-import java.util.*
+import java.util.Locale
 
 internal val String.capitalized
     get() = this.replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }

@@ -11,14 +11,20 @@ import org.jetbrains.compose.reload.utils.HotReloadTestFixtureExtension.Companio
 import org.jetbrains.kotlin.tooling.core.compareTo
 import org.junit.jupiter.api.Assumptions.assumeTrue
 import org.junit.jupiter.api.TestTemplate
-import org.junit.jupiter.api.extension.*
+import org.junit.jupiter.api.extension.AfterEachCallback
+import org.junit.jupiter.api.extension.BeforeEachCallback
+import org.junit.jupiter.api.extension.ExtendWith
+import org.junit.jupiter.api.extension.Extension
+import org.junit.jupiter.api.extension.ExtensionContext
+import org.junit.jupiter.api.extension.ParameterContext
+import org.junit.jupiter.api.extension.ParameterResolver
+import org.junit.jupiter.api.extension.TestTemplateInvocationContext
+import org.junit.jupiter.api.extension.TestTemplateInvocationContextProvider
 import org.junit.jupiter.api.parallel.Execution
 import org.junit.jupiter.api.parallel.ExecutionMode
 import org.junit.platform.commons.util.AnnotationUtils.findAnnotation
-import java.io.File
 import java.nio.file.Files
 import java.util.stream.Stream
-import kotlin.io.path.Path
 import kotlin.jvm.optionals.getOrNull
 import kotlin.streams.asStream
 
@@ -73,19 +79,19 @@ internal class HotReloadTestInvocationContextProvider : TestTemplateInvocationCo
             }
             .filter { invocationContext ->
                 invocationContext.projectMode == ProjectMode.Jvm ||
-                        findAnnotation(context.testMethod, TestOnlyJvm::class.java).isEmpty
+                    findAnnotation(context.testMethod, TestOnlyJvm::class.java).isEmpty
             }
             .filter { invocationContext ->
                 invocationContext.projectMode == ProjectMode.Kmp ||
-                        findAnnotation(context.testMethod, TestOnlyKmp::class.java).isEmpty
+                    findAnnotation(context.testMethod, TestOnlyKmp::class.java).isEmpty
             }
             .filter { invocationContext ->
                 (findAnnotation(context.testMethod, TestOnlyLatestVersions::class.java).isEmpty &&
-                        !TestEnvironment.testOnlyLatestVersions) ||
-                        invocationContext.gradleVersion == TestedGradleVersion.entries.last() &&
-                        invocationContext.kotlinVersion == TestedKotlinVersion.entries.last() &&
-                        invocationContext.composeVersion == TestedComposeVersion.entries.last() &&
-                        (invocationContext.androidVersion == null || invocationContext.androidVersion == TestedAndroidVersion.entries.last())
+                    !TestEnvironment.testOnlyLatestVersions) ||
+                    invocationContext.gradleVersion == TestedGradleVersion.entries.last() &&
+                    invocationContext.kotlinVersion == TestedKotlinVersion.entries.last() &&
+                    invocationContext.composeVersion == TestedComposeVersion.entries.last() &&
+                    (invocationContext.androidVersion == null || invocationContext.androidVersion == TestedAndroidVersion.entries.last())
             }
             .filter { invocationContext ->
                 val kotlinVersionMin = findAnnotation(context.testMethod, MinKotlinVersion::class.java)
@@ -223,7 +229,7 @@ private class HotReloadTestFixtureExtension(
         val orchestrationServer = startOrchestrationServer()
 
         val gradleRunner = GradleRunner(
-            projectRoot =  projectDir.path,
+            projectRoot = projectDir.path,
             gradleVersion = context.gradleVersion.version,
             arguments = listOf(
                 "-P${HotReloadProperty.OrchestrationPort.key}=${orchestrationServer.port}",

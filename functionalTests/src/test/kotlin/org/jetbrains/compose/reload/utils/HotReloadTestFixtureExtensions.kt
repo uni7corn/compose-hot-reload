@@ -52,7 +52,7 @@ suspend fun HotReloadTestFixture.sendTestEvent(
 ) {
     val event = TestEvent(payload)
     return sendMessage(event) {
-        if(await == null) awaitAck(event)
+        if (await == null) awaitAck(event)
         else this.await(event)
         sync()
     }

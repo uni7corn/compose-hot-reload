@@ -3,7 +3,10 @@ package org.jetbrains.compose.reload.tests
 import org.gradle.kotlin.dsl.create
 import org.gradle.testfixtures.ProjectBuilder
 import org.jetbrains.compose.reload.ComposeHotRun
-import org.jetbrains.compose.reload.core.HotReloadProperty.*
+import org.jetbrains.compose.reload.core.HotReloadProperty.GradleBuildProject
+import org.jetbrains.compose.reload.core.HotReloadProperty.GradleBuildRoot
+import org.jetbrains.compose.reload.core.HotReloadProperty.GradleBuildTask
+import org.jetbrains.compose.reload.core.HotReloadProperty.GradleJavaHome
 import org.jetbrains.compose.reload.kotlinMultiplatformOrNull
 import org.jetbrains.compose.reload.utils.withRepositories
 import kotlin.test.Test

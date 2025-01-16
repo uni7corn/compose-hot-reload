@@ -3,8 +3,14 @@ package org.jetbrains.compose.reload.tests.gradle
 import org.jetbrains.compose.reload.orchestration.OrchestrationClientRole
 import org.jetbrains.compose.reload.orchestration.OrchestrationMessage
 import org.jetbrains.compose.reload.orchestration.OrchestrationMessage.UIRendered
-import org.jetbrains.compose.reload.utils.*
-import java.util.*
+import org.jetbrains.compose.reload.utils.DefaultBuildGradleKts
+import org.jetbrains.compose.reload.utils.DefaultSettingsGradleKts
+import org.jetbrains.compose.reload.utils.HotReloadTest
+import org.jetbrains.compose.reload.utils.HotReloadTestFixture
+import org.jetbrains.compose.reload.utils.TestOnlyDefaultCompilerOptions
+import org.jetbrains.compose.reload.utils.TestOnlyLatestVersions
+import org.jetbrains.compose.reload.utils.initialSourceCode
+import java.util.Properties
 import java.util.concurrent.TimeUnit
 import kotlin.io.path.exists
 import kotlin.io.path.readText

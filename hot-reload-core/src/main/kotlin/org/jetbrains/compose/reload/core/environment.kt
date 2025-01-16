@@ -42,7 +42,7 @@ public object HotReloadEnvironment {
         property = HotReloadProperty.BuildSystem,
         defaultValue = BuildSystem.Gradle,
     )
-    
+
     public val gradleJavaHome: Path? = system(HotReloadProperty.GradleJavaHome)?.let(::Path)
     public val gradleBuildRoot: String? = system(HotReloadProperty.GradleBuildRoot)
     public val gradleBuildProject: String? = system(HotReloadProperty.GradleBuildProject)
@@ -67,8 +67,8 @@ public fun systemInt(property: HotReloadProperty): Int? =
 public fun systemFiles(property: HotReloadProperty): List<Path>? =
     getProperty(property.key)?.split(File.pathSeparator)?.map(::Path)
 
-public inline fun <reified T: Enum<T>> systemEnum(property: HotReloadProperty): T? =
+public inline fun <reified T : Enum<T>> systemEnum(property: HotReloadProperty): T? =
     getProperty(property.key)?.let { enum -> return enumValueOf<T>(enum) }
 
-public inline fun <reified T: Enum<T>> systemEnum(property: HotReloadProperty, defaultValue: T): T =
+public inline fun <reified T : Enum<T>> systemEnum(property: HotReloadProperty, defaultValue: T): T =
     systemEnum<T>(property) ?: defaultValue

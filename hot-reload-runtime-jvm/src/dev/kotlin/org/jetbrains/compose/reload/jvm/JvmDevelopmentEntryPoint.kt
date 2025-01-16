@@ -3,26 +3,18 @@
 package org.jetbrains.compose.reload.jvm
 
 import androidx.compose.runtime.*
-import kotlinx.coroutines.awaitCancellation
-import kotlinx.coroutines.currentCoroutineContext
 import kotlinx.coroutines.flow.filterIsInstance
 import kotlinx.coroutines.flow.update
-import kotlinx.coroutines.job
-import kotlinx.coroutines.launch
 import org.jetbrains.compose.reload.InternalHotReloadApi
 import org.jetbrains.compose.reload.agent.ComposeHotReloadAgent
 import org.jetbrains.compose.reload.agent.orchestration
 import org.jetbrains.compose.reload.agent.send
 import org.jetbrains.compose.reload.core.createLogger
-import org.jetbrains.compose.reload.orchestration.OrchestrationMessage
-import org.jetbrains.compose.reload.orchestration.OrchestrationMessage.*
+import org.jetbrains.compose.reload.orchestration.OrchestrationMessage.CleanCompositionRequest
+import org.jetbrains.compose.reload.orchestration.OrchestrationMessage.RetryFailedCompositionRequest
+import org.jetbrains.compose.reload.orchestration.OrchestrationMessage.UIException
+import org.jetbrains.compose.reload.orchestration.OrchestrationMessage.UIRendered
 import org.jetbrains.compose.reload.orchestration.asFlow
-import java.awt.Window
-import java.awt.event.ComponentAdapter
-import java.awt.event.ComponentEvent
-import java.awt.event.WindowAdapter
-import java.awt.event.WindowEvent
-import java.util.*
 
 private val logger = createLogger()
 
