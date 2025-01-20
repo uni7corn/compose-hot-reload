@@ -4,7 +4,6 @@ import org.jetbrains.compose.reload.core.HotReloadEnvironment
 import org.slf4j.LoggerFactory
 import java.io.ObjectInputStream
 import java.io.ObjectOutputStream
-import java.net.InetAddress
 import java.net.Socket
 import java.util.UUID
 import java.util.concurrent.CompletableFuture
@@ -29,7 +28,7 @@ public fun OrchestrationClient(role: OrchestrationClientRole): OrchestrationClie
 }
 
 public fun connectOrchestrationClient(role: OrchestrationClientRole, port: Int): OrchestrationClient {
-    val socket = Socket(InetAddress.getLocalHost(), port)
+    val socket = Socket("127.0.0.1", port)
 
     socket.keepAlive = true
     val client = OrchestrationClientImpl(role, socket, port)
