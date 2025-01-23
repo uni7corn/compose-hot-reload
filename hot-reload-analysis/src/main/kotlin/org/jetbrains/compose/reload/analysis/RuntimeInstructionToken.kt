@@ -8,12 +8,15 @@ import org.jetbrains.compose.reload.analysis.RuntimeInstructionTokenizer.Tokeniz
 import org.jetbrains.compose.reload.core.Either
 import org.jetbrains.compose.reload.core.Failure
 import org.jetbrains.compose.reload.core.leftOr
+import org.jetbrains.compose.reload.core.nextOrNull
 import org.jetbrains.compose.reload.core.toLeft
 import org.jetbrains.compose.reload.core.toRight
 import org.objectweb.asm.Opcodes
 import org.objectweb.asm.tree.AbstractInsnNode
 import org.objectweb.asm.tree.JumpInsnNode
 import org.objectweb.asm.tree.LabelNode
+import org.objectweb.asm.tree.LdcInsnNode
+import org.objectweb.asm.tree.LineNumberNode
 import org.objectweb.asm.tree.MethodInsnNode
 
 
@@ -51,6 +54,33 @@ sealed class RuntimeInstructionToken {
     ) : RuntimeInstructionToken() {
         override fun toString(): String {
             return "EndReplaceGroup()"
+        }
+    }
+
+    data class SourceInformation(
+        val sourceInformation: String,
+        override val instructions: List<AbstractInsnNode>
+    ) : RuntimeInstructionToken() {
+        override fun toString(): String {
+            return "SourceInformation($sourceInformation)"
+        }
+    }
+
+    data class SourceInformationMarkerStart(
+        val key: ComposeGroupKey,
+        val sourceInformation: String,
+        override val instructions: List<AbstractInsnNode>
+    ) : RuntimeInstructionToken() {
+        override fun toString(): String {
+            return "SourceInformationMarkerStart(key=$key, sourceInformation='$sourceInformation')"
+        }
+    }
+
+    data class SourceInformationMarkerEnd(
+        override val instructions: List<AbstractInsnNode>
+    ) : RuntimeInstructionToken() {
+        override fun toString(): String {
+            return "SourceInformationMarkerEnd"
         }
     }
 
@@ -95,6 +125,8 @@ internal sealed class RuntimeInstructionTokenizer {
         val instructions: List<AbstractInsnNode>,
         val index: Int = 0,
     ) {
+        fun consumer(): Consumer = Consumer(index)
+
         fun skip(count: Int = 1): TokenizerContext? {
             val newIndex = index + count
             if (newIndex >= instructions.size) return null
@@ -102,8 +134,26 @@ internal sealed class RuntimeInstructionTokenizer {
         }
 
         operator fun get(i: Int) = instructions.getOrNull(index + i)
-    }
 
+        inner class Consumer(private var nextIndex: Int) : Iterator<AbstractInsnNode> {
+
+            /**
+             * Returns all consumed nodes
+             */
+            fun allConsumedInstructions(): List<AbstractInsnNode> =
+                instructions.subList(index, nextIndex)
+
+            override fun next(): AbstractInsnNode {
+                val element = instructions[nextIndex]
+                nextIndex++
+                return element
+            }
+
+            override fun hasNext(): Boolean {
+                return nextIndex <= instructions.lastIndex
+            }
+        }
+    }
 
     abstract fun nextToken(context: TokenizerContext): Either<RuntimeInstructionToken, Failure>?
 }
@@ -137,6 +187,9 @@ private val priorityTokenizer by lazy {
         EndRestartGroupTokenizer,
         StartReplaceGroupTokenizer,
         EndReplaceGroupTokenizer,
+        SourceInformationTokenizer,
+        SourceInformationMarkerStartTokenizer,
+        SourceInformationMarkerEndTokenizer,
     )
 }
 
@@ -147,19 +200,19 @@ private val tokenizer by lazy {
     )
 }
 
-private val LabelTokenizer = SingleInstructionTokenizer({ instruction ->
+private val LabelTokenizer = SingleInstructionTokenizer { instruction ->
     if (instruction is LabelNode) {
         RuntimeInstructionToken.LabelToken(instruction)
     } else null
-})
+}
 
-private val JumpTokenizer = SingleInstructionTokenizer({ instruction ->
+private val JumpTokenizer = SingleInstructionTokenizer { instruction ->
     if (instruction is JumpInsnNode) {
         RuntimeInstructionToken.JumpToken(instruction)
     } else null
-})
+}
 
-private val ReturnTokenizer = SingleInstructionTokenizer({ instruction ->
+private val ReturnTokenizer = SingleInstructionTokenizer { instruction ->
     when (instruction.opcode) {
         Opcodes.RETURN -> ReturnToken(instruction)
         Opcodes.ARETURN -> ReturnToken(instruction)
@@ -169,7 +222,7 @@ private val ReturnTokenizer = SingleInstructionTokenizer({ instruction ->
         Opcodes.DRETURN -> ReturnToken(instruction)
         else -> null
     }
-})
+}
 
 private object StartRestartGroupTokenizer : RuntimeInstructionTokenizer() {
     override fun nextToken(context: TokenizerContext): Either<RuntimeInstructionToken, Failure>? {
@@ -231,6 +284,87 @@ private object EndReplaceGroupTokenizer : RuntimeInstructionTokenizer() {
 
         return null
     }
+}
+
+private object SourceInformationTokenizer : RuntimeInstructionTokenizer() {
+    override fun nextToken(context: TokenizerContext): Either<RuntimeInstructionToken, Failure>? {
+        val expectedSourceInformationLoad = context[0] ?: return null
+        val expectedMethodInsn = context[1] ?: return null
+
+        if (expectedMethodInsn is MethodInsnNode && MethodId(expectedMethodInsn) == Ids.ComposerKt.sourceInformation) {
+            val sourceInformationLdc = expectedSourceInformationLoad as? LdcInsnNode ?: return Failure(
+                "Failed parsing 'sourceInformation' call: expected LDC for source information"
+            ).toRight()
+
+            return RuntimeInstructionToken.SourceInformation(
+                sourceInformationLdc.cst as? String ?: "N/A",
+                listOf(expectedSourceInformationLoad, expectedMethodInsn)
+            ).toLeft()
+        }
+
+        return null
+    }
+}
+
+private object SourceInformationMarkerStartTokenizer : RuntimeInstructionTokenizer() {
+    override fun nextToken(context: TokenizerContext): Either<RuntimeInstructionToken, Failure>? {
+        val consumer = context.consumer()
+
+        /* Search for key */
+        val expectedKeyLoad = consumer.nextOrNull() ?: return null
+        val key = expectedKeyLoad.intValueOrNull() ?: return null
+
+        /* search for source information */
+        var sourceInformation: String = run sourceInformation@{
+            while (consumer.hasNext()) {
+                when (val next = consumer.next()) {
+                    is LabelNode -> continue
+                    is LineNumberNode -> continue
+                    is LdcInsnNode -> {
+                        return@sourceInformation next.cst as? String ?: "N/A"
+                        break
+                    }
+                    else -> return null
+                }
+            }
+            return null
+        }
+
+        /* search for sourceInformationMarkerStart call */
+        while (consumer.hasNext()) {
+            when (val next = consumer.next()) {
+                is LabelNode -> continue
+                is LineNumberNode -> continue
+                is MethodInsnNode -> {
+                    if (MethodId(next) == Ids.ComposerKt.sourceInformationMarkerStart) {
+                        return RuntimeInstructionToken.SourceInformationMarkerStart(
+                            key = ComposeGroupKey(key),
+                            sourceInformation = sourceInformation,
+                            instructions = consumer.allConsumedInstructions()
+                        ).toLeft()
+                    }
+                }
+                else -> return null
+            }
+        }
+
+        return null
+    }
+}
+
+private object SourceInformationMarkerEndTokenizer : RuntimeInstructionTokenizer() {
+    override fun nextToken(context: TokenizerContext): Either<RuntimeInstructionToken, Failure>? {
+        val expectedMethodInsn = context[0] ?: return null
+        if (expectedMethodInsn is MethodInsnNode &&
+            MethodId(expectedMethodInsn) == Ids.ComposerKt.sourceInformationMarkerEnd
+        ) {
+            return RuntimeInstructionToken.SourceInformationMarkerEnd(
+                instructions = listOf(expectedMethodInsn)
+            ).toLeft()
+        }
+        return null
+    }
+
 }
 
 

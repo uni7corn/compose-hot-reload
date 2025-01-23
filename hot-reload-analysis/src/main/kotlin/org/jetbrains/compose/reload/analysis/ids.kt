@@ -37,6 +37,24 @@ internal object Ids {
             methodName = "traceEventStart",
             methodDescriptor = "(IIILjava/lang/String;)V"
         )
+
+        val sourceInformation = MethodId(
+            classId,
+            methodName = "sourceInformation",
+            methodDescriptor = "(Landroidx/compose/runtime/Composer;Ljava/lang/String;)V"
+        )
+
+        val sourceInformationMarkerStart = MethodId(
+            classId,
+            methodName = "sourceInformationMarkerStart",
+            methodDescriptor = "(Landroidx/compose/runtime/Composer;ILjava/lang/String;)V"
+        )
+
+        val sourceInformationMarkerEnd = MethodId(
+            classId,
+            methodName = "sourceInformationMarkerEnd",
+            methodDescriptor = "(Landroidx/compose/runtime/Composer;)V"
+        )
     }
 
     object FunctionKeyMeta {

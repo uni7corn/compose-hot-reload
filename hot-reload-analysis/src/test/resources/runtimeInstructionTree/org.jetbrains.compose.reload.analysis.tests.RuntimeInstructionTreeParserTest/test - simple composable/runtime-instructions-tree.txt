@@ -18,7 +18,7 @@ class TestKt {
     }
     
     fun Foo (Landroidx/compose/runtime/Composer;I)V {
-        Method (group=ComposeGroupKey(key=-607362160)) [0:29] {
+        Method (group=ComposeGroupKey(key=-607362160)) [0:31] {
             LabelToken(L0)
             BlockToken(2)
             BlockToken(3)
@@ -29,9 +29,11 @@ class TestKt {
             BlockToken(1)
             ReturnToken(returnInsn=177)
     
-            RestartGroup (group=ComposeGroupKey(key=-607362160)) [3:20] {
+            RestartGroup (group=ComposeGroupKey(key=-607362160)) [3:22] {
                 StartRestartGroup(key=ComposeGroupKey(key=-607362160))
                 BlockToken(2)
+                SourceInformation(C(Foo)5@102L13:Test.kt)
+                BlockToken(1)
                 JumpToken(L1, opocde=154)
                 BlockToken(2)
                 JumpToken(L3, opocde=154)

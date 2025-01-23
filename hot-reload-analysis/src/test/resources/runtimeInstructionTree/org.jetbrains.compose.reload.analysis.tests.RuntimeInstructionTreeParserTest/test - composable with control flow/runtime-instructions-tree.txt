@@ -26,7 +26,7 @@ class TestKt {
     }
     
     fun Foo (ILandroidx/compose/runtime/Composer;I)V {
-        Method (group=ComposeGroupKey(key=-643616831)) [0:77] {
+        Method (group=ComposeGroupKey(key=-643616831)) [0:85] {
             LabelToken(L0)
             BlockToken(2)
             BlockToken(4)
@@ -37,9 +37,11 @@ class TestKt {
             BlockToken(1)
             ReturnToken(returnInsn=177)
     
-            RestartGroup (group=ComposeGroupKey(key=-643616831)) [3:68] {
+            RestartGroup (group=ComposeGroupKey(key=-643616831)) [3:76] {
                 StartRestartGroup(key=ComposeGroupKey(key=-643616831))
-                BlockToken(3)
+                BlockToken(2)
+                SourceInformation(C(Foo):Test.kt)
+                BlockToken(2)
                 LabelToken(L1)
                 BlockToken(3)
                 JumpToken(L4, opocde=154)
@@ -78,8 +80,10 @@ class TestKt {
                 BlockToken(2)
                 EndRestartGroup()
     
-                ReplaceGroup (group=ComposeGroupKey(key=-1254956568)) [29:33] {
+                ReplaceGroup (group=ComposeGroupKey(key=-1254956568)) [31:37] {
                     StartReplaceGroup(key=ComposeGroupKey(key=-1254956568))
+                    BlockToken(1)
+                    SourceInformation(6@136L13)
                     LabelToken(L7)
                     BlockToken(23)
                     LabelToken(L8)
@@ -87,8 +91,10 @@ class TestKt {
                     EndReplaceGroup()
                 }
     
-                ReplaceGroup (group=ComposeGroupKey(key=-1254919430)) [38:58] {
+                ReplaceGroup (group=ComposeGroupKey(key=-1254919430)) [42:66] {
                     StartReplaceGroup(key=ComposeGroupKey(key=-1254919430))
+                    BlockToken(1)
+                    SourceInformation(12@244L18)
                     LabelToken(L10)
                     BlockToken(3)
                     JumpToken(L13, opocde=164)
@@ -102,8 +108,10 @@ class TestKt {
                     BlockToken(2)
                     EndReplaceGroup()
     
-                    ReplaceGroup (group=ComposeGroupKey(key=-1254896707)) [43:47] {
+                    ReplaceGroup (group=ComposeGroupKey(key=-1254896707)) [49:55] {
                         StartReplaceGroup(key=ComposeGroupKey(key=-1254896707))
+                        BlockToken(1)
+                        SourceInformation(9@200L16)
                         LabelToken(L11)
                         BlockToken(23)
                         LabelToken(L12)
@@ -111,7 +119,7 @@ class TestKt {
                         EndReplaceGroup()
                     }
     
-                    ReplaceGroup (group=ComposeGroupKey(key=-1254858267)) [52:53] {
+                    ReplaceGroup (group=ComposeGroupKey(key=-1254858267)) [60:61] {
                         StartReplaceGroup(key=ComposeGroupKey(key=-1254858267))
                         BlockToken(1)
                         EndReplaceGroup()

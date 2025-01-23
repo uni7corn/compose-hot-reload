@@ -44,8 +44,13 @@ class FooKt {
         StartRestartGroup(key=ComposeGroupKey(key=-412519275))
             LdcInsnNode(-412519275) [18]
             MethodInsnNode(androidx/compose/runtime/Composer.startRestartGroup (I)Landroidx/compose/runtime/Composer;) [185]
-        BlockToken(3)
+        BlockToken(2)
             VarInsnNode [58]
+            VarInsnNode [25]
+        SourceInformation(C(Foo):Foo.kt)
+            LdcInsnNode(C(Foo):Foo.kt) [18]
+            MethodInsnNode(androidx/compose/runtime/ComposerKt.sourceInformation (Landroidx/compose/runtime/Composer;Ljava/lang/String;)V) [184]
+        BlockToken(2)
             VarInsnNode [21]
             VarInsnNode [54]
         LabelToken(L1)
@@ -119,6 +124,11 @@ class FooKt {
         StartReplaceGroup(key=ComposeGroupKey(key=-1460241260))
             LdcInsnNode(-1460241260) [18]
             MethodInsnNode(androidx/compose/runtime/Composer.startReplaceGroup (I)V) [185]
+        BlockToken(1)
+            VarInsnNode [25]
+        SourceInformation(6@136L13)
+            LdcInsnNode(6@136L13) [18]
+            MethodInsnNode(androidx/compose/runtime/ComposerKt.sourceInformation (Landroidx/compose/runtime/Composer;Ljava/lang/String;)V) [184]
         LabelToken(L7)
             LabelNode(L7)
         BlockToken(23)
@@ -163,6 +173,11 @@ class FooKt {
         StartReplaceGroup(key=ComposeGroupKey(key=-1460204122))
             LdcInsnNode(-1460204122) [18]
             MethodInsnNode(androidx/compose/runtime/Composer.startReplaceGroup (I)V) [185]
+        BlockToken(1)
+            VarInsnNode [25]
+        SourceInformation(12@244L18)
+            LdcInsnNode(12@244L18) [18]
+            MethodInsnNode(androidx/compose/runtime/ComposerKt.sourceInformation (Landroidx/compose/runtime/Composer;Ljava/lang/String;)V) [184]
         LabelToken(L10)
             LabelNode(L10)
         BlockToken(3)
@@ -176,6 +191,11 @@ class FooKt {
         StartReplaceGroup(key=ComposeGroupKey(key=-1460181399))
             LdcInsnNode(-1460181399) [18]
             MethodInsnNode(androidx/compose/runtime/Composer.startReplaceGroup (I)V) [185]
+        BlockToken(1)
+            VarInsnNode [25]
+        SourceInformation(9@200L16)
+            LdcInsnNode(9@200L16) [18]
+            MethodInsnNode(androidx/compose/runtime/ComposerKt.sourceInformation (Landroidx/compose/runtime/Composer;Ljava/lang/String;)V) [184]
         LabelToken(L11)
             LabelNode(L11)
         BlockToken(23)

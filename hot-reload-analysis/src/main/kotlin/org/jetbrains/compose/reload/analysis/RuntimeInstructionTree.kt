@@ -6,6 +6,9 @@ import org.jetbrains.compose.reload.analysis.RuntimeInstructionToken.EndRestartG
 import org.jetbrains.compose.reload.analysis.RuntimeInstructionToken.JumpToken
 import org.jetbrains.compose.reload.analysis.RuntimeInstructionToken.LabelToken
 import org.jetbrains.compose.reload.analysis.RuntimeInstructionToken.ReturnToken
+import org.jetbrains.compose.reload.analysis.RuntimeInstructionToken.SourceInformation
+import org.jetbrains.compose.reload.analysis.RuntimeInstructionToken.SourceInformationMarkerEnd
+import org.jetbrains.compose.reload.analysis.RuntimeInstructionToken.SourceInformationMarkerStart
 import org.jetbrains.compose.reload.analysis.RuntimeInstructionToken.StartReplaceGroup
 import org.jetbrains.compose.reload.analysis.RuntimeInstructionToken.StartRestartGroup
 import org.jetbrains.compose.reload.core.Either
@@ -115,7 +118,8 @@ private fun parseRuntimeInstructionTree(
         val currentIndex = index
 
         when (currentToken) {
-            is BockToken, is LabelToken -> {
+            is BockToken, is LabelToken,
+            is SourceInformation, is SourceInformationMarkerStart, is SourceInformationMarkerEnd -> {
                 consumed += currentToken
                 index++
             }

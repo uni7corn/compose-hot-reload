@@ -86,10 +86,21 @@ private class DefaultBuildGradleKtsExtension() : BeforeTestExecutionCallback {
 
                 }
 
-
                 CompilerOption.GenerateFunctionKeyMetaAnnotations -> {
                     if (enabled != CompilerOption.GenerateFunctionKeyMetaAnnotations.default) {
                         error("Unsupported compiler option: $key")
+                    }
+                }
+
+                CompilerOption.SourceInformation -> {
+                    projectDirs.forEach { projectDir ->
+                        projectDir.buildGradleKts.appendText("""
+                            
+                            composeCompiler {
+                                includeSourceInformation = true
+                            }
+                            
+                        """.trimIndent())
                     }
                 }
             }

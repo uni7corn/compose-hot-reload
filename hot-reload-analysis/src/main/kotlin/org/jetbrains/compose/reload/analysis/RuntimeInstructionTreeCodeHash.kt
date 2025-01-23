@@ -31,6 +31,13 @@ internal fun RuntimeInstructionTree.codeHash(): RuntimeInstructionTreeCodeHash {
 
 
     tokens.forEach token@{ token ->
+        if (token is RuntimeInstructionToken.SourceInformation ||
+            token is RuntimeInstructionToken.SourceInformationMarkerStart ||
+            token is RuntimeInstructionToken.SourceInformationMarkerEnd
+        ) {
+            return@tokeni
+        }
+
         token.instructions.forEach instruction@{ instructionNode ->
             if (instructionNode.opcode > 0) {
                 pushHash(instructionNode.opcode)

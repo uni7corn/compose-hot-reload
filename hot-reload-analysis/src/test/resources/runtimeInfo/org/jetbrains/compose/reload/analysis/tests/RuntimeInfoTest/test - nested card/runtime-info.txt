@@ -86,7 +86,7 @@ ComposableSingletons$FooKt$lambda$1969856002$1 {
     invoke {
         desc: (Landroidx/compose/foundation/layout/ColumnScope;Landroidx/compose/runtime/Composer;I)V
         key: 1969856002
-        codeHash: 2373654039
+        codeHash: 3883426829
         methodDependencies: []
         fieldDependencies: []
     }
@@ -124,7 +124,7 @@ ComposableSingletons$FooKt$lambda$904522804$1 {
     invoke {
         desc: (Landroidx/compose/foundation/layout/ColumnScope;Landroidx/compose/runtime/Composer;I)V
         key: 904522804
-        codeHash: 353463363
+        codeHash: 2619273190
         methodDependencies: []
         fieldDependencies: [
             ComposableSingletons$FooKt.INSTANCE LComposableSingletons$FooKt;
@@ -162,7 +162,7 @@ FooKt {
     
         RestartGroup {
             key: -965539098
-            codeHash: 1050538815
+            codeHash: 406798702
             methodDependencies: []
             fieldDependencies: [
                 ComposableSingletons$FooKt.INSTANCE LComposableSingletons$FooKt;
