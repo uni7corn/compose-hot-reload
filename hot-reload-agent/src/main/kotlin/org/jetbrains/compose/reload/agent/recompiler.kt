@@ -44,8 +44,7 @@ private val recompileRequests = LinkedBlockingQueue<RecompileRequest>(
 )
 
 internal fun launchRecompiler() {
-
-    val port = ComposeHotReloadAgent.orchestration.port
+    val port = orchestration.port
     logger.debug("'Compose Recompiler': Using orchestration at '$port'")
 
     val processBuilder = when (buildSystem) {
@@ -120,11 +119,11 @@ internal fun launchRecompiler() {
         }
     }
 
-    ComposeHotReloadAgent.orchestration.invokeWhenReceived<RecompileRequest> { value ->
+    orchestration.invokeWhenReceived<RecompileRequest> { value ->
         recompileRequests.put(value)
     }
 
-    ComposeHotReloadAgent.orchestration.invokeWhenClosed {
+    orchestration.invokeWhenClosed {
         logger.debug("'Compose Recompiler': Sending close signal")
         recompilerThread.interrupt()
         recompilerThread.join()

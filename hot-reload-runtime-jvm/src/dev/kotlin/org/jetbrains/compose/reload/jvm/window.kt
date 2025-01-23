@@ -7,7 +7,7 @@ import kotlinx.coroutines.currentCoroutineContext
 import kotlinx.coroutines.flow.filterIsInstance
 import kotlinx.coroutines.job
 import kotlinx.coroutines.launch
-import org.jetbrains.compose.reload.agent.ComposeHotReloadAgent
+import org.jetbrains.compose.reload.agent.orchestration
 import org.jetbrains.compose.reload.agent.send
 import org.jetbrains.compose.reload.core.WindowId
 import org.jetbrains.compose.reload.core.createLogger
@@ -101,7 +101,7 @@ internal fun startWindowManager(): WindowId? {
         window.addComponentListener(componentListener)
 
         launch {
-            ComposeHotReloadAgent.orchestration.asFlow().filterIsInstance<ClientConnected>().collect { message ->
+            orchestration.asFlow().filterIsInstance<ClientConnected>().collect { message ->
                 broadcastWindowPosition()
             }
         }

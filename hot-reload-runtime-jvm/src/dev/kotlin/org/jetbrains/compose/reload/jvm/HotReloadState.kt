@@ -3,7 +3,7 @@ package org.jetbrains.compose.reload.jvm
 import androidx.compose.runtime.staticCompositionLocalOf
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.update
-import org.jetbrains.compose.reload.agent.ComposeHotReloadAgent
+import org.jetbrains.compose.reload.agent.invokeAfterHotReload
 import org.jetbrains.compose.reload.core.exceptionOrNull
 import java.util.UUID
 
@@ -27,7 +27,7 @@ internal data class HotReloadState(
 internal val hotReloadStateLocal = staticCompositionLocalOf<HotReloadState?> { null }
 
 internal val hotReloadState: MutableStateFlow<HotReloadState> = MutableStateFlow(HotReloadState(null, 0)).apply {
-    ComposeHotReloadAgent.invokeAfterReload { reloadRequestId: UUID, result ->
+    invokeAfterHotReload { reloadRequestId: UUID, result ->
         update { state ->
             state.copy(
                 reloadRequestId = reloadRequestId,

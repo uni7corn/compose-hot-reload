@@ -32,7 +32,7 @@ import org.jetbrains.compose.hot_reload_under_test.generated.resources.Res
 import org.jetbrains.compose.hot_reload_under_test.generated.resources.Roboto_Medium
 import org.jetbrains.compose.reload.DevelopmentEntryPoint
 import org.jetbrains.compose.reload.InternalHotReloadApi
-import org.jetbrains.compose.reload.agent.ComposeHotReloadAgent.orchestration
+import org.jetbrains.compose.reload.agent.orchestration
 import org.jetbrains.compose.reload.jvm.runDevApplicationHeadless
 import org.jetbrains.compose.reload.orchestration.OrchestrationMessage
 import org.jetbrains.compose.reload.orchestration.asChannel

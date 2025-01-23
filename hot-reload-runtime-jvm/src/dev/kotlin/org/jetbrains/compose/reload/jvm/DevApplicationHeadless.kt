@@ -24,7 +24,7 @@ import kotlinx.coroutines.job
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.yield
 import org.jetbrains.compose.reload.InternalHotReloadApi
-import org.jetbrains.compose.reload.agent.ComposeHotReloadAgent
+import org.jetbrains.compose.reload.agent.orchestration
 import org.jetbrains.compose.reload.core.createLogger
 import org.jetbrains.compose.reload.orchestration.OrchestrationMessage
 import org.jetbrains.compose.reload.orchestration.OrchestrationMessage.ShutdownRequest
@@ -47,7 +47,6 @@ fun runDevApplicationHeadless(
 ) {
     val logger = createLogger()
     val applicationScope = CoroutineScope(Dispatchers.Main + Job())
-    val orchestration = ComposeHotReloadAgent.orchestration
     val messages = orchestration.asChannel()
 
     val scene = ImageComposeScene(width, height, coroutineContext = applicationScope.coroutineContext)

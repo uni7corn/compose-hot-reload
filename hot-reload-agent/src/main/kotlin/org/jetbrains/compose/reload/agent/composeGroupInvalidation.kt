@@ -9,13 +9,13 @@ import java.security.ProtectionDomain
 
 private val logger = createLogger()
 
-internal fun startComposeGroupInvalidationTransformation(instrumentation: Instrumentation) {
+internal fun launchComposeGroupInvalidationTransformation(instrumentation: Instrumentation) {
 
     /*
     Instruct Compose to invalidate groups that have changed, after successful reload.
      */
-    ComposeHotReloadAgent.invokeAfterReload { reloadRequestId, result ->
-        if (result.isFailure()) return@invokeAfterReload
+    invokeAfterHotReload { reloadRequestId, result ->
+        if (result.isFailure()) return@invokeAfterHotReload
 
         val previousRuntime = result.value.previousRuntime
         val newRuntime = result.value.newRuntime

@@ -9,11 +9,11 @@ import kotlin.io.path.outputStream
 
 private val logger = createLogger()
 
-internal fun createPidFile() {
+internal fun createPidfile() {
     val pidFile = HotReloadEnvironment.pidFile ?: return
     val properties = Properties()
     properties["pid"] = ProcessHandle.current().pid().toString()
-    properties["orchestration.port"] = ComposeHotReloadAgent.orchestration.port.toString()
+    properties["orchestration.port"] = orchestration.port.toString()
 
     pidFile.createParentDirectories().outputStream().use { out ->
         properties.store(out, null)

@@ -6,7 +6,6 @@ import androidx.compose.runtime.*
 import kotlinx.coroutines.flow.filterIsInstance
 import kotlinx.coroutines.flow.update
 import org.jetbrains.compose.reload.InternalHotReloadApi
-import org.jetbrains.compose.reload.agent.ComposeHotReloadAgent
 import org.jetbrains.compose.reload.agent.orchestration
 import org.jetbrains.compose.reload.agent.send
 import org.jetbrains.compose.reload.core.createLogger
@@ -31,13 +30,13 @@ internal fun JvmDevelopmentEntryPoint(child: @Composable () -> Unit) {
     val windowId = startWindowManager()
 
     LaunchedEffect(Unit) {
-        ComposeHotReloadAgent.orchestration.asFlow().filterIsInstance<CleanCompositionRequest>().collect { value ->
+        orchestration.asFlow().filterIsInstance<CleanCompositionRequest>().collect { value ->
             cleanComposition()
         }
     }
 
     LaunchedEffect(Unit) {
-        ComposeHotReloadAgent.orchestration.asFlow().filterIsInstance<RetryFailedCompositionRequest>().collect {
+        orchestration.asFlow().filterIsInstance<RetryFailedCompositionRequest>().collect {
             retryFailedCompositions()
         }
     }

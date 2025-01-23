@@ -16,7 +16,7 @@ public inline fun Logger.orchestration(message: String, throwable: Throwable? = 
 
     val packageName = MethodHandles.lookup().lookupClass().packageName
     val tag = when {
-        packageName.startsWith(ComposeHotReloadAgent.javaClass.packageName) -> TAG_AGENT
+        packageName.startsWith("org.jetbrains.compose.reload.agent") -> TAG_AGENT
         else -> TAG_RUNTIME
     }
 

@@ -13,8 +13,10 @@ import kotlin.concurrent.thread
 
 private val logger = createLogger()
 
+val orchestration by lazy { startOrchestration() }
+
 fun OrchestrationMessage.send(): Future<Unit> {
-    return ComposeHotReloadAgent.orchestration.sendMessage(this)
+    return orchestration.sendMessage(this)
 }
 
 internal fun startOrchestration(): OrchestrationHandle {

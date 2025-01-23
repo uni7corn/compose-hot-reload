@@ -20,7 +20,7 @@ internal fun launchDevtoolsApplication() {
 
     val process = ProcessBuilder(
         java, "-cp", classpath.joinToString(File.pathSeparator),
-        "-D${HotReloadProperty.OrchestrationPort.key}=${ComposeHotReloadAgent.orchestration.port}",
+        "-D${HotReloadProperty.OrchestrationPort.key}=${orchestration.port}",
         "-D${HotReloadProperty.GradleBuildContinuous.key}=${HotReloadEnvironment.gradleBuildContinuous}",
         "-Dapple.awt.UIElement=true",
         "org.jetbrains.compose.reload.jvm.tooling.Main",

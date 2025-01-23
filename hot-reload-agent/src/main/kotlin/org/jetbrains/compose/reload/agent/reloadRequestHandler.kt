@@ -16,15 +16,16 @@ import kotlin.system.exitProcess
 
 private val logger = createLogger()
 
-internal fun launchReloadClassesRequestHandler(instrumentation: Instrumentation) {
+
+internal fun launchReloadRequestHandler(instrumentation: Instrumentation) {
     var pendingChanges = mapOf<File, OrchestrationMessage.ReloadClassesRequest.ChangeType>()
 
-    ComposeHotReloadAgent.orchestration.invokeWhenReceived<OrchestrationMessage.ReloadClassesRequest> { request ->
+    orchestration.invokeWhenReceived<OrchestrationMessage.ReloadClassesRequest> { request ->
         SwingUtilities.invokeAndWait {
 
             pendingChanges = pendingChanges + request.changedClassFiles
 
-            ComposeHotReloadAgent.executeBeforeReloadListeners(request.messageId)
+            executeBeforeHotReloadListeners(request.messageId)
             val result = Try { reload(instrumentation, request.messageId, pendingChanges) }
 
             /*
@@ -46,16 +47,16 @@ internal fun launchReloadClassesRequestHandler(instrumentation: Instrumentation)
                 ).send()
             }
 
-            ComposeHotReloadAgent.executeAfterReloadListeners(request.messageId, result)
+            executeAfterHotReloadListeners(request.messageId, result)
         }
     }
 
-    ComposeHotReloadAgent.orchestration.invokeWhenReceived<OrchestrationMessage.ShutdownRequest> {
+    orchestration.invokeWhenReceived<OrchestrationMessage.ShutdownRequest> {
         logger.info("Received shutdown request")
         exitProcess(0)
     }
 
-    ComposeHotReloadAgent.orchestration.invokeWhenClosed {
+    orchestration.invokeWhenClosed {
         logger.info("Application Orchestration closed")
         exitProcess(0)
     }
