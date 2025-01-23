@@ -28,7 +28,7 @@ internal fun AbstractInsnNode.intValueOrNull(): Int? {
 
 internal fun MethodNode.readFunctionKeyMetaAnnotation(): ComposeGroupKey? {
     val functionKey = visibleAnnotations.orEmpty().find { annotationNode ->
-        annotationNode.desc == functionKeyMetaConstructorDescriptor
+        annotationNode.desc == Ids.FunctionKeyMeta.classId.descriptor
     }?.values?.zipWithNext()?.find { (name, _) -> name == "key" }?.second as? Int
 
     if (functionKey != null) {

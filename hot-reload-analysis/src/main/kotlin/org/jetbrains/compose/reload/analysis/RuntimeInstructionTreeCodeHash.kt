@@ -1,6 +1,6 @@
 package org.jetbrains.compose.reload.analysis
 
-import org.jetbrains.compose.reload.analysis.MethodIds.Composer.traceEventStart
+import org.jetbrains.compose.reload.analysis.Ids.ComposerKt.traceEventStart
 import org.objectweb.asm.tree.FieldInsnNode
 import org.objectweb.asm.tree.IntInsnNode
 import org.objectweb.asm.tree.InvokeDynamicInsnNode

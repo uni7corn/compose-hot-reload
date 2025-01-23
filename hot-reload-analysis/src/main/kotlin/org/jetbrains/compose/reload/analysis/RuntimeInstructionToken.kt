@@ -177,7 +177,7 @@ private object StartRestartGroupTokenizer : RuntimeInstructionTokenizer() {
         val expectedMethodInsn = context[1] ?: return null
 
         if (expectedMethodInsn is MethodInsnNode &&
-            MethodId(expectedMethodInsn) == MethodIds.Composer.startRestartGroup
+            MethodId(expectedMethodInsn) == Ids.Composer.startRestartGroup
         ) {
             val keyValue = expectedLdc.intValueOrNull() ?: return Failure(
                 "Failed parsing startRestartGroup token: expected key value"
@@ -194,7 +194,7 @@ private object StartRestartGroupTokenizer : RuntimeInstructionTokenizer() {
 private object EndRestartGroupTokenizer : RuntimeInstructionTokenizer() {
     override fun nextToken(context: TokenizerContext): Either<RuntimeInstructionToken, Failure>? {
         val expectedMethodIns = context[0] as? MethodInsnNode ?: return null
-        if (MethodId(expectedMethodIns) == MethodIds.Composer.endRestartGroup) {
+        if (MethodId(expectedMethodIns) == Ids.Composer.endRestartGroup) {
             return RuntimeInstructionToken.EndRestartGroup(listOf(expectedMethodIns)).toLeft()
         }
 
@@ -208,7 +208,7 @@ private object StartReplaceGroupTokenizer : RuntimeInstructionTokenizer() {
         val expectedMethodInsn = context[1] ?: return null
 
         if (expectedMethodInsn is MethodInsnNode &&
-            MethodId(expectedMethodInsn) == MethodIds.Composer.startReplaceGroup
+            MethodId(expectedMethodInsn) == Ids.Composer.startReplaceGroup
         ) {
             val keyValue = expectedLdc.intValueOrNull() ?: return Failure(
                 "Failed parsing startReplaceGroup token: expected key value"
@@ -225,7 +225,7 @@ private object StartReplaceGroupTokenizer : RuntimeInstructionTokenizer() {
 private object EndReplaceGroupTokenizer : RuntimeInstructionTokenizer() {
     override fun nextToken(context: TokenizerContext): Either<RuntimeInstructionToken, Failure>? {
         val expectedMethodIns = context[0] as? MethodInsnNode ?: return null
-        if (MethodId(expectedMethodIns) == MethodIds.Composer.endReplaceGroup) {
+        if (MethodId(expectedMethodIns) == Ids.Composer.endReplaceGroup) {
             return EndReplaceGroup(listOf(expectedMethodIns)).toLeft()
         }
 

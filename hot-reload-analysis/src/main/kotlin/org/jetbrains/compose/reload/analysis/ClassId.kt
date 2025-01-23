@@ -11,6 +11,8 @@ value class ClassId(val value: String) : Comparable<ClassId> {
     override fun toString(): String {
         return value
     }
+
+    val descriptor: String get() = "L$value;"
 }
 
 fun ClassId(clazz: KClass<*>): ClassId {

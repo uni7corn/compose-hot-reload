@@ -1,58 +1,48 @@
 package org.jetbrains.compose.reload.analysis
 
-internal val composerClazzId = ClassId("androidx/compose/runtime/Composer")
-internal val composerKtClazzId = ClassId("androidx/compose/runtime/ComposerKt")
-
-internal const val startReplaceGroupMethodName = "startReplaceGroup"
-internal const val startRestartGroupMethodName = "startRestartGroup"
-internal const val sourceInformationMarkerStartMethodName = "sourceInformationMarkerStart"
-
-internal const val endReplaceGroupMethodName = "endReplaceGroup"
-internal const val endRestartGroupMethodName = "endRestartGroup"
-internal const val sourceInformationMarkerEndMethodName = "sourceInformationMarkerEnd"
-
-internal const val functionKeyMetaConstructorDescriptor = "Landroidx/compose/runtime/internal/FunctionKeyMeta;"
-
-internal object MethodIds {
+internal object Ids {
     object Composer {
-        val traceEventStart = MethodId(
-            composerKtClazzId, methodName = "traceEventStart", methodDescriptor = "(IIILjava/lang/String;)V"
-        )
+        val classId = ClassId("androidx/compose/runtime/Composer")
 
         val startRestartGroup = MethodId(
-            composerClazzId,
-            methodName = startRestartGroupMethodName,
+            classId,
+            methodName = "startRestartGroup",
             methodDescriptor = "(I)Landroidx/compose/runtime/Composer;"
         )
 
         val startReplaceGroup = MethodId(
-            composerClazzId,
-            methodName = startReplaceGroupMethodName,
+            classId,
+            methodName = "startReplaceGroup",
             methodDescriptor = "(I)V"
         )
 
-        val sourceInformationMarkerStart = MethodId(
-            composerClazzId,
-            methodName = sourceInformationMarkerStartMethodName,
-            methodDescriptor = "(ILjava/lang/String;)V"
-        )
-
         val endReplaceGroup = MethodId(
-            composerClazzId,
-            methodName = endReplaceGroupMethodName,
+            classId,
+            methodName = "endReplaceGroup",
             methodDescriptor = "()V"
         )
 
         val endRestartGroup = MethodId(
-            composerClazzId,
-            methodName = endRestartGroupMethodName,
+            classId,
+            methodName = "endRestartGroup",
             methodDescriptor = "()Landroidx/compose/runtime/ScopeUpdateScope;"
         )
+    }
 
-        val sourceInformationMarkerEnd = MethodId(
-            composerClazzId,
-            methodName = sourceInformationMarkerEndMethodName,
-            methodDescriptor = "()V"
+    object ComposerKt {
+        val classId = ClassId("androidx/compose/runtime/ComposerKt")
+
+        val traceEventStart = MethodId(
+            classId,
+            methodName = "traceEventStart",
+            methodDescriptor = "(IIILjava/lang/String;)V"
         )
     }
+
+    object FunctionKeyMeta {
+        val classId = ClassId("androidx/compose/runtime/internal/FunctionKeyMeta")
+    }
 }
+
+val ClassId.classInitializerMethodId: MethodId
+    get() = MethodId(this, "<clinit>", "()V")
