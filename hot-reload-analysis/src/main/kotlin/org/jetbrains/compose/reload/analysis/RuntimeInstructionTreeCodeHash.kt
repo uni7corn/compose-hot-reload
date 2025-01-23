@@ -35,7 +35,7 @@ internal fun RuntimeInstructionTree.codeHash(): RuntimeInstructionTreeCodeHash {
             token is RuntimeInstructionToken.SourceInformationMarkerStart ||
             token is RuntimeInstructionToken.SourceInformationMarkerEnd
         ) {
-            return@tokeni
+            return@token
         }
 
         token.instructions.forEach instruction@{ instructionNode ->
