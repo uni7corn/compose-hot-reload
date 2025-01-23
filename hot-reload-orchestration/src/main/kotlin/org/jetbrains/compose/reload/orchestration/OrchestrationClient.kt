@@ -1,5 +1,6 @@
 package org.jetbrains.compose.reload.orchestration
 
+import org.jetbrains.compose.reload.core.Disposable
 import org.jetbrains.compose.reload.core.HotReloadEnvironment
 import org.slf4j.LoggerFactory
 import java.io.ObjectInputStream

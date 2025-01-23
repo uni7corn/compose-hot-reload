@@ -1,5 +1,6 @@
 package org.jetbrains.compose.reload.orchestration
 
+import org.jetbrains.compose.reload.core.Disposable
 import org.jetbrains.compose.reload.orchestration.OrchestrationMessage.ClientConnected
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory

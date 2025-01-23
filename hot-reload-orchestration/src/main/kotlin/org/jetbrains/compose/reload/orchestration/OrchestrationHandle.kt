@@ -1,5 +1,6 @@
 package org.jetbrains.compose.reload.orchestration
 
+import org.jetbrains.compose.reload.core.Disposable
 import java.util.concurrent.Future
 
 
@@ -25,8 +26,4 @@ public inline fun <reified T> OrchestrationHandle.invokeWhenReceived(crossinline
     return invokeWhenMessageReceived { message ->
         if (message is T) action(message)
     }
-}
-
-public fun interface Disposable {
-    public fun dispose()
 }
