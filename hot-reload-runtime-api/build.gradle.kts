@@ -11,6 +11,7 @@ plugins {
     id("com.android.library")
     `maven-publish`
     `publishing-conventions`
+    `api-validation-conventions`
 }
 
 kotlin {

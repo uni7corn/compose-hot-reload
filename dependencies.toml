@@ -5,6 +5,7 @@ compose = "1.7.3"
 coroutines = "1.10.1"
 kotlinxDatetime = "0.6.1"
 kotlinxBenchmark = "0.4.13"
+kotlinxBinaryCompatibilityValidator = "0.17.0"
 slf4j = "2.0.16"
 androidGradlePlugin = "8.7.1"
 junit = "5.11.3"
@@ -20,6 +21,8 @@ coroutines-test = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-test", ve
 
 benchmark-runtime = { module = "org.jetbrains.kotlinx:kotlinx-benchmark-runtime", version.ref = "kotlinxBenchmark" }
 benchmark-gradlePlugin = { module = "org.jetbrains.kotlinx:kotlinx-benchmark-plugin", version.ref = "kotlinxBenchmark" }
+
+binaryCompatibilityValidator-gradlePlugin = { module = "org.jetbrains.kotlinx:binary-compatibility-validator", version.ref = "kotlinxBinaryCompatibilityValidator" }
 
 kotlinxDatetime = { module = "org.jetbrains.kotlinx:kotlinx-datetime", version.ref = "kotlinxDatetime" }
 slf4j-api = { module = "org.slf4j:slf4j-api", version.ref = "slf4j" }

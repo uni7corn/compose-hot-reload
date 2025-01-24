@@ -1,3 +1,5 @@
+@file:JvmName("HotReloadApi")
+
 package org.jetbrains.compose.reload
 
 import androidx.compose.runtime.Composable

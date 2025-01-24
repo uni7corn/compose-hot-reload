@@ -25,4 +25,5 @@ dependencies {
     implementation("org.jetbrains.compose:org.jetbrains.compose.gradle.plugin:${deps.versions.compose.get()}")
     implementation("com.android.tools.build:gradle:${deps.versions.androidGradlePlugin.get()}")
     implementation(deps.benchmark.gradlePlugin)
+    implementation(deps.binaryCompatibilityValidator.gradlePlugin)
 }

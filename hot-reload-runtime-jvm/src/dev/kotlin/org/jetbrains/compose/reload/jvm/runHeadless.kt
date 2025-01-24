@@ -1,5 +1,4 @@
 @file:OptIn(ExperimentalCoroutinesApi::class)
-@file:JvmName("DevApplicationHeadless")
 
 package org.jetbrains.compose.reload.jvm
 

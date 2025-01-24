@@ -1,0 +1,12 @@
+public abstract interface annotation class org/jetbrains/compose/reload/DevelopmentEntryPoint : java/lang/annotation/Annotation {
+	public abstract fun windowHeight ()I
+	public abstract fun windowWidth ()I
+}
+
+public final class org/jetbrains/compose/reload/HotReloadApi {
+	public static final fun DevelopmentEntryPoint (Lkotlin/jvm/functions/Function2;Landroidx/compose/runtime/Composer;I)V
+}
+
+public abstract interface annotation class org/jetbrains/compose/reload/InternalHotReloadApi : java/lang/annotation/Annotation {
+}
+

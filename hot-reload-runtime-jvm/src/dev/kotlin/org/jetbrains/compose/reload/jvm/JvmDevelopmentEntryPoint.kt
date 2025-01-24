@@ -5,7 +5,6 @@ package org.jetbrains.compose.reload.jvm
 import androidx.compose.runtime.*
 import kotlinx.coroutines.flow.filterIsInstance
 import kotlinx.coroutines.flow.update
-import org.jetbrains.compose.reload.InternalHotReloadApi
 import org.jetbrains.compose.reload.agent.orchestration
 import org.jetbrains.compose.reload.agent.send
 import org.jetbrains.compose.reload.core.createLogger
@@ -18,9 +17,7 @@ import org.jetbrains.compose.reload.orchestration.asFlow
 private val logger = createLogger()
 
 @Composable
-@PublishedApi
-@InternalHotReloadApi
-internal fun JvmDevelopmentEntryPoint(child: @Composable () -> Unit) {
+fun JvmDevelopmentEntryPoint(child: @Composable () -> Unit) {
     /* Checking if we're currently in the stack of a hot reload */
     if (hotReloadStateLocal.current != null) {
         child()
