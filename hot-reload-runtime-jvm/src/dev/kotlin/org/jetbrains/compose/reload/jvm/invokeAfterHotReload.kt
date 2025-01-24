@@ -24,6 +24,8 @@ fun invokeAfterHotReload(@Suppress("unused") block: () -> Unit): AutoCloseable {
         if (result.isSuccess()) {
             try {
                 block()
+            } catch (_: NoSuchMethodError) {
+                // https://github.com/JetBrains/compose-hot-reload/issues/66
             } catch (t: Throwable) {
                 val exception = InvokeAfterHotReloadException("Exception in 'invokeAfterHotReload' block", t)
                 if (registrationTrace != null) {

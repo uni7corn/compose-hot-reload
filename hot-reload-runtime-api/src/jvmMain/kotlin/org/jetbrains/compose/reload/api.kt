@@ -35,7 +35,12 @@ public actual fun AfterHotReloadEffect(action: () -> Unit) {
                 if (actionJob.isActive) {
                     action()
                 }
-            } catch (t: Throwable) {
+            }
+            // https://github.com/JetBrains/compose-hot-reload/issues/66
+            catch (_: NoSuchMethodError) {
+                actionJob.complete()
+            }
+            catch (t: Throwable) {
                 actionJob.completeExceptionally(t)
             }
         }
