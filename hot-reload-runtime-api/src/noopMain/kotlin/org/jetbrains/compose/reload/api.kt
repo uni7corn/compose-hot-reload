@@ -9,3 +9,8 @@ import kotlin.jvm.JvmName
 public actual fun DevelopmentEntryPoint(child: @Composable () -> Unit) {
     child()
 }
+
+public actual val staticHotReloadScope: HotReloadScope = NoopHotReloadScope
+
+@Composable
+public actual fun AfterHotReloadEffect(action: () -> Unit): Unit = Unit

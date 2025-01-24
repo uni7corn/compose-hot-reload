@@ -50,6 +50,7 @@ kotlin {
 
     sourceSets.commonMain.dependencies {
         implementation(compose.runtime)
+        implementation(deps.coroutines.core)
     }
 
     sourceSets.commonTest.dependencies {

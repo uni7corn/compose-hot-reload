@@ -1,4 +1,12 @@
 public final class org/jetbrains/compose/reload/jvm/JvmDevelopmentEntryPoint {
-	public static final fun JvmDevelopmentEntryPoint (Lkotlin/jvm/functions/Function2;Landroidx/compose/runtime/Composer;I)V
+	public static final fun DevelopmentEntryPoint (Lkotlin/jvm/functions/Function2;Landroidx/compose/runtime/Composer;I)V
+}
+
+public final class org/jetbrains/compose/reload/jvm/JvmInvokeAfterHotReload {
+	public static final fun invokeAfterHotReload (Lkotlin/jvm/functions/Function0;)Ljava/lang/AutoCloseable;
+}
+
+public final class org/jetbrains/compose/reload/jvm/isHotReloadActive {
+	public static final fun isHotReloadActive ()Z
 }
 

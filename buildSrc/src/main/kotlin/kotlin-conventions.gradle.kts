@@ -1,23 +1,22 @@
+import org.jetbrains.kotlin.gradle.dsl.HasConfigurableKotlinCompilerOptions
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 import org.jetbrains.kotlin.gradle.dsl.KotlinProjectExtension
-import org.jetbrains.kotlin.gradle.plugin.KotlinMultiplatformPluginWrapper
-import org.jetbrains.kotlin.gradle.plugin.KotlinPluginWrapper
+import org.jetbrains.kotlin.gradle.plugin.KotlinBasePluginWrapper
 import org.jetbrains.kotlin.gradle.tasks.KotlinJvmCompile
 
-plugins.withType<KotlinPluginWrapper> {
-    extensions.configure<KotlinProjectExtension> {
-        jvmToolchain {
-            this.languageVersion = JavaLanguageVersion.of(21)
-            this.vendor = JvmVendorSpec.JETBRAINS
-        }
-    }
-}
 
-plugins.withType<KotlinMultiplatformPluginWrapper> {
+plugins.withType<KotlinBasePluginWrapper> {
     extensions.configure<KotlinProjectExtension> {
         jvmToolchain {
-            this.languageVersion = JavaLanguageVersion.of(21)
-            this.vendor = JvmVendorSpec.JETBRAINS
+            languageVersion = JavaLanguageVersion.of(21)
+            @Suppress("UnstableApiUsage")
+            vendor = JvmVendorSpec.JETBRAINS
+        }
+
+        if (this is HasConfigurableKotlinCompilerOptions<*>) {
+            this.compilerOptions {
+                optIn.add("org.jetbrains.compose.reload.InternalHotReloadApi")
+            }
         }
     }
 }

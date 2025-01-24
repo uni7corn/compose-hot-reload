@@ -17,7 +17,7 @@ import org.jetbrains.compose.reload.orchestration.asFlow
 private val logger = createLogger()
 
 @Composable
-fun JvmDevelopmentEntryPoint(child: @Composable () -> Unit) {
+fun DevelopmentEntryPoint(child: @Composable () -> Unit) {
     /* Checking if we're currently in the stack of a hot reload */
     if (hotReloadStateLocal.current != null) {
         child()
