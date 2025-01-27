@@ -33,7 +33,9 @@ import org.jetbrains.compose.hot_reload_under_test.generated.resources.Roboto_Me
 import org.jetbrains.compose.reload.DevelopmentEntryPoint
 import org.jetbrains.compose.reload.InternalHotReloadApi
 import org.jetbrains.compose.reload.agent.orchestration
+import org.jetbrains.compose.reload.agent.send
 import org.jetbrains.compose.reload.jvm.runDevApplicationHeadless
+import org.jetbrains.compose.reload.orchestration.OrchestrationClientRole
 import org.jetbrains.compose.reload.orchestration.OrchestrationMessage
 import org.jetbrains.compose.reload.orchestration.asChannel
 import org.jetbrains.compose.reload.orchestration.invokeWhenReceived
@@ -152,6 +154,14 @@ fun underTestApplication(
     height: Int = 512,
     content: @Composable UnderTestApplication.() -> Unit
 ) {
+    Thread.setDefaultUncaughtExceptionHandler { thread, throwable ->
+        logger.error("Uncaught exception in thread: $thread", throwable)
+
+        OrchestrationMessage.CriticalException(
+            OrchestrationClientRole.Application, throwable.message, thread.stackTrace.toList()
+        ).send()
+    }
+
     runDevApplicationHeadless(
         timeout.minutes, width = width, height = height,
     ) { applicationScope ->

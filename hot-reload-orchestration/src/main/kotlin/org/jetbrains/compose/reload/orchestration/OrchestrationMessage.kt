@@ -184,6 +184,18 @@ public sealed class OrchestrationMessage : Serializable {
 
 
     /**
+     * Indicates some critical issue that happened on the application.
+     * This differs from the [UIException] as this was not caught in when trying to build the UI
+     * A typical scenario for this message is forwarding exceptions from an uncaught exception handler.
+     */
+    public class CriticalException(
+        public val clientRole: OrchestrationClientRole,
+        public val message: String?,
+        public val stacktrace: List<StackTraceElement>
+    ): OrchestrationMessage()
+
+
+    /**
      * Will try to clean the composition (all remembered values will be discarded)
      */
     public class CleanCompositionRequest : OrchestrationMessage()
