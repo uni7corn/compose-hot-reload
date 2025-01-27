@@ -19,7 +19,7 @@ open class UpdateVersionTask : DefaultTask() {
         logger.info("Updating kotlin firework versions to '${kotlinFireworkVersion.get()}'")
 
         val projectVersionRegex = Regex("""hot-reload.*(?<version>\d+\.\d+\.\d+-\w+\.\d+.\d+)""")
-        val kotlinFireworkRegex = Regex(""""\d+\.\d+\.\d+.*-firework\.\d+"""")
+        val kotlinFireworkRegex = Regex(""""\d+\.\d+\.\d+.*-(firework\.|Beta2-)\d+"""")
         sources.forEach { sourceFile ->
             logger.info("Processing ${sourceFile.toURI()}")
 

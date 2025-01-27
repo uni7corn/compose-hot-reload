@@ -15,7 +15,7 @@ val Project.localTestRepoDirectory: File
     get() = repositoryRoot.resolve("build/repo").toFile()
 
 fun Project.withRepositories() {
-    repositories.mavenCentral()
     repositories.maven(localTestRepoDirectory)
+    repositories.mavenCentral()
     repositories.google()
 }

@@ -22,7 +22,7 @@ tasks.withType<AbstractTestTask>().configureEach {
         })
 
         systemProperty(
-            "firework.version", project.versionCatalogs.named("deps").findVersion("firework").get().requiredVersion
+            "firework.version", project.versionCatalogs.named("deps").findVersion("kotlin").get().requiredVersion
         )
 
         systemProperty(

@@ -11,7 +11,7 @@ val updateVersions = tasks.register<UpdateVersionTask>("updateVersions") {
     } + files("README.md")
 
     projectVersion = project.version.toString()
-    kotlinFireworkVersion = deps.versions.firework.get()
+    kotlinFireworkVersion = deps.versions.kotlin.get()
 }
 
 val publishLocally by tasks.registering {

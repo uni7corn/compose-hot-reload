@@ -2,11 +2,6 @@
 
 pluginManagement {
     repositories {
-        maven("https://packages.jetbrains.team/maven/p/firework/dev") {
-            mavenContent {
-                includeGroupByRegex("org.jetbrains.kotlin.*")
-            }
-        }
         mavenCentral()
         gradlePluginPortal()
     }
@@ -28,13 +23,6 @@ dependencyResolutionManagement {
 
     repositories {
         repositoriesMode = RepositoriesMode.FAIL_ON_PROJECT_REPOS
-
-        /* Getting firework artifacts for tests (such as test compiler) */
-        maven("https://packages.jetbrains.team/maven/p/firework/dev") {
-            mavenContent {
-                includeVersionByRegex("org.jetbrains.*", ".*", ".*firework.*")
-            }
-        }
 
         google {
             mavenContent {
