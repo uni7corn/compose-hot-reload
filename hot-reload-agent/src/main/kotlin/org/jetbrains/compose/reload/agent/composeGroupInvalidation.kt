@@ -3,13 +3,10 @@ package org.jetbrains.compose.reload.agent
 import org.jetbrains.compose.reload.analysis.resolveInvalidationKey
 import org.jetbrains.compose.reload.core.createLogger
 import org.jetbrains.compose.reload.core.isFailure
-import java.lang.instrument.ClassFileTransformer
-import java.lang.instrument.Instrumentation
-import java.security.ProtectionDomain
 
 private val logger = createLogger()
 
-internal fun launchComposeGroupInvalidationTransformation(instrumentation: Instrumentation) {
+internal fun launchComposeGroupInvalidation() {
 
     /*
     Instruct Compose to invalidate groups that have changed, after successful reload.
@@ -43,24 +40,5 @@ internal fun launchComposeGroupInvalidationTransformation(instrumentation: Instr
             logger.orchestration("Invalidating group '${group.key}' $methods")
             invalidateGroupsWithKey(group)
         }
-    }
-
-    /*
-     * Register the transformer which will be invoked on all byte-code updating the global group information
-     */
-    instrumentation.addTransformer(ComposeGroupInvalidationKeyTransformer)
-}
-
-/**
- * This transformer is intended to run on all classes, so that runtime information about Compose groups
- * is recorded and invalidations can be tracked.
- */
-internal object ComposeGroupInvalidationKeyTransformer : ClassFileTransformer {
-    override fun transform(
-        loader: ClassLoader?, className: String?, classBeingRedefined: Class<*>?,
-        protectionDomain: ProtectionDomain?, classfileBuffer: ByteArray
-    ): ByteArray? {
-        enqueueRuntimeAnalysis(className, classBeingRedefined, classfileBuffer)
-        return null
     }
 }

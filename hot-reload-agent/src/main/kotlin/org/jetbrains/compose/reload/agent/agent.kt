@@ -7,7 +7,8 @@ import java.lang.instrument.Instrumentation
 fun premain(@Suppress("unused") args: String?, instrumentation: Instrumentation) {
     createPidfile()
     enableComposeHotReloadMode()
-    launchComposeGroupInvalidationTransformation(instrumentation)
+    launchComposeGroupInvalidation()
+    launchRuntimeTracking(instrumentation)
     launchReloadRequestHandler(instrumentation)
     launchRecompiler()
     launchDevtoolsApplication()
