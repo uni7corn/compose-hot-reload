@@ -34,15 +34,16 @@ public suspend fun asyncTraces(): AsyncTraces? {
 }
 
 public suspend fun asyncTracesString(): String {
+    val maxRenderedStackTraceElements = 7
     val traces = asyncTraces() ?: return "N/A (No async traces)"
     return buildString {
         traces.frames.forEach { frame ->
             if (frame.title != null) {
                 appendLine("${frame.title}:")
-                frame.stackTraceElements.take(10).forEach {
+                frame.stackTraceElements.take(maxRenderedStackTraceElements).forEach {
                     appendLine("|\t$it")
                 }
-                if (frame.stackTraceElements.size > 10) {
+                if (frame.stackTraceElements.size > maxRenderedStackTraceElements) {
                     appendLine("|\t...")
                 }
                 appendLine("------------------------")
