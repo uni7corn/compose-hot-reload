@@ -4,6 +4,7 @@
 package org.jetbrains.compose.reload.jvm
 
 import org.jetbrains.compose.reload.agent.invokeAfterHotReload
+import org.jetbrains.compose.reload.core.Disposable
 import org.jetbrains.compose.reload.core.isSuccess
 import javax.swing.SwingUtilities
 
@@ -19,11 +20,14 @@ private class InvokeAfterHotReloadRegistration : Exception("called 'invokeAfterH
 
 fun invokeAfterHotReload(@Suppress("unused") block: () -> Unit): AutoCloseable {
     val registrationTrace = if (enableInvokeAfterHotReloadStackTrace) Thread.currentThread().stackTrace else null
+    var disposable: Disposable? = null
 
-    val disposable = invokeAfterHotReload { _, result ->
+    disposable = invokeAfterHotReload { _, result ->
         if (result.isSuccess()) {
             try {
                 block()
+            } catch (_: NoSuchMethodError) {
+                disposable?.dispose()
             } catch (t: Throwable) {
                 val exception = InvokeAfterHotReloadException("Exception in 'invokeAfterHotReload' block", t)
                 if (registrationTrace != null) {

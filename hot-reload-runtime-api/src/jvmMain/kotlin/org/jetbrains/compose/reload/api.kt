@@ -20,30 +20,24 @@ public actual fun DevelopmentEntryPoint(child: @Composable () -> Unit) {
 public actual val staticHotReloadScope: HotReloadScope =
     if (!isHotReloadActive) NoopHotReloadScope else object : HotReloadScope() {
         override fun invokeAfterHotReload(action: () -> Unit): AutoCloseable {
-            /*
-            Wrap the action to track the action's life:
-            If the underlying 'action' code got removed, then we can release the listener.
-            */
 
-            val actionClassLifetimeToken = ClassLifetimeToken(action)
             var registration: AutoCloseable? = null
             registration = org.jetbrains.compose.reload.jvm.invokeAfterHotReload {
-                /* Check if the action class is still alive: If not, close the registration */
-                if (!actionClassLifetimeToken.isAlive()) {
+                try {
+                    action()
+                } catch (_: NoSuchMethodError) {
+                    /* When a reload is causing the underlying listener to be removed, a NSME is expected */
                     registration?.close()
-                    return@invokeAfterHotReload
                 }
-
-                action()
             }
             return registration
         }
     }
 
+
 @Composable
 public actual fun AfterHotReloadEffect(action: () -> Unit) {
     if (!isHotReloadActive) return
-    val actionClassLifetimeToken = ClassLifetimeToken(action)
 
     LaunchedEffect(Unit) {
         val actionJob = Job(coroutineContext[Job])
@@ -52,15 +46,11 @@ public actual fun AfterHotReloadEffect(action: () -> Unit) {
             try {
                 /* Guard 1: If the job is marked as completed, we can return already */
                 if (!actionJob.isActive) return@invokeAfterHotReload
-
-                /* Guard 2: If the lambda class was removed, we can complete and return */
-
-                if (!actionClassLifetimeToken.isAlive()) {
-                    actionJob.complete()
-                    return@invokeAfterHotReload
-                }
-
                 action()
+            }
+            /* Guard 2: Lambda methods might be gone; This can happen after a reload removed the callback */
+            catch (_: NoSuchMethodError) {
+                actionJob.complete()
             } catch (t: Throwable) {
                 actionJob.completeExceptionally(t)
             }
