@@ -32,6 +32,7 @@ internal fun reload(
 ): Reload {
     val definitions = pendingChanges.mapNotNull { (file, change) ->
         if (change == OrchestrationMessage.ReloadClassesRequest.ChangeType.Removed) {
+            logger.info("Removed: $file")
             return@mapNotNull null
         }
 

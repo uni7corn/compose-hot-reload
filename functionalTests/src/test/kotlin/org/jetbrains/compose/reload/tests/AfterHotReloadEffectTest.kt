@@ -13,6 +13,7 @@ import org.jetbrains.compose.reload.utils.initialSourceCode
 import org.jetbrains.compose.reload.utils.replaceSourceCodeAndReload
 import org.jetbrains.compose.reload.utils.sendTestEvent
 import kotlin.test.assertEquals
+import kotlin.test.fail
 
 class AfterHotReloadEffectTest {
     @HotReloadTest
@@ -88,6 +89,46 @@ class AfterHotReloadEffectTest {
             assertEquals(3, skipToMessage<OrchestrationMessage.TestEvent>().payload)
             skipToMessage<OrchestrationMessage.UIRendered>()
             fixture.checkScreenshot("4-after-restarted")
+        }
+    }
+
+    @HotReloadTest
+    @DefaultSettingsGradleKts
+    @DefaultBuildGradleKts
+    @TestOnlyDefaultCompilerOptions
+    @TestOnlyLatestVersions
+    @TestOnlyKmp
+    fun `test - remove AfterHotReloadEffect code`(fixture: HotReloadTestFixture) = fixture.runTest {
+        fixture initialSourceCode """
+            import androidx.compose.runtime.*
+            import org.jetbrains.compose.reload.AfterHotReloadEffect
+            import org.jetbrains.compose.reload.underTest.*
+            
+            fun main() = underTestApplication {
+                AfterHotReloadEffect { sendTestEvent("Servus") }
+                TestText("A")
+            }
+            """.trimIndent().replace("%", "$")
+
+        fixture.checkScreenshot("0-initial-A")
+
+        fixture.runTransaction {
+            replaceSourceCode("\"A\"", "\"B\"")
+            assertEquals("Servus", skipToMessage<OrchestrationMessage.TestEvent>().payload)
+            fixture.checkScreenshot("1-B")
+        }
+
+        fixture.runTransaction {
+            val testEventScanner = launchChildTransaction {
+                val testEvent = skipToMessage<OrchestrationMessage.TestEvent>()
+                fail("Unexpected TestEvent: ${testEvent.payload}")
+            }
+
+            replaceSourceCode("AfterHotReloadEffect { sendTestEvent(\"Servus\") }", "")
+            replaceSourceCode("\"B\"", "\"C\"")
+            skipToMessage<OrchestrationMessage.UIRendered>()
+            fixture.checkScreenshot("2-C")
+            testEventScanner.cancel()
         }
     }
 }

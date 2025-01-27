@@ -20,27 +20,48 @@ public actual fun DevelopmentEntryPoint(child: @Composable () -> Unit) {
 public actual val staticHotReloadScope: HotReloadScope =
     if (!isHotReloadActive) NoopHotReloadScope else object : HotReloadScope() {
         override fun invokeAfterHotReload(action: () -> Unit): AutoCloseable {
-            return org.jetbrains.compose.reload.jvm.invokeAfterHotReload(action)
+            /*
+            Wrap the action to track the action's life:
+            If the underlying 'action' code got removed, then we can release the listener.
+            */
+
+            val actionClassLifetimeToken = ClassLifetimeToken(action)
+            var registration: AutoCloseable? = null
+            registration = org.jetbrains.compose.reload.jvm.invokeAfterHotReload {
+                /* Check if the action class is still alive: If not, close the registration */
+                if (!actionClassLifetimeToken.isAlive()) {
+                    registration?.close()
+                    return@invokeAfterHotReload
+                }
+
+                action()
+            }
+            return registration
         }
     }
 
 @Composable
 public actual fun AfterHotReloadEffect(action: () -> Unit) {
     if (!isHotReloadActive) return
+    val actionClassLifetimeToken = ClassLifetimeToken(action)
+
     LaunchedEffect(Unit) {
         val actionJob = Job(coroutineContext[Job])
 
         val registration = org.jetbrains.compose.reload.jvm.invokeAfterHotReload {
             try {
-                if (actionJob.isActive) {
-                    action()
+                /* Guard 1: If the job is marked as completed, we can return already */
+                if (!actionJob.isActive) return@invokeAfterHotReload
+
+                /* Guard 2: If the lambda class was removed, we can complete and return */
+
+                if (!actionClassLifetimeToken.isAlive()) {
+                    actionJob.complete()
+                    return@invokeAfterHotReload
                 }
-            }
-            // https://github.com/JetBrains/compose-hot-reload/issues/66
-            catch (_: NoSuchMethodError) {
-                actionJob.complete()
-            }
-            catch (t: Throwable) {
+
+                action()
+            } catch (t: Throwable) {
                 actionJob.completeExceptionally(t)
             }
         }

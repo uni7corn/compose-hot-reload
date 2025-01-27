@@ -32,10 +32,10 @@ fun invokeAfterHotReload(block: (reloadRequestId: UUID, result: Try<Reload>) -> 
 
 internal fun executeBeforeHotReloadListeners(reloadRequestId: UUID) {
     val listeners = synchronized(beforeReloadListeners) { beforeReloadListeners.toList() }
-    listeners.forEach { listener -> listener(reloadRequestId) }
+    listeners.forEach { listener -> listener.invoke(reloadRequestId) }
 }
 
 internal fun executeAfterHotReloadListeners(reloadRequestId: UUID, result: Try<Reload>) {
     val listeners = synchronized(afterReloadListeners) { afterReloadListeners.toList() }
-    listeners.forEach { listener -> listener(reloadRequestId, result) }
+    listeners.forEach { listener -> listener.invoke(reloadRequestId, result) }
 }
