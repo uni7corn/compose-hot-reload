@@ -14,6 +14,7 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.test.TestScope
 import org.jetbrains.compose.reload.core.createLogger
 import org.jetbrains.compose.reload.core.testFixtures.CompilerOption
+import org.jetbrains.compose.reload.core.withAsyncTrace
 import org.jetbrains.compose.reload.orchestration.OrchestrationMessage
 import org.jetbrains.compose.reload.orchestration.OrchestrationServer
 import org.jetbrains.compose.reload.orchestration.asChannel
@@ -43,9 +44,13 @@ class HotReloadTestFixture(
 
     suspend fun <T> runTransaction(
         block: suspend TransactionScope.() -> T
-    ): T {
-        return coroutineScope {
-            val scope = TransactionScope(this@HotReloadTestFixture, this@coroutineScope, createReceiveChannel())
+    ): T = withAsyncTrace("'runTransaction'") {
+        coroutineScope {
+            val scope = TransactionScope(
+                fixture = this@HotReloadTestFixture,
+                coroutineScope = this@coroutineScope,
+                incomingMessages = createReceiveChannel(),
+            )
             scope.block()
         }
     }

@@ -2,6 +2,7 @@ package org.jetbrains.compose.reload.utils
 
 import org.jetbrains.compose.reload.core.asFileName
 import org.jetbrains.compose.reload.core.testFixtures.TestEnvironment
+import org.jetbrains.compose.reload.core.withAsyncTrace
 import org.jetbrains.compose.reload.orchestration.OrchestrationMessage
 import org.jetbrains.compose.reload.orchestration.OrchestrationMessage.Screenshot
 import java.awt.Color
@@ -17,7 +18,7 @@ import kotlin.math.absoluteValue
 import kotlin.math.roundToInt
 import kotlin.test.fail
 
-suspend fun HotReloadTestFixture.checkScreenshot(name: String) {
+suspend fun HotReloadTestFixture.checkScreenshot(name: String) = withAsyncTrace("'checkScreenshot($name)'") run@{
     val screenshot = sendMessage(OrchestrationMessage.TakeScreenshotRequest()) {
         skipToMessage<Screenshot>()
     }
@@ -33,7 +34,7 @@ suspend fun HotReloadTestFixture.checkScreenshot(name: String) {
         expectFile.deleteIfExists()
         expectFile.createParentDirectories()
         expectFile.writeBytes(screenshot.data)
-        return
+        return@run
     }
 
     if (!expectFile.exists()) {

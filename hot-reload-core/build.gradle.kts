@@ -14,6 +14,7 @@ kotlin {
 
 dependencies {
     api(deps.slf4j.api)
+    compileOnly(deps.coroutines.core)
 
     testFixturesImplementation(kotlin("tooling-core"))
     testFixturesImplementation(deps.junit.jupiter)
