@@ -32,6 +32,6 @@ dependencies {
 publishing {
     publications.create("maven", MavenPublication::class) {
         from(components["java"])
-        artifactId = "hot-reload-gradleTestFixtures"
+        artifactId = "hot-reload-test-gradle"
     }
 }

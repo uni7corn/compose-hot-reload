@@ -5,11 +5,39 @@
 
 plugins {
     `maven-publish` apply false
+    signing
+}
+
+
+fun getSensitiveProperty(name: String): String? {
+    return findProperty(name) as? String ?: System.getenv(name)
+}
+
+fun MavenPublication.signPublicationIfKeyPresent() {
+    val keyId = getSensitiveProperty("libs.sign.key.id")
+    val signingKey = getSensitiveProperty("libs.sign.key.private")
+    val signingKeyPassphrase = getSensitiveProperty("libs.sign.passphrase")
+    if (!signingKey.isNullOrBlank()) {
+        extensions.configure<SigningExtension>("signing") {
+            useInMemoryPgpKeys(keyId, signingKey, signingKeyPassphrase)
+            sign(this@signPublicationIfKeyPresent)
+        }
+    }
 }
 
 plugins.withType<MavenPublishPlugin>().all {
     publishing {
         repositories {
+            if (getSensitiveProperty("libs.sonatype.user") != null) {
+                maven("https://oss.sonatype.org/service/local/staging/deploy/maven2/") {
+                    name = "mavenCentral"
+                    credentials {
+                        username = getSensitiveProperty("libs.sonatype.user")
+                        password = getSensitiveProperty("libs.sonatype.password")
+                    }
+                }
+            }
+
             maven("https://repo.sellmair.io") {
                 name = "sellmair"
                 credentials {
@@ -28,6 +56,36 @@ plugins.withType<MavenPublishPlugin>().all {
 
             maven(rootProject.layout.buildDirectory.dir("repo")) {
                 name = "local"
+            }
+        }
+
+        publications.withType<MavenPublication>().configureEach {
+            this.signPublicationIfKeyPresent()
+            pom {
+                name = project.name
+                description = "Compose Hot Reload implementation"
+                url = "https://github.com/JetBrains/compose-hot-reload"
+
+                licenses {
+                    license {
+                        name = "The Apache Software License, Version 2.0"
+                        url = "https://www.apache.org/licenses/LICENSE-2.0.txt"
+                        distribution = "repo"
+                    }
+                }
+
+                developers {
+                    developer {
+                        id = "JetBrains"
+                        name = "JetBrains Team"
+                        organization = "JetBrains"
+                        organizationUrl = "https://www.jetbrains.com"
+                    }
+                }
+
+                scm {
+                    url = "https://github.com/JetBrains/compose-hot-reload"
+                }
             }
         }
     }
