@@ -10,8 +10,8 @@ plugins {
 
 private val sellmairUsername = providers.gradleProperty("repo.sellmair.user").orNull
 private val sellmairPassword = providers.gradleProperty("repo.sellmair.password").orNull
-private val spaceUsername = providers.gradleProperty("spaceUsername").orNull
-private val spacePassword = providers.gradleProperty("spacePassword").orNull
+private val fireworkUsername = providers.gradleProperty("fireworkUsername").orNull
+private val fireworkPassword = providers.gradleProperty("fireworkPassword").orNull
 
 private val signingKeyId = providers.gradleProperty("signing.keyId").orNull
 private val signingSecretKey = providers.gradleProperty("signing.key").orNull
@@ -31,8 +31,8 @@ plugins.withType<MavenPublishPlugin>().all {
             maven("https://packages.jetbrains.team/maven/p/firework/dev") {
                 name = "firework"
                 credentials {
-                    username = spaceUsername
-                    password = spacePassword
+                    username = fireworkUsername
+                    password = fireworkPassword
                 }
             }
 
