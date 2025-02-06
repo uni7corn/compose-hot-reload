@@ -93,6 +93,9 @@ plugins.withId("org.jetbrains.kotlin.jvm") {
 plugins.withId("org.jetbrains.kotlin.multiplatform") {
     /* Maven Central requires javadocs, lets generate some stubs */
     val generateJavadocStubs = tasks.register("generateJavadocStubs") {
+        val projectName = provider { project.name }
+        inputs.property("projectName", projectName)
+
         val outputDirectory = project.layout.buildDirectory.dir("javadocStubs")
         outputs.dir(outputDirectory)
         doLast {
@@ -100,7 +103,7 @@ plugins.withId("org.jetbrains.kotlin.multiplatform") {
                 mkdirs()
                 resolve(resolve("index.md")).writeText(
                     """
-                    # Module ${project.name}
+                    # Module ${projectName.get()}
                     Check: https://github.com/jetbrains/compose-hot-reload for further documentation
                 """.trimIndent()
                 )
