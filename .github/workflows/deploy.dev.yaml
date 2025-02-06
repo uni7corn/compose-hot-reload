@@ -42,7 +42,7 @@ jobs:
         run: ./gradlew publishAllPublicationsToFireworkRepository --no-configuration-cache
         env:
           ORG_GRADLE_PROJECT_fireworkUsername: ${{ secrets.FIREWORK_USERNAME }}
-          ORG_GRADLE_PROJECT_fireworkPassword: ${{ secrets.SIGNING_PASSWORD }}
+          ORG_GRADLE_PROJECT_fireworkPassword: ${{ secrets.FIREWORK_PASSWORD }}
 
       - name: Publish To Sellmair Repository
         run: ./gradlew publishAllPublicationsToSellmairRepository --no-configuration-cache
