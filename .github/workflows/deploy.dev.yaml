@@ -3,6 +3,7 @@ on:
   workflow_dispatch:
 jobs:
   publish:
+    environment: deploy
     env:
       ORG_GRADLE_PROJECT_signing.key: ${{ secrets.SIGNING_KEY }}
       ORG_GRADLE_PROJECT_signing.key.password: ${{ secrets.SIGNING_PASSWORD }}
