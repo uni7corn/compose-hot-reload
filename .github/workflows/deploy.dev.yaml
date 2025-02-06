@@ -38,13 +38,13 @@ jobs:
           ORG_GRADLE_PROJECT_signing.key.password: ${{ secrets.SIGNING_PASSWORD }}
 
       - name: Publish To Firework Repository
-        run: ./gradlew publishAllPublicationsToFireworkRepository
+        run: ./gradlew publishAllPublicationsToFireworkRepository --no-configuration-cache
         env:
           ORG_GRADLE_PROJECT_fireworkUsername: ${{ secrets.FIREWORK_USERNAME }}
           ORG_GRADLE_PROJECT_fireworkPassword: ${{ secrets.SIGNING_PASSWORD }}
 
       - name: Publish To Sellmair Repository
-        run: ./gradlew publishAllPublicationsToSellmairRepository
+        run: ./gradlew publishAllPublicationsToSellmairRepository --no-configuration-cache
         env:
           ORG_GRADLE_PROJECT_repo.sellmair.user: ${{ secrets.SELLMAIR_USERNAME }}
           ORG_GRADLE_PROJECT_repo.sellmair.password: ${{ secrets.SELLMAIR_PASSWORD }}
