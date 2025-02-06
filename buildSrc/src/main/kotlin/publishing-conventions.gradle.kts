@@ -8,54 +8,40 @@ plugins {
     signing
 }
 
+private val sellmairUsername = providers.gradleProperty("repo.sellmair.user").orNull
+private val sellmairPassword = providers.gradleProperty("repo.sellmair.password").orNull
+private val spaceUsername = providers.gradleProperty("spaceUsername").orNull
+private val spacePassword = providers.gradleProperty("spacePassword").orNull
 
-fun getSensitiveProperty(name: String): String? {
-    return findProperty(name) as? String ?: System.getenv(name)
-}
-
-fun MavenPublication.signPublicationIfKeyPresent() {
-    val keyId = getSensitiveProperty("libs.sign.key.id")
-    val signingKey = getSensitiveProperty("libs.sign.key.private")
-    val signingKeyPassphrase = getSensitiveProperty("libs.sign.passphrase")
-    if (!signingKey.isNullOrBlank()) {
-        extensions.configure<SigningExtension>("signing") {
-            useInMemoryPgpKeys(keyId, signingKey, signingKeyPassphrase)
-            sign(this@signPublicationIfKeyPresent)
-        }
-    }
-}
+private val signingKeyId = providers.gradleProperty("signing.keyId").orNull
+private val signingSecretKey = providers.gradleProperty("signing.key").orNull
+private val signingPassword = providers.gradleProperty("signing.key.password").orNull
 
 plugins.withType<MavenPublishPlugin>().all {
     publishing {
         repositories {
-            if (getSensitiveProperty("libs.sonatype.user") != null) {
-                maven("https://oss.sonatype.org/service/local/staging/deploy/maven2/") {
-                    name = "mavenCentral"
-                    credentials {
-                        username = getSensitiveProperty("libs.sonatype.user")
-                        password = getSensitiveProperty("libs.sonatype.password")
-                    }
-                }
-            }
-
             maven("https://repo.sellmair.io") {
                 name = "sellmair"
                 credentials {
-                    username = providers.gradleProperty("repo.sellmair.user").orNull
-                    password = providers.gradleProperty("repo.sellmair.password").orNull
+                    username = sellmairUsername
+                    password = sellmairPassword
                 }
             }
 
             maven("https://packages.jetbrains.team/maven/p/firework/dev") {
                 name = "firework"
                 credentials {
-                    username = providers.gradleProperty("spaceUsername").orNull
-                    password = providers.gradleProperty("spacePassword").orNull
+                    username = spaceUsername
+                    password = spacePassword
                 }
             }
 
             maven(rootProject.layout.buildDirectory.dir("repo")) {
                 name = "local"
+            }
+
+            maven(rootProject.layout.buildDirectory.dir("deploy")) {
+                name = "deploy"
             }
         }
 
@@ -87,6 +73,63 @@ plugins.withType<MavenPublishPlugin>().all {
                     url = "https://github.com/JetBrains/compose-hot-reload"
                 }
             }
+        }
+    }
+}
+
+plugins.withId("org.jetbrains.kotlin.jvm") {
+    extensions.configure<JavaPluginExtension> {
+        withSourcesJar()
+        withJavadocJar()
+    }
+
+    publishing {
+        publications.create<MavenPublication>("maven") {
+            from(components["java"])
+        }
+    }
+}
+
+plugins.withId("org.jetbrains.kotlin.multiplatform") {
+    /* Maven Central requires javadocs, lets generate some stubs */
+    val generateJavadocStubs = tasks.register("generateJavadocStubs") {
+        val outputDirectory = project.layout.buildDirectory.dir("javadocStubs")
+        outputs.dir(outputDirectory)
+        doLast {
+            outputDirectory.get().asFile.apply {
+                mkdirs()
+                resolve(resolve("index.md")).writeText(
+                    """
+                    # Module ${project.name}
+                    Check: https://github.com/jetbrains/compose-hot-reload for further documentation
+                """.trimIndent()
+                )
+            }
+        }
+    }
+
+    val javadocJar = tasks.register<Jar>("javadocJar") {
+        archiveClassifier.set("javadoc")
+        from(generateJavadocStubs)
+    }
+
+    publishing {
+        publications.withType<MavenPublication>().configureEach {
+            artifact(javadocJar)
+        }
+    }
+}
+
+fun MavenPublication.signPublicationIfKeyPresent() {
+    if (signingSecretKey.isNullOrBlank()) return
+    if (signingPassword.isNullOrBlank()) return
+
+    extensions.configure<SigningExtension>("signing") {
+        useInMemoryPgpKeys(signingKeyId, signingSecretKey, signingPassword)
+        sign(this@signPublicationIfKeyPresent)
+
+        tasks.withType<PublishToMavenRepository>().configureEach {
+            dependsOn(tasks.withType<Sign>())
         }
     }
 }

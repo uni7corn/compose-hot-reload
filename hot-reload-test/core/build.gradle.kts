@@ -18,8 +18,7 @@ dependencies {
 }
 
 publishing {
-    publications.create("maven", MavenPublication::class) {
-        from(components["java"])
+    publications.withType<MavenPublication>().configureEach {
         artifactId = "hot-reload-test-core"
     }
 }

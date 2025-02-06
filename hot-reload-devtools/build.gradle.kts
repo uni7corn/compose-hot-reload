@@ -56,9 +56,3 @@ dependencies {
 tasks.withType<Test>().configureEach {
     useJUnitPlatform()
 }
-
-publishing {
-    publications.create("maven", MavenPublication::class) {
-        from(components["java"])
-    }
-}

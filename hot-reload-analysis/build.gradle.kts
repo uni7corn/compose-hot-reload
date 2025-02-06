@@ -29,9 +29,3 @@ dependencies {
     testFixturesImplementation(project(":hot-reload-core"))
     testFixturesImplementation(project(":hot-reload-analysis"))
 }
-
-publishing {
-    publications.create("maven", MavenPublication::class) {
-        from(components["java"])
-    }
-}

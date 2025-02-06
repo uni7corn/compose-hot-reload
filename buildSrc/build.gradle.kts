@@ -43,4 +43,7 @@ dependencies {
     implementation("com.android.tools.build:gradle:${deps.versions.androidGradlePlugin.get()}")
     implementation(deps.benchmark.gradlePlugin)
     implementation(deps.binaryCompatibilityValidator.gradlePlugin)
+
+    implementation(deps.ktor.client.core)
+    implementation(deps.ktor.client.cio)
 }

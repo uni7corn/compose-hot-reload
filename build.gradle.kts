@@ -26,8 +26,36 @@ val publishLocally by tasks.registering {
     dependsOn(updateVersions)
 }
 
+val cleanDeploy by tasks.registering(Delete::class) {
+    delete(layout.buildDirectory.dir("deploy"))
+}
+
+val publishDeploy by tasks.registering {
+    dependsOn(updateVersions)
+}
+
 subprojects {
     publishLocally.configure {
         this.dependsOn(tasks.named { name -> name == "publishAllPublicationsToLocalRepository" })
     }
+
+    /* Configure 'publishDeploy' */
+    tasks.configureEach { mustRunAfter(cleanDeploy) }
+    val publishDeployTasks = tasks.named { name -> name == "publishAllPublicationsToDeployRepository" }
+    publishDeployTasks.configureEach { dependsOn(cleanDeploy) }
+    publishDeploy.configure { dependsOn(publishDeployTasks) }
+}
+
+val buildMavenCentralDeployBundle by tasks.registering(Zip::class) {
+    dependsOn(publishDeploy)
+    isPreserveFileTimestamps = false
+    isReproducibleFileOrder = true
+    from(layout.buildDirectory.dir("deploy"))
+    archiveBaseName.set("mavenCentral.deploy")
+    destinationDirectory.set(layout.buildDirectory)
+}
+
+val deployMavenCentralDeployBundle by tasks.registering(PublishToMavenCentralTask::class) {
+    dependsOn(buildMavenCentralDeployBundle)
+    deploymentBundle.set(buildMavenCentralDeployBundle.flatMap { it.archiveFile })
 }

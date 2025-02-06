@@ -34,9 +34,3 @@ dependencies {
     testImplementation(testFixtures(project(":hot-reload-analysis")))
     testImplementation(deps.logback)
 }
-
-publishing {
-    publications.create("maven", MavenPublication::class) {
-        from(components["java"])
-    }
-}

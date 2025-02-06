@@ -18,9 +18,3 @@ dependencies {
     compileOnly(deps.compose.compiler.gradlePlugin)
     implementation(project(":hot-reload-core"))
 }
-
-publishing {
-    publications.create("maven", MavenPublication::class) {
-        from(components["java"])
-    }
-}

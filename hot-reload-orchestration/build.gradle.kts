@@ -35,9 +35,3 @@ tasks.withType<Test> {
         showStandardStreams = true
     }
 }
-
-publishing {
-    publications.create("maven", MavenPublication::class) {
-        from(components["java"])
-    }
-}

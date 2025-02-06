@@ -37,12 +37,6 @@ dependencies {
     implementation(compose.components.resources)
 }
 
-publishing {
-    publications.create("maven", MavenPublication::class) {
-        from(components["java"])
-    }
-}
-
 
 /* Add special 'dev' runtime dependency */
 internal class ComposeDevJavaRuntimeCompatibilityRule : AttributeCompatibilityRule<Usage> {
