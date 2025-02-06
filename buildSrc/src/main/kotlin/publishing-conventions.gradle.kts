@@ -84,8 +84,12 @@ plugins.withId("org.jetbrains.kotlin.jvm") {
     }
 
     publishing {
-        publications.create<MavenPublication>("maven") {
-            from(components["java"])
+        afterEvaluate {
+            if (publications.isEmpty()) {
+                publications.create<MavenPublication>("maven") {
+                    from(components["java"])
+                }
+            }
         }
     }
 }
