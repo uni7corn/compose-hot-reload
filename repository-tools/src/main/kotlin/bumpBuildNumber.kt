@@ -23,4 +23,6 @@ fun main() {
 
     ProcessBuilder("git", "add", ".").inheritIO().start().waitFor()
     ProcessBuilder("git", "commit", "-m", "v$newVersion").inheritIO().start().waitFor()
+    ProcessBuilder("git", "tag", "v$newVersion").inheritIO().start().waitFor()
+    ProcessBuilder("git", "push", "v$newVersion").inheritIO().start().waitFor()
 }
