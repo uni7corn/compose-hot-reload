@@ -60,7 +60,7 @@ abstract class PublishToMavenCentralTask : DefaultTask() {
             url("https://central.sonatype.com/api/v1/publisher/upload")
             parameter("name", deploymentName.get())
             parameter("publishingType", "USER_MANAGED")
-            basicAuth("XlIAZQrK", "Wfp84kVgOmhIJfOPZDEm93+2jLkGy//ebS0fJ6ENVXIc")
+            basicAuth("<user>", "<token>")
             setBody(
                 MultiPartFormDataContent(
                     formData {
