@@ -45,7 +45,7 @@ internal class HotReloadTestInvocationContextProvider : TestTemplateInvocationCo
                 val hotReloadTestFilterAnnotation =
                     findAnnotation(context.testMethod, Debug::class.java).getOrNull()
                         ?: return@filter true
-                Regex(hotReloadTestFilterAnnotation.target).matches(invocationContext.getDisplayName(index))
+                Regex(hotReloadTestFilterAnnotation.target).containsMatchIn(invocationContext.getDisplayName(index))
             }
             .apply { assumeTrue(isNotEmpty(), "No matching context") }
             .asSequence().asStream()
