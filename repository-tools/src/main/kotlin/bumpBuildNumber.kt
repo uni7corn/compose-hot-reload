@@ -12,16 +12,10 @@ import kotlin.io.path.writeText
 fun main() {
     ensureCleanWorkingDirectory()
 
-    val gradlePropertiesFile = Path("gradle.properties")
-    val gradlePropertiesText = gradlePropertiesFile.readText()
-    val versionDeclarationRegex = Regex("""^version=(?<version>.*)""", RegexOption.MULTILINE)
-    val versionDeclarationMatch = versionDeclarationRegex.find(gradlePropertiesText)
-        ?: error("Cannot find 'version' in gradle.properties")
-    val version = KotlinToolingVersion(versionDeclarationMatch.groups["version"]!!.value)
+    val version = KotlinToolingVersion(readGradleProperties("version"))
     val buildNumber = version.buildNumber ?: error("Missing build number in version $version")
     val newVersion = version.toString().replace("-$buildNumber", "-${buildNumber + 1}")
-    val newGradlePropertiesText = gradlePropertiesText.replace(versionDeclarationRegex, "version=$newVersion")
-    gradlePropertiesFile.writeText(newGradlePropertiesText)
+    writeGradleProperties("version", newVersion)
 
     // Execute 'updateVersions' task
     ProcessBuilder("./gradlew", "updateVersions")
