@@ -16,8 +16,8 @@ kotlin {
     }
 
     sourceSets.commonMain.dependencies {
-        implementation("org.jetbrains.compose:hot-reload-core:1.0.0-dev-37
-        implementation("org.jetbrains.compose:hot-reload-analysis:1.0.0-dev-37
+        implementation("org.jetbrains.compose:hot-reload-core:1.0.0-dev-38
+        implementation("org.jetbrains.compose:hot-reload-analysis:1.0.0-dev-38
 
         implementation("io.sellmair:evas:1.2.0")
         implementation("io.sellmair:evas-compose:1.2.0")
