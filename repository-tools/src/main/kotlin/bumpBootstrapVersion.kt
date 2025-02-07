@@ -8,6 +8,6 @@ fun main() {
     val version = readGradleProperties("version")
     writeGradleProperties("bootstrap.version", version)
 
-    ProcessBuilder("git", "add", ".").inheritIO().start().waitFor()
-    ProcessBuilder("git", "commit", "-m", "Bootstrap v$version").inheritIO().start().waitFor()
+    command("git", "add", ".")
+    command("git", "commit", "-m", "Bootstrap v$version")
 }

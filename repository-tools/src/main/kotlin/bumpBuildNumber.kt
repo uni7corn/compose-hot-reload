@@ -1,8 +1,5 @@
 import org.jetbrains.kotlin.tooling.core.KotlinToolingVersion
 import org.jetbrains.kotlin.tooling.core.buildNumber
-import kotlin.io.path.Path
-import kotlin.io.path.readText
-import kotlin.io.path.writeText
 
 /*
  * Copyright 2024-2025 JetBrains s.r.o. and Compose Hot Reload contributors.
@@ -17,12 +14,9 @@ fun main() {
     val newVersion = version.toString().replace("-$buildNumber", "-${buildNumber + 1}")
     writeGradleProperties("version", newVersion)
 
-    // Execute 'updateVersions' task
-    ProcessBuilder("./gradlew", "updateVersions")
-        .inheritIO().start().waitFor()
-
-    ProcessBuilder("git", "add", ".").inheritIO().start().waitFor()
-    ProcessBuilder("git", "commit", "-m", "v$newVersion").inheritIO().start().waitFor()
-    ProcessBuilder("git", "tag", "v$newVersion").inheritIO().start().waitFor()
-    ProcessBuilder("git", "push", "origin", "tag", "v$newVersion").inheritIO().start().waitFor()
+    command("./gradlew", "updateVersions")
+    command("git", "add", ".")
+    command("git", "commit", "-m", "v$newVersion")
+    command("git", "tag", "v$newVersion")
+    command("git", "push", "origin", "tag", "v$newVersion")
 }
