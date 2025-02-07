@@ -1,0 +1,21 @@
+/*
+ * Copyright 2024-2025 JetBrains s.r.o. and Compose Hot Reload contributors.
+ * Use of this source code is governed by the Apache 2.0 license that can be found in the license/LICENSE.txt file.
+ */
+
+plugins {
+    kotlin("jvm") version deps.versions.kotlin
+}
+
+dependencies {
+    implementation(kotlin("tooling-core"))
+}
+
+tasks.withType<JavaExec>().configureEach {
+    workingDir = rootDir.parentFile
+    classpath = sourceSets.main.get().runtimeClasspath
+}
+
+tasks.register<JavaExec>("bumpBuildNumber") {
+    mainClass = "BumpBuildNumberKt"
+}
