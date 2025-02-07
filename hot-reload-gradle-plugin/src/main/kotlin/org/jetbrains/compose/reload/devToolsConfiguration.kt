@@ -11,7 +11,9 @@ import org.gradle.api.attributes.Category
 import org.gradle.api.attributes.Usage
 import org.gradle.api.attributes.Usage.USAGE_ATTRIBUTE
 import org.gradle.api.attributes.java.TargetJvmEnvironment
+import org.gradle.kotlin.dsl.dependencies
 import org.jetbrains.compose.ComposePlugin
+import org.jetbrains.compose.reload.core.HOT_RELOAD_COMPOSE_VERSION
 import org.jetbrains.compose.reload.core.HOT_RELOAD_VERSION
 import org.jetbrains.compose.reload.gradle.withComposePlugin
 import org.jetbrains.kotlin.gradle.plugin.KotlinPlatformType
@@ -50,9 +52,12 @@ internal val Project.composeHotReloadDevToolsConfiguration: Configuration
             )
 
             project.withComposePlugin {
-                configuration.dependencies.add(
-                    project.dependencies.create(ComposePlugin.Dependencies(project).desktop.currentOs)
-                )
+                project.dependencies {
+                    configuration(ComposePlugin.Dependencies(project).desktop.currentOs) {
+                        version { constraint -> constraint.strictly(HOT_RELOAD_COMPOSE_VERSION) }
+                    }
+                }
+
             }
         }
     }
