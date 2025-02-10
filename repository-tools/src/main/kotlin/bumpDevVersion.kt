@@ -15,8 +15,11 @@ fun main() {
     writeGradleProperties("version", newVersion)
 
     command("./gradlew", "updateVersions")
+
     command("git", "add", ".")
     command("git", "commit", "-m", "v$newVersion")
+    command("git", "push")
+
     command("git", "tag", "v$newVersion")
     command("git", "push", "origin", "tag", "v$newVersion")
 }
