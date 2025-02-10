@@ -46,7 +46,10 @@ plugins.withType<MavenPublishPlugin>().all {
         }
 
         publications.withType<MavenPublication>().configureEach {
-            this.signPublicationIfKeyPresent()
+            signPublicationIfKeyPresent()
+
+            artifactId = project.name.removePrefix("hot-reload-")
+
             pom {
                 name = project.name
                 description = "Compose Hot Reload implementation"

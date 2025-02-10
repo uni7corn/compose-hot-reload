@@ -97,7 +97,7 @@ internal class DefaultSettingsGradleKts : SettingsGradleKtsExtension {
             kotlin("jvm") version "$kotlinVersion"
             kotlin("plugin.compose") version "$kotlinVersion"
             id("org.jetbrains.compose") version "$composeVersion"
-            id("org.jetbrains.compose-hot-reload") version "$HOT_RELOAD_VERSION"
+            id("org.jetbrains.compose.hot-reload") version "$HOT_RELOAD_VERSION"
             id("com.android.application") version "{{androidVersion}}"
         """.trimIndent().asTemplateOrThrow().renderOrThrow("androidVersion" to androidVersion)
     }
@@ -106,7 +106,7 @@ internal class DefaultSettingsGradleKts : SettingsGradleKtsExtension {
         return """
             maven("https://packages.jetbrains.team/maven/p/firework/dev") {
                 mavenContent {
-                    includeModuleByRegex("org.jetbrains.compose", "hot-reload.*")
+                    includeGroupAndSubgroups("org.jetbrains.compose.hot-reload")
                 }
             }
             
@@ -137,7 +137,7 @@ internal class DefaultSettingsGradleKts : SettingsGradleKtsExtension {
         return """
             maven("https://packages.jetbrains.team/maven/p/firework/dev") {
                 mavenContent {
-                    includeModuleByRegex("org.jetbrains.compose", "hot-reload.*")
+                    includeGroupAndSubgroups("org.jetbrains.compose.hot-reload")
                 }
             }
             
