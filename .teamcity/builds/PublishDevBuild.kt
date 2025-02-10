@@ -21,12 +21,25 @@ object PublishDevBuild : BuildType({
 
     triggers {
         schedule {
-            weekly {
+            schedulingPolicy = weekly {
                 dayOfWeek = ScheduleTrigger.DAY.Sunday
+                timezone = "Europe/Berlin"
+                hour = 3
+            }
+
+            branchFilter = "+:<default>"
+            withPendingChangesOnly = true
+        }
+
+        schedule {
+            schedulingPolicy = weekly {
                 dayOfWeek = ScheduleTrigger.DAY.Wednesday
                 timezone = "Europe/Berlin"
                 hour = 3
             }
+
+            branchFilter = "+:<default>"
+            withPendingChangesOnly = true
         }
     }
 
