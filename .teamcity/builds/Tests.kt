@@ -8,8 +8,10 @@ package builds
 import builds.conventions.PublishLocallyConvention
 import jetbrains.buildServer.configs.kotlin.BuildType
 import jetbrains.buildServer.configs.kotlin.buildFeatures.buildCache
+import jetbrains.buildServer.configs.kotlin.buildFeatures.commitStatusPublisher
 import jetbrains.buildServer.configs.kotlin.buildSteps.gradle
 import jetbrains.buildServer.configs.kotlin.triggers.vcs
+import vcs.Github
 
 object Tests : BuildType({
     name = "Tests"
@@ -32,6 +34,16 @@ object Tests : BuildType({
                 tests/build/gradleHome/**
                 tests/build/reloadFunctionalTestWarmup/**
             """.trimIndent()
+        }
+
+        commitStatusPublisher {
+            vcsRootExtId = "${Github.id}"
+            publisher = github {
+                githubUrl = "https://api.github.com"
+                authType = personalToken {
+                    token = "credentialsJSON:63ad183a-fe82-4c2f-b80d-f92b2d7b69ec"
+                }
+            }
         }
     }
 
