@@ -31,6 +31,8 @@ object Tests : Project({
     buildType(macOsTest)
     buildType(windowsTest)
     buildType(ApiCheck)
+    buildType(SamplesCheck)
+    buildType(TestIntelliJPluginCheck)
 
     sequential {
         buildType(PublishLocally)
@@ -39,6 +41,8 @@ object Tests : Project({
             buildType(macOsTest)
             buildType(windowsTest)
             buildType(ApiCheck)
+            buildType(SamplesCheck)
+            buildType(TestIntelliJPluginCheck)
         }
         buildType(AllTests)
     }
@@ -98,4 +102,36 @@ object ApiCheck : BuildType({
         }
     }
 
+}), CommitStatusPublisher, PublishLocallyConvention
+
+object SamplesCheck : BuildType({
+    name = "Check: Samples"
+    description = "Checks samples"
+
+    steps {
+        gradle {
+            name = "Check: counter"
+            tasks = "check"
+            workingDir = "samples/counter"
+        }
+
+        gradle {
+            name = "Check: bytecode-analyzer"
+            tasks = "check"
+            workingDir = "samples/bytecode-analyzer"
+        }
+    }
+}), CommitStatusPublisher, PublishLocallyConvention
+
+
+object TestIntelliJPluginCheck : BuildType({
+    name = "Check: hot-reload-test: IntelliJ plugin"
+
+    steps {
+        gradle {
+            name = "Check: hot-reload-test: IntelliJ plugin"
+            tasks = "check"
+            workingDir = "hot-reload-test/idea-plugin"
+        }
+    }
 }), CommitStatusPublisher, PublishLocallyConvention
