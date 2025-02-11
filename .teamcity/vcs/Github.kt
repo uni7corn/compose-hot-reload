@@ -6,6 +6,7 @@
 package vcs
 
 import jetbrains.buildServer.configs.kotlin.vcs.GitVcsRoot
+import kotlin.time.Duration.Companion.minutes
 
 object Github : GitVcsRoot({
     name = "Compose Hot Reload"
@@ -15,4 +16,5 @@ object Github : GitVcsRoot({
     authMethod = uploadedKey {
         uploadedKey = "compose-hot-reload-deploy-id_rsa"
     }
+    pollInterval = 5.minutes.inWholeSeconds.toInt()
 })
