@@ -221,7 +221,7 @@ private fun createRecompilerGradleCommandLineArgs(
     }
 
     val gradleScriptCommand = if ("win" in System.getProperty("os.name").lowercase()) {
-        arrayOf("cmd", "/c", "start", "gradlew.bat")
+        arrayOf("cmd", "/c", "gradlew.bat")
     } else {
         arrayOf("./gradlew")
     }
@@ -248,7 +248,7 @@ private fun createRecompilerGradleCommandLineArgs(
 
 private fun createRecompilerAmperCommandLineArgs(amperBuildTask: String): List<String> {
     val amperScriptCommand = if ("win" in System.getProperty("os.name").lowercase()) {
-        arrayOf("cmd", "/c", "start", "amper.bat")
+        arrayOf("cmd", "/c", "amper.bat")
     } else {
         arrayOf("./amper")
     }
