@@ -5,26 +5,64 @@
 
 package builds
 
+import builds.conventions.CommitStatusPublisher
+import builds.conventions.HostRequirement
 import builds.conventions.PublishLocallyConvention
+import builds.utils.Host
 import jetbrains.buildServer.configs.kotlin.BuildType
+import jetbrains.buildServer.configs.kotlin.Project
 import jetbrains.buildServer.configs.kotlin.buildFeatures.buildCache
-import jetbrains.buildServer.configs.kotlin.buildFeatures.commitStatusPublisher
 import jetbrains.buildServer.configs.kotlin.buildSteps.gradle
+import jetbrains.buildServer.configs.kotlin.sequential
 import jetbrains.buildServer.configs.kotlin.triggers.vcs
-import vcs.Github
 
-object Tests : BuildType({
+
+object Tests : Project({
     name = "Tests"
+    description = "Compose Hot Reload Tests"
+
+    buildType(AllTests)
+
+    val linuxTest = Test(Host.Linux)
+    val macOsTest = Test(Host.MacOS)
+    val windowsTest = Test(Host.Windows)
+
+    buildType(linuxTest)
+    buildType(macOsTest)
+    buildType(windowsTest)
+
+    sequential {
+        buildType(PublishLocally)
+        parallel {
+            buildType(linuxTest)
+            buildType(macOsTest)
+            buildType(windowsTest)
+        }
+        buildType(AllTests)
+    }
+})
+
+object AllTests : BuildType({
+    name = "All Tests"
+    description = "All tests"
+
+    triggers {
+        vcs {
+        }
+    }
+})
+
+class Test(
+    override val requiredHost: Host
+) : BuildType({
+    name = "Tests ($requiredHost)"
+    id("Tests_$requiredHost")
 
     artifactRules = """
         **/*-actual*
         **/build/reports/**
     """.trimIndent()
 
-    triggers {
-        vcs {
-        }
-    }
 
     features {
         buildCache {
@@ -35,16 +73,6 @@ object Tests : BuildType({
                 tests/build/reloadFunctionalTestWarmup/**
             """.trimIndent()
         }
-
-        commitStatusPublisher {
-            vcsRootExtId = "${Github.id}"
-            publisher = github {
-                githubUrl = "https://api.github.com"
-                authType = personalToken {
-                    token = "credentialsJSON:63ad183a-fe82-4c2f-b80d-f92b2d7b69ec"
-                }
-            }
-        }
     }
 
     steps {
@@ -53,4 +81,6 @@ object Tests : BuildType({
             tasks = "check"
         }
     }
-}), PublishLocallyConvention
+}), PublishLocallyConvention,
+    CommitStatusPublisher,
+    HostRequirement.Dynamic

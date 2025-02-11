@@ -14,10 +14,10 @@ import vcs.Github
 
 object ComposeHotReloadProject : Project({
     vcsRoot(Github)
-    buildType(Tests)
     buildType(PublishDevBuild)
     buildType(PublishLocally)
 
+    subProject(Tests)
     subProject(PublishToMavenCentralProject)
 
     buildTypes.forEach { buildType ->

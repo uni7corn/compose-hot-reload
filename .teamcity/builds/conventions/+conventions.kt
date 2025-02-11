@@ -12,24 +12,19 @@ import jetbrains.buildServer.configs.kotlin.buildFeatures.perfmon
 import vcs.Github
 
 fun BuildType.configureConventions() {
-    requireLinux()
     defaultVcs()
     defaultFeatures()
     defaultCaches()
     pushPrivilegeConventions()
     publishDevPrivilegeConventions()
     publishLocallyConventions()
+    hostRequirementConventions()
+    commitPublisherConventions()
 }
 
 
 private fun BuildType.defaultVcs() {
     vcs { root(Github) }
-}
-
-private fun BuildType.requireLinux() {
-    requirements {
-        matches("teamcity.agent.jvm.os.name", "Linux")
-    }
 }
 
 private fun BuildType.defaultFeatures() {
