@@ -127,6 +127,7 @@ internal class HotReloadUnitTestExecutor(
                 *createDebuggerJvmArguments(intellijDebuggerDispatchPort),
                 "-javaagent:${agentJar.asPath}",
                 "-XX:+AllowEnhancedClassRedefinition",
+                "-Dapple.awt.UIElement=true",
                 "-DapplicationClassesDir=${applicationClassesDir.absolutePathString()}",
                 "-D${HotReloadProperty.IsHeadless.key}=true",
                 "-D${HotReloadProperty.OrchestrationPort.key}=${orchestrationServer.port}",
