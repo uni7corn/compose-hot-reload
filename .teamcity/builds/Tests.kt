@@ -30,6 +30,7 @@ object Tests : Project({
     buildType(linuxTest)
     buildType(macOsTest)
     buildType(windowsTest)
+    buildType(ApiCheck)
 
     sequential {
         buildType(PublishLocally)
@@ -37,6 +38,7 @@ object Tests : Project({
             buildType(linuxTest)
             buildType(macOsTest)
             buildType(windowsTest)
+            buildType(ApiCheck)
         }
         buildType(AllTests)
     }
@@ -78,9 +80,22 @@ class Test(
     steps {
         gradle {
             name = "Test"
-            tasks = "check"
+            tasks = "check -x apiCheck"
         }
     }
 }), PublishLocallyConvention,
     CommitStatusPublisher,
     HostRequirement.Dynamic
+
+object ApiCheck : BuildType({
+    name = "Check: API"
+    description = "Checks API compatibility"
+
+    steps {
+        gradle {
+            name = "Check API"
+            tasks = "apiCheck"
+        }
+    }
+
+}), CommitStatusPublisher, PublishLocallyConvention
