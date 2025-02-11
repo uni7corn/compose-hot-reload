@@ -1,5 +1,6 @@
 import builds.PublishDevBuild
 import builds.PublishLocally
+import builds.PublishToMavenCentralProject
 import builds.Tests
 import builds.conventions.configureConventions
 import jetbrains.buildServer.configs.kotlin.ParameterDisplay
@@ -17,8 +18,16 @@ object ComposeHotReloadProject : Project({
     buildType(PublishDevBuild)
     buildType(PublishLocally)
 
+    subProject(PublishToMavenCentralProject)
+
     buildTypes.forEach { buildType ->
         buildType.configureConventions()
+    }
+
+    subProjects.forEach { subProject ->
+        subProject.buildTypes.forEach { buildType ->
+            buildType.configureConventions()
+        }
     }
 
     params {
