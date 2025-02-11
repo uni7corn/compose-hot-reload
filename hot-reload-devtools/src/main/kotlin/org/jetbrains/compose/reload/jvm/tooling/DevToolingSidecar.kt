@@ -115,7 +115,6 @@ fun ApplicationScope.DevToolingSidecar(
         focusable = true,
         alwaysOnTop = isAlwaysOnTop
     ) {
-        window.background = java.awt.Color(0, 0, 0, 0)
 
         invokeWhenMessageReceived<ApplicationWindowGainedFocus> { event ->
             if (event.windowId == windowId) {
