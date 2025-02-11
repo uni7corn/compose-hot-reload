@@ -116,6 +116,10 @@ fun ApplicationScope.DevToolingSidecar(
         alwaysOnTop = isAlwaysOnTop
     ) {
 
+        LaunchedEffect(Unit) {
+            window.iconImage = composeLogoAwtImage.await()
+        }
+
         invokeWhenMessageReceived<ApplicationWindowGainedFocus> { event ->
             if (event.windowId == windowId) {
                 logger.debug("$windowId: Sidecar window 'toFront()'")
