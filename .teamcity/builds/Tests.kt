@@ -92,7 +92,7 @@ class Test(
     HostRequirement.Dynamic
 
 object ApiCheck : BuildType({
-    name = "Check: API"
+    name = "Check: api"
     description = "Checks API compatibility"
 
     steps {
@@ -105,7 +105,7 @@ object ApiCheck : BuildType({
 }), CommitStatusPublisher, PublishLocallyConvention
 
 object SamplesCheck : BuildType({
-    name = "Check: Samples"
+    name = "Check: sample projects"
     description = "Checks samples"
 
     steps {
@@ -125,7 +125,7 @@ object SamplesCheck : BuildType({
 
 
 object TestIntelliJPluginCheck : BuildType({
-    name = "Check: hot-reload-test: IntelliJ plugin"
+    name = "Check: hot-reload-test/idea-plugin"
 
     steps {
         gradle {
