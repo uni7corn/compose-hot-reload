@@ -61,7 +61,7 @@ object AllTests : BuildType({
 class Test(
     override val requiredHost: Host
 ) : BuildType({
-    name = "Tests ($requiredHost)"
+    name = "Tests: $requiredHost"
     id("Tests_$requiredHost")
 
     artifactRules = """
