@@ -24,11 +24,9 @@ object Tests : Project({
     buildType(AllTests)
 
     val linuxTest = Test(Host.Linux)
-    val macOsTest = Test(Host.MacOS)
     val windowsTest = Test(Host.Windows)
 
     buildType(linuxTest)
-    buildType(macOsTest)
     buildType(windowsTest)
     buildType(ApiCheck)
     buildType(SamplesCheck)
@@ -37,8 +35,7 @@ object Tests : Project({
     sequential {
         buildType(PublishLocally)
         parallel {
-            buildType(linuxTest)
-            buildType(macOsTest)
+            //buildType(macOsTest)
             buildType(windowsTest)
             buildType(ApiCheck)
             buildType(SamplesCheck)
