@@ -35,7 +35,6 @@ object Tests : Project({
     sequential {
         buildType(PublishLocally)
         parallel {
-            //buildType(macOsTest)
             buildType(windowsTest)
             buildType(ApiCheck)
             buildType(SamplesCheck)
