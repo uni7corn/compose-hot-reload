@@ -31,7 +31,7 @@ fun RuntimeInfo.render(): String = buildString {
         }
 
         withIndent {
-            appendLine(classInfo.methods.values.joinToString("\n\n") { it.render() })
+            appendLine(classInfo.methods.values.joinToString("\n\n") { it.rootScope.render() })
         }
 
 
@@ -39,7 +39,6 @@ fun RuntimeInfo.render(): String = buildString {
         appendLine()
     }
 }
-
 
 internal fun RuntimeScopeInfo.render(): String = buildString {
     when (tree.type) {

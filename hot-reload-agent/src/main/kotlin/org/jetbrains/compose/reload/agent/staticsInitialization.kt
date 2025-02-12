@@ -68,8 +68,7 @@ internal fun reinitializeStaticsIfNecessary(
     val dirtyClassIds = dirtyClasses.associateBy { it.classId }
 
     val classInitializerDependencies = dirtyClasses.associateWith { clazz ->
-        newRuntime.methods[clazz.classId.classInitializerMethodId].orEmpty()
-            .flatMap { it.methodDependencies }
+        newRuntime.methods[clazz.classId.classInitializerMethodId]?.rootScope?.methodDependencies.orEmpty()
             .mapNotNull { dependencyMethodId -> dirtyClassIds[dependencyMethodId.classId].takeIf { it != clazz } }
     }
 

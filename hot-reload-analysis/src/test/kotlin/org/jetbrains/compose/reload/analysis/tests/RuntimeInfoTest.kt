@@ -22,6 +22,7 @@ import org.jetbrains.compose.reload.test.core.TestEnvironment
 import org.jetbrains.kotlin.util.prefixIfNot
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.TestInfo
+import kotlin.collections.flatten
 import kotlin.io.path.Path
 import kotlin.io.path.createParentDirectories
 import kotlin.io.path.exists
@@ -212,11 +213,11 @@ class RuntimeInfoTest {
             )
         ) ?: fail("Missing 'runtimeInfo'")
 
-        val (_, scopes) = runtimeInfo.methods.entries.find { (key, _) -> key.methodName == "Foo" }
+        val (_, method) = runtimeInfo.methods.entries.find { (key, _) -> key.methodName == "Foo" }
             ?: fail("Missing method 'Foo'")
 
         /* Method entry point scope */
-        val root = scopes.single().children.single()
+        val root = method.rootScope.children.single()
         assertEquals(2, root.children.size, "Expected 2 remember groups in 'Foo'. Found ${root.render()}")
 
         root.children.forEach { scope ->
@@ -263,11 +264,11 @@ class RuntimeInfoTest {
 
         assertNotEquals(code, codeAfter)
 
-        val beforeScopes = runtimeInfoBefore.methods.values
-            .flatten().withClosure<RuntimeScopeInfo> { scope -> scope.children }.toList()
+        val beforeScopes = runtimeInfoBefore.methods.values.map { it.rootScope }
+            .withClosure<RuntimeScopeInfo> { scope -> scope.children }.toList()
 
-        val afterScopes = runtimeInfoAfter.methods.values
-            .flatten().withClosure<RuntimeScopeInfo> { scope -> scope.children }.toList()
+        val afterScopes = runtimeInfoAfter.methods.values.map { it.rootScope }
+            .withClosure<RuntimeScopeInfo> { scope -> scope.children }.toList()
 
         beforeScopes.forEachIndexed { index, beforeScope ->
             val afterScope = afterScopes[index]

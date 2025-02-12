@@ -5,6 +5,7 @@
 
 package org.jetbrains.compose.reload.analysis
 
+import org.jetbrains.compose.reload.core.closure
 import java.util.zip.CRC32
 
 @JvmInline
@@ -31,8 +32,8 @@ fun RuntimeInfo.resolveInvalidationKey(groupKey: ComposeGroupKey): RuntimeScopeI
  * This might be useful for static methods
  */
 fun RuntimeInfo.resolveInvalidationKey(methodId: MethodId): RuntimeScopeInvalidationKey? {
-    val scopes = methods[methodId] ?: return null
-    return resolveInvalidationKey(scopes)
+    val methodInfo = methods[methodId] ?: return null
+    return resolveInvalidationKey(listOf(methodInfo.rootScope))
 }
 
 /**
@@ -64,8 +65,32 @@ private fun RuntimeInfo.resolveInvalidationKey(
         Resolve method dependencies
          */
         scope.methodDependencies
-            .flatMap { methodId -> methods[methodId] ?: emptyList() }
-            .forEach { scope -> scopeQueue.addLast(scope) }
+            .mapNotNull { methodId -> methods[methodId] }
+            .forEach { method ->
+
+                /* Enqueue the dependency methods root scope */
+                scopeQueue.addLast(method.rootScope)
+
+                /* If the dependency method is open or abstract, resolve and enqueue implementations */
+                if (method.modality == MethodInfo.Modality.ABSTRACT || method.modality == MethodInfo.Modality.OPEN) {
+                    val implementationClassInfos = classes[method.methodId.classId]?.closure { classInfo ->
+                        implementations[classInfo.classId].orEmpty()
+                    }.orEmpty()
+
+                    implementationClassInfos.forEach { implementationClassInfo ->
+                        /*
+                        Resolving by method name and method descriptor:
+                        https://github.com/JetBrains/compose-hot-reload/issues/83
+                        This should resolve overrides properly
+                        */
+                        val implementationMethodInfo = implementationClassInfo.methods.values.firstOrNull {
+                            it.methodId.methodName == method.methodId.methodName &&
+                                it.methodId.methodDescriptor == method.methodId.methodDescriptor
+                        }
+                        scopeQueue.addLast(implementationMethodInfo?.rootScope ?: return@forEach)
+                    }
+                }
+            }
 
         /*
         Resolve field dependencies
@@ -89,7 +114,7 @@ private fun RuntimeInfo.resolveInvalidationKey(
             Static fields will resolve to the class initializer
             */
             if (field.isStatic) {
-                methods[fieldOwner.classId.classInitializerMethodId].orEmpty().forEach { scope ->
+                methods[fieldOwner.classId.classInitializerMethodId]?.rootScope?.let { scope ->
                     scopeQueue.addLast(scope)
                 }
             }
@@ -98,7 +123,7 @@ private fun RuntimeInfo.resolveInvalidationKey(
             Non-static fields
              */
             fieldOwner.methods.values.filter { info -> info.methodId.isConstructor }
-                .forEach { scope -> scopeQueue.addLast(scope) }
+                .forEach { method -> scopeQueue.addLast(method.rootScope) }
         }
     }
 

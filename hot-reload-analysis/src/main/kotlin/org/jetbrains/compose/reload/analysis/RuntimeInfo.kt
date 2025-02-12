@@ -16,24 +16,47 @@ data class RuntimeInfo(
     val classes: Map<ClassId, ClassInfo>,
 
     /**
-     * Index from [MethodId] to the 'root scopes' belonging to this method id
+     * Index from [MethodId] to the associated [MethodInfo]
      */
-    val methods: Map<MethodId, List<RuntimeScopeInfo>> = classes.values.flatMap { it.methods.values }
-        .groupBy { info -> info.methodId },
+    val methods: Map<MethodId, MethodInfo> = classes.values.flatMap { it.methods.values }
+        .associateBy { info -> info.methodId },
 
     /**
      * Index from [ComposeGroupKey] to *all* scopes that are associated with this group.
      * (null as key means 'no known group')
      */
     val groups: Map<ComposeGroupKey?, List<RuntimeScopeInfo>> =
-        classes.values.flatMap { it.methods.values }.withClosure<RuntimeScopeInfo> { info -> info.children }
+        classes.values.flatMap { it.methods.values }
+            .map { info -> info.rootScope }
+            .withClosure<RuntimeScopeInfo> { info -> info.children }
             .groupBy { info -> info.tree.group },
+
+
+    /**
+     * Index from a [ClassId] to its implementors (non-transitive)
+     */
+    val implementations: Map<ClassId, List<ClassInfo>> = run {
+        val result = mutableMapOf<ClassId, MutableList<ClassInfo>>()
+        classes.values.forEach { classInfo ->
+            classInfo.superInterfaces.forEach { interfaceId ->
+                result.getOrPut(interfaceId) { mutableListOf() }.add(classInfo)
+            }
+
+            classInfo.superClass?.let { superClass ->
+                result.getOrPut(superClass) { mutableListOf() }.add(classInfo)
+            }
+        }
+
+        result.filterKeys { classId -> !isIgnoredClassId(classId.toString()) }
+    }
 )
 
 data class ClassInfo(
     val classId: ClassId,
     val fields: Map<FieldId, FieldInfo>,
-    val methods: Map<MethodId, RuntimeScopeInfo>
+    val methods: Map<MethodId, MethodInfo>,
+    val superClass: ClassId?,
+    val superInterfaces: List<ClassId>
 )
 
 data class FieldInfo(
@@ -41,6 +64,16 @@ data class FieldInfo(
     val isStatic: Boolean,
     val initialValue: Any?,
 )
+
+data class MethodInfo(
+    val methodId: MethodId,
+    val modality: Modality,
+    val rootScope: RuntimeScopeInfo,
+) {
+    enum class Modality {
+        FINAL, OPEN, ABSTRACT
+    }
+}
 
 fun ClassInfo(bytecode: ByteArray): ClassInfo? {
     return ClassInfo(ClassNode(bytecode))
@@ -51,8 +84,16 @@ internal fun ClassInfo(classNode: ClassNode): ClassInfo? {
     val classId = ClassId(classNode)
 
     val methods = classNode.methods.mapNotNull { methodNode ->
-        MethodId(classNode, methodNode) to (RuntimeScopeInfo(classNode, methodNode) ?: return@mapNotNull null)
-    }.toMap()
+        MethodInfo(
+            methodId = MethodId(classNode, methodNode),
+            rootScope = RuntimeScopeInfo(classNode, methodNode) ?: return@mapNotNull null,
+            modality = when {
+                methodNode.access and Opcodes.ACC_FINAL != 0 -> MethodInfo.Modality.FINAL
+                methodNode.access and Opcodes.ACC_ABSTRACT != 0 -> MethodInfo.Modality.ABSTRACT
+                else -> MethodInfo.Modality.OPEN
+            }
+        )
+    }.associateBy { it.methodId }
 
     val fields = classNode.fields.associate { fieldNode ->
         FieldId(classNode, fieldNode) to FieldInfo(
@@ -65,7 +106,9 @@ internal fun ClassInfo(classNode: ClassNode): ClassInfo? {
     return ClassInfo(
         classId = classId,
         fields = fields,
-        methods = methods
+        methods = methods,
+        superClass = classNode.superName?.let(::ClassId),
+        superInterfaces = classNode.interfaces.map(::ClassId)
     )
 }
 
