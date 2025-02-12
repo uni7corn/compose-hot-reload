@@ -24,6 +24,7 @@ pluginManagement {
     }
 
     plugins {
+        id("org.jetbrains.compose.hot-reload") version providers.gradleProperty("bootstrap.version").get()
         id("org.jetbrains.compose.hot-reload.test") version providers.gradleProperty("bootstrap.version").get()
     }
 }

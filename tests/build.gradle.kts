@@ -3,12 +3,20 @@
  * Use of this source code is governed by the Apache 2.0 license that can be found in the LICENSE file.
  */
 
+@file:OptIn(ExperimentalComposeLibrary::class)
+
 import org.gradle.api.tasks.testing.logging.TestLogEvent
+import org.jetbrains.compose.ExperimentalComposeLibrary
 
 plugins {
     kotlin("jvm")
-    `test-conventions`
+    kotlin("plugin.compose")
+
+    id("org.jetbrains.compose")
+    id("org.jetbrains.compose.hot-reload")
     id("org.jetbrains.compose.hot-reload.test")
+
+    `test-conventions`
 }
 
 kotlin {
@@ -46,6 +54,9 @@ dependencies {
     implementation(kotlin("test"))
     implementation(deps.slf4j.api)
     implementation(deps.logback)
+    implementation(compose.runtime)
+
+    reloadUnitTestImplementation(compose.uiTest)
 
     reloadFunctionalTestImplementation(deps.junit.jupiter)
     reloadFunctionalTestImplementation(deps.junit.jupiter.engine)

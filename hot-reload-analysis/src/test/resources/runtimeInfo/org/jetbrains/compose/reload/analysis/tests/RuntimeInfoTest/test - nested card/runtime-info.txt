@@ -61,7 +61,9 @@ ComposableSingletons$FooKt {
         desc: ()V
         key: null
         codeHash: 2144001912
-        methodDependencies: []
+        methodDependencies: [
+            ComposableSingletons$FooKt.<init> ()V
+        ]
         fieldDependencies: [
             ComposableSingletons$FooKt.INSTANCE LComposableSingletons$FooKt;,
             ComposableSingletons$FooKt$lambda$1969856002$1.INSTANCE LComposableSingletons$FooKt$lambda$1969856002$1;,
@@ -95,7 +97,9 @@ ComposableSingletons$FooKt$lambda$1969856002$1 {
         desc: (Ljava/lang/Object;Ljava/lang/Object;Ljava/lang/Object;)Ljava/lang/Object;
         key: null
         codeHash: 800344929
-        methodDependencies: []
+        methodDependencies: [
+            ComposableSingletons$FooKt$lambda$1969856002$1.invoke (Landroidx/compose/foundation/layout/ColumnScope;Landroidx/compose/runtime/Composer;I)V
+        ]
         fieldDependencies: []
     }
     
@@ -103,7 +107,9 @@ ComposableSingletons$FooKt$lambda$1969856002$1 {
         desc: ()V
         key: null
         codeHash: 2164608135
-        methodDependencies: []
+        methodDependencies: [
+            ComposableSingletons$FooKt$lambda$1969856002$1.<init> ()V
+        ]
         fieldDependencies: [
             ComposableSingletons$FooKt$lambda$1969856002$1.INSTANCE LComposableSingletons$FooKt$lambda$1969856002$1;
         ]
@@ -125,7 +131,9 @@ ComposableSingletons$FooKt$lambda$904522804$1 {
         desc: (Landroidx/compose/foundation/layout/ColumnScope;Landroidx/compose/runtime/Composer;I)V
         key: 904522804
         codeHash: 2619273190
-        methodDependencies: []
+        methodDependencies: [
+            ComposableSingletons$FooKt.getLambda$1969856002$testModule ()Lkotlin/jvm/functions/Function3;
+        ]
         fieldDependencies: [
             ComposableSingletons$FooKt.INSTANCE LComposableSingletons$FooKt;
         ]
@@ -135,7 +143,9 @@ ComposableSingletons$FooKt$lambda$904522804$1 {
         desc: (Ljava/lang/Object;Ljava/lang/Object;Ljava/lang/Object;)Ljava/lang/Object;
         key: null
         codeHash: 3802197612
-        methodDependencies: []
+        methodDependencies: [
+            ComposableSingletons$FooKt$lambda$904522804$1.invoke (Landroidx/compose/foundation/layout/ColumnScope;Landroidx/compose/runtime/Composer;I)V
+        ]
         fieldDependencies: []
     }
     
@@ -143,7 +153,9 @@ ComposableSingletons$FooKt$lambda$904522804$1 {
         desc: ()V
         key: null
         codeHash: 2886943498
-        methodDependencies: []
+        methodDependencies: [
+            ComposableSingletons$FooKt$lambda$904522804$1.<init> ()V
+        ]
         fieldDependencies: [
             ComposableSingletons$FooKt$lambda$904522804$1.INSTANCE LComposableSingletons$FooKt$lambda$904522804$1;
         ]
@@ -163,7 +175,9 @@ FooKt {
         RestartGroup {
             key: -965539098
             codeHash: 406798702
-            methodDependencies: []
+            methodDependencies: [
+                ComposableSingletons$FooKt.getLambda$904522804$testModule ()Lkotlin/jvm/functions/Function3;
+            ]
             fieldDependencies: [
                 ComposableSingletons$FooKt.INSTANCE LComposableSingletons$FooKt;
             ]

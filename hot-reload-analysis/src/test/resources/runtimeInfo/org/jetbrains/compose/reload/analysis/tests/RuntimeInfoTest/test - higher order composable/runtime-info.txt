@@ -47,7 +47,9 @@ ComposableSingletons$FooKt {
         desc: ()V
         key: null
         codeHash: 2631766068
-        methodDependencies: []
+        methodDependencies: [
+            ComposableSingletons$FooKt.<init> ()V
+        ]
         fieldDependencies: [
             ComposableSingletons$FooKt.INSTANCE LComposableSingletons$FooKt;,
             ComposableSingletons$FooKt$lambda$-1435676418$1.INSTANCE LComposableSingletons$FooKt$lambda$-1435676418$1;,
@@ -79,7 +81,9 @@ ComposableSingletons$FooKt$lambda$-1435676418$1 {
         desc: (Ljava/lang/Object;Ljava/lang/Object;)Ljava/lang/Object;
         key: null
         codeHash: 1519915706
-        methodDependencies: []
+        methodDependencies: [
+            ComposableSingletons$FooKt$lambda$-1435676418$1.invoke (Landroidx/compose/runtime/Composer;I)V
+        ]
         fieldDependencies: []
     }
     
@@ -87,7 +91,9 @@ ComposableSingletons$FooKt$lambda$-1435676418$1 {
         desc: ()V
         key: null
         codeHash: 385586306
-        methodDependencies: []
+        methodDependencies: [
+            ComposableSingletons$FooKt$lambda$-1435676418$1.<init> ()V
+        ]
         fieldDependencies: [
             ComposableSingletons$FooKt$lambda$-1435676418$1.INSTANCE LComposableSingletons$FooKt$lambda$-1435676418$1;
         ]
@@ -123,6 +129,7 @@ FooKt {
             key: -965539098
             codeHash: 1501432024
             methodDependencies: [
+                ComposableSingletons$FooKt.getLambda$-1435676418$testModule ()Lkotlin/jvm/functions/Function2;,
                 FooKt.Bar (Lkotlin/jvm/functions/Function2;Landroidx/compose/runtime/Composer;I)V
             ]
             fieldDependencies: [

@@ -84,7 +84,9 @@ FooKt {
             ReplaceGroup {
                 key: 1849434622
                 codeHash: 107027927
-                methodDependencies: []
+                methodDependencies: [
+                    Bar.getX ()I
+                ]
                 fieldDependencies: [
                     FooKt.bar LBar;
                 ]
@@ -106,7 +108,9 @@ FooKt {
         desc: ()V
         key: null
         codeHash: 1891533309
-        methodDependencies: []
+        methodDependencies: [
+            Bar.<init> ()V
+        ]
         fieldDependencies: [
             FooKt.bar LBar;
         ]

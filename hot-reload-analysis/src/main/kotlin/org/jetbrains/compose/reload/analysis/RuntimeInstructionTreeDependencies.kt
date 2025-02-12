@@ -17,7 +17,12 @@ private const val metafactoryMethodName = "metafactory"
 internal fun RuntimeInstructionTree.methodDependencies(): Set<MethodId> {
     return tokens.filterIsInstance<RuntimeInstructionToken.BockToken>().flatMapTo(mutableSetOf()) { block ->
         block.instructions.mapNotNull { instructionNode ->
-            if (instructionNode is MethodInsnNode && instructionNode.opcode == Opcodes.INVOKESTATIC) {
+            if (instructionNode is MethodInsnNode &&
+                (instructionNode.opcode == Opcodes.INVOKESTATIC ||
+                    instructionNode.opcode == Opcodes.INVOKEVIRTUAL ||
+                    instructionNode.opcode == Opcodes.INVOKESPECIAL ||
+                    instructionNode.opcode == Opcodes.INVOKEINTERFACE)
+            ) {
                 if (isIgnoredClassId(instructionNode.owner)) return@mapNotNull null
                 return@mapNotNull MethodId(instructionNode)
             }
