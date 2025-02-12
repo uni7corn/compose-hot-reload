@@ -67,7 +67,7 @@ private class HotReloadTestRunConfigurationProvider : GradleRunConfigurationProd
 
         /* Find all run carrier tasks (tasks implementing KotlinJvmRun */
         val task = ExternalSystemApiUtil.findAll(mainModuleDataNode, ProjectKeys.TASK)
-            .filter { it.data.type == "org.jetbrains.compose.reload.test.HotReloadTestTask" }
+            .filter { it.data.type == "org.jetbrains.compose.reload.test.HotReloadUnitTestTask" }
             .filter { it.data.name.contains(sourceSetName, true)}
             .ifEmpty { return false }
             .first()
