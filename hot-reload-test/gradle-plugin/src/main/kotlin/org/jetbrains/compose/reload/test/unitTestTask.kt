@@ -71,6 +71,8 @@ open class HotReloadUnitTestTask : AbstractTestTask() {
 
     fun compilation(compilation: KotlinCompilation<*>) {
         compileClasspath.from(project.files { compilation.compileDependencyFiles })
+        compileClasspath.from(project.files { compilation.output.classesDirs })
+
         classpath.from(project.files { compilation.runtimeDependencyFiles ?: emptyList<Any>() })
         classpath.from(project.files { compilation.output.allOutputs })
         moduleName.set(compilation.compileTaskProvider.flatMap { (it.compilerOptions as KotlinJvmCompilerOptions).moduleName })
