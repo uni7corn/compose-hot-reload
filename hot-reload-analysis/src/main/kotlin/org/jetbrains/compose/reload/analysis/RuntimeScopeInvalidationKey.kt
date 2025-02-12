@@ -63,26 +63,23 @@ private fun RuntimeInfo.resolveInvalidationKey(
         /*
         Resolve method dependencies
          */
-        scope.methodDependencies
-            .mapNotNull { methodId -> methods[methodId] }
-            .forEach { method ->
+        scope.methodDependencies.mapNotNull { methodId -> methods[methodId] }.forEach { method ->
+            /* Enqueue the dependency methods root scope */
+            scopeQueue.addLast(method.rootScope)
 
-                /* Enqueue the dependency methods root scope */
-                scopeQueue.addLast(method.rootScope)
+            /* If the dependency method is open or abstract, resolve and enqueue implementations */
+            if (method.modality == MethodInfo.Modality.ABSTRACT || method.modality == MethodInfo.Modality.OPEN) {
+                val implementationClassInfos = allImplementations[method.methodId.classId].orEmpty()
 
-                /* If the dependency method is open or abstract, resolve and enqueue implementations */
-                if (method.modality == MethodInfo.Modality.ABSTRACT || method.modality == MethodInfo.Modality.OPEN) {
-                    val implementationClassInfos = allImplementations[method.methodId.classId].orEmpty()
-
-                    implementationClassInfos.forEach { implementationClassInfo ->
-                        implementationClassInfo.methods.values.forEach { method ->
-                            if (method.methodId.methodName != method.methodId.methodName) return@forEach
-                            if (method.methodId.methodDescriptor != method.methodId.methodDescriptor) return@forEach
-                            scopeQueue.addLast(method.rootScope)
-                        }
+                implementationClassInfos.forEach { implementationClassInfo ->
+                    implementationClassInfo.methods.values.forEach { method ->
+                        if (method.methodId.methodName != method.methodId.methodName) return@forEach
+                        if (method.methodId.methodDescriptor != method.methodId.methodDescriptor) return@forEach
+                        scopeQueue.addLast(method.rootScope)
                     }
                 }
             }
+        }
 
         /*
         Resolve field dependencies
