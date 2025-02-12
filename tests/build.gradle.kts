@@ -62,4 +62,16 @@ dependencies {
     reloadFunctionalTestImplementation(deps.junit.jupiter.engine)
     reloadFunctionalTestImplementation(testFixtures(project(":hot-reload-core")))
     reloadFunctionalTestImplementation(project(":hot-reload-test:gradle-testFixtures"))
+
+    /*
+     Required to enforce no accidental resolve to the -api-jvm, published by the runtime api project.
+     Usually such substitutions are made automatically by Gradle, but there seems to be an issue
+     with the sub-publications of the KMP project
+     */
+    configurations.all {
+        resolutionStrategy.dependencySubstitution {
+            substitute(module("org.jetbrains.compose.hot-reload:runtime-api-jvm"))
+                .using(project(":hot-reload-runtime-api"))
+        }
+    }
 }

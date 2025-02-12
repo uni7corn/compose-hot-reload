@@ -5,7 +5,6 @@
 
 package org.jetbrains.compose.reload.analysis
 
-import org.jetbrains.compose.reload.core.closure
 import java.util.zip.CRC32
 
 @JvmInline
@@ -73,21 +72,14 @@ private fun RuntimeInfo.resolveInvalidationKey(
 
                 /* If the dependency method is open or abstract, resolve and enqueue implementations */
                 if (method.modality == MethodInfo.Modality.ABSTRACT || method.modality == MethodInfo.Modality.OPEN) {
-                    val implementationClassInfos = classes[method.methodId.classId]?.closure { classInfo ->
-                        implementations[classInfo.classId].orEmpty()
-                    }.orEmpty()
+                    val implementationClassInfos = allImplementations[method.methodId.classId].orEmpty()
 
                     implementationClassInfos.forEach { implementationClassInfo ->
-                        /*
-                        Resolving by method name and method descriptor:
-                        https://github.com/JetBrains/compose-hot-reload/issues/83
-                        This should resolve overrides properly
-                        */
-                        val implementationMethodInfo = implementationClassInfo.methods.values.firstOrNull {
-                            it.methodId.methodName == method.methodId.methodName &&
-                                it.methodId.methodDescriptor == method.methodId.methodDescriptor
+                        implementationClassInfo.methods.values.forEach { method ->
+                            if (method.methodId.methodName != method.methodId.methodName) return@forEach
+                            if (method.methodId.methodDescriptor != method.methodId.methodDescriptor) return@forEach
+                            scopeQueue.addLast(method.rootScope)
                         }
-                        scopeQueue.addLast(implementationMethodInfo?.rootScope ?: return@forEach)
                     }
                 }
             }

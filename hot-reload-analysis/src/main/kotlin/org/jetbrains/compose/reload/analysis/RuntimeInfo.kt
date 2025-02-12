@@ -7,6 +7,7 @@
 
 package org.jetbrains.compose.reload.analysis
 
+import org.jetbrains.compose.reload.core.closure
 import org.jetbrains.compose.reload.core.withClosure
 import org.objectweb.asm.Opcodes
 import org.objectweb.asm.tree.ClassNode
@@ -47,7 +48,13 @@ data class RuntimeInfo(
             }
         }
 
-        result.filterKeys { classId -> !isIgnoredClassId(classId.toString()) }
+        result
+    },
+
+    val allImplementations: Map<ClassId, List<ClassInfo>> = implementations.keys.associateWith { classId ->
+        classes[classId]?.closure { currentClassInfo ->
+            implementations[currentClassInfo.classId].orEmpty()
+        }?.toList().orEmpty()
     }
 )
 

@@ -18,48 +18,54 @@ import org.jetbrains.compose.reload.DevelopmentEntryPoint
 import org.jetbrains.compose.reload.test.HotReloadUnitTest
 import org.jetbrains.compose.reload.test.compileAndReload
 
-interface InvokeInterfaceTestInterface {
-    fun invokeInterfaceMethod(): String
+interface InvokeInterfaceWithVarianceInterface<T> {
+    fun invokeInterfaceMethod(param: T): String
 }
 
-class InvokeInterfaceTestClass : InvokeInterfaceTestInterface {
-    override fun invokeInterfaceMethod(): String = "foo"
+class InvokeInterfaceWithVarianceTestClass : InvokeInterfaceWithVarianceInterface<String> {
+    override fun invokeInterfaceMethod(param: String): String {
+        return "before: $param"
+    }
 }
 
-object InvokeInterface {
-    val instance: InvokeInterfaceTestInterface = InvokeInterfaceTestClass()
+
+object InvokeInterfaceWithVariance {
+    val instance: InvokeInterfaceWithVarianceInterface<String> = InvokeInterfaceWithVarianceTestClass()
 
     /*
-    We're using a dedicated function for this test to workaround
+    We're using a dedicated function for this test to work around
     https://youtrack.jetbrains.com/issue/KT-75159/
     */
     @Composable
     fun render() {
-        val text = remember { instance.invokeInterfaceMethod() }
+        val text = remember { instance.invokeInterfaceMethod("foo") }
         Text(text = text, modifier = Modifier.testTag("text"))
     }
 }
 
 @OptIn(ExperimentalTestApi::class)
 @HotReloadUnitTest
-fun `test - invokeInterface method dependency`() = runComposeUiTest {
+fun `test - invokeInterface method dependency - with variance`() = runComposeUiTest {
     setContent {
         DevelopmentEntryPoint {
-            InvokeInterface.render()
+            InvokeInterfaceWithVariance.render()
         }
     }
 
-    onNodeWithTag("text").assertTextEquals("foo")
+    onNodeWithTag("text").assertTextEquals("before: foo")
 
     compileAndReload(
         """
         package org.jetbrains.compose.reload.tests
         
-        class InvokeInterfaceTestClass : InvokeInterfaceTestInterface {
-            override fun invokeInterfaceMethod(): String = "bar"
+        class InvokeInterfaceWithVarianceTestClass : InvokeInterfaceWithVarianceInterface<String> {
+            override fun invokeInterfaceMethod(param: String): String {
+                return "after: %param"
+            }
         }
-    """.trimIndent()
+    """.trimIndent().replace("%", "$")
     )
 
-    onNodeWithTag("text").assertTextEquals("bar")
+    onNodeWithTag("text").assertTextEquals("after: foo")
+
 }
