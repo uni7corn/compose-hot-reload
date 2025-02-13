@@ -1,9 +1,9 @@
 /*
  * Copyright 2024-2025 JetBrains s.r.o. and Compose Hot Reload contributors.
- * Use of this source code is governed by the Apache 2.0 license that can be found in the LICENSE file.
+ * Use of this source code is governed by the Apache 2.0 license that can be found in the license/LICENSE.txt file.
  */
 
-package org.jetbrains.compose.reload.jvm.tooling
+package org.jetbrains.compose.reload.jvm.tooling.widgets
 
 import androidx.compose.animation.Animatable
 import androidx.compose.animation.AnimatedVisibility
@@ -42,14 +42,8 @@ import io.sellmair.evas.compose.composeState
 import io.sellmair.evas.compose.composeValue
 import kotlinx.coroutines.delay
 import org.jetbrains.compose.reload.jvm.tooling.states.ReloadState
+import org.jetbrains.compose.reload.jvm.tooling.theme.DtColors
 
-internal val Orange1 = Color(0xFFFC801D)
-internal val Orange2 = Color(0xFFFDB60D)
-private val Green = Color(0xFF3DEA62)
-private val Red = Color(0xFFFE2857)
-
-internal val reloadColorOk = Green
-internal val reloadColorFailed = Red
 
 @Composable
 internal fun ReloadStateBanner(state: ReloadState, modifier: Modifier = Modifier) {
@@ -122,8 +116,8 @@ internal fun animateReloadStateColor(
     state: ReloadState = ReloadState.composeValue(),
     idleColor: Color = Color.LightGray,
     reloadingColor: Color = Color.Transparent,
-    reloadColorOk: Color = org.jetbrains.compose.reload.jvm.tooling.reloadColorOk,
-    reloadColorFailed: Color = org.jetbrains.compose.reload.jvm.tooling.reloadColorFailed,
+    reloadColorOk: Color = DtColors.statusColorOk,
+    reloadColorFailed: Color = DtColors.statusColorError,
 ): State<Color> {
     val color = remember(idleColor) { Animatable(idleColor) }
 
@@ -162,7 +156,7 @@ internal fun animateReloadingIndicatorBrush(): Brush {
     )
 
     return Brush.linearGradient(
-        colors = listOf(Orange1, Orange2),
+        colors = listOf(DtColors.statusColorOrange1, DtColors.statusColorOrange2),
         start = Offset(0f, gradientShift),
         end = Offset(0f, gradientShift + 400),
         tileMode = TileMode.Mirror,

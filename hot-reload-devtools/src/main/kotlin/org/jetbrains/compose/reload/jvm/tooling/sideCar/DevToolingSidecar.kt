@@ -1,9 +1,9 @@
 /*
  * Copyright 2024-2025 JetBrains s.r.o. and Compose Hot Reload contributors.
- * Use of this source code is governed by the Apache 2.0 license that can be found in the LICENSE file.
+ * Use of this source code is governed by the Apache 2.0 license that can be found in the license/LICENSE.txt file.
  */
 
-package org.jetbrains.compose.reload.jvm.tooling
+package org.jetbrains.compose.reload.jvm.tooling.sideCar
 
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.core.Animatable
@@ -49,7 +49,18 @@ import io.sellmair.evas.compose.composeValue
 import kotlinx.coroutines.delay
 import org.jetbrains.compose.reload.core.WindowId
 import org.jetbrains.compose.reload.core.createLogger
+import org.jetbrains.compose.reload.jvm.tooling.invokeWhenMessageReceived
+import org.jetbrains.compose.reload.jvm.tooling.orchestration
 import org.jetbrains.compose.reload.jvm.tooling.states.ReloadState
+import org.jetbrains.compose.reload.jvm.tooling.theme.DtColors
+import org.jetbrains.compose.reload.jvm.tooling.widgets.ComposeLogo
+import org.jetbrains.compose.reload.jvm.tooling.widgets.DtButton
+import org.jetbrains.compose.reload.jvm.tooling.widgets.ReloadStateBanner
+import org.jetbrains.compose.reload.jvm.tooling.widgets.animateReloadStateColor
+import org.jetbrains.compose.reload.jvm.tooling.widgets.composeLogoAwtImage
+import org.jetbrains.compose.reload.jvm.tooling.widgets.composeLogoColor
+import org.jetbrains.compose.reload.jvm.tooling.widgets.reloadBackground
+import org.jetbrains.compose.reload.jvm.tooling.widgets.reloadBorder
 import org.jetbrains.compose.reload.orchestration.OrchestrationMessage
 import org.jetbrains.compose.reload.orchestration.OrchestrationMessage.ApplicationWindowGainedFocus
 import kotlin.system.exitProcess
@@ -153,7 +164,7 @@ private fun DevToolingToolbar(
         Spacer(Modifier.width(8.dp))
         Text("Compose Hot Reload Tooling", fontSize = 16.0f.sp, fontWeight = FontWeight.Bold)
         Spacer(Modifier.weight(1f))
-        IconButton(
+        DtButton(
             onClick = onClose,
             modifier = Modifier
                 .padding(2.dp)
@@ -180,14 +191,14 @@ fun DevToolingSidecar(
     ) {
         AnimatedContent(
             isExpanded,
-            modifier = Modifier
+            modifier = Modifier.Companion
                 .reloadBorder(
                     shape = DevToolingSidecarShape,
                     idleColor = if (isExpanded) Color.LightGray else Color.Transparent
                 )
                 .clip(DevToolingSidecarShape)
-                .background(Color.White.copy(alpha = 0.9f))
-                .reloadBackground(if (isExpanded) Color.LightGray else reloadColorOk)
+                .background(DtColors.applicationBackground)
+                .reloadBackground(if (isExpanded) Color.LightGray else DtColors.statusColorOk)
                 .weight(1f, fill = false),
             transitionSpec = {
                 (fadeIn(animationSpec = tween(220, delayMillis = 128)) +
@@ -197,20 +208,20 @@ fun DevToolingSidecar(
             contentAlignment = Alignment.TopEnd,
         ) { expandedState ->
             if (!expandedState) {
-                IconButton(
+                DtButton(
                     onClick = { isExpandedChanged(true) },
                     modifier = Modifier
                         .animateEnterExit(
                             enter = fadeIn(tween(220)),
                             exit = fadeOut(tween(50))
                         )
-                        .size(32.dp)
+
                 ) {
                     ComposeLogo(
-                        Modifier.size(24.dp),
+                        Modifier.size(28.dp).padding(4.dp),
                         tint = animateReloadStateColor(
                             idleColor = composeLogoColor,
-                            reloadingColor = Orange1
+                            reloadingColor = DtColors.statusColorOrange2
                         ).value
                     )
                 }

@@ -1,11 +1,11 @@
 /*
  * Copyright 2024-2025 JetBrains s.r.o. and Compose Hot Reload contributors.
- * Use of this source code is governed by the Apache 2.0 license that can be found in the LICENSE file.
+ * Use of this source code is governed by the Apache 2.0 license that can be found in the license/LICENSE.txt file.
  */
 
 @file:OptIn(ExperimentalComposeUiApi::class)
 
-package org.jetbrains.compose.reload.jvm.tooling
+package org.jetbrains.compose.reload.jvm.tooling.errorOverlay
 
 
 import androidx.compose.foundation.background
@@ -41,6 +41,7 @@ import io.sellmair.evas.compose.composeFlow
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.map
 import org.jetbrains.compose.reload.core.WindowId
+import org.jetbrains.compose.reload.jvm.tooling.send
 import org.jetbrains.compose.reload.jvm.tooling.states.UIErrorDescription
 import org.jetbrains.compose.reload.jvm.tooling.states.UIErrorState
 import org.jetbrains.compose.reload.orchestration.OrchestrationMessage
