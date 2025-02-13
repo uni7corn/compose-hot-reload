@@ -22,6 +22,7 @@ import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Close
@@ -148,7 +149,8 @@ private fun DevToolingToolbar(
         modifier = modifier.padding(horizontal = 16.dp, vertical = 4.dp),
         verticalAlignment = Alignment.CenterVertically,
     ) {
-        ComposeLogo(modifier = Modifier.size(32.dp))
+        ComposeLogo(modifier = Modifier.size(24.dp))
+        Spacer(Modifier.width(8.dp))
         Text("Compose Hot Reload Tooling", fontSize = 16.0f.sp, fontWeight = FontWeight.Bold)
         Spacer(Modifier.weight(1f))
         IconButton(

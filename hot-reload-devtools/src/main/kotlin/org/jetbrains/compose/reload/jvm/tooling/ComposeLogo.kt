@@ -6,6 +6,7 @@
 package org.jetbrains.compose.reload.jvm.tooling
 
 import androidx.compose.foundation.Image
+import androidx.compose.material.Icon
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -13,14 +14,17 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.ImageBitmap
+import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.graphics.toAwtImage
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.loadImageBitmap
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.MainScope
 import kotlinx.coroutines.async
 import kotlinx.coroutines.withContext
 import org.jetbrains.compose.reload.core.createLogger
+import org.jetbrains.compose.resources.ExperimentalResourceApi
+import org.jetbrains.compose.resources.decodeToSvgPainter
 import java.lang.invoke.MethodHandles
 
 private val classLoader = MethodHandles.lookup().lookupClass().classLoader
@@ -36,21 +40,28 @@ internal val composeLogoAwtImage = MainScope().async(Dispatchers.IO) {
     composeLogoBitmap.await().toAwtImage()
 }
 
+internal val composeLogoSvgBinary = MainScope().async(Dispatchers.IO) {
+    classLoader.getResource("img/compose-logo.svg")!!.openStream()
+        .buffered().use { input -> input.readBytes() }
+}
+
+@OptIn(ExperimentalResourceApi::class)
 @Composable
 internal fun ComposeLogo(modifier: Modifier) {
-    var bitmap: ImageBitmap? by remember { mutableStateOf<ImageBitmap?>(null) }
+    var painter: Painter? by remember { mutableStateOf<Painter?>(null) }
+    val density = LocalDensity.current
 
-    LaunchedEffect(Unit) {
+    LaunchedEffect(density) {
         withContext(Dispatchers.IO) {
             runCatching {
-                bitmap = composeLogoBitmap.await()
+               painter = composeLogoSvgBinary.await().decodeToSvgPainter(density)
             }.onFailure {
                 logger.error("Failed loading compose-logo", it)
             }
         }
     }
 
-    bitmap?.let { bitmap ->
-        Image(bitmap, "Compose Logo", modifier = modifier)
+    painter?.let { painter ->
+        Image(painter, "Compose Logo", modifier = modifier)
     }
 }
