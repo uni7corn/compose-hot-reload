@@ -6,7 +6,6 @@
 package org.jetbrains.compose.reload.jvm.tooling
 
 import androidx.compose.foundation.Image
-import androidx.compose.material.Icon
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -14,6 +13,8 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.graphics.toAwtImage
 import androidx.compose.ui.platform.LocalDensity
@@ -45,16 +46,21 @@ internal val composeLogoSvgBinary = MainScope().async(Dispatchers.IO) {
         .buffered().use { input -> input.readBytes() }
 }
 
+internal val composeLogoColor = Color(red = 66, green = 133, blue = 244)
+
 @OptIn(ExperimentalResourceApi::class)
 @Composable
-internal fun ComposeLogo(modifier: Modifier) {
+internal fun ComposeLogo(
+    modifier: Modifier,
+    tint: Color? = null
+) {
     var painter: Painter? by remember { mutableStateOf<Painter?>(null) }
     val density = LocalDensity.current
 
     LaunchedEffect(density) {
         withContext(Dispatchers.IO) {
             runCatching {
-               painter = composeLogoSvgBinary.await().decodeToSvgPainter(density)
+                painter = composeLogoSvgBinary.await().decodeToSvgPainter(density)
             }.onFailure {
                 logger.error("Failed loading compose-logo", it)
             }
@@ -62,6 +68,10 @@ internal fun ComposeLogo(modifier: Modifier) {
     }
 
     painter?.let { painter ->
-        Image(painter, "Compose Logo", modifier = modifier)
+        Image(
+            painter, "Compose Logo",
+            colorFilter = tint?.let { tint -> ColorFilter.tint(tint) },
+            modifier = modifier
+        )
     }
 }

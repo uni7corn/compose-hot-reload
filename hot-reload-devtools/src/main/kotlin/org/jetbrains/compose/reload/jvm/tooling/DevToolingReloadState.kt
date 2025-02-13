@@ -43,8 +43,8 @@ import io.sellmair.evas.compose.composeValue
 import kotlinx.coroutines.delay
 import org.jetbrains.compose.reload.jvm.tooling.states.ReloadState
 
-private val Orange1 = Color(0xFFFC801D)
-private val Orange2 = Color(0xFFFDB60D)
+internal val Orange1 = Color(0xFFFC801D)
+internal val Orange2 = Color(0xFFFDB60D)
 private val Green = Color(0xFF3DEA62)
 private val Red = Color(0xFFFE2857)
 
@@ -121,23 +121,30 @@ fun Modifier.reloadBackground(idleColor: Color): Modifier {
 internal fun animateReloadStateColor(
     state: ReloadState = ReloadState.composeValue(),
     idleColor: Color = Color.LightGray,
+    reloadingColor: Color = Color.Transparent,
+    reloadColorOk: Color = org.jetbrains.compose.reload.jvm.tooling.reloadColorOk,
+    reloadColorFailed: Color = org.jetbrains.compose.reload.jvm.tooling.reloadColorFailed,
 ): State<Color> {
     val color = remember(idleColor) { Animatable(idleColor) }
 
     LaunchedEffect(state) {
         when (state) {
             is ReloadState.Reloading -> {
-                color.snapTo(Color.Transparent)
+                if (reloadingColor == Color.Transparent) {
+                    color.snapTo(reloadingColor)
+                } else {
+                    color.animateTo(reloadingColor, tween(250))
+                }
             }
 
             is ReloadState.Ok -> {
-                color.snapTo(Green)
+                color.snapTo(reloadColorOk)
                 delay(1000)
                 color.animateTo(idleColor, tween(250))
             }
 
             is ReloadState.Failed -> {
-                color.snapTo(Red)
+                color.snapTo(reloadColorFailed)
             }
         }
     }

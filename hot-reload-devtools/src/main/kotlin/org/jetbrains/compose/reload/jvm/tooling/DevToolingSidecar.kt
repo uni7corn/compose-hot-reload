@@ -206,7 +206,13 @@ fun DevToolingSidecar(
                         )
                         .size(32.dp)
                 ) {
-                    ComposeLogo(Modifier.size(24.dp))
+                    ComposeLogo(
+                        Modifier.size(24.dp),
+                        tint = animateReloadStateColor(
+                            idleColor = composeLogoColor,
+                            reloadingColor = Orange1
+                        ).value
+                    )
                 }
 
             } else {
