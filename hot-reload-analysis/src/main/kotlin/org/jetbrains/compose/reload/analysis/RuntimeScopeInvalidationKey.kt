@@ -57,7 +57,7 @@ private fun RuntimeInfo.resolveInvalidationKey(
         */
         scope.children.filter { info ->
             /* w/o 'OptimizeNonSkippingGroup, remember blocks will have their own group */
-            info.tree.group == SpecialComposeGroupKeys.remember
+            SpecialComposeGroupKeys.isRememberGroup(info.tree.group ?: return@filter false)
         }.forEach { scope -> scopeQueue.addLast(scope) }
 
         /*

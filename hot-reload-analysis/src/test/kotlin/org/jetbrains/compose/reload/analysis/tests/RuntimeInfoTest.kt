@@ -22,7 +22,6 @@ import org.jetbrains.compose.reload.test.core.TestEnvironment
 import org.jetbrains.kotlin.util.prefixIfNot
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.TestInfo
-import kotlin.collections.flatten
 import kotlin.io.path.Path
 import kotlin.io.path.createParentDirectories
 import kotlin.io.path.exists
@@ -225,6 +224,46 @@ class RuntimeInfoTest {
                 SpecialComposeGroupKeys.remember, scope.tree.group,
                 "Expected remember group key to equal ${SpecialComposeGroupKeys.remember.key}"
             )
+        }
+    }
+
+    @Test
+    fun `test - all remember overloads`(compiler: Compiler, testInfo: TestInfo) {
+        val runtimeInfo = checkRuntimeInfo(
+            testInfo, compiler.withOptions(CompilerOption.OptimizeNonSkippingGroups to false), mapOf(
+                "Foo.kt" to """
+                    import androidx.compose.runtime.*
+                    
+                    @Composable
+                    fun Foo() {
+                        val overload0 = remember { "Hello" }
+                        val overload1 = remember(1) { 1602 }
+                        val overload2 = remember(1, 2) { 1602 }
+                        val overload3 = remember(1, 2, 3) { 1602 }
+                        val overload4 = remember(1, 2, 3, 4) { 1602 }
+                    }
+                """.trimIndent()
+            )
+        ) ?: fail("Missing 'runtimeInfo'")
+
+        if (SpecialComposeGroupKeys.remember !in runtimeInfo.groups) {
+            fail("Cannot find key for 'remember'")
+        }
+
+        if (SpecialComposeGroupKeys.remember1 !in runtimeInfo.groups) {
+            fail("Cannot find key for 'remember1'")
+        }
+
+        if (SpecialComposeGroupKeys.remember2 !in runtimeInfo.groups) {
+            fail("Cannot find key for 'remember2'")
+        }
+
+        if (SpecialComposeGroupKeys.remember3 !in runtimeInfo.groups) {
+            fail("Cannot find key for 'remember3'")
+        }
+
+        if (SpecialComposeGroupKeys.remember4 !in runtimeInfo.groups) {
+            fail("Cannot find key for 'remember4'")
         }
     }
 
