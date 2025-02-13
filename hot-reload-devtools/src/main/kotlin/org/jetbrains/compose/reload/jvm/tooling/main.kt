@@ -19,10 +19,14 @@ import org.jetbrains.compose.reload.jvm.tooling.states.launchWindowsState
 
 val applicationScope = CoroutineScope(Dispatchers.Main + SupervisorJob() + Events() + States())
 
+internal fun CoroutineScope.launchApplicationStates() {
+    launchConsoleLogState()
+    launchWindowsState()
+    launchUIErrorState()
+    launchReloadState()
+}
+
 fun main() {
-    applicationScope.launchConsoleLogState()
-    applicationScope.launchWindowsState()
-    applicationScope.launchUIErrorState()
-    applicationScope.launchReloadState()
+    applicationScope.launchApplicationStates()
     runDevToolingApplication()
 }

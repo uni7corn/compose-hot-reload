@@ -27,7 +27,7 @@ import org.jetbrains.compose.reload.orchestration.OrchestrationMessage
 @Composable
 fun DevToolingToolbar(modifier: Modifier = Modifier) {
     FlowRow(
-        modifier = modifier.padding(8.dp),
+        modifier = modifier.padding(horizontal = 8.dp, vertical = 8.dp),
         horizontalArrangement = Arrangement.spacedBy(8.dp),
     ) {
 

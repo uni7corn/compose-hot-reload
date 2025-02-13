@@ -20,7 +20,6 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -42,7 +41,6 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.compose.ui.window.ApplicationScope
 import androidx.compose.ui.window.Window
 import androidx.compose.ui.window.WindowPosition
 import androidx.compose.ui.window.WindowState
@@ -51,7 +49,9 @@ import kotlinx.coroutines.delay
 import org.jetbrains.compose.reload.core.WindowId
 import org.jetbrains.compose.reload.core.createLogger
 import org.jetbrains.compose.reload.jvm.tooling.states.ReloadState
+import org.jetbrains.compose.reload.orchestration.OrchestrationMessage
 import org.jetbrains.compose.reload.orchestration.OrchestrationMessage.ApplicationWindowGainedFocus
+import kotlin.system.exitProcess
 import kotlin.time.Duration.Companion.milliseconds
 
 private val logger = createLogger()
@@ -59,8 +59,10 @@ private val logger = createLogger()
 private val DevToolingSidecarShape = RoundedCornerShape(8.dp)
 
 @Composable
-fun ApplicationScope.DevToolingSidecar(
-    windowId: WindowId, windowState: WindowState, isAlwaysOnTop: Boolean
+fun DevToolingSidecar(
+    windowId: WindowId,
+    windowState: WindowState,
+    isAlwaysOnTop: Boolean,
 ) {
     val animationDuration = 512
     var isExpanded by remember { mutableStateOf(false) }
@@ -107,7 +109,10 @@ fun ApplicationScope.DevToolingSidecar(
     )
 
     Window(
-        onCloseRequest = {},
+        onCloseRequest = {
+            orchestration.sendMessage(OrchestrationMessage.ShutdownRequest()).get()
+            exitProcess(0)
+        },
         state = sidecarWindowState,
         undecorated = true,
         transparent = true,
@@ -127,56 +132,10 @@ fun ApplicationScope.DevToolingSidecar(
             }
         }
 
-        Row(
-            modifier = Modifier.fillMaxSize(),
-            horizontalArrangement = Arrangement.End,
-        ) {
-            AnimatedContent(
-                isExpanded,
-                modifier = Modifier
-                    .heightIn(max = windowState.size.height)
-                    .reloadBorder(
-                        shape = DevToolingSidecarShape,
-                        idleColor = if (isExpanded) Color.LightGray else Color.Transparent
-                    )
-                    .clip(DevToolingSidecarShape)
-                    .background(Color.White.copy(alpha = 0.9f))
-                    .reloadBackground(if (isExpanded) Color.LightGray else reloadColorOk)
-                    .weight(1f, fill = false),
-                transitionSpec = {
-                    (fadeIn(animationSpec = tween(220, delayMillis = 128)) +
-                        scaleIn(initialScale = 0.92f, animationSpec = tween(220, delayMillis = 128)))
-                        .togetherWith(fadeOut(animationSpec = tween(90)))
-                },
-                contentAlignment = Alignment.TopEnd,
-            ) { expandedState ->
-                if (!expandedState) {
-                    IconButton(
-                        onClick = { isExpanded = true },
-                        modifier = Modifier
-                            .animateEnterExit(
-                                enter = fadeIn(tween(220)),
-                                exit = fadeOut(tween(50))
-                            )
-                            .size(32.dp)
-                    ) {
-                        ComposeLogo(Modifier.size(24.dp))
-                    }
-
-                } else {
-                    Column {
-                        DevToolingToolbar({ isExpanded = false })
-                        DevToolingWidget(Modifier.padding(8.dp).fillMaxSize())
-                    }
-                }
-            }
-
-            ReloadStateBanner(
-                ReloadState.composeValue(),
-                modifier = Modifier.fillMaxHeight()
-                    .padding(4.dp)
-            )
-        }
+        DevToolingSidecar(
+            isExpanded,
+            isExpandedChanged = { isExpanded = it }
+        )
     }
 }
 
@@ -203,5 +162,63 @@ private fun DevToolingToolbar(
                 modifier = Modifier.fillMaxSize()
             )
         }
+    }
+}
+
+
+@Composable
+fun DevToolingSidecar(
+    isExpanded: Boolean,
+    isExpandedChanged: (isExpanded: Boolean) -> Unit,
+    modifier: Modifier = Modifier,
+) {
+    Row(
+        modifier = modifier.fillMaxSize(),
+        horizontalArrangement = Arrangement.End,
+    ) {
+        AnimatedContent(
+            isExpanded,
+            modifier = Modifier
+                .reloadBorder(
+                    shape = DevToolingSidecarShape,
+                    idleColor = if (isExpanded) Color.LightGray else Color.Transparent
+                )
+                .clip(DevToolingSidecarShape)
+                .background(Color.White.copy(alpha = 0.9f))
+                .reloadBackground(if (isExpanded) Color.LightGray else reloadColorOk)
+                .weight(1f, fill = false),
+            transitionSpec = {
+                (fadeIn(animationSpec = tween(220, delayMillis = 128)) +
+                    scaleIn(initialScale = 0.92f, animationSpec = tween(220, delayMillis = 128)))
+                    .togetherWith(fadeOut(animationSpec = tween(90)))
+            },
+            contentAlignment = Alignment.TopEnd,
+        ) { expandedState ->
+            if (!expandedState) {
+                IconButton(
+                    onClick = { isExpandedChanged(true) },
+                    modifier = Modifier
+                        .animateEnterExit(
+                            enter = fadeIn(tween(220)),
+                            exit = fadeOut(tween(50))
+                        )
+                        .size(32.dp)
+                ) {
+                    ComposeLogo(Modifier.size(24.dp))
+                }
+
+            } else {
+                Column {
+                    DevToolingToolbar({ isExpandedChanged(false) })
+                    DevToolingWidget(Modifier.padding(8.dp).fillMaxSize())
+                }
+            }
+        }
+
+        ReloadStateBanner(
+            ReloadState.composeValue(),
+            modifier = Modifier.fillMaxHeight()
+                .padding(4.dp)
+        )
     }
 }

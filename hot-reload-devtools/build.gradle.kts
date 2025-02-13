@@ -6,6 +6,7 @@
 @file:OptIn(ExperimentalComposeLibrary::class)
 
 import org.jetbrains.compose.ExperimentalComposeLibrary
+import org.jetbrains.compose.reload.ComposeHotRun
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 import org.jetbrains.kotlin.gradle.tasks.KotlinJvmCompile
 
@@ -13,6 +14,7 @@ plugins {
     kotlin("jvm")
     kotlin("plugin.compose")
     id("org.jetbrains.compose")
+    id("org.jetbrains.compose.hot-reload")
     `maven-publish`
     `publishing-conventions`
 }
@@ -20,6 +22,13 @@ plugins {
 kotlin {
     jvmToolchain(17)
 }
+
+tasks.create<ComposeHotRun>("runDev") {
+    mainClass.set("org.jetbrains.compose.reload.jvm.tooling.RunKt")
+    compilation.set(kotlin.target.compilations["dev"])
+    systemProperty("orchestration.mode", "server")
+}
+
 
 tasks.withType<KotlinJvmCompile>().configureEach {
     compilerOptions {
@@ -51,6 +60,8 @@ dependencies {
     testImplementation(kotlin("test"))
     testImplementation(deps.junit.jupiter)
     testImplementation(deps.junit.jupiter.engine)
+
+    devCompileOnly(project(":hot-reload-agent"))
 }
 
 tasks.withType<Test>().configureEach {

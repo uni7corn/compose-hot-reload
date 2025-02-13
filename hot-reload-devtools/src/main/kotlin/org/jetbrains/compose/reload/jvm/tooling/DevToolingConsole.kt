@@ -36,7 +36,7 @@ fun DevToolingConsole(tag: String, modifier: Modifier = Modifier) {
     }
 
     Column(modifier = modifier) {
-        Text(tag, fontSize = 16.sp, fontWeight = FontWeight.Bold)
+        Text(tag, fontSize = 16.sp, fontWeight = FontWeight.Bold, modifier = Modifier.padding(horizontal = 16.dp))
         Card(Modifier.padding(vertical = 8.dp).fillMaxSize()) {
             SelectionContainer {
                 Text(

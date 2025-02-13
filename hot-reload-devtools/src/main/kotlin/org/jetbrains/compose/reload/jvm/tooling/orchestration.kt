@@ -11,15 +11,20 @@ import androidx.compose.runtime.LaunchedEffect
 import kotlinx.coroutines.flow.filterIsInstance
 import org.jetbrains.compose.reload.orchestration.OrchestrationClient
 import org.jetbrains.compose.reload.orchestration.OrchestrationClientRole
+import org.jetbrains.compose.reload.orchestration.OrchestrationHandle
 import org.jetbrains.compose.reload.orchestration.OrchestrationMessage
 import org.jetbrains.compose.reload.orchestration.asFlow
+import java.util.ServiceLoader
 import java.util.concurrent.Future
 import kotlin.system.exitProcess
 
-internal val orchestration = run {
-    val client = OrchestrationClient(OrchestrationClientRole.Unknown) ?: error("Failed to create OrchestrationClient")
-    client.invokeWhenClosed { exitProcess(0) }
-    client
+internal val orchestration: OrchestrationHandle = run {
+    val handle = ServiceLoader.load(OrchestrationExtension::class.java)
+        .firstNotNullOfOrNull { extension -> extension.getOrchestration() }
+        ?: (OrchestrationClient(OrchestrationClientRole.Unknown) ?: error("Failed to create OrchestrationClient"))
+
+    handle.invokeWhenClosed { exitProcess(0) }
+    handle
 }
 
 internal fun OrchestrationMessage.send(): Future<Unit> {
@@ -31,4 +36,12 @@ internal inline fun <reified T> invokeWhenMessageReceived(noinline action: @Disa
     LaunchedEffect(Unit) {
         orchestration.asFlow().filterIsInstance<T>().collect(action)
     }
+}
+
+/**
+ * E.e. dev runs might want to provide a different orchestration handle (as we're not actually
+ * running in production mode)
+ */
+internal interface OrchestrationExtension {
+    fun getOrchestration(): OrchestrationHandle
 }
