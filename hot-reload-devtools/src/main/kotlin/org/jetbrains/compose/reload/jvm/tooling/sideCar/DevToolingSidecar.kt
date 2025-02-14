@@ -50,7 +50,7 @@ import org.jetbrains.compose.reload.core.createLogger
 import org.jetbrains.compose.reload.jvm.tooling.invokeWhenMessageReceived
 import org.jetbrains.compose.reload.jvm.tooling.orchestration
 import org.jetbrains.compose.reload.jvm.tooling.theme.DtColors
-import org.jetbrains.compose.reload.jvm.tooling.widgets.ComposeLogo
+import org.jetbrains.compose.reload.jvm.tooling.widgets.DtComposeLogo
 import org.jetbrains.compose.reload.jvm.tooling.widgets.DtButton
 import org.jetbrains.compose.reload.jvm.tooling.widgets.DtReloadStatusBanner
 import org.jetbrains.compose.reload.jvm.tooling.widgets.animateReloadStatusBackground
@@ -157,7 +157,7 @@ private fun DevToolingToolbar(
         modifier = modifier.padding(horizontal = 16.dp, vertical = 4.dp),
         verticalAlignment = Alignment.CenterVertically,
     ) {
-        ComposeLogo(modifier = Modifier.size(24.dp))
+        DtComposeLogo(modifier = Modifier.size(24.dp))
         Spacer(Modifier.width(8.dp))
         Text("Compose Hot Reload Tooling", fontSize = 16.0f.sp, fontWeight = FontWeight.Bold)
         Spacer(Modifier.weight(1f))
@@ -214,7 +214,7 @@ fun DevToolingSidecar(
                         )
 
                 ) {
-                    ComposeLogo(
+                    DtComposeLogo(
                         Modifier.size(28.dp).padding(4.dp),
                         tint = animateReloadStatusColor(
                             idleColor = composeLogoColor,

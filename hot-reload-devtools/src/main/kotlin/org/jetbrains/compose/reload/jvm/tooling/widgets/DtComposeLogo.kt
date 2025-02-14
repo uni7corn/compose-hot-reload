@@ -50,7 +50,7 @@ internal val composeLogoColor = Color(red = 66, green = 133, blue = 244)
 
 @OptIn(ExperimentalResourceApi::class)
 @Composable
-internal fun ComposeLogo(
+internal fun DtComposeLogo(
     modifier: Modifier,
     tint: Color? = null
 ) {
