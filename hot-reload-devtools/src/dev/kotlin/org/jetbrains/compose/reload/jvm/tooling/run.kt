@@ -8,6 +8,7 @@
 package org.jetbrains.compose.reload.jvm.tooling
 
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -21,9 +22,11 @@ import org.jetbrains.compose.reload.jvm.tooling.sidecar.DtSidecarWindowContent
 @DevelopmentEntryPoint
 @Composable
 fun DevToolingSidecarEntryPoint() {
-    installEvas(applicationScope.coroutineContext.eventsOrThrow, applicationScope.coroutineContext.statesOrThrow) {
+    LaunchedEffect(Unit) {
         applicationScope.launchApplicationStates()
+    }
 
+    installEvas(applicationScope.coroutineContext.eventsOrThrow, applicationScope.coroutineContext.statesOrThrow) {
         var isExpanded by remember { mutableStateOf(true) }
         DtSidecarWindowContent(isExpanded, isExpandedChanged = { isExpanded = it })
     }

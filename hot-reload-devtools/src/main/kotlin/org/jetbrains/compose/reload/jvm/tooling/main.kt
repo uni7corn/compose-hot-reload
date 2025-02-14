@@ -25,6 +25,7 @@ import org.jetbrains.compose.reload.jvm.tooling.errorOverlay.DevToolingErrorOver
 import org.jetbrains.compose.reload.jvm.tooling.sidecar.DtSidecarWindow
 import org.jetbrains.compose.reload.jvm.tooling.states.WindowsState
 import org.jetbrains.compose.reload.jvm.tooling.states.launchConsoleLogState
+import org.jetbrains.compose.reload.jvm.tooling.states.launchReloadCountState
 import org.jetbrains.compose.reload.jvm.tooling.states.launchReloadState
 import org.jetbrains.compose.reload.jvm.tooling.states.launchUIErrorState
 import org.jetbrains.compose.reload.jvm.tooling.states.launchWindowsState
@@ -36,6 +37,7 @@ internal fun CoroutineScope.launchApplicationStates() {
     launchWindowsState()
     launchUIErrorState()
     launchReloadState()
+    launchReloadCountState()
 }
 
 fun devToolsApplication(content: @Composable ApplicationScope.() -> Unit) {

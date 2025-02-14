@@ -17,11 +17,11 @@ import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import io.sellmair.evas.compose.composeValue
 import org.jetbrains.compose.reload.jvm.tooling.states.ConsoleLogState
+import org.jetbrains.compose.reload.jvm.tooling.theme.dtHorizontalPadding
+import org.jetbrains.compose.reload.jvm.tooling.widgets.DtHeader2
 
 @Composable
 fun DtConsole(tag: String, modifier: Modifier = Modifier) {
@@ -36,7 +36,7 @@ fun DtConsole(tag: String, modifier: Modifier = Modifier) {
     }
 
     Column(modifier = modifier) {
-        Text(tag, fontSize = 16.sp, fontWeight = FontWeight.Bold, modifier = Modifier.padding(horizontal = 16.dp))
+        DtHeader2(tag, modifier = Modifier.dtHorizontalPadding())
         Card(Modifier.padding(vertical = 8.dp).fillMaxSize()) {
             SelectionContainer {
                 Text(

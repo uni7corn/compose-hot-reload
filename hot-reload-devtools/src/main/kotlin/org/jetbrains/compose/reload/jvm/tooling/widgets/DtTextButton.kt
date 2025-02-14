@@ -21,7 +21,7 @@ fun DtTextButton(
         onClick = onClick,
         modifier = modifier
     ) { buttonState ->
-        BasicText(
+        DtText(
             text = text,
             modifier = Modifier.padding(8.dp)
         )

@@ -20,6 +20,7 @@ internal fun DtSidecarBody(modifier: Modifier = Modifier) {
         modifier = modifier.fillMaxSize()
     ) {
         DtSidecarActionBar()
+        DtSidecarStatusSection()
         DtConsole(LogMessage.TAG_COMPILER, Modifier.fillMaxSize())
     }
 }

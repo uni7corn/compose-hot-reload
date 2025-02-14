@@ -23,6 +23,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import org.jetbrains.compose.reload.jvm.tooling.widgets.DtButton
 import org.jetbrains.compose.reload.jvm.tooling.widgets.DtComposeLogo
+import org.jetbrains.compose.reload.jvm.tooling.widgets.DtHeader1
 
 @Composable
 internal fun DtSidecarHeaderBar(
@@ -35,7 +36,7 @@ internal fun DtSidecarHeaderBar(
     ) {
         DtComposeLogo(modifier = Modifier.Companion.size(24.dp))
         Spacer(Modifier.Companion.width(8.dp))
-        Text("Compose Hot Reload Tooling", fontSize = 16.0f.sp, fontWeight = FontWeight.Companion.Bold)
+        DtHeader1("Compose Hot Reload Tooling")
         Spacer(Modifier.weight(1f))
         DtButton(
             onClick = onClose,
