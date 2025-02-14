@@ -7,10 +7,6 @@
 
 package org.jetbrains.compose.reload.jvm.tooling
 
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.runtime.Composable
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.window.ApplicationScope
 import androidx.compose.ui.window.application
 import io.sellmair.evas.Events
 import io.sellmair.evas.States
@@ -25,6 +21,7 @@ import org.jetbrains.compose.reload.jvm.tooling.errorOverlay.DevToolingErrorOver
 import org.jetbrains.compose.reload.jvm.tooling.sidecar.DtSidecarWindow
 import org.jetbrains.compose.reload.jvm.tooling.states.WindowsState
 import org.jetbrains.compose.reload.jvm.tooling.states.launchConsoleLogState
+import org.jetbrains.compose.reload.jvm.tooling.states.launchDtArgumentsState
 import org.jetbrains.compose.reload.jvm.tooling.states.launchReloadCountState
 import org.jetbrains.compose.reload.jvm.tooling.states.launchReloadState
 import org.jetbrains.compose.reload.jvm.tooling.states.launchUIErrorState
@@ -32,7 +29,8 @@ import org.jetbrains.compose.reload.jvm.tooling.states.launchWindowsState
 
 internal val applicationScope = CoroutineScope(Dispatchers.Main + SupervisorJob() + Events() + States())
 
-internal fun CoroutineScope.launchApplicationStates() {
+internal fun CoroutineScope.launchApplicationStates(args: List<String> = emptyList()) {
+    launchDtArgumentsState(args)
     launchConsoleLogState()
     launchWindowsState()
     launchUIErrorState()
@@ -40,30 +38,20 @@ internal fun CoroutineScope.launchApplicationStates() {
     launchReloadCountState()
 }
 
-fun devToolsApplication(content: @Composable ApplicationScope.() -> Unit) {
-    applicationScope.launchApplicationStates()
+
+fun main(args: Array<String>) {
+    applicationScope.launchApplicationStates(args.toList())
+
     application {
         installEvas(
             applicationScope.coroutineContext.eventsOrThrow,
             applicationScope.coroutineContext.statesOrThrow
         ) {
-            MaterialTheme(
-                colorScheme = MaterialTheme.colorScheme.copy(
-                    primary = Color.Black,
-                )
-            ) {
-                content()
+            val windowsState = WindowsState.composeValue()
+            windowsState.windows.forEach { (windowId, windowState) ->
+                DtSidecarWindow(windowId, windowState, isAlwaysOnTop = windowsState.alwaysOnTop[windowId] == true)
+                DevToolingErrorOverlay(windowId, windowState)
             }
-        }
-    }
-}
-
-fun main() {
-    devToolsApplication {
-        val windowsState = WindowsState.composeValue()
-        windowsState.windows.forEach { (windowId, windowState) ->
-            DtSidecarWindow(windowId, windowState, isAlwaysOnTop = windowsState.alwaysOnTop[windowId] == true)
-            DevToolingErrorOverlay(windowId, windowState)
         }
     }
 }

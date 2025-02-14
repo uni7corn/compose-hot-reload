@@ -12,10 +12,17 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import io.sellmair.evas.compose.EvasLaunching
+import io.sellmair.evas.value
 import org.jetbrains.compose.reload.core.HotReloadEnvironment
+import org.jetbrains.compose.reload.core.createLogger
 import org.jetbrains.compose.reload.jvm.tooling.send
+import org.jetbrains.compose.reload.jvm.tooling.states.DtArguments
 import org.jetbrains.compose.reload.jvm.tooling.widgets.DtTextButton
 import org.jetbrains.compose.reload.orchestration.OrchestrationMessage
+
+
+private val logger = createLogger()
 
 @OptIn(ExperimentalLayoutApi::class)
 @Composable
@@ -32,6 +39,19 @@ fun DtSidecarActionBar(modifier: Modifier = Modifier.Companion) {
         }
 
         DtTextButton("Exit", onClick = {
+            OrchestrationMessage.ShutdownRequest().send()
+        })
+
+        DtTextButton("Restart", onClick = EvasLaunching {
+            val arguments = DtArguments.value() ?: return@EvasLaunching
+            logger.info("Restarting...")
+
+            ProcessBuilder(
+                arguments.originalApplicationCommand ?: return@EvasLaunching,
+                *arguments.originalApplicationArguments.toTypedArray()
+            ).redirectErrorStream(true).start()
+
+            logger.info("New process started; Exiting")
             OrchestrationMessage.ShutdownRequest().send()
         })
 

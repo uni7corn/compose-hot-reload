@@ -19,7 +19,10 @@ internal fun launchDevtoolsApplication() {
     if (!HotReloadEnvironment.devToolsEnabled) return
 
     val classpath = HotReloadEnvironment.devToolsClasspath ?: error("Missing '${DevToolsClasspath}'")
-    val java = ProcessHandle.current().info().command().getOrNull() ?: return
+
+    val thisProcessInfo = ProcessHandle.current().info()
+    val java = thisProcessInfo.command().getOrNull() ?: return
+    val arguments = thisProcessInfo.arguments().getOrNull() ?: return
 
     logger.info("Starting Dev Tools")
 
@@ -29,6 +32,8 @@ internal fun launchDevtoolsApplication() {
         "-D${HotReloadProperty.GradleBuildContinuous.key}=${HotReloadEnvironment.gradleBuildContinuous}",
         "-Dapple.awt.UIElement=true",
         "org.jetbrains.compose.reload.jvm.tooling.Main",
+        "--applicationCommand=$java",
+        *arguments.map { arg -> "--applicationArg=$arg" }.toTypedArray()
     ).inheritIO().start()
 
     Runtime.getRuntime().addShutdownHook(Thread {
