@@ -27,7 +27,6 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -45,22 +44,20 @@ import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Window
 import androidx.compose.ui.window.WindowPosition
 import androidx.compose.ui.window.WindowState
-import io.sellmair.evas.compose.composeValue
 import kotlinx.coroutines.delay
 import org.jetbrains.compose.reload.core.WindowId
 import org.jetbrains.compose.reload.core.createLogger
 import org.jetbrains.compose.reload.jvm.tooling.invokeWhenMessageReceived
 import org.jetbrains.compose.reload.jvm.tooling.orchestration
-import org.jetbrains.compose.reload.jvm.tooling.states.ReloadState
 import org.jetbrains.compose.reload.jvm.tooling.theme.DtColors
 import org.jetbrains.compose.reload.jvm.tooling.widgets.ComposeLogo
 import org.jetbrains.compose.reload.jvm.tooling.widgets.DtButton
-import org.jetbrains.compose.reload.jvm.tooling.widgets.ReloadStateBanner
-import org.jetbrains.compose.reload.jvm.tooling.widgets.animateReloadStateColor
+import org.jetbrains.compose.reload.jvm.tooling.widgets.DtReloadStatusBanner
+import org.jetbrains.compose.reload.jvm.tooling.widgets.animateReloadStatusBackground
+import org.jetbrains.compose.reload.jvm.tooling.widgets.animateReloadStatusColor
+import org.jetbrains.compose.reload.jvm.tooling.widgets.animatedReloadStatusBorder
 import org.jetbrains.compose.reload.jvm.tooling.widgets.composeLogoAwtImage
 import org.jetbrains.compose.reload.jvm.tooling.widgets.composeLogoColor
-import org.jetbrains.compose.reload.jvm.tooling.widgets.reloadBackground
-import org.jetbrains.compose.reload.jvm.tooling.widgets.reloadBorder
 import org.jetbrains.compose.reload.orchestration.OrchestrationMessage
 import org.jetbrains.compose.reload.orchestration.OrchestrationMessage.ApplicationWindowGainedFocus
 import kotlin.system.exitProcess
@@ -192,13 +189,13 @@ fun DevToolingSidecar(
         AnimatedContent(
             isExpanded,
             modifier = Modifier.Companion
-                .reloadBorder(
+                .animatedReloadStatusBorder(
                     shape = DevToolingSidecarShape,
                     idleColor = if (isExpanded) Color.LightGray else Color.Transparent
                 )
                 .clip(DevToolingSidecarShape)
                 .background(DtColors.applicationBackground)
-                .reloadBackground(if (isExpanded) Color.LightGray else DtColors.statusColorOk)
+                .animateReloadStatusBackground(if (isExpanded) Color.LightGray else DtColors.statusColorOk)
                 .weight(1f, fill = false),
             transitionSpec = {
                 (fadeIn(animationSpec = tween(220, delayMillis = 128)) +
@@ -219,7 +216,7 @@ fun DevToolingSidecar(
                 ) {
                     ComposeLogo(
                         Modifier.size(28.dp).padding(4.dp),
-                        tint = animateReloadStateColor(
+                        tint = animateReloadStatusColor(
                             idleColor = composeLogoColor,
                             reloadingColor = DtColors.statusColorOrange2
                         ).value
@@ -234,8 +231,7 @@ fun DevToolingSidecar(
             }
         }
 
-        ReloadStateBanner(
-            ReloadState.composeValue(),
+        DtReloadStatusBanner(
             modifier = Modifier.fillMaxHeight()
                 .padding(4.dp)
         )
