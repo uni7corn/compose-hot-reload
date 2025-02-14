@@ -32,4 +32,9 @@ object DtTextStyles {
         fontSize = 12.sp,
         fontWeight = FontWeight.Light
     )
+
+    val code = small.copy(
+        fontFamily = FontFamily.Monospace,
+        fontWeight = FontWeight.Normal,
+    )
 }

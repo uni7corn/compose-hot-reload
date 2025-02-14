@@ -13,6 +13,7 @@ object DtColors {
 
     val surface = Color(red = 244, green = 248, blue = 255)
     val surfaceActive = Color(red = 198, green = 221, blue = 255)
+    val surfaceConsole = Color(red = 254, green = 254, blue = 254)
 
     val statusColorOk = Color(red = 56, green = 207, blue = 96)
     val statusColorOrange1 = Color(0xfff4d642)

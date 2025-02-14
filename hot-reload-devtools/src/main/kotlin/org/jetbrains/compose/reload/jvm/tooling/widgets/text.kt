@@ -42,3 +42,11 @@ fun DtSmallText(text: String, modifier: Modifier = Modifier) {
         style = DtTextStyles.small
     )
 }
+
+@Composable
+fun DtCode(text: String, modifier: Modifier) {
+    BasicText(
+        text, modifier,
+        style = DtTextStyles.code
+    )
+}
