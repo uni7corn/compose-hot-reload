@@ -90,12 +90,12 @@ internal fun startWindowManager(): WindowId? {
             }
 
             override fun componentResized(e: ComponentEvent?) {
-                logger.debug("$windowId: componentResized")
+                logger.trace("$windowId: componentResized")
                 broadcastWindowPosition()
             }
 
             override fun componentMoved(e: ComponentEvent?) {
-                logger.debug("$windowId: componentMoved")
+                logger.trace("$windowId: componentMoved")
                 broadcastWindowPosition()
             }
         }
