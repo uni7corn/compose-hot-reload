@@ -3,7 +3,7 @@
  * Use of this source code is governed by the Apache 2.0 license that can be found in the LICENSE file.
  */
 
-package org.jetbrains.compose.reload.jvm.tooling.sideCar
+package org.jetbrains.compose.reload.jvm.tooling.sidecar
 
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
@@ -24,7 +24,7 @@ import io.sellmair.evas.compose.composeValue
 import org.jetbrains.compose.reload.jvm.tooling.states.ConsoleLogState
 
 @Composable
-fun DevToolingConsole(tag: String, modifier: Modifier = Modifier) {
+fun DtConsole(tag: String, modifier: Modifier = Modifier) {
     val listState = rememberLazyListState()
     val logState = ConsoleLogState.Key(tag).composeValue()
     val scroll = rememberScrollState(0)

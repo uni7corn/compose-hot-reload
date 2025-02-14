@@ -16,7 +16,7 @@ import io.sellmair.evas.compose.installEvas
 import io.sellmair.evas.eventsOrThrow
 import io.sellmair.evas.statesOrThrow
 import org.jetbrains.compose.reload.DevelopmentEntryPoint
-import org.jetbrains.compose.reload.jvm.tooling.sideCar.DevToolingSidecar
+import org.jetbrains.compose.reload.jvm.tooling.sidecar.DtSidecarWindowContent
 
 @DevelopmentEntryPoint
 @Composable
@@ -25,6 +25,6 @@ fun DevToolingSidecarEntryPoint() {
         applicationScope.launchApplicationStates()
 
         var isExpanded by remember { mutableStateOf(true) }
-        DevToolingSidecar(isExpanded, isExpandedChanged = { isExpanded = it })
+        DtSidecarWindowContent(isExpanded, isExpandedChanged = { isExpanded = it })
     }
 }

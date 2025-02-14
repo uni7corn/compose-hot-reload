@@ -3,7 +3,7 @@
  * Use of this source code is governed by the Apache 2.0 license that can be found in the license/LICENSE.txt file.
  */
 
-package org.jetbrains.compose.reload.jvm.tooling.sideCar
+package org.jetbrains.compose.reload.jvm.tooling.sidecar
 
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.core.Animatable
@@ -17,17 +17,11 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Close
-import androidx.compose.material3.Icon
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -38,9 +32,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Window
 import androidx.compose.ui.window.WindowPosition
 import androidx.compose.ui.window.WindowState
@@ -68,7 +60,7 @@ private val logger = createLogger()
 private val DevToolingSidecarShape = RoundedCornerShape(8.dp)
 
 @Composable
-fun DevToolingSidecar(
+fun DtSidecarWindow(
     windowId: WindowId,
     windowState: WindowState,
     isAlwaysOnTop: Boolean,
@@ -141,43 +133,16 @@ fun DevToolingSidecar(
             }
         }
 
-        DevToolingSidecar(
+        DtSidecarWindowContent(
             isExpanded,
             isExpandedChanged = { isExpanded = it }
         )
     }
 }
 
-@Composable
-private fun DevToolingToolbar(
-    onClose: () -> Unit,
-    modifier: Modifier = Modifier,
-) {
-    Row(
-        modifier = modifier.padding(horizontal = 16.dp, vertical = 4.dp),
-        verticalAlignment = Alignment.CenterVertically,
-    ) {
-        DtComposeLogo(modifier = Modifier.size(24.dp))
-        Spacer(Modifier.width(8.dp))
-        Text("Compose Hot Reload Tooling", fontSize = 16.0f.sp, fontWeight = FontWeight.Bold)
-        Spacer(Modifier.weight(1f))
-        DtButton(
-            onClick = onClose,
-            modifier = Modifier
-                .padding(2.dp)
-                .size(24.dp)
-        ) {
-            Icon(
-                Icons.Default.Close, contentDescription = "Close",
-                modifier = Modifier.fillMaxSize()
-            )
-        }
-    }
-}
-
 
 @Composable
-fun DevToolingSidecar(
+fun DtSidecarWindowContent(
     isExpanded: Boolean,
     isExpandedChanged: (isExpanded: Boolean) -> Unit,
     modifier: Modifier = Modifier,
@@ -225,8 +190,8 @@ fun DevToolingSidecar(
 
             } else {
                 Column {
-                    DevToolingToolbar({ isExpandedChanged(false) })
-                    DevToolingWidget(Modifier.padding(8.dp).fillMaxSize())
+                    DtSidecarHeaderBar({ isExpandedChanged(false) })
+                    DtSidecarBody(Modifier.padding(8.dp).fillMaxSize())
                 }
             }
         }

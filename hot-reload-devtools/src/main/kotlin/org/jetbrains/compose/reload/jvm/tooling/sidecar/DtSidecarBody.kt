@@ -3,7 +3,7 @@
  * Use of this source code is governed by the Apache 2.0 license that can be found in the license/LICENSE.txt file.
  */
 
-package org.jetbrains.compose.reload.jvm.tooling.sideCar
+package org.jetbrains.compose.reload.jvm.tooling.sidecar
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -14,13 +14,12 @@ import androidx.compose.ui.unit.dp
 import org.jetbrains.compose.reload.orchestration.OrchestrationMessage.LogMessage
 
 @Composable
-internal fun DevToolingWidget(modifier: Modifier = Modifier) {
+internal fun DtSidecarBody(modifier: Modifier = Modifier) {
     Column(
         verticalArrangement = Arrangement.spacedBy(16.dp),
         modifier = modifier.fillMaxSize()
     ) {
-        DevToolingToolbar()
-
-        DevToolingConsole(LogMessage.TAG_COMPILER, Modifier.fillMaxSize())
+        DtSidecarActionBar()
+        DtConsole(LogMessage.TAG_COMPILER, Modifier.fillMaxSize())
     }
 }

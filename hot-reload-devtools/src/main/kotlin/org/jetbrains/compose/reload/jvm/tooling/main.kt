@@ -8,7 +8,6 @@
 package org.jetbrains.compose.reload.jvm.tooling
 
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.window.ApplicationScope
@@ -23,7 +22,7 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
 import org.jetbrains.compose.reload.jvm.tooling.errorOverlay.DevToolingErrorOverlay
-import org.jetbrains.compose.reload.jvm.tooling.sideCar.DevToolingSidecar
+import org.jetbrains.compose.reload.jvm.tooling.sidecar.DtSidecarWindow
 import org.jetbrains.compose.reload.jvm.tooling.states.WindowsState
 import org.jetbrains.compose.reload.jvm.tooling.states.launchConsoleLogState
 import org.jetbrains.compose.reload.jvm.tooling.states.launchReloadState
@@ -61,7 +60,7 @@ fun main() {
     devToolsApplication {
         val windowsState = WindowsState.composeValue()
         windowsState.windows.forEach { (windowId, windowState) ->
-            DevToolingSidecar(windowId, windowState, isAlwaysOnTop = windowsState.alwaysOnTop[windowId] == true)
+            DtSidecarWindow(windowId, windowState, isAlwaysOnTop = windowsState.alwaysOnTop[windowId] == true)
             DevToolingErrorOverlay(windowId, windowState)
         }
     }

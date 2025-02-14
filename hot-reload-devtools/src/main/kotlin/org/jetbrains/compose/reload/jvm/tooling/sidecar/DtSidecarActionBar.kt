@@ -3,7 +3,7 @@
  * Use of this source code is governed by the Apache 2.0 license that can be found in the license/LICENSE.txt file.
  */
 
-package org.jetbrains.compose.reload.jvm.tooling.sideCar
+package org.jetbrains.compose.reload.jvm.tooling.sidecar
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.ExperimentalLayoutApi
@@ -19,7 +19,7 @@ import org.jetbrains.compose.reload.orchestration.OrchestrationMessage
 
 @OptIn(ExperimentalLayoutApi::class)
 @Composable
-fun DevToolingToolbar(modifier: Modifier = Modifier) {
+fun DtSidecarActionBar(modifier: Modifier = Modifier.Companion) {
     FlowRow(
         modifier = modifier.padding(horizontal = 8.dp, vertical = 8.dp),
         horizontalArrangement = Arrangement.spacedBy(8.dp),
@@ -46,26 +46,3 @@ fun DevToolingToolbar(modifier: Modifier = Modifier) {
 
     }
 }
-
-/*
-@Composable
-fun ActionButton(text: String, modifier: Modifier = Modifier, onClick: () -> Unit) {
-    val reloadState = ReloadState.composeValue()
-    val reloadColor by animateReloadStateColor(reloadState)
-    val reloadBrush = animateReloadingIndicatorBrush()
-    Button(
-        onClick = onClick,
-        modifier = modifier,
-        shape = ButtonDefaults.outlinedShape,
-        colors = ButtonDefaults.outlinedButtonColors(),
-        border = ButtonDefaults.outlinedButtonBorder(true).run {
-            if (reloadState is ReloadState.Reloading) copy(brush = reloadBrush)
-            else copy(brush = SolidColor(reloadColor))
-        },
-        interactionSource = null,
-    ) {
-        Text(text, fontSize = 12.sp, modifier = Modifier.alignByBaseline())
-    }
-}
-
- */
