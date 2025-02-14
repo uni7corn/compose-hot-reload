@@ -19,6 +19,7 @@ object DtColors {
     val statusColorOrange1 = Color(0xfff4d642)
     val statusColorOrange2 = Color(0xffff8c45)
     val statusColorError = Color(0xffe74c3c)
+    val statusColorWarning = Color(0xffff8c45)
 
     val text = Color(red = 51, green = 51, blue = 51)
 }

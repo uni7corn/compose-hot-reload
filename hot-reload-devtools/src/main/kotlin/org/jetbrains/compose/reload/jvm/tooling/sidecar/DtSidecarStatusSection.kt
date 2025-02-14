@@ -40,6 +40,7 @@ fun DtSidecarStatusSection() {
             ) {
                 DtReloadStatusItem()
                 DtReloadCounterStatusItem()
+                DtMissingJbrStatusItem()
                 DtRuntimeErrorStatusItem()
             }
         }
