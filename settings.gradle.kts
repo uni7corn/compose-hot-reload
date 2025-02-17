@@ -89,3 +89,10 @@ gradle.beforeProject {
     plugins.apply("main-conventions")
     plugins.apply("kotlin-conventions")
 }
+
+
+buildCache {
+    local {
+        directory = rootDir.resolve(".local/build-cache")
+    }
+}

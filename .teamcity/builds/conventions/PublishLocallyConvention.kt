@@ -21,6 +21,7 @@ fun BuildType.publishLocallyConventions() {
             artifacts {
                 artifactRules = """
                     build.zip!**
+                    build-cache.zip!** => .local/build-cache
                 """
             }
         }

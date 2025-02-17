@@ -35,6 +35,7 @@ object PublishLocally : BuildType({
 
     artifactRules = """
         **/build/** => build.zip
+        .local/build-cache => build-cache.zip
     """.trimIndent()
 
     steps {
