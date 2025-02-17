@@ -7,6 +7,7 @@ package builds.conventions
 
 import builds.PublishLocally
 import jetbrains.buildServer.configs.kotlin.BuildType
+import jetbrains.buildServer.configs.kotlin.buildSteps.GradleBuildStep
 
 interface PublishLocallyConvention
 
@@ -22,6 +23,12 @@ fun BuildType.publishLocallyConventions() {
                     build.zip!**
                 """
             }
+        }
+    }
+
+    steps.items.filterIsInstance<GradleBuildStep>().forEach { step ->
+        if (step.workingDir == null || step.workingDir == ".") {
+            step.tasks += " -x publishLocally"
         }
     }
 }
