@@ -49,7 +49,7 @@ fun BuildSteps.publishDevVersion() {
 
     gradle {
         name = "Publish Locally"
-        name = "publishLocally"
+        tasks = "publishLocally"
     }
 
     gradle {
