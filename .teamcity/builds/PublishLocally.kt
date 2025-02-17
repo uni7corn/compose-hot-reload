@@ -30,6 +30,15 @@ object PublishLocally : BuildType({
                 %android-sdk.location%/platforms
             """.trimIndent()
         }
+
+        buildCache {
+            use = true
+            publish = true
+            name = "Gradle Build Cache"
+            rules = """
+                .local/build-cache
+            """.trimIndent()
+        }
     }
 
 
