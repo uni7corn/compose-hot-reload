@@ -38,6 +38,7 @@ object Tests : Project({
         buildType(PublishLocally)
         parallel {
             buildType(windowsTest)
+            buildType(linuxTest)
             buildType(ApiCheck)
             buildType(SamplesCheck)
             buildType(TestIntelliJPluginCheck)
