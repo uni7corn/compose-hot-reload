@@ -22,3 +22,5 @@ tasks.withType<JavaExec>().configureEach {
 tasks.register<JavaExec>("bumpDevVersion")
 
 tasks.register<JavaExec>("bumpBootstrapVersion")
+
+tasks.register<JavaExec>("installAndroidSdk")

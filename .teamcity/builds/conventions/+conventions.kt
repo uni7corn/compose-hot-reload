@@ -5,6 +5,7 @@
 
 package builds.conventions
 
+import builds.installAndroidSdkConvention
 import jetbrains.buildServer.configs.kotlin.BuildType
 import jetbrains.buildServer.configs.kotlin.buildFeatures.buildCache
 import jetbrains.buildServer.configs.kotlin.buildFeatures.gradleCache
@@ -21,6 +22,7 @@ fun BuildType.configureConventions() {
     hostRequirementConventions()
     commitPublisherConventions()
     hardwareCapacity()
+    installAndroidSdkConvention()
 }
 
 
@@ -37,21 +39,12 @@ private fun BuildType.defaultFeatures() {
 
 private fun BuildType.defaultCaches() {
     features {
-        buildCache {
-            name = "buildSrc cache"
-            rules = """
-                buildSrc/build/**
-                buildSrc/.gradle/**
-                buildSrc/.kotlin/**
-            """.trimIndent()
-        }
+        gradleCache { }
 
         buildCache {
             name = "Repository Tools cache"
             rules = """
-                repository-tools/build/**
-                repository-tools/.gradle/**
-                repository-tools/.kotlin/**
+                repository-tools/build
             """.trimIndent()
         }
     }

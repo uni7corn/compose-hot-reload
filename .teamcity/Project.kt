@@ -1,3 +1,4 @@
+import builds.InstallAndroidSdkWindows
 import builds.PublishDevBuild
 import builds.PublishLocally
 import builds.PublishToMavenCentralProject
@@ -18,6 +19,7 @@ object ComposeHotReloadProject : Project({
     vcsRoot(GithubTeamcityBranch)
     buildType(PublishDevBuild)
     buildType(PublishLocally)
+    buildType(InstallAndroidSdkWindows)
 
     subProject(Tests)
     subProject(PublishToMavenCentralProject)

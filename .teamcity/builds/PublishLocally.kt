@@ -5,14 +5,36 @@
 
 package builds
 
+import builds.conventions.HardwareCapacity
 import jetbrains.buildServer.configs.kotlin.BuildType
+import jetbrains.buildServer.configs.kotlin.buildFeatures.buildCache
 import jetbrains.buildServer.configs.kotlin.buildSteps.gradle
 
 object PublishLocally : BuildType({
     name = "Publish: Locally"
 
+    features {
+        buildCache {
+            use = true
+            publish = true
+            name = "konan"
+            rules = """
+                %env.HOME%/.konan
+            """.trimIndent()
+        }
+
+        buildCache {
+            name = "Android SDK"
+            rules = """
+                %android-sdk.location%/licenses
+                %android-sdk.location%/platforms
+            """.trimIndent()
+        }
+    }
+
+
     artifactRules = """
-        build/repo/**/* => build/repo.zip
+        **/build/** => build.zip
     """.trimIndent()
 
     steps {
@@ -21,4 +43,4 @@ object PublishLocally : BuildType({
             tasks = "publishLocally"
         }
     }
-})
+}), HardwareCapacity.Large

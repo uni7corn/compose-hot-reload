@@ -6,6 +6,7 @@
 package builds
 
 import builds.conventions.CommitStatusPublisher
+import builds.conventions.HardwareCapacity
 import builds.conventions.HostRequirement
 import builds.conventions.PublishLocallyConvention
 import builds.utils.Host
@@ -14,6 +15,7 @@ import jetbrains.buildServer.configs.kotlin.Project
 import jetbrains.buildServer.configs.kotlin.buildFeatures.buildCache
 import jetbrains.buildServer.configs.kotlin.buildSteps.gradle
 import jetbrains.buildServer.configs.kotlin.sequential
+import jetbrains.buildServer.configs.kotlin.triggers.VcsTrigger
 import jetbrains.buildServer.configs.kotlin.triggers.vcs
 
 
@@ -50,6 +52,7 @@ object AllTests : BuildType({
 
     triggers {
         vcs {
+            branchFilter = "refs/heads/master"
         }
     }
 })
@@ -85,7 +88,8 @@ class Test(
     }
 }), PublishLocallyConvention,
     CommitStatusPublisher,
-    HostRequirement.Dynamic
+    HostRequirement.Dynamic,
+    HardwareCapacity.Large
 
 object ApiCheck : BuildType({
     name = "Check: api"
@@ -98,7 +102,7 @@ object ApiCheck : BuildType({
         }
     }
 
-}), CommitStatusPublisher, PublishLocallyConvention
+}), CommitStatusPublisher, PublishLocallyConvention, HardwareCapacity.Small
 
 object SamplesCheck : BuildType({
     name = "Check: sample projects"
@@ -117,7 +121,7 @@ object SamplesCheck : BuildType({
             workingDir = "samples/bytecode-analyzer"
         }
     }
-}), CommitStatusPublisher, PublishLocallyConvention
+}), CommitStatusPublisher, PublishLocallyConvention, HardwareCapacity.Small
 
 
 object TestIntelliJPluginCheck : BuildType({
@@ -130,4 +134,4 @@ object TestIntelliJPluginCheck : BuildType({
             workingDir = "hot-reload-test/idea-plugin"
         }
     }
-}), CommitStatusPublisher, PublishLocallyConvention
+}), CommitStatusPublisher, PublishLocallyConvention, HardwareCapacity.Small

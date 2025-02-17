@@ -18,23 +18,32 @@ sealed interface HostRequirement {
     }
 }
 
-fun BuildType.hostRequirementConventions() {
-    val host = when (this) {
-        is HostRequirement -> when (this) {
-            is HostRequirement.Linux -> Host.Linux
-            is HostRequirement.MacOS -> Host.MacOS
-            is HostRequirement.Windows -> Host.Windows
-            is HostRequirement.Dynamic -> requiredHost
-        }
+val HostRequirement.requiredHost: Host
+    get() = when (this) {
+        is HostRequirement.Dynamic -> requiredHost
+        is HostRequirement.Linux -> Host.Linux
+        is HostRequirement.MacOS -> Host.MacOS
+        is HostRequirement.Windows -> Host.Windows
+    }
+
+val BuildType.requiredHost: Host
+    get() = when (this) {
+        is HostRequirement -> (this as HostRequirement).requiredHost
         else -> Host.Linux
     }
+
+fun BuildType.hostRequirementConventions() {
+    val host = requiredHost
 
     when (host) {
         Host.Linux -> requirements {
             matches("teamcity.agent.jvm.os.family", "Linux")
+            matches("teamcity.agent.cpuArchitecture", "x86_64")
         }
-        Host.Windows -> requirements {
-            matches("teamcity.agent.jvm.os.family", "Windows")
+        Host.Windows -> {
+            requirements {
+                matches("teamcity.agent.jvm.os.family", "Windows")
+            }
         }
         Host.MacOS -> requirements {
             contains("teamcity.agent.jvm.os.name", "Mac")

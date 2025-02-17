@@ -18,7 +18,9 @@ fun BuildType.publishLocallyConventions() {
             }
 
             artifacts {
-                artifactRules = """build/repo.zip => build/repo"""
+                artifactRules = """
+                    build.zip!**
+                """
             }
         }
     }
