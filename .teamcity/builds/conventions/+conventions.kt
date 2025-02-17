@@ -20,6 +20,7 @@ fun BuildType.configureConventions() {
     publishLocallyConventions()
     hostRequirementConventions()
     commitPublisherConventions()
+    hardwareCapacity()
 }
 
 
