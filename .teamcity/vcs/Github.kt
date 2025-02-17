@@ -18,3 +18,15 @@ object Github : GitVcsRoot({
     }
     pollInterval = 5.minutes.inWholeSeconds.toInt()
 })
+
+
+object GithubTeamcityBranch : GitVcsRoot({
+    name = "Compose Hot Reload"
+    url = "git@github.com:JetBrains/compose-hot-reload"
+    branch = "refs/heads/teamcity"
+    branchSpec = "refs/heads/*"
+    authMethod = uploadedKey {
+        uploadedKey = "compose-hot-reload-deploy-id_rsa"
+    }
+    pollInterval = 5.minutes.inWholeSeconds.toInt()
+})

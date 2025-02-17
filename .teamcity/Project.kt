@@ -6,6 +6,7 @@ import builds.conventions.configureConventions
 import jetbrains.buildServer.configs.kotlin.ParameterDisplay
 import jetbrains.buildServer.configs.kotlin.Project
 import vcs.Github
+import vcs.GithubTeamcityBranch
 
 /*
  * Copyright 2024-2025 JetBrains s.r.o. and Compose Hot Reload contributors.
@@ -14,6 +15,7 @@ import vcs.Github
 
 object ComposeHotReloadProject : Project({
     vcsRoot(Github)
+    vcsRoot(GithubTeamcityBranch)
     buildType(PublishDevBuild)
     buildType(PublishLocally)
 
