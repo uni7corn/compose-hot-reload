@@ -15,7 +15,6 @@ import jetbrains.buildServer.configs.kotlin.Project
 import jetbrains.buildServer.configs.kotlin.buildFeatures.buildCache
 import jetbrains.buildServer.configs.kotlin.buildSteps.gradle
 import jetbrains.buildServer.configs.kotlin.sequential
-import jetbrains.buildServer.configs.kotlin.triggers.VcsTrigger
 import jetbrains.buildServer.configs.kotlin.triggers.vcs
 
 
@@ -85,6 +84,11 @@ class Test(
         gradle {
             name = "Test"
             tasks = "check -x apiCheck"
+
+            /* Any host other than linux is considered to only run 'host integration tests' */
+            if (requiredHost != Host.Linux) {
+                gradleParams += " -Phost-integration-tests=true"
+            }
         }
     }
 }), PublishLocallyConvention,
