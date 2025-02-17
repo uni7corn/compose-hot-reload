@@ -26,10 +26,4 @@ fun BuildType.publishLocallyConventions() {
             }
         }
     }
-
-    steps.items.filterIsInstance<GradleBuildStep>().forEach { step ->
-        if (step.workingDir == null || step.workingDir == "." && "publishLocally" !in step.tasks.orEmpty()) {
-            step.tasks += " -x publishLocally"
-        }
-    }
 }
