@@ -28,6 +28,7 @@ object PublishLocally : BuildType({
             rules = """
                 %android-sdk.location%/licenses
                 %android-sdk.location%/platforms
+                %android-sdk.location%/build-tools
             """.trimIndent()
         }
 
