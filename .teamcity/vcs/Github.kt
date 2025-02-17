@@ -21,7 +21,7 @@ object Github : GitVcsRoot({
 
 
 object GithubTeamcityBranch : GitVcsRoot({
-    name = "Compose Hot Reload"
+    name = "Compose Hot Reload (Teamcity)"
     url = "git@github.com:JetBrains/compose-hot-reload"
     branch = "refs/heads/teamcity"
     branchSpec = "refs/heads/*"
