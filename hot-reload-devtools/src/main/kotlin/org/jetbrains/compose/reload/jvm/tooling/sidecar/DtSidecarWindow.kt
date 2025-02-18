@@ -143,8 +143,8 @@ fun DtSidecarWindow(
 
 @Composable
 fun DtSidecarWindowContent(
-    isExpanded: Boolean,
-    isExpandedChanged: (isExpanded: Boolean) -> Unit,
+    isExpanded: Boolean = true,
+    isExpandedChanged: (isExpanded: Boolean) -> Unit = {},
     modifier: Modifier = Modifier,
 ) {
     Row(

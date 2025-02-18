@@ -60,6 +60,8 @@ dependencies {
     testImplementation(kotlin("test"))
     testImplementation(deps.junit.jupiter)
     testImplementation(deps.junit.jupiter.engine)
+    testImplementation(compose.uiTest)
+    testImplementation(compose.desktop.currentOs)
 
     devCompileOnly(project(":hot-reload-agent"))
 }

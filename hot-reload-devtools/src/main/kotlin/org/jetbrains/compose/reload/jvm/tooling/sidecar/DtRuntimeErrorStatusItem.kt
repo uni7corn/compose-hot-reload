@@ -9,8 +9,11 @@ import androidx.compose.material.Icon
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Warning
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Modifier
 import io.sellmair.evas.compose.composeValue
+import org.jetbrains.compose.reload.jvm.tooling.Tag
 import org.jetbrains.compose.reload.jvm.tooling.states.UIErrorState
+import org.jetbrains.compose.reload.jvm.tooling.tag
 import org.jetbrains.compose.reload.jvm.tooling.theme.DtColors
 import org.jetbrains.compose.reload.jvm.tooling.widgets.DtText
 
@@ -20,9 +23,17 @@ fun DtRuntimeErrorStatusItem() {
 
     error.errors.forEach { error ->
         DtSidecarStatusItem(
-            symbol = { Icon(Icons.Default.Warning, "Error", tint = DtColors.statusColorError) },
+            symbol = {
+                Icon(
+                    Icons.Default.Warning, "Error", tint = DtColors.statusColorError,
+                    modifier = Modifier.tag(Tag.RuntimeErrorSymbol)
+                )
+            },
             content = {
-                DtText("Exception: ${error.value.title} (${error.value.message})")
+                DtText(
+                    "Exception: ${error.value.title} (${error.value.message})",
+                    modifier = Modifier.tag(Tag.RuntimeErrorText)
+                )
             }
         )
     }

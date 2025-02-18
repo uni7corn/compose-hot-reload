@@ -8,6 +8,7 @@ package org.jetbrains.compose.reload.jvm.tooling.sidecar
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.progressSemantics
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.Close
@@ -30,7 +31,9 @@ import kotlinx.datetime.TimeZone
 import kotlinx.datetime.format
 import kotlinx.datetime.format.char
 import kotlinx.datetime.toLocalDateTime
+import org.jetbrains.compose.reload.jvm.tooling.Tag
 import org.jetbrains.compose.reload.jvm.tooling.states.ReloadState
+import org.jetbrains.compose.reload.jvm.tooling.tag
 import org.jetbrains.compose.reload.jvm.tooling.theme.DtColors
 import org.jetbrains.compose.reload.jvm.tooling.theme.DtPadding
 import org.jetbrains.compose.reload.jvm.tooling.widgets.DtSmallText
@@ -45,17 +48,18 @@ fun DtReloadStatusItem() {
             symbol = {
                 CircularProgressIndicator(
                     strokeWidth = 2.dp, color = DtColors.statusColorOrange2,
-                    modifier = Modifier.padding(4.dp)
+                    modifier = Modifier.padding(4.dp).tag(Tag.ReloadStatusSymbol)
+                        .progressSemantics()
                 )
             },
-            content = { DtText("Reloading...") }
+            content = { DtText("Reloading...", Modifier.tag(Tag.ReloadStatusText)) }
         )
         is ReloadState.Ok -> DtSidecarStatusItem(
-            symbol = { Icon(Icons.Default.Check, null) },
+            symbol = { Icon(Icons.Default.Check, "Success", modifier = Modifier.tag(Tag.ReloadStatusSymbol)) },
             content = { ResultContent(reloadState) }
         )
         is ReloadState.Failed -> DtSidecarStatusItem(
-            symbol = { Icon(Icons.Default.Close, null) },
+            symbol = { Icon(Icons.Default.Close, "Error", modifier = Modifier.tag(Tag.ReloadStatusSymbol)) },
             content = { ResultContent(reloadState) }
         )
     }
@@ -97,7 +101,7 @@ private fun ResultContent(state: ReloadState) {
             else -> ""
         }
 
-        DtText(text)
+        DtText(text, modifier = Modifier.tag(Tag.ReloadStatusText))
         DtSmallText("(${durationText} ago)")
     }
 }
