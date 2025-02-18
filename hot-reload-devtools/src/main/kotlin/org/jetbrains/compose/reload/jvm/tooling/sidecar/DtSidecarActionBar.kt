@@ -13,6 +13,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import io.sellmair.evas.compose.EvasLaunching
+import io.sellmair.evas.compose.composeValue
 import io.sellmair.evas.value
 import org.jetbrains.compose.reload.core.HotReloadEnvironment
 import org.jetbrains.compose.reload.core.createLogger
@@ -42,18 +43,23 @@ fun DtSidecarActionBar(modifier: Modifier = Modifier.Companion) {
             OrchestrationMessage.ShutdownRequest().send()
         })
 
-        DtTextButton("Restart", onClick = EvasLaunching {
-            val arguments = DtArguments.value() ?: return@EvasLaunching
-            logger.info("Restarting...")
+        val arguments = DtArguments.composeValue()
+        if (arguments != null &&
+            arguments.originalApplicationCommand != null &&
+            arguments.originalApplicationArguments.isNotEmpty()
+        ) {
+            DtTextButton("Restart", onClick = EvasLaunching {
+                logger.info("Restarting...")
 
-            ProcessBuilder(
-                arguments.originalApplicationCommand ?: return@EvasLaunching,
-                *arguments.originalApplicationArguments.toTypedArray()
-            ).redirectErrorStream(true).start()
+                ProcessBuilder(
+                    arguments.originalApplicationCommand,
+                    *arguments.originalApplicationArguments.toTypedArray()
+                ).redirectErrorStream(true).start()
 
-            logger.info("New process started; Exiting")
-            OrchestrationMessage.ShutdownRequest().send()
-        })
+                logger.info("New process started; Exiting")
+                OrchestrationMessage.ShutdownRequest().send()
+            })
+        }
 
         DtTextButton("Retry Failed Compositions", onClick = {
             OrchestrationMessage.RetryFailedCompositionRequest().send()

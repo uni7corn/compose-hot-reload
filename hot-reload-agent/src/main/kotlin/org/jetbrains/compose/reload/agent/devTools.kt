@@ -21,8 +21,16 @@ internal fun launchDevtoolsApplication() {
     val classpath = HotReloadEnvironment.devToolsClasspath ?: error("Missing '${DevToolsClasspath}'")
 
     val thisProcessInfo = ProcessHandle.current().info()
-    val java = thisProcessInfo.command().getOrNull() ?: return
-    val arguments = thisProcessInfo.arguments().getOrNull() ?: return
+
+    val java = thisProcessInfo.command().getOrNull() ?: run {
+        logger.error("Cannot find 'java' executable in current process")
+        return
+    }
+
+    val arguments = thisProcessInfo.arguments().getOrNull() ?: run {
+        logger.error("Cannot find arguments in current process")
+        emptyArray<String>()
+    }
 
     logger.info("Starting Dev Tools")
 
