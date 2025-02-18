@@ -59,10 +59,7 @@ internal fun main(args: Array<String>) {
         singleWindowApplication(
             title = "Dev Run",
             alwaysOnTop = true,
-            state = WindowState(
-                position = WindowPosition.Aligned(alignment = TopEnd),
-                size = DpSize(annotation.windowWidth.dp, annotation.windowHeight.dp)
-            ),
+            state = persistentWindowState(annotation, className, funName),
         ) {
             org.jetbrains.compose.reload.jvm.DevelopmentEntryPoint {
                 invokeUI(resolvedClass, funName)
