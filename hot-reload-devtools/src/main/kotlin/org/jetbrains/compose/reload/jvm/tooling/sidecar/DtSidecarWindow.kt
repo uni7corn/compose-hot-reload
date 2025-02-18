@@ -42,8 +42,8 @@ import org.jetbrains.compose.reload.core.createLogger
 import org.jetbrains.compose.reload.jvm.tooling.invokeWhenMessageReceived
 import org.jetbrains.compose.reload.jvm.tooling.orchestration
 import org.jetbrains.compose.reload.jvm.tooling.theme.DtColors
-import org.jetbrains.compose.reload.jvm.tooling.widgets.DtComposeLogo
 import org.jetbrains.compose.reload.jvm.tooling.widgets.DtButton
+import org.jetbrains.compose.reload.jvm.tooling.widgets.DtComposeLogo
 import org.jetbrains.compose.reload.jvm.tooling.widgets.DtReloadStatusBanner
 import org.jetbrains.compose.reload.jvm.tooling.widgets.animateReloadStatusBackground
 import org.jetbrains.compose.reload.jvm.tooling.widgets.animateReloadStatusColor
