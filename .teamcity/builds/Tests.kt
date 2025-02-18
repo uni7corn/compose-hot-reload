@@ -53,6 +53,7 @@ object AllTests : BuildType({
     triggers {
         vcs {
             branchFilter = """
+                +:<default>
                 +:master
                 +:rr/*
                 +pr: target=master sourceRepo=same github_role=member draft=false
