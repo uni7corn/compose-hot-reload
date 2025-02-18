@@ -107,7 +107,7 @@ class Test(
 
             /* Any host other than linux is considered to only run 'host integration tests' */
             if (requiredHost != Host.Linux) {
-                gradleParams += " -Phost-integration-tests=true"
+                tasks += " -Phost-integration-tests=true"
             }
         }
     }
