@@ -12,10 +12,13 @@ import builds.conventions.PublishLocallyConvention
 import builds.utils.Host
 import jetbrains.buildServer.configs.kotlin.BuildType
 import jetbrains.buildServer.configs.kotlin.Project
+import jetbrains.buildServer.configs.kotlin.buildFeatures.PullRequests
 import jetbrains.buildServer.configs.kotlin.buildFeatures.buildCache
+import jetbrains.buildServer.configs.kotlin.buildFeatures.pullRequests
 import jetbrains.buildServer.configs.kotlin.buildSteps.gradle
 import jetbrains.buildServer.configs.kotlin.sequential
 import jetbrains.buildServer.configs.kotlin.triggers.vcs
+import vcs.Github
 
 
 object Tests : Project({
@@ -49,6 +52,18 @@ object Tests : Project({
 object AllTests : BuildType({
     name = "All Tests"
     description = "All tests"
+
+    features {
+        pullRequests {
+            vcsRootExtId = Github.id.toString()
+            provider = github {
+                authType = token {
+                    token = "credentialsJSON:63ad183a-fe82-4c2f-b80d-f92b2d7b69ec"
+                }
+                filterAuthorRole = PullRequests.GitHubRoleFilter.MEMBER
+            }
+        }
+    }
 
     triggers {
         vcs {
