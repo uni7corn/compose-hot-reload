@@ -89,7 +89,7 @@ fun DtSidecarWindow(
     val x by xAnimatable.asState()
     val y by yAnimatable.asState()
 
-    val height by animateDpAsState(targetValue = windowState.size.height)
+    val height by animateDpAsState(targetValue = maxOf(windowState.size.height, 512.dp))
 
     LaunchedEffect(windowState.position) {
         xAnimatable.animateTo(targetX.value)
