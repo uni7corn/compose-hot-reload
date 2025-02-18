@@ -54,7 +54,8 @@ object AllTests : BuildType({
         vcs {
             branchFilter = """
                 +:master
-                +:rr/**
+                +:rr/*
+                +pr: target=master sourceRepo=same github_role=member draft=false
             """.trimIndent()
         }
     }
