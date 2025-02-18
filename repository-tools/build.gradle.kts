@@ -24,3 +24,7 @@ tasks.register<JavaExec>("bumpDevVersion")
 tasks.register<JavaExec>("bumpBootstrapVersion")
 
 tasks.register<JavaExec>("installAndroidSdk")
+
+tasks.register<JavaExec>("push")
+
+tasks.register<JavaExec>("pushDevVersionTag")

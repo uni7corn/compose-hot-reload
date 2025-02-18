@@ -60,5 +60,11 @@ object PublishDevBuild : BuildType({
             name = "Bump Bootstrap Version"
             tasks = "bumpBootstrapVersion"
         }
+
+        gradle {
+            workingDir = "repository-tools"
+            name = "Push"
+            tasks = "push pushDevVersionTag"
+        }
     }
 }), PushPrivilege, PublishDevPrivilege, PublishLocallyConvention

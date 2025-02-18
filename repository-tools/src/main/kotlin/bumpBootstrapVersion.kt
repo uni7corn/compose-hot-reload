@@ -10,5 +10,4 @@ fun main() {
 
     command("git", "add", ".")
     command("git", "commit", "-m", "Bootstrap v$version")
-    command("git", "push")
 }
