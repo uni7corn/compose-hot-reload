@@ -94,8 +94,8 @@ class Test(
             publish = true
             name = "Functional Test Gradle Cache"
             rules = """
-                tests/build/gradleHome/**
-                tests/build/reloadFunctionalTestWarmup/**
+                tests/build/gradleHome/
+                tests/build/reloadFunctionalTestWarmup/
             """.trimIndent()
         }
     }

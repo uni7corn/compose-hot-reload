@@ -40,12 +40,5 @@ private fun BuildType.defaultFeatures() {
 private fun BuildType.defaultCaches() {
     features {
         gradleCache { }
-
-        buildCache {
-            name = "Repository Tools cache"
-            rules = """
-                repository-tools/build
-            """.trimIndent()
-        }
     }
 }
