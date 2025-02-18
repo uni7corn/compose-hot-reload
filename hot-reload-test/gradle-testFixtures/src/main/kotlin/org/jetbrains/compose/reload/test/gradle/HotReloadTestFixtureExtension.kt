@@ -15,6 +15,7 @@ import org.junit.jupiter.api.extension.ParameterContext
 import org.junit.jupiter.api.extension.ParameterResolver
 import org.junit.platform.commons.util.AnnotationUtils
 import java.nio.file.Files
+import kotlin.jvm.optionals.getOrNull
 
 internal class HotReloadTestFixtureExtension(
     private val context: HotReloadTestInvocationContext
@@ -64,12 +65,15 @@ internal class HotReloadTestFixtureExtension(
         val projectDir = ProjectDir(Files.createTempDirectory("hot-reload-test"))
         val orchestrationServer = startOrchestrationServer()
 
+        val isHeadless = AnnotationUtils.findAnnotation(testMethod, Headless::class.java).getOrNull()
+            ?.isHeadless ?: true
+
         val gradleRunner = GradleRunner(
             projectRoot = projectDir.path,
             gradleVersion = context.gradleVersion.version,
             arguments = listOf(
                 "-P${HotReloadProperty.OrchestrationPort.key}=${orchestrationServer.port}",
-                "-P${HotReloadProperty.IsHeadless.key}=true",
+                "-P${HotReloadProperty.IsHeadless.key}=$isHeadless",
             )
         )
 

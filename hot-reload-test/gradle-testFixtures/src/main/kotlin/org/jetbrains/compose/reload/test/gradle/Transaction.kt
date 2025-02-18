@@ -65,7 +65,7 @@ public class TransactionScope internal constructor(
     }
 
     public suspend inline fun <reified T> skipToMessage(
-        title: String = T::class.simpleName.toString(),
+        title: String = "Waiting for message '${T::class.simpleName.toString()}'",
         timeout: Duration = 5.minutes,
         crossinline filter: (T) -> Boolean = { true }
     ): T = withAsyncTrace("'skipToMessage($title)'") {
@@ -77,7 +77,7 @@ public class TransactionScope internal constructor(
             var waiting = 0.seconds
             while (true) {
                 logger.info(
-                    "Waiting for message $title ($waiting/$timeout)\n" +
+                    "'$title' ($waiting/$timeout)\n" +
                         asyncTracesString.prependIndent("\t")
                 )
                 delay(sleep)

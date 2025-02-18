@@ -104,6 +104,10 @@ public final class org/jetbrains/compose/reload/test/gradle/GradleRunnerKt {
 	public static final fun build (Lorg/jetbrains/compose/reload/test/gradle/GradleRunner;[Ljava/lang/String;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
 }
 
+public abstract interface annotation class org/jetbrains/compose/reload/test/gradle/Headless : java/lang/annotation/Annotation {
+	public abstract fun isHeadless ()Z
+}
+
 public abstract interface annotation class org/jetbrains/compose/reload/test/gradle/HotReloadTest : java/lang/annotation/Annotation {
 }
 

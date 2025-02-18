@@ -30,3 +30,5 @@ public annotation class BuildGradleKts(val path: String)
 
 @Repeatable
 public annotation class TestedProjectMode(val mode: ProjectMode)
+
+public annotation class Headless(val isHeadless: Boolean = true)

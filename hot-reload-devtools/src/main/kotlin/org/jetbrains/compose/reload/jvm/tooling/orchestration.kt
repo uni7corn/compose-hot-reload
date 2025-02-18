@@ -21,7 +21,7 @@ import kotlin.system.exitProcess
 internal val orchestration: OrchestrationHandle = run {
     val handle = ServiceLoader.load(OrchestrationExtension::class.java)
         .firstNotNullOfOrNull { extension -> extension.getOrchestration() }
-        ?: (OrchestrationClient(OrchestrationClientRole.Unknown) ?: error("Failed to create OrchestrationClient"))
+        ?: (OrchestrationClient(OrchestrationClientRole.Tooling) ?: error("Failed to create OrchestrationClient"))
 
     handle.invokeWhenClosed { exitProcess(0) }
     handle
