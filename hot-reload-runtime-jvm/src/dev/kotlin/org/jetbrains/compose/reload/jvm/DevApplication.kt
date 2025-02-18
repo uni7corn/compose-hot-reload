@@ -9,17 +9,14 @@ package org.jetbrains.compose.reload.jvm
 
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Composer
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.currentComposer
 import androidx.compose.runtime.reflect.getDeclaredComposableMethod
-import androidx.compose.ui.Alignment.Companion.TopEnd
-import androidx.compose.ui.unit.DpSize
-import androidx.compose.ui.unit.dp
-import androidx.compose.ui.window.WindowPosition
-import androidx.compose.ui.window.WindowState
 import androidx.compose.ui.window.singleWindowApplication
 import org.jetbrains.compose.reload.DevelopmentEntryPoint
 import org.jetbrains.compose.reload.InternalHotReloadApi
 import org.jetbrains.compose.reload.core.HotReloadEnvironment
+import java.awt.Taskbar
 import kotlin.time.Duration.Companion.minutes
 
 @OptIn(InternalHotReloadApi::class)
@@ -57,10 +54,15 @@ internal fun main(args: Array<String>) {
         }
     } else {
         singleWindowApplication(
-            title = "Dev Run",
+            title = "Dev Run (${resolvedClass.simpleName}.$funName)",
             alwaysOnTop = true,
             state = persistentWindowState(annotation, className, funName),
         ) {
+            LaunchedEffect(Unit) {
+                if (!Taskbar.isTaskbarSupported()) return@LaunchedEffect
+                runCatching { Taskbar.getTaskbar().iconImage = composeLogoBitmap.await() }
+            }
+
             org.jetbrains.compose.reload.jvm.DevelopmentEntryPoint {
                 invokeUI(resolvedClass, funName)
             }
