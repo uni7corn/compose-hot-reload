@@ -49,7 +49,7 @@ public suspend fun GradleRunner.build(vararg args: String): ExitCode? {
     copyGradleWrapper()
 
     val gradleScriptCommand = if ("win" in System.getProperty("os.name").lowercase()) {
-        arrayOf("cmd", "/c", "start", "gradlew.bat")
+        arrayOf("cmd", "/c", "gradlew.bat")
     } else {
         arrayOf("./gradlew")
     }
