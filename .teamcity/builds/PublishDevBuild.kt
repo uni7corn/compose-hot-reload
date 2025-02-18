@@ -11,6 +11,7 @@ import builds.conventions.PushPrivilege
 import builds.conventions.publishDevVersion
 import builds.conventions.setupGit
 import jetbrains.buildServer.configs.kotlin.BuildType
+import jetbrains.buildServer.configs.kotlin.buildFeatures.buildCache
 import jetbrains.buildServer.configs.kotlin.buildSteps.gradle
 import jetbrains.buildServer.configs.kotlin.triggers.ScheduleTrigger
 import jetbrains.buildServer.configs.kotlin.triggers.schedule
@@ -18,6 +19,26 @@ import jetbrains.buildServer.configs.kotlin.triggers.schedule
 object PublishDevBuild : BuildType({
     name = "Publish: Dev Build"
     description = "Bumps the 'dev' version and publishes to 'dev' repositories; Bumps the bootstrap version"
+
+    features {
+        buildCache {
+            use = true
+            publish = true
+            name = "konan"
+            rules = """
+                %env.HOME%/.konan
+            """.trimIndent()
+        }
+
+        buildCache {
+            name = "Android SDK"
+            rules = """
+                %android-sdk.location%/licenses
+                %android-sdk.location%/platforms
+                %android-sdk.location%/build-tools
+            """.trimIndent()
+        }
+    }
 
     triggers {
         schedule {
@@ -67,4 +88,4 @@ object PublishDevBuild : BuildType({
             tasks = "push pushDevVersionTag"
         }
     }
-}), PushPrivilege, PublishDevPrivilege, PublishLocallyConvention
+}), PushPrivilege, PublishDevPrivilege

@@ -48,13 +48,13 @@ fun BuildSteps.publishDevVersion() {
     }
 
     gradle {
-        name = "Publish Locally"
-        tasks = "publishLocally"
+        name = "Api Check"
+        tasks = "apiCheck"
     }
 
     gradle {
-        name = "Api Check"
-        tasks = "apiCheck"
+        name = "Publish Locally"
+        tasks = "publishLocally"
     }
 
     gradle {
