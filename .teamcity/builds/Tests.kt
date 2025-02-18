@@ -52,7 +52,10 @@ object AllTests : BuildType({
 
     triggers {
         vcs {
-            branchFilter = "refs/heads/master"
+            branchFilter = """
+                +:master
+                +:rr/**
+            """.trimIndent()
         }
     }
 })
