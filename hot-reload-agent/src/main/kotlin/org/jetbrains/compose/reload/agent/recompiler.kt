@@ -241,7 +241,6 @@ private fun createRecompilerGradleCommandLineArgs(
 
         /* Continuous mode arguments */
         "-t".takeIf { HotReloadEnvironment.gradleBuildContinuous },
-        "--priority=low".takeIf { HotReloadEnvironment.gradleBuildContinuous },
         "--no-daemon".takeIf { HotReloadEnvironment.gradleBuildContinuous },
     )
 }
