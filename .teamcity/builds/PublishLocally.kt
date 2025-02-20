@@ -54,4 +54,4 @@ object PublishLocally : BuildType({
             tasks = "publishLocally"
         }
     }
-}), HardwareCapacity.Large
+}), HardwareCapacity.Medium
