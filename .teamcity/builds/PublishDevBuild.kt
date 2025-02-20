@@ -6,9 +6,7 @@
 package builds
 
 import builds.conventions.PublishDevPrivilege
-import builds.conventions.PublishLocallyConvention
 import builds.conventions.PushPrivilege
-import builds.conventions.publishDevVersion
 import builds.conventions.setupGit
 import jetbrains.buildServer.configs.kotlin.BuildType
 import jetbrains.buildServer.configs.kotlin.buildFeatures.buildCache
@@ -19,6 +17,10 @@ import jetbrains.buildServer.configs.kotlin.triggers.schedule
 object PublishDevBuild : BuildType({
     name = "Publish: Dev Build"
     description = "Bumps the 'dev' version and publishes to 'dev' repositories; Bumps the bootstrap version"
+
+    vcs {
+        cleanCheckout = true
+    }
 
     features {
         buildCache {
@@ -69,17 +71,40 @@ object PublishDevBuild : BuildType({
         setupGit()
 
         gradle {
+            name = "clean"
+            tasks = "clean"
+        }
+
+        gradle {
+            name = "Api Check"
+            tasks = "apiCheck"
+        }
+
+        gradle {
             workingDir = "repository-tools"
             name = "Bump Dev Version"
             tasks = "bumpDevVersion"
         }
 
-        publishDevVersion()
+        gradle {
+            name = "Publish Locally"
+            tasks = "publishLocally"
+        }
 
         gradle {
             workingDir = "repository-tools"
             name = "Bump Bootstrap Version"
             tasks = "bumpBootstrapVersion"
+        }
+
+        gradle {
+            name = "Publish to Firework Repository"
+            tasks = "publishAllPublicationsToFireworkRepository --no-configuration-cache"
+        }
+
+        gradle {
+            name = "Publish to Sellmair Repository"
+            tasks = "publishAllPublicationsToSellmairRepository --no-configuration-cache"
         }
 
         gradle {

@@ -39,31 +39,3 @@ fun BuildType.publishDevPrivilegeConventions() {
         )
     }
 }
-
-
-fun BuildSteps.publishDevVersion() {
-    gradle {
-        name = "clean"
-        tasks = "clean"
-    }
-
-    gradle {
-        name = "Api Check"
-        tasks = "apiCheck"
-    }
-
-    gradle {
-        name = "Publish Locally"
-        tasks = "publishLocally"
-    }
-
-    gradle {
-        name = "Publish to Firework Repository"
-        tasks = "publishAllPublicationsToFireworkRepository --no-configuration-cache"
-    }
-
-    gradle {
-        name = "Publish to Sellmair Repository"
-        tasks = "publishAllPublicationsToSellmairRepository --no-configuration-cache"
-    }
-}
