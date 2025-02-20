@@ -197,7 +197,7 @@ fun DtSidecarWindowContent(
         }
 
         DtReloadStatusBanner(
-            modifier = Modifier.fillMaxHeight()
+            modifier = Modifier
                 .padding(4.dp)
         )
     }

@@ -7,6 +7,9 @@
 
 package org.jetbrains.compose.reload.jvm.tooling
 
+import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.staticCompositionLocalOf
+import androidx.compose.ui.window.WindowState
 import androidx.compose.ui.window.application
 import io.sellmair.evas.Events
 import io.sellmair.evas.States
@@ -26,9 +29,14 @@ import org.jetbrains.compose.reload.jvm.tooling.states.launchReloadCountState
 import org.jetbrains.compose.reload.jvm.tooling.states.launchReloadState
 import org.jetbrains.compose.reload.jvm.tooling.states.launchUIErrorState
 import org.jetbrains.compose.reload.jvm.tooling.states.launchWindowsState
-import org.jetbrains.compose.reload.orchestration.OrchestrationMessage
 
 internal val applicationScope = CoroutineScope(Dispatchers.Main + SupervisorJob() + Events() + States())
+
+/**
+ * The associated [WindowState] of the target application (aka, the application under hot-reload, which we're
+ * providing tooling for
+ */
+internal val targetApplicationWindowStateLocal = staticCompositionLocalOf<WindowState?> { null }
 
 internal fun CoroutineScope.launchApplicationStates(args: List<String> = emptyList()) {
     launchDtArgumentsState(args)
@@ -50,8 +58,10 @@ fun main(args: Array<String>) {
         ) {
             val windowsState = WindowsState.composeValue()
             windowsState.windows.forEach { (windowId, windowState) ->
-                DtSidecarWindow(windowId, windowState, isAlwaysOnTop = windowsState.alwaysOnTop[windowId] == true)
-                DevToolingErrorOverlay(windowId, windowState)
+                CompositionLocalProvider(targetApplicationWindowStateLocal provides windowState) {
+                    DtSidecarWindow(windowId, windowState, isAlwaysOnTop = windowsState.alwaysOnTop[windowId] == true)
+                    DevToolingErrorOverlay(windowId, windowState)
+                }
             }
         }
     }

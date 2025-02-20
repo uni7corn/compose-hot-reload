@@ -13,6 +13,7 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.runtime.Composable
@@ -28,12 +29,15 @@ import androidx.compose.ui.unit.dp
 import io.sellmair.evas.compose.composeValue
 import kotlinx.coroutines.delay
 import org.jetbrains.compose.reload.jvm.tooling.states.ReloadState
+import org.jetbrains.compose.reload.jvm.tooling.targetApplicationWindowStateLocal
 
 
 @Composable
 internal fun DtReloadStatusBanner(modifier: Modifier = Modifier) {
     val state = ReloadState.composeValue()
-    Box(modifier = modifier.fillMaxHeight()) {
+    val targetApplicationWindowState = targetApplicationWindowStateLocal.current ?: return
+
+    Box(modifier = modifier.heightIn(max = targetApplicationWindowState.size.height).fillMaxHeight()) {
 
         val color by animateReloadStatusColor()
 
