@@ -18,8 +18,10 @@ import jetbrains.buildServer.configs.kotlin.buildFeatures.buildCache
 import jetbrains.buildServer.configs.kotlin.buildFeatures.pullRequests
 import jetbrains.buildServer.configs.kotlin.buildSteps.gradle
 import jetbrains.buildServer.configs.kotlin.sequential
+import jetbrains.buildServer.configs.kotlin.triggers.VcsTrigger
 import jetbrains.buildServer.configs.kotlin.triggers.vcs
 import vcs.Github
+import kotlin.time.Duration.Companion.minutes
 
 
 object Tests : Project({
@@ -69,6 +71,8 @@ object AllTests : BuildType({
 
     triggers {
         vcs {
+            quietPeriodMode = VcsTrigger.QuietPeriodMode.USE_CUSTOM
+            quietPeriod = 15.minutes.inWholeSeconds.toInt()
             branchFilter = """
                 +:<default>
                 +:master
