@@ -11,6 +11,7 @@ import builds.conventions.HostRequirement
 import builds.conventions.PublishLocallyConvention
 import builds.utils.Host
 import jetbrains.buildServer.configs.kotlin.BuildType
+import jetbrains.buildServer.configs.kotlin.BuildTypeSettings
 import jetbrains.buildServer.configs.kotlin.Project
 import jetbrains.buildServer.configs.kotlin.buildFeatures.PullRequests
 import jetbrains.buildServer.configs.kotlin.buildFeatures.buildCache
@@ -52,6 +53,7 @@ object Tests : Project({
 object AllTests : BuildType({
     name = "All Tests"
     description = "All tests"
+    type = Type.COMPOSITE
 
     features {
         pullRequests {
