@@ -120,7 +120,7 @@ class Test(
 }), PublishLocallyConvention,
     CommitStatusPublisher,
     HostRequirement.Dynamic,
-    HardwareCapacity.Medium
+    HardwareCapacity.Large
 
 object ApiCheck : BuildType({
     name = "Check: api"
