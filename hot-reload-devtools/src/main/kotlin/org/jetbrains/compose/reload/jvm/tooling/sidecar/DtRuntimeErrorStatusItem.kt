@@ -92,8 +92,9 @@ private fun ErrorDialogWindow(
     visible: Boolean,
     onCloseRequest: () -> Unit
 ) {
+    if (!visible) return
     DialogWindow(
-        visible = visible, onCloseRequest = onCloseRequest,
+        onCloseRequest = onCloseRequest,
         title = error.title,
     ) {
         Column(
@@ -112,9 +113,12 @@ private fun ErrorDialogWindow(
                 }
 
                 val clipboardManager = LocalClipboardManager.current
-                DtTextButton("Copy Stacktrace", onClick = {
-                    clipboardManager.setText(AnnotatedString(error.stacktrace.joinToString("\n")))
-                },)
+                DtTextButton(
+                    "Copy Stacktrace",
+                    onClick = {
+                        clipboardManager.setText(AnnotatedString(error.stacktrace.joinToString("\n")))
+                    },
+                )
             }
 
             SelectionContainer(modifier = Modifier.weight(1f)) {
