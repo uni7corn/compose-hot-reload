@@ -12,8 +12,10 @@ import androidx.compose.ui.semantics.SemanticsProperties
 import androidx.compose.ui.semantics.getOrNull
 import androidx.compose.ui.test.ExperimentalTestApi
 import androidx.compose.ui.test.assertContentDescriptionContains
+import androidx.compose.ui.test.assertHasClickAction
 import androidx.compose.ui.test.assertTextContains
 import androidx.compose.ui.test.onNodeWithTag
+import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.runComposeUiTest
 import io.sellmair.evas.Events
 import io.sellmair.evas.States
@@ -110,5 +112,8 @@ class SidecarUiTest {
         onNodeWithTag(Tag.RuntimeErrorText.name).assertExists()
             .assertTextContains("Uh-oh", substring = true)
             .assertTextContains("Something went wrong", substring = true)
+
+        onNodeWithTag(Tag.RuntimeErrorText.name).assertHasClickAction()
     }
+
 }

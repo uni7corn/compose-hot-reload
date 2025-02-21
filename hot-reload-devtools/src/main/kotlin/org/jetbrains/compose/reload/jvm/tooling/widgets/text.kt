@@ -8,6 +8,10 @@ package org.jetbrains.compose.reload.jvm.tooling.widgets
 import androidx.compose.foundation.text.BasicText
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.ColorProducer
+import androidx.compose.ui.text.TextLayoutResult
+import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.style.TextOverflow
 import org.jetbrains.compose.reload.jvm.tooling.theme.DtTextStyles
 
 
@@ -28,10 +32,25 @@ fun DtHeader2(text: String, modifier: Modifier = Modifier) {
 }
 
 @Composable
-fun DtText(text: String, modifier: Modifier = Modifier) {
+fun DtText(
+    text: String, modifier: Modifier = Modifier,
+    style: TextStyle = DtTextStyles.default,
+    onTextLayout: ((TextLayoutResult) -> Unit)? = null,
+    overflow: TextOverflow = TextOverflow.Clip,
+    softWrap: Boolean = true,
+    maxLines: Int = Int.MAX_VALUE,
+    minLines: Int = 1,
+    color: ColorProducer? = null
+) {
     BasicText(
         text, modifier,
-        style = DtTextStyles.default
+        onTextLayout = onTextLayout,
+        overflow = overflow,
+        softWrap = softWrap,
+        maxLines = maxLines,
+        minLines = minLines,
+        style = style,
+        color = color,
     )
 }
 
@@ -44,7 +63,7 @@ fun DtSmallText(text: String, modifier: Modifier = Modifier) {
 }
 
 @Composable
-fun DtCode(text: String, modifier: Modifier) {
+fun DtCode(text: String, modifier: Modifier = Modifier) {
     BasicText(
         text, modifier,
         style = DtTextStyles.code
