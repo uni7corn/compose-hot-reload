@@ -21,8 +21,8 @@ import org.gradle.kotlin.dsl.withType
 import org.gradle.language.base.plugins.LifecycleBasePlugin.VERIFICATION_GROUP
 import org.jetbrains.compose.ComposeExtension
 import org.jetbrains.compose.reload.core.HOT_RELOAD_VERSION
-import org.jetbrains.compose.reload.gradle.composeHotReloadAgentConfiguration
 import org.jetbrains.compose.reload.gradle.composeHotReloadAgentJar
+import org.jetbrains.compose.reload.gradle.composeHotReloadAgentRuntimeClasspath
 import org.jetbrains.compose.reload.gradle.files
 import org.jetbrains.compose.reload.gradle.jetbrainsRuntimeLauncher
 import org.jetbrains.compose.reload.gradle.kotlinJvmOrNull
@@ -45,7 +45,7 @@ open class HotReloadUnitTestTask : AbstractTestTask() {
     internal val moduleName = project.objects.property(String::class.java)
 
     @get:Classpath
-    internal val agentClasspath: FileCollection = project.composeHotReloadAgentConfiguration
+    internal val agentClasspath: FileCollection = project.composeHotReloadAgentRuntimeClasspath()
 
     @get:Classpath
     internal val agentJar: FileCollection = project.composeHotReloadAgentJar()
@@ -76,12 +76,10 @@ open class HotReloadUnitTestTask : AbstractTestTask() {
         compileClasspath.from(project.files { compilation.compileDependencyFiles })
         compileClasspath.from(project.files { compilation.output.classesDirs })
 
-        classpath.from(
-            project.configurations.getByName(
-                compilation.runtimeDependencyConfigurationName ?: error("Missing 'runtimeDependencyConfigurationName'")
-            )
-        )
+        val runtimeDependencyConfigurationName = compilation.runtimeDependencyConfigurationName
+            ?: error("Missing 'runtimeDependencyConfigurationName'")
 
+        classpath.from(project.configurations.getByName(runtimeDependencyConfigurationName))
         testClasses.from(project.files { compilation.output.allOutputs })
         moduleName.set(compilation.compileTaskProvider.flatMap { (it.compilerOptions as KotlinJvmCompilerOptions).moduleName })
         compilePluginClasspath.from(

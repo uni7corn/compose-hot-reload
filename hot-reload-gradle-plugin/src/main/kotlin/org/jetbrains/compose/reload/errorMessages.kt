@@ -6,8 +6,8 @@
 package org.jetbrains.compose.reload
 
 internal object ErrorMessages {
-    fun missingMainClassProperty() = """
+    fun missingMainClassProperty(taskName: String) = """
         Missing 'mainClass' property. Please invoke the task with '-PmainClass=...`
-        Example: ./gradlew runHot -PmainClass=my.package.MainKt
+        Example: ./gradlew $taskName -PmainClass=my.package.MainKt
     """.trimIndent()
 }

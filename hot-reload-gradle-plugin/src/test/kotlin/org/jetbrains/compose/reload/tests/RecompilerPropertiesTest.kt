@@ -13,9 +13,10 @@ import org.jetbrains.compose.reload.core.HotReloadProperty.GradleBuildRoot
 import org.jetbrains.compose.reload.core.HotReloadProperty.GradleBuildTask
 import org.jetbrains.compose.reload.core.HotReloadProperty.GradleJavaHome
 import org.jetbrains.compose.reload.gradle.kotlinMultiplatformOrNull
+import org.jetbrains.compose.reload.utils.assertSystemPropertyEquals
+import org.jetbrains.compose.reload.utils.getComposeHotReloadArgumentsOrFail
 import org.jetbrains.compose.reload.utils.withRepositories
 import kotlin.test.Test
-import kotlin.test.assertEquals
 
 class RecompilerPropertiesTest {
     @Test
@@ -23,17 +24,17 @@ class RecompilerPropertiesTest {
         val project = ProjectBuilder.builder().build()
         project.withRepositories()
 
-
         project.plugins.apply("org.jetbrains.kotlin.multiplatform")
         project.plugins.apply("org.jetbrains.compose.hot-reload")
         project.kotlinMultiplatformOrNull?.jvm()
 
         val hotRun = project.tasks.create<ComposeHotRun>("runHot")
+        val arguments = hotRun.getComposeHotReloadArgumentsOrFail()
 
-        assertEquals(project.rootDir.absolutePath, hotRun.systemProperties[GradleBuildRoot.key])
-        assertEquals(":", hotRun.systemProperties[GradleBuildProject.key])
-        assertEquals("reloadJvmMainClasspath", hotRun.systemProperties[GradleBuildTask.key].toString())
-        assertEquals(System.getProperty("java.home"), hotRun.systemProperties[GradleJavaHome.key].toString())
+        arguments.assertSystemPropertyEquals(GradleBuildRoot, project.rootDir.absolutePath)
+        arguments.assertSystemPropertyEquals(GradleBuildProject, ":")
+        arguments.assertSystemPropertyEquals(GradleBuildTask, "reloadJvmMainClasspath")
+        arguments.assertSystemPropertyEquals(GradleJavaHome, System.getProperty("java.home"))
     }
 
     @Test
@@ -48,9 +49,10 @@ class RecompilerPropertiesTest {
         subproject.kotlinMultiplatformOrNull?.jvm()
 
         val hotRun = subproject.tasks.create<ComposeHotRun>("runHot")
+        val arguments = hotRun.getComposeHotReloadArgumentsOrFail()
 
-        assertEquals(subproject.rootDir.absolutePath, hotRun.systemProperties[GradleBuildRoot.key])
-        assertEquals(":foo", hotRun.systemProperties[GradleBuildProject.key])
-        assertEquals("reloadJvmMainClasspath", hotRun.systemProperties[GradleBuildTask.key].toString())
+        arguments.assertSystemPropertyEquals(GradleBuildRoot, project.rootDir.absolutePath)
+        arguments.assertSystemPropertyEquals(GradleBuildProject, ":foo")
+        arguments.assertSystemPropertyEquals(GradleBuildTask, "reloadJvmMainClasspath")
     }
 }

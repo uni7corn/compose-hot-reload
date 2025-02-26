@@ -14,7 +14,7 @@ import org.jetbrains.compose.reload.core.HOT_RELOAD_VERSION
 private const val composeHotReloadAgentConfigurationName = "composeHotReloadAgent"
 
 @InternalHotReloadGradleApi
-val Project.composeHotReloadAgentConfiguration: Configuration
+internal val Project.composeHotReloadAgentConfiguration: Configuration
     get() {
         configurations.findByName(composeHotReloadAgentConfigurationName)?.let { return it }
         return configurations.create(composeHotReloadAgentConfigurationName) { configuration ->
@@ -27,7 +27,7 @@ val Project.composeHotReloadAgentConfiguration: Configuration
         }
     }
 
-@InternalHotReloadGradleApi
+/** Provides the 'default' 'Compose Hot Reload' agent jar file. */
 fun Project.composeHotReloadAgentJar(): FileCollection {
     return composeHotReloadAgentConfiguration.incoming.artifactView { view ->
         view.componentFilter { element ->
@@ -37,7 +37,8 @@ fun Project.composeHotReloadAgentJar(): FileCollection {
     }.files
 }
 
-@InternalHotReloadGradleApi
+
+/** Resolves the classpath required for the default 'Compose Hot Reload Agent' */
 fun Project.composeHotReloadAgentRuntimeClasspath(): FileCollection {
     return composeHotReloadAgentConfiguration.incoming.files
 }
