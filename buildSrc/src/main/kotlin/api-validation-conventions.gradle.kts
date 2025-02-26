@@ -14,4 +14,5 @@ plugins {
 
 extensions.configure<ApiValidationExtension> {
     klib { enabled = true }
+    nonPublicMarkers += "org.jetbrains.compose.reload.gradle.InternalHotReloadGradleApi"
 }

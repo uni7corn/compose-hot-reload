@@ -7,6 +7,7 @@ plugins {
     kotlin("jvm")
     `maven-publish`
     `publishing-conventions`
+    `api-validation-conventions`
 }
 
 dependencies {

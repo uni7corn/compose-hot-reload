@@ -1,0 +1,8 @@
+public final class org/jetbrains/compose/reload/gradle/AgentConfiguration {
+	public static final fun composeHotReloadAgentJar (Lorg/gradle/api/Project;)Lorg/gradle/api/file/FileCollection;
+	public static final fun composeHotReloadAgentRuntimeClasspath (Lorg/gradle/api/Project;)Lorg/gradle/api/file/FileCollection;
+}
+
+public abstract interface annotation class org/jetbrains/compose/reload/gradle/InternalHotReloadGradleApi : java/lang/annotation/Annotation {
+}
+

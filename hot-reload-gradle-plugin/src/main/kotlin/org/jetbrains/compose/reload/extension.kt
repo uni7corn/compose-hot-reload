@@ -6,6 +6,7 @@
 package org.jetbrains.compose.reload
 
 import org.gradle.api.Project
+import org.gradle.api.provider.Property
 
 internal const val composeHotReloadExtensionName = "composeHotReload"
 
@@ -26,5 +27,5 @@ open class ComposeHotReloadExtension(internal val project: Project) {
      * Download: https://github.com/JetBrains/JetBrainsRuntime (or use IntelliJ to download JBR 21)
      *
      */
-    val useJetBrainsRuntime = project.objects.property(Boolean::class.java).convention(true)
+    val useJetBrainsRuntime: Property<Boolean> = project.objects.property(Boolean::class.java).convention(true)
 }

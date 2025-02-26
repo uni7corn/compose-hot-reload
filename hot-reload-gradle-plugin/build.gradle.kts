@@ -10,6 +10,7 @@ plugins {
     `java-gradle-plugin`
     `maven-publish`
     `publishing-conventions`
+    `api-validation-conventions`
 }
 
 
