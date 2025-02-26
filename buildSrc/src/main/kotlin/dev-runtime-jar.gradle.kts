@@ -13,9 +13,10 @@ plugins {
 }
 
 /**
- * We're creating a 'jvmDev' source set, compilation and publication which can be used at runtime
- * when actually running in 'development mode'. Code in such a source set will then not 'pollute' the
- * production builds of applications.
+ * We're creating a 'jvmDev' source set, compilation and publication which
+ * can be used at runtime when actually running in 'development mode'. Code
+ * in such a source set will then not 'pollute' the production builds of
+ * applications.
  */
 extensions.configure<KotlinJvmProjectExtension> {
     val main = target.compilations.getByName("main")
@@ -43,9 +44,9 @@ extensions.configure<KotlinJvmProjectExtension> {
 
         attributes.attribute(Usage.USAGE_ATTRIBUTE, project.objects.named("compose-dev-java-runtime"))
         attributes.attribute(Category.CATEGORY_ATTRIBUTE, project.objects.named(Category.LIBRARY))
+        attributes.attribute(LibraryElements.LIBRARY_ELEMENTS_ATTRIBUTE, project.objects.named(LibraryElements.JAR))
         attributes.attribute(KotlinPlatformType.attribute, KotlinPlatformType.jvm)
         attributes.attribute(TARGET_JVM_ENVIRONMENT_ATTRIBUTE, project.objects.named(TargetJvmEnvironment.STANDARD_JVM))
-
         attributes.attribute(Usage.USAGE_ATTRIBUTE, project.objects.named("compose-dev-java-runtime"))
 
         outgoing.artifact(jvmDevJar) {
