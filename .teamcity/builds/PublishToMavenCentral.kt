@@ -15,7 +15,30 @@ object PublishToMavenCentralProject : Project({
     name = "Publish: Maven Central"
     description = "Build configuration for publishing to Maven Central"
 
+    buildType(BuildDeployBundle)
     buildType(DeployToMavenCentral)
+})
+
+
+object BuildDeployBundle : BuildType({
+    name = "Build: Deploy Bundle"
+    vcs { cleanCheckout = true }
+
+    artifactRules = """
+            build/mavenCentral.deploy-*.zip => /
+    """.trimIndent()
+
+    steps {
+        gradle {
+            name = "Clean"
+            tasks = "clean"
+        }
+
+        gradle {
+            name = "Build: Deploy Bundle"
+            tasks = "buildMavenCentralDeployBundle --rerun-tasks --no-build-cache"
+        }
+    }
 })
 
 

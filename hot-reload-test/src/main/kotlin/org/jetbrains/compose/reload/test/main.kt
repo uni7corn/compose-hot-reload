@@ -57,6 +57,7 @@ private fun executeTest(args: ListIterator<String>) {
         exitProcess(ExitCode.Success.value)
     } catch (t: Throwable) {
         val targetException = if (t is InvocationTargetException) t.targetException else t
+        logger.error("Test failed", targetException)
         OrchestrationMessage.CriticalException(
             clientRole = OrchestrationClientRole.Application,
             message = targetException.message,

@@ -15,7 +15,7 @@ plugins {
     id("org.jetbrains.compose")
     id("org.jetbrains.compose.hot-reload")
     id("org.jetbrains.compose.hot-reload.test")
-
+    `bootstrap-conventions`
     `test-conventions`
 }
 
@@ -49,6 +49,7 @@ tasks.reloadFunctionalTest.configure {
 
 dependencies {
     implementation(project(":hot-reload-runtime-api"))
+    implementation(project(":hot-reload-test"))
     implementation(project(":hot-reload-core"))
     implementation(project(":hot-reload-orchestration"))
     implementation(kotlin("test"))
@@ -65,16 +66,4 @@ dependencies {
     reloadFunctionalTestImplementation(project(":hot-reload-test:gradle-testFixtures"))
     reloadFunctionalTestImplementation(deps.asm)
     reloadFunctionalTestImplementation(deps.asm.tree)
-
-    /*
-     Required to enforce no accidental resolve to the -api-jvm, published by the runtime api project.
-     Usually such substitutions are made automatically by Gradle, but there seems to be an issue
-     with the sub-publications of the KMP project
-     */
-    configurations.all {
-        resolutionStrategy.dependencySubstitution {
-            substitute(module("org.jetbrains.compose.hot-reload:runtime-api-jvm"))
-                .using(project(":hot-reload-runtime-api"))
-        }
-    }
 }

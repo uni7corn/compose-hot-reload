@@ -16,17 +16,12 @@ plugins {
     id("org.jetbrains.compose")
     id("org.jetbrains.compose.hot-reload")
     `maven-publish`
+    `bootstrap-conventions`
     `publishing-conventions`
 }
 
 kotlin {
     jvmToolchain(17)
-}
-
-tasks.create<ComposeHotRun>("runDev") {
-    mainClass.set("org.jetbrains.compose.reload.jvm.tooling.RunKt")
-    compilation.set(kotlin.target.compilations["dev"])
-    systemProperty("orchestration.mode", "server")
 }
 
 tasks.withType<KotlinJvmCompile>().configureEach {
@@ -45,6 +40,8 @@ dependencies {
 
     implementation(project(":hot-reload-core"))
     implementation(project(":hot-reload-orchestration"))
+    implementation(project(":hot-reload-runtime-api"))
+    implementation(project(":hot-reload-runtime-jvm"))
 
     implementation(compose.desktop.common)
     implementation(compose.material3)
@@ -63,21 +60,6 @@ dependencies {
     testImplementation(compose.desktop.currentOs)
 
     devCompileOnly(project(":hot-reload-agent"))
-
-    /*
-     Required to enforce no accidental resolve to the -api-jvm, published by the runtime api project.
-     Usually such substitutions are made automatically by Gradle, but there seems to be an issue
-     with the sub-publications of the KMP project
-     */
-    configurations.all {
-        if (name == "composeHotReloadAgent") return@all
-        if (name == "composeHotReloadDevTools") return@all
-
-        resolutionStrategy.dependencySubstitution {
-            substitute(module("org.jetbrains.compose.hot-reload:runtime-api-jvm"))
-                .using(project(":hot-reload-runtime-api"))
-        }
-    }
 }
 
 tasks.withType<Test>().configureEach {
