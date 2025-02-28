@@ -46,4 +46,6 @@ dependencies {
 
     implementation(deps.ktor.client.core)
     implementation(deps.ktor.client.cio)
+    implementation(deps.asm)
+    implementation(deps.asm.tree)
 }

@@ -22,16 +22,26 @@ val updateVersions = tasks.register<UpdateVersionTask>("updateVersions") {
     kotlinFireworkVersion = deps.versions.kotlin.get()
 }
 
+val checkPublishLocally by tasks.registering(CheckPublicationTask::class) {
+    publicationDirectory.set(layout.buildDirectory.dir("repo"))
+}
+
 val publishLocally by tasks.registering {
     dependsOn(updateVersions)
+    finalizedBy(checkPublishLocally)
 }
 
 val cleanDeploy by tasks.registering(Delete::class) {
     delete(layout.buildDirectory.dir("deploy"))
 }
 
+val checkPublishDeploy by tasks.registering(CheckPublicationTask::class) {
+    publicationDirectory.set(layout.buildDirectory.dir("deploy"))
+}
+
 val publishDeploy by tasks.registering {
     dependsOn(updateVersions)
+    finalizedBy(checkPublishDeploy)
 }
 
 subprojects {
