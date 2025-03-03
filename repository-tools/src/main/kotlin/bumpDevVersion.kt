@@ -11,9 +11,13 @@ import javax.xml.parsers.DocumentBuilderFactory
 fun main() {
     ensureCleanWorkingDirectory()
 
-    val version = fetchLatestVersionFromFireworkDevRepository()
-    val buildNumber = version.buildNumber ?: error("Missing build number in version $version")
-    val newVersion = version.toString().replace("-$buildNumber", "-${buildNumber + 1}")
+    val latestDevVersion = fetchLatestVersionFromFireworkDevRepository()
+    val buildNumber = latestDevVersion.buildNumber ?: error("Missing build number in version $latestDevVersion")
+    val currentVersion = KotlinToolingVersion(readGradleProperties("version"))
+    val currentBuildNumber = currentVersion.buildNumber ?: error("Missing build number in version $currentVersion")
+    val newVersion = currentVersion.toString().replace(currentBuildNumber.toString(), buildNumber.toString())
+
+        //latestDevVersion.toString().replace("-$buildNumber", "-${buildNumber + 1}")
     writeGradleProperties("version", newVersion)
 
     command("./gradlew", "updateVersions")
