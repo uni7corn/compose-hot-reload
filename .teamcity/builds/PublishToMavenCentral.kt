@@ -10,10 +10,24 @@ import builds.conventions.setupGit
 import jetbrains.buildServer.configs.kotlin.BuildType
 import jetbrains.buildServer.configs.kotlin.Project
 import jetbrains.buildServer.configs.kotlin.buildSteps.gradle
+import jetbrains.buildServer.configs.kotlin.projectFeatures.hashiCorpVaultConnection
 
 object PublishToMavenCentralProject : Project({
     name = "Publish: Maven Central"
     description = "Build configuration for publishing to Maven Central"
+
+    features {
+        hashiCorpVaultConnection {
+            id = "maven-central"
+            name = "HashiCorp Vault (Maven Central)"
+            url = "https://vault.intellij.net"
+            authMethod = appRole {
+                endpointPath = "approle"
+                roleId = "secrets-maven-central-compose-hot-reload"
+                secretId = "credentialsJSON:7003c316-5746-428d-a7d4-37ce83ab46ac"
+            }
+        }
+    }
 
     buildType(BuildDeployBundle)
     buildType(DeployToMavenCentral)
