@@ -72,6 +72,13 @@ object DeployToMavenCentral : BuildType({
             vaultId = "maven-central"
             display = ParameterDisplay.HIDDEN
         }
+
+        hashiCorpVaultParameter {
+            name = "env.ORG_GRADLE_PROJECT_sonatype.token"
+            query = "secrets/data/maven-central/compose-hot-reload!/password"
+            vaultId = "maven-central"
+            display = ParameterDisplay.HIDDEN
+        }
     }
 
     artifactRules = """
