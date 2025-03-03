@@ -104,6 +104,7 @@ abstract class PublishToMavenCentralTask : DefaultTask() {
             logger.quiet("Checking Deployment Status: $deploymentId")
 
             val statusResponse = get {
+                bearerAuth(bearerToken)
                 url("https://central.sonatype.com/api/v1/publisher/status")
                 parameter("id", deploymentId)
             }
