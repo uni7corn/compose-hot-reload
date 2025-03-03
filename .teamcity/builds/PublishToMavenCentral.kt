@@ -8,9 +8,11 @@ package builds
 import builds.conventions.PushPrivilege
 import builds.conventions.setupGit
 import jetbrains.buildServer.configs.kotlin.BuildType
+import jetbrains.buildServer.configs.kotlin.ParameterDisplay
 import jetbrains.buildServer.configs.kotlin.Project
 import jetbrains.buildServer.configs.kotlin.buildSteps.gradle
 import jetbrains.buildServer.configs.kotlin.projectFeatures.hashiCorpVaultConnection
+import jetbrains.buildServer.configs.kotlin.remoteParameters.hashiCorpVaultParameter
 
 object PublishToMavenCentralProject : Project({
     name = "Publish: Maven Central"
@@ -61,6 +63,15 @@ object DeployToMavenCentral : BuildType({
 
     vcs {
         cleanCheckout = true
+    }
+
+    params {
+        hashiCorpVaultParameter {
+            name = "env.ORG_GRADLE_PROJECT_sonatype.user"
+            query = "secrets/data/maven-central/compose-hot-reload!/username"
+            vaultId = "maven-central"
+            display = ParameterDisplay.HIDDEN
+        }
     }
 
     artifactRules = """
