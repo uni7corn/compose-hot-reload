@@ -16,7 +16,7 @@ val updateVersions = tasks.register<UpdateVersionTask>("updateVersions") {
         include("hot-reload-test/idea-plugin/*.gradle.kts")
         include("hot-reload-test/sample/*.gradle.kts")
         exclude("**/build/**/*")
-    } + files("README.md")
+    }
 
     projectVersion = project.version.toString()
     kotlinFireworkVersion = deps.versions.kotlin.get()

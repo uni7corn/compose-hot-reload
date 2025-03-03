@@ -17,27 +17,7 @@ Make changes to your UI code in a Compose Multiplatform application, and see the
 
 ### Requirements
 - A Compose Multiplatform project with a desktop target (see [FAQ](#faq))
-- Kotlin `2.1.20-Beta2` or higher 
-
-### Add repository
-The project publishes experimental builds. To obtain the Compose Hot Reload artifacts, first add the `firework` Maven repository:
-
-In your projects' `settings.gradle.kts`, add the following: 
-
-```kotlin
-pluginManagement {
-    repositories {
-        maven("https://packages.jetbrains.team/maven/p/firework/dev")
-    }
-}
-
-dependencyResolutionManagement {
-    repositories {
-        maven("https://packages.jetbrains.team/maven/p/firework/dev")
-    }
-}
-
-```
+- Kotlin `2.1.20-Beta2` or higher
 
 ### Apply the Gradle plugin to your project
 
@@ -48,7 +28,7 @@ plugins {
     kotlin("multiplatform") version "2.1.20-RC" // <- Use Kotlin 2.1.20-RC or higher!
     kotlin("plugin.compose") version "2.1.20-RC" // <- Use Compose Compiler Plugin 2.1.20-RC or higher!
     id("org.jetbrains.compose")
-    id("org.jetbrains.compose.hot-reload") version "1.0.0-dev-66" // <- add this additionally
+    id("org.jetbrains.compose.hot-reload") version "1.0.0-alpha01" // <- add this additionally
 }
 ```
 
@@ -76,7 +56,7 @@ Gradle can perform the download and setup for the JBR automatically for you via 
 Add the following to your `settings.gradle.kts`:
 ```kotlin
 plugins {
-    id("org.gradle.toolchains.foojay-resolver-convention") version "0.8.0"
+    id("org.gradle.toolchains.foojay-resolver-convention") version "0.9.0"
 }
 ```
 The Compose Hot Reload Gradle plugin will then use this resolver to automatically provision a compatible JDK.
@@ -143,3 +123,23 @@ Compose Hot Reload is designed to work with Compose Multiplatform. If you'd like
 ### My project is a desktop-only app with Compose Multiplatform. Can I use Compose Hot Reload?
 
 Yes! However, please note that you can't start the application via the run button in the gutter ([CMP-3123](https://youtrack.jetbrains.com/issue/CMP-3123)). Instead, use the custom Gradle task as described above.
+
+
+## Using 'dev' builds
+The project publishes dev builds. To obtain the 'dev' Compose Hot Reload artifacts, first add the `firework` Maven repository:
+In your projects' `settings.gradle.kts`, add the following:
+
+```kotlin
+pluginManagement {
+    repositories {
+        maven("https://packages.jetbrains.team/maven/p/firework/dev")
+    }
+}
+
+dependencyResolutionManagement {
+    repositories {
+        maven("https://packages.jetbrains.team/maven/p/firework/dev")
+    }
+}
+
+```
