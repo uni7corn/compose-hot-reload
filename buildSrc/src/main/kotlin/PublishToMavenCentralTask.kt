@@ -10,6 +10,7 @@ import io.ktor.client.request.basicAuth
 import io.ktor.client.request.forms.MultiPartFormDataContent
 import io.ktor.client.request.forms.formData
 import io.ktor.client.request.forms.submitForm
+import io.ktor.client.request.get
 import io.ktor.client.request.parameter
 import io.ktor.client.request.setBody
 import io.ktor.client.request.url
@@ -25,6 +26,7 @@ import org.gradle.api.tasks.Input
 import org.gradle.api.tasks.InputFile
 import org.gradle.api.tasks.OutputFile
 import org.gradle.api.tasks.TaskAction
+import org.gradle.api.tasks.UntrackedTask
 import org.gradle.kotlin.dsl.property
 import kotlin.io.path.createDirectories
 
@@ -34,6 +36,16 @@ import kotlin.io.path.createDirectories
  */
 
 abstract class PublishToMavenCentralTask : DefaultTask() {
+
+    @get:Input
+    val sonatypeUser = project.objects.property<String>()
+        .value(project.providers.gradleProperty("sonatype.user"))
+
+
+    @get:Input
+    val sonatypeToken = project.objects.property<String>()
+        .value(project.providers.gradleProperty("sonatype.token"))
+
 
     @Input
     val deploymentName = project.objects.property<String>()
@@ -59,8 +71,8 @@ abstract class PublishToMavenCentralTask : DefaultTask() {
         val response = submitForm {
             url("https://central.sonatype.com/api/v1/publisher/upload")
             parameter("name", deploymentName.get())
-            parameter("publishingType", "USER_MANAGED")
-            basicAuth("<user>", "<token>")
+            parameter("publishingType", "MANUAL")
+            basicAuth(sonatypeUser.get(), sonatypeToken.get())
             setBody(
                 MultiPartFormDataContent(
                     formData {
@@ -80,10 +92,27 @@ abstract class PublishToMavenCentralTask : DefaultTask() {
             error("Deployment failed (${response.status}):\n ${response.bodyAsText()}")
         }
 
-        response.bodyAsText().trim().let { deploymentId ->
-            deploymentIdFile.get().asFile.parentFile.toPath().createDirectories()
-            deploymentIdFile.get().asFile.writeText(deploymentId)
-            logger.quiet("Deployment ID: $deploymentId")
+        val deploymentId = response.bodyAsText().trim()
+        deploymentIdFile.get().asFile.parentFile.toPath().createDirectories()
+        deploymentIdFile.get().asFile.writeText(deploymentId)
+        logger.quiet("Deployment ID: $deploymentId")
+
+        while (true) {
+            logger.quiet("Checking Deployment Status: $deploymentId")
+
+            val statusResponse = get {
+                url("https://central.sonatype.com/api/v1/publisher/status")
+                parameter("id", deploymentId)
+            }
+            if (statusResponse.status != HttpStatusCode.OK) {
+                error("Deployment failed (${statusResponse.status}):\n ${statusResponse.bodyAsText()}")
+            }
+
+            logger.quiet(statusResponse.bodyAsText())
+            if (statusResponse.bodyAsText().contains("PUBLISHED")) break
+            if (statusResponse.bodyAsText().contains("FAILED")) {
+                error("Deployment failed (${statusResponse.status}):\n ${statusResponse.bodyAsText()}")
+            }
         }
     }
 }
