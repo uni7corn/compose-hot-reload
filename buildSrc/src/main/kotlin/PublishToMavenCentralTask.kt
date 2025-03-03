@@ -71,13 +71,13 @@ abstract class PublishToMavenCentralTask : DefaultTask() {
         val response = submitForm {
             url("https://central.sonatype.com/api/v1/publisher/upload")
             parameter("name", deploymentName.get())
-            parameter("publishingType", "MANUAL")
+            parameter("publishingType", "AUTOMATIC")
             basicAuth(sonatypeUser.get(), sonatypeToken.get())
             setBody(
                 MultiPartFormDataContent(
                     formData {
                         append("bundle", deploymentBundle.get().asFile.readBytes(), headers {
-                            append(HttpHeaders.ContentType, ContentType.Application.Zip.contentType)
+                            append(HttpHeaders.ContentType, ContentType.Application.OctetStream.contentType)
                             append(HttpHeaders.ContentDisposition, "filename=\"bundle.zip\"")
                         })
                     }
