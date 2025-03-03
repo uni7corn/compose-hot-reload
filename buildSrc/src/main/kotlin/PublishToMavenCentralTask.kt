@@ -6,7 +6,7 @@
 import io.ktor.client.HttpClient
 import io.ktor.client.engine.cio.CIO
 import io.ktor.client.plugins.onUpload
-import io.ktor.client.request.basicAuth
+import io.ktor.client.request.bearerAuth
 import io.ktor.client.request.forms.MultiPartFormDataContent
 import io.ktor.client.request.forms.formData
 import io.ktor.client.request.forms.submitForm
@@ -18,7 +18,6 @@ import io.ktor.client.statement.bodyAsText
 import io.ktor.http.ContentType
 import io.ktor.http.HttpHeaders
 import io.ktor.http.HttpStatusCode
-import io.ktor.http.contentType
 import io.ktor.http.headers
 import kotlinx.coroutines.runBlocking
 import org.gradle.api.DefaultTask
@@ -26,8 +25,8 @@ import org.gradle.api.tasks.Input
 import org.gradle.api.tasks.InputFile
 import org.gradle.api.tasks.OutputFile
 import org.gradle.api.tasks.TaskAction
-import org.gradle.api.tasks.UntrackedTask
 import org.gradle.kotlin.dsl.property
+import java.util.Base64
 import kotlin.io.path.createDirectories
 
 /*
@@ -68,11 +67,15 @@ abstract class PublishToMavenCentralTask : DefaultTask() {
     }
 
     private suspend fun HttpClient.publish() {
+        val bearerToken = Base64.getEncoder().encode(
+            "${sonatypeUser.get()}:${sonatypeToken.get()}".toByteArray()
+        ).toString(Charsets.UTF_8)
+
         val response = submitForm {
             url("https://central.sonatype.com/api/v1/publisher/upload")
             parameter("name", deploymentName.get())
             parameter("publishingType", "AUTOMATIC")
-            basicAuth(sonatypeUser.get(), sonatypeToken.get())
+            bearerAuth(bearerToken)
             setBody(
                 MultiPartFormDataContent(
                     formData {
