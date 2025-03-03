@@ -6,6 +6,7 @@
 import io.ktor.client.HttpClient
 import io.ktor.client.engine.cio.CIO
 import io.ktor.client.plugins.onUpload
+import io.ktor.client.request.accept
 import io.ktor.client.request.bearerAuth
 import io.ktor.client.request.forms.MultiPartFormDataContent
 import io.ktor.client.request.forms.formData
@@ -105,6 +106,7 @@ abstract class PublishToMavenCentralTask : DefaultTask() {
 
             val statusResponse = get {
                 bearerAuth(bearerToken)
+                accept(ContentType.Application.Json)
                 url("https://central.sonatype.com/api/v1/publisher/status")
                 parameter("id", deploymentId)
             }
