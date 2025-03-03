@@ -77,7 +77,7 @@ abstract class PublishToMavenCentralTask : DefaultTask() {
                 MultiPartFormDataContent(
                     formData {
                         append("bundle", deploymentBundle.get().asFile.readBytes(), headers {
-                            contentType(ContentType.Application.Zip)
+                            append(HttpHeaders.ContentType, ContentType.Application.Zip.contentType)
                             append(HttpHeaders.ContentDisposition, "filename=\"bundle.zip\"")
                         })
                     }
