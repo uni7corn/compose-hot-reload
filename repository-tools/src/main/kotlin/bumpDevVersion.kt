@@ -12,12 +12,12 @@ fun main() {
     ensureCleanWorkingDirectory()
 
     val latestDevVersion = fetchLatestVersionFromFireworkDevRepository()
-    val buildNumber = latestDevVersion.buildNumber ?: error("Missing build number in version $latestDevVersion")
+    val latestDevVersionBuildNumber = latestDevVersion.buildNumber ?: error("Missing build number in version $latestDevVersion")
     val currentVersion = KotlinToolingVersion(readGradleProperties("version"))
     val currentBuildNumber = currentVersion.buildNumber ?: error("Missing build number in version $currentVersion")
-    val newVersion = currentVersion.toString().replace(currentBuildNumber.toString(), buildNumber.toString())
+    val newBuildNumber = maxOf(currentBuildNumber, latestDevVersionBuildNumber) + 1
+    val newVersion = currentVersion.toString().replace(currentBuildNumber.toString(), newBuildNumber.toString())
 
-        //latestDevVersion.toString().replace("-$buildNumber", "-${buildNumber + 1}")
     writeGradleProperties("version", newVersion)
 
     command("./gradlew", "updateVersions")
