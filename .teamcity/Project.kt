@@ -14,7 +14,6 @@ import jetbrains.buildServer.configs.kotlin.ParameterDisplay
 import jetbrains.buildServer.configs.kotlin.Project
 import jetbrains.buildServer.configs.kotlin.sequential
 import vcs.Github
-import vcs.GithubStagingBranch
 import vcs.GithubTeamcityBranch
 
 /*
@@ -25,7 +24,6 @@ import vcs.GithubTeamcityBranch
 object ComposeHotReloadProject : Project({
     vcsRoot(Github)
     vcsRoot(GithubTeamcityBranch)
-    vcsRoot(GithubStagingBranch)
     buildType(PublishDevBuild)
     buildType(PublishLocally)
     buildType(InstallAndroidSdkWindows)

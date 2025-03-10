@@ -7,18 +7,15 @@ package builds.conventions
 
 import jetbrains.buildServer.configs.kotlin.BuildType
 import vcs.Github
-import vcs.GithubStagingBranch
 import vcs.GithubTeamcityBranch
 
 sealed interface VcsRootConvention {
-    interface StagingBranch : VcsRootConvention
     interface TeamcityBranch : VcsRootConvention
 }
 
 fun BuildType.vcsConventions() {
     val root = when (this) {
         is VcsRootConvention -> when (this) {
-            is VcsRootConvention.StagingBranch -> GithubStagingBranch
             is VcsRootConvention.TeamcityBranch -> GithubTeamcityBranch
         }
         else -> Github
