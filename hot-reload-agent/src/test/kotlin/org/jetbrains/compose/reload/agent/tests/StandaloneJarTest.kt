@@ -1,12 +1,13 @@
 /*
  * Copyright 2024-2025 JetBrains s.r.o. and Compose Hot Reload contributors.
- * Use of this source code is governed by the Apache 2.0 license that can be found in the license/LICENSE.txt file.
+ * Use of this source code is governed by the Apache 2.0 license that can be found in the LICENSE file.
  */
 
 package org.jetbrains.compose.reload.agent.tests
 
 import org.jetbrains.compose.reload.agent.orchestration
 import org.jetbrains.compose.reload.core.HotReloadProperty
+import org.jetbrains.compose.reload.core.createLogger
 import org.jetbrains.compose.reload.core.testFixtures.sanitized
 import org.jetbrains.compose.reload.orchestration.OrchestrationMessage
 import org.jetbrains.compose.reload.orchestration.asBlockingQueue
@@ -42,6 +43,11 @@ class StandaloneJarTest {
     @Test
     fun `test - launching process with standalone agent jar`() {
         val server = startOrchestrationServer()
+
+        server.invokeWhenMessageReceived { message ->
+            createLogger().info("Received message: $message")
+        }
+
         val messages = server.asBlockingQueue()
         cleanupActions.add { server.close() }
 
@@ -57,6 +63,9 @@ class StandaloneJarTest {
                 ArrayDeque::class.java.protectionDomain.codeSource.location.file,
                 // Slf4j
                 LoggerFactory::class.java.protectionDomain.codeSource.location.file,
+                // Logback
+                ch.qos.logback.core.Context::class.java.protectionDomain.codeSource.location.file,
+                ch.qos.logback.classic.Logger::class.java.protectionDomain.codeSource.location.file,
             ).joinToString(File.pathSeparator),
             "-D${HotReloadProperty.OrchestrationPort.key}=${server.port}",
             "-D${HotReloadProperty.IsHeadless.key}=true",
@@ -126,7 +135,11 @@ internal object StandaloneJarTestMain {
             exitProcess(42)
         }
 
+        createLogger().info("Started process: Sending signal")
+
         orchestration.sendMessage(OrchestrationMessage.TestEvent("Alive")).get()
+
+        createLogger().info("Signal Sent: Exiting process")
         exitProcess(0)
     }
 }
