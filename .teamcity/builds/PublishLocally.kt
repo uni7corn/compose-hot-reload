@@ -39,11 +39,14 @@ fun BuildType.configurePublishLocallyBuildCache(publish: Boolean = false) {
                 use = true
                 this.publish = publish
                 name = "Android SDK"
-                rules = """
-                %android-sdk.location%/licenses
-                %android-sdk.location%/platforms
-                %android-sdk.location%/build-tools
+
+                if (publish) {
+                    rules = """
+                    %android-sdk.location%/licenses
+                    %android-sdk.location%/platforms
+                    %android-sdk.location%/build-tools
             """.trimIndent()
+                }
             }
         }
 
@@ -51,27 +54,33 @@ fun BuildType.configurePublishLocallyBuildCache(publish: Boolean = false) {
             use = true
             this.publish = publish
             name = "Gradle Build Cache"
-            rules = """
-                .local/build-cache
+            if (publish) {
+                rules = """
+                    .local/build-cache
             """.trimIndent()
+            }
         }
 
         buildCache {
             use = true
             this.publish = publish
             name = "Gradle Cache (modules-2)"
-            rules = """
-                .local/gradle/caches/modules-2
+            if (publish) {
+                rules = """
+                    .local/gradle/caches/modules-2
             """.trimIndent()
+            }
         }
 
         buildCache {
             use = true
             this.publish = publish
             name = "Gradle Cache (wrapper)"
-            rules = """
-                .local/gradle/wrapper
+            if (publish) {
+                rules = """
+                    .local/gradle/wrapper
             """.trimIndent()
+            }
         }
     }
 }
