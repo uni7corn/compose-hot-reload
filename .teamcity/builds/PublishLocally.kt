@@ -6,6 +6,8 @@
 package builds
 
 import builds.conventions.HardwareCapacity
+import builds.conventions.requiredHost
+import builds.utils.Host
 import jetbrains.buildServer.configs.kotlin.BuildType
 import jetbrains.buildServer.configs.kotlin.buildFeatures.buildCache
 import jetbrains.buildServer.configs.kotlin.buildSteps.gradle
@@ -24,22 +26,27 @@ object PublishLocally : BuildType({
 }), HardwareCapacity.Large
 
 
- fun BuildType.configurePublishLocallyBuildCache(publish: Boolean = false) {
+fun BuildType.configurePublishLocallyBuildCache(publish: Boolean = false) {
+    val thisBuildType = this
+
     params {
         param("env.GRADLE_USER_HOME", "%system.teamcity.build.checkoutDir%/.local/gradle")
     }
 
     features {
-        buildCache {
-            use = true
-            this.publish = publish
-            name = "Android SDK"
-            rules = """
+        if (thisBuildType.requiredHost == Host.Linux) {
+            buildCache {
+                use = true
+                this.publish = publish
+                name = "Android SDK"
+                rules = """
                 %android-sdk.location%/licenses
                 %android-sdk.location%/platforms
                 %android-sdk.location%/build-tools
             """.trimIndent()
+            }
         }
+
         buildCache {
             use = true
             this.publish = publish
