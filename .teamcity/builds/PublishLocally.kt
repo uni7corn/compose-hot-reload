@@ -17,7 +17,9 @@ object PublishLocally : BuildType({
 
     configurePublishLocallyBuildCache(publish = true)
 
-
+    artifactRules = """
+        build/repo => repo.zip
+    """.trimIndent()
 
     steps {
         gradle {

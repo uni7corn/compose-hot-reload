@@ -1,6 +1,6 @@
 /*
  * Copyright 2024-2025 JetBrains s.r.o. and Compose Hot Reload contributors.
- * Use of this source code is governed by the Apache 2.0 license that can be found in the license/LICENSE.txt file.
+ * Use of this source code is governed by the Apache 2.0 license that can be found in the LICENSE file.
  */
 
 package builds
@@ -90,7 +90,7 @@ class Test(
     steps {
         gradle {
             name = "Test"
-            tasks = "check -i --continue -x apiCheck -Pchr.tests.parallelism=4"
+            tasks = "check -i --continue -x apiCheck -x publishLocally -Pchr.tests.parallelism=4"
 
             /* Any host other than linux is considered to only run 'host integration tests' */
             if (requiredHost != Host.Linux) {
