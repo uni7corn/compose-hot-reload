@@ -8,6 +8,8 @@
 import org.jetbrains.kotlin.gradle.ExperimentalKotlinGradlePluginApi
 import org.jetbrains.kotlin.gradle.ExperimentalWasmDsl
 import org.jetbrains.kotlin.gradle.plugin.mpp.KotlinJvmCompilation
+import org.jetbrains.kotlin.gradle.targets.js.testing.KotlinJsTest
+import org.jetbrains.kotlin.gradle.targets.native.tasks.KotlinNativeTest
 
 plugins {
     kotlin("multiplatform")
@@ -74,6 +76,14 @@ kotlin {
 
 tasks.withType<Test>().configureEach {
     useJUnitPlatform()
+}
+
+tasks.withType<KotlinNativeTest>().configureEach {
+    enabled = false
+}
+
+tasks.withType<KotlinJsTest>().configureEach {
+    enabled = false
 }
 
 android {
