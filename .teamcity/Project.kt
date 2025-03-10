@@ -1,12 +1,18 @@
+import builds.AllTests
+import builds.ApiCheck
 import builds.InstallAndroidSdkWindows
 import builds.PublishDevBuild
 import builds.PublishLocally
 import builds.PublishToMavenCentralProject
+import builds.SamplesCheck
 import builds.StagingDeploy
-import builds.Tests
+import builds.Test
+import builds.TestIntelliJPluginCheck
 import builds.conventions.configureConventions
+import builds.utils.Host
 import jetbrains.buildServer.configs.kotlin.ParameterDisplay
 import jetbrains.buildServer.configs.kotlin.Project
+import jetbrains.buildServer.configs.kotlin.sequential
 import vcs.Github
 import vcs.GithubStagingBranch
 import vcs.GithubTeamcityBranch
@@ -25,8 +31,33 @@ object ComposeHotReloadProject : Project({
     buildType(InstallAndroidSdkWindows)
     buildType(StagingDeploy)
 
-    subProject(Tests)
+
+    /* Tests */
+    buildType(AllTests)
+    val linuxTest = Test(Host.Linux)
+    val windowsTest = Test(Host.Windows)
+
+    buildType(linuxTest)
+    buildType(windowsTest)
+    buildType(ApiCheck)
+    buildType(SamplesCheck)
+    buildType(TestIntelliJPluginCheck)
+
+    sequential {
+        buildType(PublishLocally)
+        parallel {
+            buildType(windowsTest)
+            buildType(linuxTest)
+            buildType(ApiCheck)
+            buildType(SamplesCheck)
+            buildType(TestIntelliJPluginCheck)
+        }
+        buildType(AllTests)
+    }
+
     subProject(PublishToMavenCentralProject)
+
+    buildTypesOrder = buildTypes.toList()
 
     buildTypes.forEach { buildType ->
         buildType.configureConventions()

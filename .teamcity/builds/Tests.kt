@@ -23,35 +23,6 @@ import jetbrains.buildServer.configs.kotlin.triggers.vcs
 import vcs.Github
 import kotlin.time.Duration.Companion.minutes
 
-
-object Tests : Project({
-    name = "Tests"
-    description = "Compose Hot Reload Tests"
-
-    buildType(AllTests)
-
-    val linuxTest = Test(Host.Linux)
-    val windowsTest = Test(Host.Windows)
-
-    buildType(linuxTest)
-    buildType(windowsTest)
-    buildType(ApiCheck)
-    buildType(SamplesCheck)
-    buildType(TestIntelliJPluginCheck)
-
-    sequential {
-        buildType(PublishLocally)
-        parallel {
-            buildType(windowsTest)
-            buildType(linuxTest)
-            buildType(ApiCheck)
-            buildType(SamplesCheck)
-            buildType(TestIntelliJPluginCheck)
-        }
-        buildType(AllTests)
-    }
-})
-
 object AllTests : BuildType({
     name = "All Tests"
     description = "All tests"
