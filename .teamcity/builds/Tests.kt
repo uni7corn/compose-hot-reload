@@ -62,7 +62,6 @@ class Test(
         **/build/reports/**
     """.trimIndent()
 
-
     features {
         buildCache {
             use = true
