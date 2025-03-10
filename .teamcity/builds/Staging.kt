@@ -37,6 +37,7 @@ object StagingDeploy : BuildType({
         script {
             name = "Push"
             scriptContent = """
+                git log
                 git push origin HEAD:master
             """.trimIndent()
         }
