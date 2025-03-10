@@ -11,13 +11,10 @@ import builds.conventions.HostRequirement
 import builds.conventions.PublishLocallyConvention
 import builds.utils.Host
 import jetbrains.buildServer.configs.kotlin.BuildType
-import jetbrains.buildServer.configs.kotlin.BuildTypeSettings
-import jetbrains.buildServer.configs.kotlin.Project
 import jetbrains.buildServer.configs.kotlin.buildFeatures.PullRequests
 import jetbrains.buildServer.configs.kotlin.buildFeatures.buildCache
 import jetbrains.buildServer.configs.kotlin.buildFeatures.pullRequests
 import jetbrains.buildServer.configs.kotlin.buildSteps.gradle
-import jetbrains.buildServer.configs.kotlin.sequential
 import jetbrains.buildServer.configs.kotlin.triggers.VcsTrigger
 import jetbrains.buildServer.configs.kotlin.triggers.vcs
 import vcs.Github
@@ -70,11 +67,23 @@ class Test(
         buildCache {
             use = true
             publish = true
-            name = "Functional Test Gradle Cache (caches)"
+            name = "Functional Test Gradle Cache (modules-2)"
             rules = """
-                tests/build/gradleHome/caches
+                tests/build/gradleHome/caches/modules-2/files-2.1
+                tests/build/gradleHome/caches/modules-2/metadata-2.106
+                tests/build/gradleHome/caches/modules-2/metadata-2.107
             """.trimIndent()
         }
+
+        buildCache {
+            use = true
+            publish = true
+            name = "Functional Test Gradle Cache (build-cache-2)"
+            rules = """
+                tests/build/gradleHome/caches/build-cache-1
+            """.trimIndent()
+        }
+
 
         buildCache {
             use = true
