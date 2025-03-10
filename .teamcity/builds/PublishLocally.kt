@@ -52,10 +52,26 @@ object PublishLocally : BuildType({
         buildCache {
             use = true
             this.publish = publish
-            name = "Gradle Cache"
+            name = "Gradle Cache (modules-2)"
             rules = """
                 .local/gradle/caches/modules-2
+            """.trimIndent()
+        }
+
+        buildCache {
+            use = true
+            this.publish = publish
+            name = "Gradle Cache (jdks)"
+            rules = """
                 .local/gradle/jdks
+            """.trimIndent()
+        }
+
+        buildCache {
+            use = true
+            this.publish = publish
+            name = "Gradle Cache (wrapper)"
+            rules = """
                 .local/gradle/wrapper
             """.trimIndent()
         }

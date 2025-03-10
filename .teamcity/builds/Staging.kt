@@ -9,7 +9,6 @@ import builds.conventions.HardwareCapacity
 import builds.conventions.PushPrivilege
 import builds.conventions.setupGit
 import jetbrains.buildServer.configs.kotlin.BuildType
-import jetbrains.buildServer.configs.kotlin.buildFeatures.sshAgent
 import jetbrains.buildServer.configs.kotlin.buildSteps.script
 import jetbrains.buildServer.configs.kotlin.triggers.vcs
 
