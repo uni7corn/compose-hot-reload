@@ -90,7 +90,7 @@ class Test(
     steps {
         gradle {
             name = "Test"
-            tasks = "check -i --continue -x apiCheck -Pchr.tests.parallelism=3"
+            tasks = "check -i --continue -x apiCheck -Pchr.tests.parallelism=4"
 
             /* Any host other than linux is considered to only run 'host integration tests' */
             if (requiredHost != Host.Linux) {
