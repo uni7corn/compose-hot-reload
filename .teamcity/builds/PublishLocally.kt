@@ -1,6 +1,6 @@
 /*
  * Copyright 2024-2025 JetBrains s.r.o. and Compose Hot Reload contributors.
- * Use of this source code is governed by the Apache 2.0 license that can be found in the license/LICENSE.txt file.
+ * Use of this source code is governed by the Apache 2.0 license that can be found in the LICENSE file.
  */
 
 package builds
@@ -16,6 +16,8 @@ object PublishLocally : BuildType({
     name = "Publish: Locally"
 
     configurePublishLocallyBuildCache(publish = true)
+
+
 
     steps {
         gradle {
@@ -67,7 +69,9 @@ fun BuildType.configurePublishLocallyBuildCache(publish: Boolean = false) {
             name = "Gradle Cache (modules-2)"
             if (publish) {
                 rules = """
-                    .local/gradle/caches/modules-2
+                    .local/gradle/caches/modules-2/files-2.1
+                    .local/gradle/caches/modules-2/metadata-2.106
+                    .local/gradle/caches/modules-2/metadata-2.107
             """.trimIndent()
             }
         }
