@@ -61,15 +61,6 @@ object PublishLocally : BuildType({
         buildCache {
             use = true
             this.publish = publish
-            name = "Gradle Cache (jdks)"
-            rules = """
-                .local/gradle/jdks
-            """.trimIndent()
-        }
-
-        buildCache {
-            use = true
-            this.publish = publish
             name = "Gradle Cache (wrapper)"
             rules = """
                 .local/gradle/wrapper
