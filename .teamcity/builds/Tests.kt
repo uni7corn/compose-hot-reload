@@ -68,11 +68,21 @@ class Test(
 
     features {
         buildCache {
+            use = true
             publish = true
-            name = "Functional Test Gradle Cache"
+            name = "Functional Test Gradle Cache (caches)"
             rules = """
-                tests/build/gradleHome/
+                tests/build/gradleHome/caches
                 tests/build/reloadFunctionalTestWarmup/
+            """.trimIndent()
+        }
+
+        buildCache {
+            use = true
+            publish = true
+            name = "Functional Test Gradle Cache (wrapper)"
+            rules = """
+                tests/build/gradleHome/wrapper
             """.trimIndent()
         }
     }
