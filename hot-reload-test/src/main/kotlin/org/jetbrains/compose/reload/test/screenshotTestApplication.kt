@@ -34,7 +34,7 @@ public fun screenshotTestApplication(
             clientRole = OrchestrationClientRole.Application,
             message = throwable.message,
             exceptionClassName = throwable.javaClass.name,
-            stacktrace = thread.stackTrace.toList()
+            stacktrace = throwable.stackTrace.toList()
         ).send()
     }
 
