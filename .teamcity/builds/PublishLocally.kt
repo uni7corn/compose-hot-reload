@@ -24,7 +24,9 @@ object PublishLocally : BuildType({
     steps {
         gradle {
             name = "Publish Locally"
-            tasks = "publishLocally -i"
+            tasks = "publishLocally testClasses testFixturesClasses " +
+                "reloadUnitTestClasses reloadFunctionalTestClasses reloadFunctionalTestWarmupClasses " +
+                "-i"
         }
     }
 }), HardwareCapacity.Large
