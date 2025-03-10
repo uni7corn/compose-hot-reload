@@ -89,7 +89,7 @@ class Test(
     steps {
         gradle {
             name = "Test"
-            tasks = "check -i --continue -x apiCheck -x publishLocally -Pchr.tests.parallelism=4"
+            tasks = "check -i --continue -x apiCheck -x publishLocally -Pchr.tests.parallelism=2"
 
             /* Any host other than linux is considered to only run 'host integration tests' */
             if (requiredHost != Host.Linux) {
@@ -100,7 +100,7 @@ class Test(
 }), PublishLocallyConvention,
     CommitStatusPublisher,
     HostRequirement.Dynamic,
-    HardwareCapacity.XLarge
+    HardwareCapacity.Large
 
 object ApiCheck : BuildType({
     name = "Check: api"
