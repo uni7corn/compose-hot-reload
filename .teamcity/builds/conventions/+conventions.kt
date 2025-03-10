@@ -7,13 +7,10 @@ package builds.conventions
 
 import builds.installAndroidSdkConvention
 import jetbrains.buildServer.configs.kotlin.BuildType
-import jetbrains.buildServer.configs.kotlin.buildFeatures.buildCache
-import jetbrains.buildServer.configs.kotlin.buildFeatures.gradleCache
 import jetbrains.buildServer.configs.kotlin.buildFeatures.perfmon
-import vcs.Github
 
 fun BuildType.configureConventions() {
-    defaultVcs()
+    vcsConventions()
     defaultFeatures()
     pushPrivilegeConventions()
     publishDevPrivilegeConventions()
@@ -24,10 +21,6 @@ fun BuildType.configureConventions() {
     installAndroidSdkConvention()
 }
 
-
-private fun BuildType.defaultVcs() {
-    vcs { root(Github) }
-}
 
 private fun BuildType.defaultFeatures() {
     features {

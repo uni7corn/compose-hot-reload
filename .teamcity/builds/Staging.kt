@@ -7,6 +7,7 @@ package builds
 
 import builds.conventions.HardwareCapacity
 import builds.conventions.PushPrivilege
+import builds.conventions.VcsRootConvention
 import builds.conventions.setupGit
 import jetbrains.buildServer.configs.kotlin.BuildType
 import jetbrains.buildServer.configs.kotlin.buildSteps.script
@@ -47,4 +48,4 @@ object StagingDeploy : BuildType({
             """.trimIndent()
         }
     }
-}), PushPrivilege, HardwareCapacity.Small
+}), VcsRootConvention.StagingBranch, PushPrivilege, HardwareCapacity.Small
