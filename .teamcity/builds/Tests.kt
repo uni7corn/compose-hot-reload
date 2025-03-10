@@ -73,7 +73,6 @@ class Test(
             name = "Functional Test Gradle Cache (caches)"
             rules = """
                 tests/build/gradleHome/caches
-                tests/build/reloadFunctionalTestWarmup/
             """.trimIndent()
         }
 
