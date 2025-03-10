@@ -90,7 +90,7 @@ class Test(
     steps {
         gradle {
             name = "Test"
-            tasks = "check --continue -x apiCheck"
+            tasks = "check -i --continue -x apiCheck"
 
             /* Any host other than linux is considered to only run 'host integration tests' */
             if (requiredHost != Host.Linux) {
