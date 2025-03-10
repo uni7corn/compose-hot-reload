@@ -10,11 +10,11 @@ import org.jetbrains.compose.reload.core.HotReloadProperty
 import org.jetbrains.compose.reload.core.createLogger
 import org.jetbrains.compose.reload.core.testFixtures.sanitized
 import org.jetbrains.compose.reload.orchestration.OrchestrationMessage
-import org.jetbrains.compose.reload.orchestration.asBlockingQueue
 import org.jetbrains.compose.reload.orchestration.startOrchestrationServer
 import org.jetbrains.compose.reload.test.core.TestEnvironment
 import org.slf4j.LoggerFactory
 import java.io.File
+import java.util.concurrent.CompletableFuture
 import java.util.concurrent.TimeUnit
 import java.util.zip.ZipFile
 import kotlin.io.path.Path
@@ -26,6 +26,7 @@ import kotlin.io.path.writeText
 import kotlin.system.exitProcess
 import kotlin.test.AfterTest
 import kotlin.test.Test
+import kotlin.test.assertEquals
 import kotlin.test.fail
 
 class StandaloneJarTest {
@@ -43,12 +44,15 @@ class StandaloneJarTest {
     @Test
     fun `test - launching process with standalone agent jar`() {
         val server = startOrchestrationServer()
+        val aliveMessage = CompletableFuture<OrchestrationMessage.TestEvent>()
 
         server.invokeWhenMessageReceived { message ->
             createLogger().info("Received message: $message")
+            if (message is OrchestrationMessage.TestEvent && message.payload == "Alive") {
+                aliveMessage.complete(message)
+            }
         }
 
-        val messages = server.asBlockingQueue()
         cleanupActions.add { server.close() }
 
         val currentProcessInfo = ProcessHandle.current().info()
@@ -75,6 +79,7 @@ class StandaloneJarTest {
 
         cleanupActions.add { testProcess.destroy() }
 
+
         if (!testProcess.waitFor(1, TimeUnit.MINUTES)) {
             fail("Test process did not finish in time (hanging?)")
         }
@@ -83,11 +88,10 @@ class StandaloneJarTest {
             fail("Test process exited with code ${testProcess.exitValue()}")
         }
 
-        val receivedMessages = mutableListOf<OrchestrationMessage>()
-        messages.drainTo(receivedMessages)
-
-        if (receivedMessages.none { it is OrchestrationMessage.TestEvent && it.payload == "Alive" }) {
-            fail("Test process did not send 'Alive' message\nReceived messages: ${receivedMessages.joinToString("\n ")}")
+        try {
+            assertEquals("Alive", aliveMessage.get(1, TimeUnit.MINUTES).payload)
+        } catch (e: Throwable) {
+            fail("Failed to receive 'Alive' message from test process", e)
         }
     }
 
@@ -120,7 +124,8 @@ class StandaloneJarTest {
 
         val expectedText = expectFile.toFile().readText().sanitized()
         if (actualText != expectedText) {
-            val actualFile = expectFile.resolveSibling("${expectFile.nameWithoutExtension}-actual.${expectFile.extension}")
+            val actualFile =
+                expectFile.resolveSibling("${expectFile.nameWithoutExtension}-actual.${expectFile.extension}")
             actualFile.createParentDirectories().writeText(actualText)
             fail("'${expectFile.toUri()}'  did not match\nGenerated to ${actualFile.toUri()}")
         }
