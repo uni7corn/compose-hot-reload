@@ -20,7 +20,7 @@ object PublishLocally : BuildType({
     steps {
         gradle {
             name = "Publish Locally"
-            tasks = "publishLocally"
+            tasks = "publishLocally -i"
         }
     }
 }), HardwareCapacity.Large
