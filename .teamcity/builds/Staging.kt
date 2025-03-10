@@ -21,7 +21,6 @@ object StagingDeploy : BuildType({
     vcs {
         branchFilter = """
             +:staging
-            +:master
         """.trimIndent()
     }
 
