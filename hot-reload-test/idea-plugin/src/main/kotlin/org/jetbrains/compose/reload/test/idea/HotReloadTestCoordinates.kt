@@ -7,7 +7,7 @@ import org.jetbrains.kotlin.analysis.api.KaExperimentalApi
 import org.jetbrains.kotlin.analysis.api.KaSession
 import org.jetbrains.kotlin.analysis.api.projectStructure.KaSourceModule
 import org.jetbrains.kotlin.analysis.api.symbols.KaNamedFunctionSymbol
-import org.jetbrains.kotlin.idea.base.projectStructure.ideaModule
+import org.jetbrains.kotlin.idea.base.projectStructure.openapiModule
 import org.jetbrains.kotlin.psi.UserDataProperty
 import org.jetbrains.plugins.gradle.service.execution.GradleRunConfiguration
 import java.io.Serializable
@@ -29,7 +29,7 @@ internal data class HotReloadTestCoordinates(
 internal fun KaSession.hotReloadTestCoordinates(symbol: KaNamedFunctionSymbol): HotReloadTestCoordinates? {
     return HotReloadTestCoordinates(
         modulePath = ExternalSystemApiUtil.getExternalProjectPath(
-            (symbol.containingModule as? KaSourceModule)?.ideaModule ?: return null
+            (symbol.containingModule as? KaSourceModule)?.openapiModule ?: return null
         ) ?: return null,
         className = symbol.containingJvmClassName ?: return null,
         methodName = symbol.name.asString()

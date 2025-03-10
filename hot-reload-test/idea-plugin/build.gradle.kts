@@ -5,7 +5,7 @@ plugins {
 
 dependencies {
     intellijPlatform {
-        intellijIdeaCommunity("2024.3.2.2")
+        intellijIdeaCommunity("251.23774.16")
         bundledPlugin("com.intellij.gradle")
         bundledPlugin("org.jetbrains.plugins.gradle")
         bundledPlugin("org.jetbrains.kotlin")
