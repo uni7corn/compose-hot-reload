@@ -20,7 +20,6 @@ import kotlin.io.path.createDirectories
 import kotlin.io.path.createParentDirectories
 import kotlin.io.path.writeText
 import kotlin.test.fail
-import kotlin.time.Duration.Companion.minutes
 
 private val logger = LoggerFactory.getLogger("Gradle")
 
@@ -104,8 +103,9 @@ public suspend fun GradleRunner.build(vararg args: String): ExitCode? {
         try {
             exitCode.complete(ExitCode(process.waitFor()))
         } catch (_: InterruptedException) {
-            process.destroy()
             exitCode.complete(null)
+            logger.error("Gradle Runner: Interrupted by user. Killing Gradle process...")
+            process.destroy()
         }
 
         Runtime.getRuntime().removeShutdownHook(shutdownHook)
@@ -113,6 +113,7 @@ public suspend fun GradleRunner.build(vararg args: String): ExitCode? {
 
     currentCoroutineContext().job.invokeOnCompletion {
         if (!exitCode.isActive) {
+            logger.error("Sending 'Shutdown' signal to Gradle runner thread")
             thread.interrupt()
         }
     }
