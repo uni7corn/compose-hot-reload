@@ -9,7 +9,7 @@ import builds.conventions.HardwareCapacity
 import builds.conventions.PushPrivilege
 import builds.conventions.setupGit
 import jetbrains.buildServer.configs.kotlin.BuildType
-import jetbrains.buildServer.configs.kotlin.CheckoutMode
+import jetbrains.buildServer.configs.kotlin.buildFeatures.sshAgent
 import jetbrains.buildServer.configs.kotlin.buildSteps.script
 import jetbrains.buildServer.configs.kotlin.triggers.vcs
 
@@ -17,9 +17,12 @@ object StagingDeploy : BuildType({
     name = "Deploy Staging -> Master"
     type = Type.DEPLOYMENT
 
+
     vcs {
-        branchFilter = "+:staging"
-        checkoutMode = CheckoutMode.ON_AGENT
+        branchFilter = """
+            +:staging
+            +:master
+        """.trimIndent()
     }
 
     triggers {
@@ -37,8 +40,11 @@ object StagingDeploy : BuildType({
         script {
             name = "Push"
             scriptContent = """
-                git log
-                git push origin HEAD:master
+                git remote -v
+                git log %build.vcs.number%
+                git fetch --unshallow origin master
+                git log -n 5 origin/master
+                git push origin %build.vcs.number%:refs/heads/master -v
             """.trimIndent()
         }
     }

@@ -28,6 +28,7 @@ fun BuildType.pushPrivilegeConventions() {
 
     vcs {
         checkoutMode = CheckoutMode.ON_AGENT
+        cleanCheckout = true
     }
 
     features {
