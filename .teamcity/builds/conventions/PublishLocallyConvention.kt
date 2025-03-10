@@ -20,6 +20,9 @@ fun BuildType.publishLocallyConventions() {
         dependency(PublishLocally) {
             snapshot {
             }
+            artifacts {
+
+            }
         }
     }
 }
