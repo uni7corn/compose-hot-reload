@@ -24,11 +24,6 @@ import vcs.GithubTeamcityBranch
 object ComposeHotReloadProject : Project({
     vcsRoot(Github)
     vcsRoot(GithubTeamcityBranch)
-    buildType(PublishDevBuild)
-    buildType(PublishLocally)
-    buildType(InstallAndroidSdkWindows)
-    buildType(StagingDeploy)
-
 
     /* Tests */
     buildType(AllTests)
@@ -52,6 +47,12 @@ object ComposeHotReloadProject : Project({
         }
         buildType(AllTests)
     }
+
+    buildType(PublishLocally)
+    buildType(InstallAndroidSdkWindows)
+
+    buildType(PublishDevBuild)
+    buildType(StagingDeploy)
 
     subProject(PublishToMavenCentralProject)
 
