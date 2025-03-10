@@ -32,7 +32,7 @@ object StagingDeploy : BuildType({
     }
 
     dependencies {
-        //snapshot(AllTests) {}
+        snapshot(AllTests) {}
     }
 
     steps {
