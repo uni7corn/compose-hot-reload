@@ -59,7 +59,7 @@ class Test(
 
     artifactRules = """
         **/*-actual*
-        **/build/reports/**
+        **/build/reports/** => reports.zip
     """.trimIndent()
 
     features {
