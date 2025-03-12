@@ -9,6 +9,7 @@ import builds.conventions.HardwareCapacity
 import builds.conventions.PushPrivilege
 import builds.conventions.setupGit
 import jetbrains.buildServer.configs.kotlin.BuildType
+import jetbrains.buildServer.configs.kotlin.FailureAction
 import jetbrains.buildServer.configs.kotlin.buildSteps.script
 import jetbrains.buildServer.configs.kotlin.triggers.vcs
 
@@ -30,7 +31,10 @@ object StagingDeploy : BuildType({
     }
 
     dependencies {
-        snapshot(AllTests) {}
+        snapshot(AllTests) {
+            this.onDependencyFailure = FailureAction.FAIL_TO_START
+            this.onDependencyCancel = FailureAction.FAIL_TO_START
+        }
     }
 
     steps {
