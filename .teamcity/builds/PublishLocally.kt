@@ -24,7 +24,7 @@ object PublishLocally : BuildType({
     steps {
         gradle {
             name = "Publish Locally"
-            tasks = "publishLocally testClasses testFixturesClasses " +
+            tasks = "publishLocally resolveDependencies testClasses testFixturesClasses " +
                 "reloadUnitTestClasses reloadFunctionalTestClasses reloadFunctionalTestWarmupClasses " +
                 "-i"
         }
