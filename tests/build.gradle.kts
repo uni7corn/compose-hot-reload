@@ -47,6 +47,9 @@ tasks.reloadFunctionalTest.configure {
     }
 }
 
+kotlin.target.compilations.getByName("reloadFunctionalTestWarmup")
+    .associateWith(kotlin.target.compilations.getByName("reloadFunctionalTest"))
+
 dependencies {
     implementation(project(":hot-reload-runtime-api"))
     implementation(project(":hot-reload-test"))

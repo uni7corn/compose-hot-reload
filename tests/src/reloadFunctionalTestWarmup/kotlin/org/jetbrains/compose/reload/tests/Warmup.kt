@@ -8,11 +8,9 @@ package org.jetbrains.compose.reload.tests
 import org.jetbrains.compose.reload.test.gradle.HotReloadTest
 import org.jetbrains.compose.reload.test.gradle.HotReloadTestFixture
 import org.jetbrains.compose.reload.test.gradle.build
-import org.jetbrains.compose.reload.test.gradle.getDefaultMainKtSourceFile
+import org.jetbrains.compose.reload.test.gradle.initialSourceCode
 import org.junit.jupiter.api.parallel.Execution
 import org.junit.jupiter.api.parallel.ExecutionMode
-import kotlin.io.path.createParentDirectories
-import kotlin.io.path.writeText
 import kotlin.time.Duration.Companion.minutes
 
 class Warmup {
@@ -22,10 +20,17 @@ class Warmup {
     @HotReloadTest
     @Execution(ExecutionMode.SAME_THREAD)
     fun build(fixture: HotReloadTestFixture) = fixture.runTest(timeout = 15.minutes) {
-        fixture.projectDir.resolve(fixture.getDefaultMainKtSourceFile())
-            .createParentDirectories()
-            .writeText("class Foo")
-
-        fixture.gradleRunner.build("build")
+        fixture initialSourceCode """
+            import androidx.compose.foundation.layout.*
+            import androidx.compose.ui.unit.sp
+            import androidx.compose.ui.window.*
+            import org.jetbrains.compose.reload.test.*
+            
+            fun main() {
+                screenshotTestApplication {
+                    TestText("Hello")
+                }
+            }
+            """.trimIndent()
     }
 }
