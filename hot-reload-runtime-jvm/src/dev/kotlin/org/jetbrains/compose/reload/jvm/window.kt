@@ -114,6 +114,7 @@ internal fun startWindowManager(): WindowId? {
         currentCoroutineContext().job.invokeOnCompletion {
             window.removeWindowListener(windowListener)
             window.removeComponentListener(componentListener)
+            OrchestrationMessage.ApplicationWindowGone(windowId).send()
         }
 
         awaitCancellation()
