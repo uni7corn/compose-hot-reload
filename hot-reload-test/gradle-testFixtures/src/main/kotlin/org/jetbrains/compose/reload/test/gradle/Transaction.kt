@@ -22,11 +22,14 @@ import org.jetbrains.compose.reload.core.AsyncTraces
 import org.jetbrains.compose.reload.core.asyncTracesString
 import org.jetbrains.compose.reload.core.createLogger
 import org.jetbrains.compose.reload.core.withAsyncTrace
+import org.jetbrains.compose.reload.orchestration.OrchestrationClientRole
 import org.jetbrains.compose.reload.orchestration.OrchestrationMessage
+import org.jetbrains.compose.reload.orchestration.OrchestrationMessage.ClientDisconnected
 import org.jetbrains.compose.reload.orchestration.OrchestrationMessage.RecompilerReady
 import org.jetbrains.compose.reload.orchestration.OrchestrationMessage.ReloadClassesRequest
 import org.jetbrains.compose.reload.orchestration.OrchestrationMessage.ReloadClassesResult
 import org.jetbrains.compose.reload.orchestration.OrchestrationMessage.UIRendered
+import org.jetbrains.compose.reload.orchestration.asFlow
 import org.slf4j.Logger
 import java.nio.file.Path
 import kotlin.io.path.createParentDirectories
@@ -73,7 +76,7 @@ public class TransactionScope internal constructor(
         val asyncTracesString = asyncTracesString()
 
         val reminder = fixture.daemonTestScope.launch(dispatcher) {
-            val sleep = 5.seconds
+            val sleep = 15.seconds
             var waiting = 0.seconds
             while (true) {
                 logger.info(
@@ -85,6 +88,18 @@ public class TransactionScope internal constructor(
             }
         }
 
+        /* Monitor the application (might crash and disconnect) */
+        val applicationMonitor = launch {
+            // No need to monitor if the skip is actually skipping to this message anyway
+            if (T::class == ClientDisconnected::class) return@launch
+            fixture.orchestration.asFlow().filterIsInstance<ClientDisconnected>().collect { message ->
+                if (message.clientRole == OrchestrationClientRole.Application) {
+                    logger.info("'$title': Application disconnected.")
+                    fail("Application disconnected. $asyncTracesString")
+                }
+            }
+        }
+
         withContext(dispatcher) {
             try {
                 withTimeout(if (fixture.isDebug) 24.hours else timeout) {
@@ -92,6 +107,7 @@ public class TransactionScope internal constructor(
                 }
             } finally {
                 reminder.cancel()
+                applicationMonitor.cancel()
             }
         }
     }
