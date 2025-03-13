@@ -1,3 +1,8 @@
+/*
+ * Copyright 2024-2025 JetBrains s.r.o. and Compose Hot Reload contributors.
+ * Use of this source code is governed by the Apache 2.0 license that can be found in the LICENSE file.
+ */
+
 import builds.AllTests
 import builds.ApiCheck
 import builds.InstallAndroidSdkWindows
@@ -8,6 +13,7 @@ import builds.SamplesCheck
 import builds.StagingDeploy
 import builds.Test
 import builds.TestIntelliJPluginCheck
+import builds.WindowsIntegrationTest
 import builds.conventions.configureConventions
 import builds.utils.Host
 import jetbrains.buildServer.configs.kotlin.ParameterDisplay
@@ -28,7 +34,7 @@ object ComposeHotReloadProject : Project({
     /* Tests */
     buildType(AllTests)
     val linuxTest = Test(Host.Linux)
-    val windowsTest = Test(Host.Windows)
+    val windowsTest = WindowsIntegrationTest()
 
     buildType(linuxTest)
     buildType(windowsTest)
