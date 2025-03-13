@@ -61,7 +61,6 @@ public suspend fun GradleRunner.build(vararg args: String): ExitCode? {
         "-i", "-s",
         "--console=plain",
         "--configuration-cache",
-        "--configuration-cache",
         "--configuration-cache-problems=warn",
         *arguments.toTypedArray(),
         *args,
