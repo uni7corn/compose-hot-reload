@@ -43,13 +43,18 @@ object ComposeHotReloadProject : Project({
     buildType(TestIntelliJPluginCheck)
 
     sequential {
-        buildType(PublishLocally)
         parallel {
-            buildType(windowsTest)
-            buildType(linuxTest)
-            buildType(ApiCheck)
-            buildType(SamplesCheck)
-            buildType(TestIntelliJPluginCheck)
+            windowsTest
+
+            sequential {
+                buildType(PublishLocally)
+                parallel {
+                    buildType(linuxTest)
+                    buildType(ApiCheck)
+                    buildType(SamplesCheck)
+                    buildType(TestIntelliJPluginCheck)
+                }
+            }
         }
         buildType(AllTests)
     }
