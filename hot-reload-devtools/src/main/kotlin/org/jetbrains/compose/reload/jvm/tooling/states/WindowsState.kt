@@ -38,7 +38,12 @@ fun CoroutineScope.launchWindowsState() = launchState(WindowsState.Key) {
 
     orchestration.asFlow().collect { message ->
         if (message is OrchestrationMessage.ApplicationWindowPositioned) {
-            windows[message.windowId] = WindowState(
+            val windowState = windows[message.windowId]
+            if (windowState != null) {
+                windowState.placement = WindowPlacement.Floating
+                windowState.position = WindowPosition(message.x.dp, message.y.dp)
+                windowState.size = DpSize(message.width.dp, message.height.dp)
+            } else windows[message.windowId] = WindowState(
                 placement = WindowPlacement.Floating,
                 position = WindowPosition(message.x.dp, message.y.dp),
                 size = DpSize(message.width.dp, message.height.dp)
