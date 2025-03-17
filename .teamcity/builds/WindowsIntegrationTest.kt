@@ -33,7 +33,7 @@ class WindowsIntegrationTest(
             use = true
             publish = true
             rules = """
-                "%system.teamcity.build.workingDir%\\.local\\android-sdk"
+                "%system.teamcity.build.workingDir%/.local/android-sdk"
             """.trimIndent()
         }
 
