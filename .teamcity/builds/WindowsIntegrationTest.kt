@@ -99,10 +99,10 @@ class WindowsIntegrationTest(
 
         gradle {
             name = "Test"
-            tasks = "check -i --continue -x apiCheck -x publishLocally -Pchr.tests.parallelism=2"
+            tasks = "check -i --continue -x apiCheck -x publishLocally -Pchr.tests.sequential"
             tasks += " -Phost-integration-tests=true"
         }
     }
 }), CommitStatusPublisher,
     HostRequirement.Windows,
-    HardwareCapacity.Large
+    HardwareCapacity.Medium
