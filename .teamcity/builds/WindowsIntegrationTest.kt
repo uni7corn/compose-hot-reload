@@ -19,7 +19,7 @@ class WindowsIntegrationTest(
     id("Tests_$requiredHost")
 
     params {
-        param("env.ANDROID_HOME", "%system.teamcity.build.workingDir%\\.local\\android-sdk")
+        param("env.ANDROID_HOME", "%system.teamcity.build.workingDir%/.local/android-sdk")
     }
 
     artifactRules = """
