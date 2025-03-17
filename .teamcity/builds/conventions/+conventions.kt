@@ -31,5 +31,6 @@ private fun BuildType.defaultConventions() {
 
     params {
         param("env.GRADLE_USER_HOME", "%system.teamcity.build.checkoutDir%/.local/gradle")
+        param("env.KONAN_DATA_DIR", "%system.teamcity.build.checkoutDir%/.local/konan")
     }
 }
