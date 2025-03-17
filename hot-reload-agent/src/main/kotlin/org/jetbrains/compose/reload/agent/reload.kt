@@ -65,40 +65,46 @@ internal fun reload(
             loader.loadClass(classId.toFqn())
         }.getOrNull()
 
-        val clazz = getClassPool(loader).makeClass(code.inputStream())
+        val transformed = runCatching {
+            val clazz = getClassPool(loader).makeClass(code.inputStream())
 
-        if (originalClass == null) {
-            logger.info("Class '${clazz.name}' was not loaded yet")
-            return@mapNotNull null
+            if (originalClass == null) {
+                logger.info("Class '${clazz.name}' was not loaded yet")
+                return@mapNotNull null
+            }
+
+            logger.orchestration(buildString {
+                appendLine("Reloading class: '${clazz.name}' (${change.name})")
+
+                if (originalClass.superclass?.name != clazz.superclass.name) {
+                    appendLine("⚠️ Superclass: '${originalClass.superclass?.name}' -> '${clazz.superclass?.name}'")
+                }
+
+                val addedInterfaces = clazz.interfaces.map { it.name } -
+                    originalClass.interfaces?.map { it.name }.orEmpty()
+                addedInterfaces.forEach { addedInterface ->
+                    appendLine("⚠️ +Interface: '$addedInterface'")
+                }
+
+                val removedInterfaces = originalClass.interfaces.orEmpty().map { it.name }.toSet() -
+                    clazz.interfaces.map { it.name }.toSet()
+                removedInterfaces.forEach { removedInterface ->
+                    appendLine("⚠️ -Interface: '$removedInterface'")
+                }
+            }.trim())
+
+            clazz.transformForStaticsInitialization(originalClass)
+
+            val baos = ByteArrayOutputStream()
+            val daos = DataOutputStream(baos)
+            clazz.classFile.write(daos)
+            baos.toByteArray()
+        }.getOrElse { failure ->
+            logger.orchestration("Failed to transform '${originalClass?.name}'", failure)
+            code
         }
 
-        logger.orchestration(buildString {
-            appendLine("Reloading class: '${clazz.name}' (${change.name})")
-
-            if (originalClass.superclass?.name != clazz.superclass.name) {
-                appendLine("⚠️ Superclass: '${originalClass.superclass?.name}' -> '${clazz.superclass?.name}'")
-            }
-
-            val addedInterfaces = clazz.interfaces.map { it.name } -
-                originalClass.interfaces?.map { it.name }.orEmpty()
-            addedInterfaces.forEach { addedInterface ->
-                appendLine("⚠️ +Interface: '$addedInterface'")
-            }
-
-            val removedInterfaces = originalClass.interfaces.orEmpty().map { it.name }.toSet() -
-                clazz.interfaces.map { it.name }.toSet()
-            removedInterfaces.forEach { removedInterface ->
-                appendLine("⚠️ -Interface: '$removedInterface'")
-            }
-        }.trim())
-
-        clazz.transformForStaticsInitialization(originalClass)
-
-        val baos = ByteArrayOutputStream()
-        val daos = DataOutputStream(baos)
-        clazz.classFile.write(daos)
-
-        ClassDefinition(originalClass, baos.toByteArray())
+        ClassDefinition(originalClass, transformed)
     }
 
     instrumentation.redefineClasses(*definitions.toTypedArray())

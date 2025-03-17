@@ -1,6 +1,6 @@
 /*
  * Copyright 2024-2025 JetBrains s.r.o. and Compose Hot Reload contributors.
- * Use of this source code is governed by the Apache 2.0 license that can be found in the license/LICENSE.txt file.
+ * Use of this source code is governed by the Apache 2.0 license that can be found in the LICENSE file.
  */
 
 package org.jetbrains.compose.reload.agent
@@ -39,15 +39,22 @@ private object JdwpTracker : ClassFileTransformer {
         return try {
             transformLock.lock()
             logger.info("Detected 'external reload' request for '${classBeingRedefined.name}'")
+
             /* Transform */
-            val clazz = getClassPool(classBeingRedefined.classLoader).makeClass(classfileBuffer.inputStream())
-            clazz.transformForStaticsInitialization(classBeingRedefined)
+            val transformedCode = runCatching {
+                val clazz = getClassPool(classBeingRedefined.classLoader).makeClass(classfileBuffer.inputStream())
+                clazz.transformForStaticsInitialization(classBeingRedefined)
+                val baos = ByteArrayOutputStream()
+                val daos = DataOutputStream(baos)
+                clazz.classFile.write(daos)
+                baos.toByteArray()
+            }.getOrElse { failure ->
+                logger.orchestration("Failed to transform '${className}'", failure)
+                classfileBuffer
+            }
 
             /* Resolve bytecode after transforming */
-            val baos = ByteArrayOutputStream()
-            val daos = DataOutputStream(baos)
-            clazz.classFile.write(daos)
-            val definition = ClassDefinition(classBeingRedefined, baos.toByteArray())
+            val definition = ClassDefinition(classBeingRedefined, transformedCode)
 
             /* Issue a request to reload the UI */
             issueExternalReloadRequest(ClassDefinition(classBeingRedefined, classfileBuffer))
