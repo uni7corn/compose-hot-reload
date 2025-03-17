@@ -178,7 +178,7 @@ private fun ProcessBuilder.startRecompilerProcess(): Int? {
 
 
     logger.debug("Recompile finished '$exitCode'")
-    Runtime.getRuntime().removeShutdownHook(shutdownHook)
+    runCatching { Runtime.getRuntime().removeShutdownHook(shutdownHook) }
     return exitCode
 }
 

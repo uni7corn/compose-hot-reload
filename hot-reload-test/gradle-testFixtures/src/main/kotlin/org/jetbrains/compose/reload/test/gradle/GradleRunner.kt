@@ -107,7 +107,7 @@ public suspend fun GradleRunner.build(vararg args: String): ExitCode? {
             process.destroy()
         }
 
-        Runtime.getRuntime().removeShutdownHook(shutdownHook)
+        runCatching { Runtime.getRuntime().removeShutdownHook(shutdownHook) }
     }
 
     currentCoroutineContext().job.invokeOnCompletion {
