@@ -38,11 +38,11 @@ class WindowsIntegrationTest(
         }
 
         buildCache {
-            name = "Windows: .konan"
+            name = "(Windows) .konan"
             use = true
             publish = true
             rules = """
-               .konan
+               .local/konan
            """.trimIndent()
         }
 
