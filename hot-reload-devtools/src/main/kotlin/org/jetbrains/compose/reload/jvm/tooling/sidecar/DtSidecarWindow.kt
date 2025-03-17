@@ -8,7 +8,6 @@ package org.jetbrains.compose.reload.jvm.tooling.sidecar
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.EnterTransition
 import androidx.compose.animation.ExitTransition
-import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
@@ -23,7 +22,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -32,13 +30,9 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.window.DialogState
 import androidx.compose.ui.window.DialogWindow
-import androidx.compose.ui.window.WindowPosition
 import androidx.compose.ui.window.WindowState
-import kotlinx.coroutines.delay
 import org.jetbrains.compose.reload.core.HotReloadEnvironment.devToolsTransparencyEnabled
 import org.jetbrains.compose.reload.core.WindowId
 import org.jetbrains.compose.reload.core.createLogger
@@ -52,17 +46,13 @@ import org.jetbrains.compose.reload.jvm.tooling.widgets.animateReloadStatusBackg
 import org.jetbrains.compose.reload.jvm.tooling.widgets.animateReloadStatusColor
 import org.jetbrains.compose.reload.jvm.tooling.widgets.animatedReloadStatusBorder
 import org.jetbrains.compose.reload.jvm.tooling.widgets.composeLogoColor
-import org.jetbrains.compose.reload.orchestration.OrchestrationMessage
 import org.jetbrains.compose.reload.orchestration.OrchestrationMessage.ApplicationWindowGainedFocus
 import org.jetbrains.compose.reload.orchestration.OrchestrationMessage.ShutdownRequest
 import kotlin.system.exitProcess
-import kotlin.time.Duration.Companion.milliseconds
 
 private val logger = createLogger()
 
 private val DevToolingSidecarShape = RoundedCornerShape(8.dp)
-private val DtButtonSize = 28.dp
-private val windowGap = 12.dp // Space between the application window and sidecar window
 
 @Composable
 fun DtSidecarWindow(
@@ -70,53 +60,15 @@ fun DtSidecarWindow(
     windowState: WindowState,
     isAlwaysOnTop: Boolean,
 ) {
-    val animationDuration = 512
 
     var isExpanded by remember { mutableStateOf(false) }
-    var sideCarSize by remember { mutableStateOf(getSideCarWindowSize(windowState, isExpanded))}
-
-    if (isExpanded) {
-        sideCarSize = getSideCarWindowSize(windowState, isExpanded = true)
-    } else {
-        LaunchedEffect(Unit) {
-            if (devToolsTransparencyEnabled) delay(animationDuration.milliseconds)
-            sideCarSize = getSideCarWindowSize(windowState, isExpanded = false)
-        }
-    }
-
-    val targetX = windowState.position.x - sideCarSize.width - if (!devToolsTransparencyEnabled) windowGap else 0.dp
-    val targetY = windowState.position.y
-
-    val xAnimatable = remember { Animatable(targetX.value) }
-    val yAnimatable = remember { Animatable(targetY.value) }
-
-    val x by xAnimatable.asState()
-    val y by yAnimatable.asState()
-
-    LaunchedEffect(windowState.position) {
-        xAnimatable.animateTo(targetX.value)
-    }
-
-    LaunchedEffect(windowState.position) {
-        yAnimatable.animateTo(targetY.value)
-    }
-
-    LaunchedEffect(sideCarSize.width) {
-        xAnimatable.snapTo(targetX.value)
-        yAnimatable.snapTo(targetY.value)
-    }
-
-    val sidecarWindowState = DialogState(
-        size = sideCarSize,
-        position = WindowPosition(x = x.dp, y = y.dp)
-    )
 
     DialogWindow(
         onCloseRequest = {
             orchestration.sendMessage(ShutdownRequest("Requested by user through 'devtools'")).get()
             exitProcess(0)
         },
-        state = sidecarWindowState,
+        state = DtSidecarWindowState(windowState, isExpanded),
         undecorated = true,
         transparent = devToolsTransparencyEnabled,
         resizable = false,
@@ -138,21 +90,6 @@ fun DtSidecarWindow(
     }
 }
 
-fun getSideCarWindowSize(windowState: WindowState, isExpanded: Boolean): DpSize {
-    return if (devToolsTransparencyEnabled) {
-        if (isExpanded) {
-            DpSize(512.dp, maxOf(windowState.size.height, 512.dp))
-        } else {
-            DpSize(DtButtonSize + 12.dp, maxOf(windowState.size.height, 512.dp))
-        }
-    } else {
-        if (isExpanded) {
-            DpSize(512.dp, maxOf(windowState.size.height, 512.dp))
-        } else {
-            DpSize(DtButtonSize, DtButtonSize)
-        }
-    }
-}
 
 @Composable
 fun DtSidecarWindowContent(
@@ -193,7 +130,7 @@ fun DtSidecarWindowContent(
                     ),
                 ) {
                     DtComposeLogo(
-                        Modifier.size(DtButtonSize).padding(4.dp),
+                        Modifier.size(28.dp).padding(4.dp),
                         tint = animateReloadStatusColor(
                             idleColor = composeLogoColor,
                             reloadingColor = DtColors.statusColorOrange2

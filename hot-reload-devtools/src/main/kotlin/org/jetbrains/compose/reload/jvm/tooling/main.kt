@@ -8,6 +8,7 @@
 package org.jetbrains.compose.reload.jvm.tooling
 
 import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.key
 import androidx.compose.runtime.staticCompositionLocalOf
 import androidx.compose.ui.window.WindowState
 import androidx.compose.ui.window.application
@@ -58,9 +59,13 @@ fun main(args: Array<String>) {
         ) {
             val windowsState = WindowsState.composeValue()
             windowsState.windows.forEach { (windowId, windowState) ->
-                CompositionLocalProvider(targetApplicationWindowStateLocal provides windowState) {
-                    DtSidecarWindow(windowId, windowState, isAlwaysOnTop = windowsState.alwaysOnTop[windowId] == true)
-                    DevToolingErrorOverlay(windowId, windowState)
+                key(windowId) {
+                    CompositionLocalProvider(targetApplicationWindowStateLocal provides windowState) {
+                        DtSidecarWindow(
+                            windowId, windowState, isAlwaysOnTop = windowsState.alwaysOnTop[windowId] == true
+                        )
+                        DevToolingErrorOverlay(windowId, windowState)
+                    }
                 }
             }
         }
