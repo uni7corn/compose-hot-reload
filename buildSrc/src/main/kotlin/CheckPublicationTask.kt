@@ -26,6 +26,7 @@ import javax.xml.parsers.DocumentBuilderFactory
 import kotlin.io.path.ExperimentalPathApi
 import kotlin.io.path.extension
 import kotlin.io.path.pathString
+import kotlin.io.path.readText
 import kotlin.io.path.relativeTo
 import kotlin.io.path.walk
 
@@ -42,6 +43,11 @@ open class CheckPublicationTask : DefaultTask() {
     val projectVersion by lazy { project.version.toString() }
 
     @get:Input
+    val bootstrapVersion by lazy {
+        project.providers.gradleProperty("bootstrap.version").get()
+    }
+
+    @get:Input
     val projectGroupId by lazy { project.group.toString() }
 
     @get:InputDirectory
@@ -52,11 +58,11 @@ open class CheckPublicationTask : DefaultTask() {
         val root = publicationDirectory.get().asFile
         if (!root.exists()) error("No publication directory found")
         if (!root.isDirectory) error("Publication directory is not a directory")
-        checkPomFiles(root.toPath())
+        checkPublicationFile(root.toPath())
     }
 
     @OptIn(ExperimentalPathApi::class)
-    private fun checkPomFiles(root: Path) {
+    private fun checkPublicationFile(root: Path) {
         root.walk().forEach { path ->
             if (path.extension == "pom") checkPomFile(path)
             if (path.extension == "jar") checkJarFile(path)
@@ -82,6 +88,8 @@ open class CheckPublicationTask : DefaultTask() {
                     }
                 }
             }
+
+        checkBootstrapLeakage(pom)
     }
 
     private fun checkModuleFile(module: Path) {
@@ -118,6 +126,15 @@ open class CheckPublicationTask : DefaultTask() {
 
         val rootObject = Json {}.parseToJsonElement(module.toFile().readText()).jsonObject
         rootObject.check()
+
+        checkBootstrapLeakage(module)
+    }
+
+    private fun checkBootstrapLeakage(file: Path) {
+        if (bootstrapVersion == projectVersion) return
+        if (bootstrapVersion in file.readText()) {
+            error("'${file}: Suspicious: '$bootstrapVersion' is present")
+        }
     }
 
     private fun checkJarFile(jar: Path) {
