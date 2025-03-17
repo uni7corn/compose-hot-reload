@@ -15,6 +15,7 @@ import org.jetbrains.compose.reload.utils.GradleIntegrationTest
 import kotlin.io.path.appendLines
 import kotlin.io.path.createFile
 import kotlin.io.path.createParentDirectories
+import kotlin.io.path.exists
 import kotlin.test.assertEquals
 
 class NonContinuousRecompileTest {
@@ -23,6 +24,7 @@ class NonContinuousRecompileTest {
     fun `test - non continuous build`(fixture: HotReloadTestFixture) = fixture.runTest {
         projectDir.resolve("gradle.properties")
             .createParentDirectories()
+            .apply { if (!exists()) createFile() }
             .appendLines(listOf("compose.build.continuous=false"))
 
         runTransaction {
