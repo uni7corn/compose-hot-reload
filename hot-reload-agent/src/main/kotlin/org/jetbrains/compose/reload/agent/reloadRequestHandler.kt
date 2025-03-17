@@ -55,15 +55,5 @@ internal fun launchReloadRequestHandler(instrumentation: Instrumentation) {
         }
     }
 
-    orchestration.invokeWhenReceived<OrchestrationMessage.ShutdownRequest> {
-        logger.info("Received shutdown request")
-        exitProcess(0)
-    }
-
-    orchestration.invokeWhenClosed {
-        logger.info("Application Orchestration closed")
-        exitProcess(0)
-    }
-
     logger.debug("ReloadRequestHandler launched")
 }

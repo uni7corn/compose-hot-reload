@@ -20,6 +20,7 @@ import kotlinx.coroutines.test.TestScope
 import org.jetbrains.compose.reload.core.createLogger
 import org.jetbrains.compose.reload.core.withAsyncTrace
 import org.jetbrains.compose.reload.orchestration.OrchestrationMessage
+import org.jetbrains.compose.reload.orchestration.OrchestrationMessage.ShutdownRequest
 import org.jetbrains.compose.reload.orchestration.OrchestrationServer
 import org.jetbrains.compose.reload.orchestration.asChannel
 import org.jetbrains.compose.reload.orchestration.asFlow
@@ -116,7 +117,7 @@ internal constructor(
     private val resources = mutableListOf<AutoCloseable>()
 
     override fun close() {
-        orchestration.sendMessage(OrchestrationMessage.ShutdownRequest()).get()
+        orchestration.sendMessage(ShutdownRequest("Requested by HotReloadTestFixture.close()")).get()
         orchestration.closeGracefully().get()
 
         testScope.cancel()

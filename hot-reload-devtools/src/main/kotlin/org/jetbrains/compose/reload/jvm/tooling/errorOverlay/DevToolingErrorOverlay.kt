@@ -1,6 +1,6 @@
 /*
  * Copyright 2024-2025 JetBrains s.r.o. and Compose Hot Reload contributors.
- * Use of this source code is governed by the Apache 2.0 license that can be found in the license/LICENSE.txt file.
+ * Use of this source code is governed by the Apache 2.0 license that can be found in the LICENSE file.
  */
 
 @file:OptIn(ExperimentalComposeUiApi::class)
@@ -45,6 +45,7 @@ import org.jetbrains.compose.reload.jvm.tooling.send
 import org.jetbrains.compose.reload.jvm.tooling.states.UIErrorDescription
 import org.jetbrains.compose.reload.jvm.tooling.states.UIErrorState
 import org.jetbrains.compose.reload.orchestration.OrchestrationMessage
+import org.jetbrains.compose.reload.orchestration.OrchestrationMessage.ShutdownRequest
 
 @Composable
 internal fun ApplicationScope.DevToolingErrorOverlay(windowId: WindowId, windowState: WindowState) {
@@ -111,7 +112,7 @@ private fun DevToolingErrorOverlay(error: UIErrorDescription) {
                     }
 
                     Button(
-                        onClick = { OrchestrationMessage.ShutdownRequest().send() },
+                        onClick = { ShutdownRequest("Requested by user through 'devtools'").send() },
                         colors = ButtonDefaults.filledTonalButtonColors()
                     ) {
                         Text("Shutdown")

@@ -11,6 +11,7 @@ import java.lang.instrument.Instrumentation
 
 fun premain(@Suppress("unused") args: String?, instrumentation: Instrumentation) {
     createPidfile()
+    launchOrchestration()
     launchComposeInstrumentation(instrumentation)
     launchRuntimeTracking(instrumentation)
     launchReloadRequestHandler(instrumentation)

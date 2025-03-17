@@ -40,7 +40,7 @@ class ClientDisconnectedMessageTest {
             skipToMessage<OrchestrationMessage.UIRendered>()
         }
 
-        testFixture.sendMessage(OrchestrationMessage.ShutdownRequest()) {
+        testFixture.sendMessage(OrchestrationMessage.ShutdownRequest("Explicitly requested by the test")) {
             skipToMessage<ClientDisconnected> { message ->
                 message.clientRole == OrchestrationClientRole.Application
             }

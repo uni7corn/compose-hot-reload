@@ -60,7 +60,7 @@ class PidFileTest {
         assertEquals(fixture.orchestration.port, orchestrationPort.toInt())
         val processHandle = ProcessHandle.of(pid.toLong()).getOrNull() ?: fail("Process with pid=$pid not found")
 
-        fixture.sendMessage(OrchestrationMessage.ShutdownRequest()) {
+        fixture.sendMessage(OrchestrationMessage.ShutdownRequest("Explicitly requested by the test")) {
             skipToMessage<OrchestrationMessage.ClientDisconnected> { message ->
                 message.clientRole == OrchestrationClientRole.Application
             }

@@ -15,7 +15,7 @@ public sealed class OrchestrationMessage : Serializable {
      * Requests that all participants in the orchestration are supposed to shut down.
      * Note: Closing the [OrchestrationServer] is also supposed to close all clients.
      */
-    public class ShutdownRequest : OrchestrationMessage()
+    public data class ShutdownRequest(public val reason: String? = null) : OrchestrationMessage()
 
     /**
      * Sent once a new connection with a client was established
@@ -198,7 +198,7 @@ public sealed class OrchestrationMessage : Serializable {
         public val message: String?,
         public val exceptionClassName: String?,
         public val stacktrace: List<StackTraceElement>
-    ): OrchestrationMessage()
+    ) : OrchestrationMessage()
 
 
     /**

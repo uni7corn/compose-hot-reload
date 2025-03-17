@@ -12,9 +12,11 @@ import org.jetbrains.compose.reload.orchestration.OrchestrationHandle
 import org.jetbrains.compose.reload.orchestration.OrchestrationMessage
 import org.jetbrains.compose.reload.orchestration.OrchestrationMessage.LogMessage
 import org.jetbrains.compose.reload.orchestration.OrchestrationMessage.LogMessage.Companion.TAG_AGENT
+import org.jetbrains.compose.reload.orchestration.invokeWhenReceived
 import org.jetbrains.compose.reload.orchestration.startOrchestrationServer
 import java.util.concurrent.Future
 import kotlin.concurrent.thread
+import kotlin.system.exitProcess
 
 private val logger = createLogger()
 
@@ -24,7 +26,19 @@ fun OrchestrationMessage.send(): Future<Unit> {
     return orchestration.sendMessage(this)
 }
 
-internal fun startOrchestration(): OrchestrationHandle {
+internal fun launchOrchestration() {
+    orchestration.invokeWhenReceived<OrchestrationMessage.ShutdownRequest> { request ->
+        logger.info("Received shutdown request '${request.reason}'")
+        exitProcess(0)
+    }
+
+    orchestration.invokeWhenClosed {
+        logger.info("Application Orchestration closed")
+        exitProcess(0)
+    }
+}
+
+private fun startOrchestration(): OrchestrationHandle {
     val orchestration = run {
         /* Connecting to a server if we're instructed to */
         OrchestrationClient(Application)?.let { client ->

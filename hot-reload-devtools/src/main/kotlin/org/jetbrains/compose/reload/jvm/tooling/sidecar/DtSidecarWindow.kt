@@ -54,6 +54,7 @@ import org.jetbrains.compose.reload.jvm.tooling.widgets.animatedReloadStatusBord
 import org.jetbrains.compose.reload.jvm.tooling.widgets.composeLogoColor
 import org.jetbrains.compose.reload.orchestration.OrchestrationMessage
 import org.jetbrains.compose.reload.orchestration.OrchestrationMessage.ApplicationWindowGainedFocus
+import org.jetbrains.compose.reload.orchestration.OrchestrationMessage.ShutdownRequest
 import kotlin.system.exitProcess
 import kotlin.time.Duration.Companion.milliseconds
 
@@ -112,7 +113,7 @@ fun DtSidecarWindow(
 
     DialogWindow(
         onCloseRequest = {
-            orchestration.sendMessage(OrchestrationMessage.ShutdownRequest()).get()
+            orchestration.sendMessage(ShutdownRequest("Requested by user through 'devtools'")).get()
             exitProcess(0)
         },
         state = sidecarWindowState,
