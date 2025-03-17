@@ -1,3 +1,8 @@
+/*
+ * Copyright 2024-2025 JetBrains s.r.o. and Compose Hot Reload contributors.
+ * Use of this source code is governed by the Apache 2.0 license that can be found in the LICENSE file.
+ */
+
 pluginManagement {
     plugins {
         id("org.jetbrains.compose.hot-reload") version "1.0.0-alpha02-72"
@@ -12,8 +17,8 @@ pluginManagement {
     }
 
     plugins {
-        kotlin("multiplatform") version "2.1.20-RC2"
-        kotlin("plugin.compose") version "2.1.20-RC2"
+        kotlin("multiplatform") version "2.1.20-RC3"
+        kotlin("plugin.compose") version "2.1.20-RC3"
         id("org.jetbrains.compose") version "1.7.3"
     }
 }

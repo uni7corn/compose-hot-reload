@@ -1,3 +1,8 @@
+/*
+ * Copyright 2024-2025 JetBrains s.r.o. and Compose Hot Reload contributors.
+ * Use of this source code is governed by the Apache 2.0 license that can be found in the LICENSE file.
+ */
+
 @file:Suppress("UnstableApiUsage")
 
 import org.jetbrains.intellij.platform.gradle.extensions.intellijPlatform
@@ -10,7 +15,7 @@ pluginManagement {
     }
 
     plugins {
-        kotlin("jvm") version "2.1.20-RC2"
+        kotlin("jvm") version "2.1.20-RC3"
     }
 }
 
