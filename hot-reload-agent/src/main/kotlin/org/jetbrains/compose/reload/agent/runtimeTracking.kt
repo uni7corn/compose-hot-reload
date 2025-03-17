@@ -8,6 +8,7 @@ package org.jetbrains.compose.reload.agent
 import org.jetbrains.compose.reload.analysis.ClassId
 import org.jetbrains.compose.reload.analysis.ClassInfo
 import org.jetbrains.compose.reload.analysis.RuntimeInfo
+import org.jetbrains.compose.reload.analysis.isIgnoredClassId
 import org.jetbrains.compose.reload.core.Update
 import org.jetbrains.compose.reload.core.createLogger
 import java.lang.instrument.ClassFileTransformer
@@ -88,6 +89,10 @@ internal object RuntimeTrackingTransformer : ClassFileTransformer {
         loader: ClassLoader?, className: String?, classBeingRedefined: Class<*>?,
         protectionDomain: ProtectionDomain?, classfileBuffer: ByteArray
     ): ByteArray? {
+        if (className == null || isIgnoredClassId(className)) {
+            return null
+        }
+
         enqueueRuntimeAnalysis(
             loader ?: ClassLoader.getSystemClassLoader(),
             className, classBeingRedefined, classfileBuffer

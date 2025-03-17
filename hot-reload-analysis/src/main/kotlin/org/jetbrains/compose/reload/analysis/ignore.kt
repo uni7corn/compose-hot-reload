@@ -5,7 +5,7 @@
 
 package org.jetbrains.compose.reload.analysis
 
-internal fun isIgnoredClassId(classId: String): Boolean = with(classId) {
+fun isIgnoredClassId(classId: String): Boolean = with(classId) {
     startsWith("java/") ||
         startsWith("javax/") ||
         startsWith("java/") ||
