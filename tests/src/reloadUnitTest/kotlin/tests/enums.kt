@@ -3,7 +3,7 @@
  * Use of this source code is governed by the Apache 2.0 license that can be found in the LICENSE file.
  */
 
-package org.jetbrains.compose.reload.tests
+package tests
 
 import org.jetbrains.compose.reload.test.HotReloadUnitTest
 import org.jetbrains.compose.reload.test.compileAndReload
@@ -14,7 +14,7 @@ fun `test - add enum case`() {
     assertEquals(listOf("A", "B", "C"), EnumCases.entries.map { it.name })
     compileAndReload(
         """
-        package org.jetbrains.compose.reload.tests
+        package tests
 
         enum class EnumCases {
             A, B, C, D
@@ -30,7 +30,7 @@ fun `test - remove enum case`() {
     assertEquals(listOf("A", "B", "C"), EnumCases.entries.map { it.name })
     compileAndReload(
         """
-        package org.jetbrains.compose.reload.tests
+        package tests
 
         enum class EnumCases {
             A, B,

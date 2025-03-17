@@ -3,7 +3,7 @@
  * Use of this source code is governed by the Apache 2.0 license that can be found in the LICENSE file.
  */
 
-package org.jetbrains.compose.reload.tests
+package tests
 
 import org.jetbrains.compose.reload.test.HotReloadUnitTest
 import org.jetbrains.compose.reload.test.compileAndReload
@@ -14,7 +14,7 @@ fun `test - change Object property`() {
     assertEquals("foo", StaticsObject.property)
     compileAndReload(
         """
-        package org.jetbrains.compose.reload.tests
+        package tests
         object StaticsObject {
             val property = "bar"
         }
@@ -29,7 +29,7 @@ fun `test - change top level property`() {
     compileAndReload(
         """
         @file:JvmName("staticsTopLevelProperty")
-        package org.jetbrains.compose.reload.tests
+        package tests
         val topLevelProperty = "bar"
     """.trimIndent()
     )

@@ -1,11 +1,11 @@
 /*
  * Copyright 2024-2025 JetBrains s.r.o. and Compose Hot Reload contributors.
- * Use of this source code is governed by the Apache 2.0 license that can be found in the license/LICENSE.txt file.
+ * Use of this source code is governed by the Apache 2.0 license that can be found in the LICENSE file.
  */
 
 @file:Suppress("DuplicatedCode")
 
-package org.jetbrains.compose.reload.tests
+package tests
 
 import androidx.compose.material.Text
 import androidx.compose.runtime.remember
@@ -50,7 +50,7 @@ fun `test - all remember overloads are invalidated - change in overload 0`() = r
     onNodeWithTag("overload4").assertTextEquals("4")
 
     compileAndReload("""
-        package org.jetbrains.compose.reload.tests
+        package tests
         
         object InvalidateRemember {
             val initialValue = 10
@@ -87,7 +87,7 @@ fun `test - all remember overloads are invalidated - change in overload 1`() = r
     onNodeWithTag("overload4").assertTextEquals("4")
 
     compileAndReload("""
-        package org.jetbrains.compose.reload.tests
+        package tests
         
         object InvalidateRemember {
             val initialValue = 10
@@ -120,7 +120,7 @@ fun `test - all remember overloads are invalidated - change in overload 2`() = r
     onNodeWithTag("overload4").assertTextEquals("4")
 
     compileAndReload("""
-        package org.jetbrains.compose.reload.tests
+        package tests
         
         object InvalidateRemember {
             val initialValue = 10
@@ -150,7 +150,7 @@ fun `test - all remember overloads are invalidated - change in overload 3`() = r
     onNodeWithTag("overload4").assertTextEquals("4")
 
     compileAndReload("""
-        package org.jetbrains.compose.reload.tests
+        package tests
         
         object InvalidateRemember {
             val initialValue = 10
@@ -179,7 +179,7 @@ fun `test - all remember overloads are invalidated - change in overload 4`() = r
     onNodeWithTag("overload0").assertTextEquals("5")
 
     compileAndReload("""
-        package org.jetbrains.compose.reload.tests
+        package tests
         
         object InvalidateRemember {
             val initialValue = 10

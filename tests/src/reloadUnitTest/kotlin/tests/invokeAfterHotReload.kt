@@ -5,7 +5,7 @@
 
 @file:Suppress("unused")
 
-package org.jetbrains.compose.reload.tests
+package tests
 
 import org.jetbrains.compose.reload.DelicateHotReloadApi
 import org.jetbrains.compose.reload.staticHotReloadScope
@@ -61,7 +61,7 @@ fun `test - removing invokeAfterHotReload code`() {
     // Add invokeAfterHotReload 'after the fact'
     compileAndReload(
         """
-        package org.jetbrains.compose.reload.tests
+        package tests
         import org.jetbrains.compose.reload.staticHotReloadScope
         import java.util.concurrent.atomic.AtomicInteger
         
@@ -99,7 +99,7 @@ fun `test - removing invokeAfterHotReload code`() {
     /* Remove listener */
     compileAndReload(
         """
-        package org.jetbrains.compose.reload.tests
+        package tests
         import org.jetbrains.compose.reload.staticHotReloadScope
         import java.util.concurrent.atomic.AtomicInteger
         

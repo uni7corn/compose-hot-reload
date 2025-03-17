@@ -18,5 +18,6 @@ fun isIgnoredClassId(classId: String): Boolean = with(classId) {
         startsWith("androidx/") ||
         startsWith("org/jetbrains/skia/") ||
         startsWith("org/jetbrains/skiko/") ||
+        startsWith("org/jetbrains/compose/reload") ||
         startsWith("org/objectweb")
 }

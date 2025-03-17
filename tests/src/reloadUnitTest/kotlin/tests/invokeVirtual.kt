@@ -1,9 +1,9 @@
 /*
  * Copyright 2024-2025 JetBrains s.r.o. and Compose Hot Reload contributors.
- * Use of this source code is governed by the Apache 2.0 license that can be found in the license/LICENSE.txt file.
+ * Use of this source code is governed by the Apache 2.0 license that can be found in the LICENSE file.
  */
 
-package org.jetbrains.compose.reload.tests
+package tests
 
 import androidx.compose.material3.Text
 import androidx.compose.runtime.remember
@@ -17,18 +17,16 @@ import org.jetbrains.compose.reload.DevelopmentEntryPoint
 import org.jetbrains.compose.reload.test.HotReloadUnitTest
 import org.jetbrains.compose.reload.test.compileAndReload
 
-object InvokeStaticTestObject {
-    @JvmStatic
-    fun invokeStaticMethod() = "foo"
+class InvokeVirtualTestClass {
+    fun invokeVirtualMethod() = "foo"
 }
-
 
 @OptIn(ExperimentalTestApi::class)
 @HotReloadUnitTest
-fun `test - invokeStatic method dependency`() = runComposeUiTest {
+fun `test - invokeVirtual method dependency`() = runComposeUiTest {
     setContent {
         DevelopmentEntryPoint {
-            val text = remember { InvokeStaticTestObject.invokeStaticMethod() }
+            val text = remember { InvokeVirtualTestClass().invokeVirtualMethod() }
             Text(text = text, modifier = Modifier.testTag("text"))
         }
     }
@@ -37,11 +35,10 @@ fun `test - invokeStatic method dependency`() = runComposeUiTest {
 
     compileAndReload(
         """
-        package org.jetbrains.compose.reload.tests
+        package tests
         
-        object InvokeStaticTestObject {
-            @JvmStatic
-            fun invokeStaticMethod() = "bar"
+        class InvokeVirtualTestClass {
+             fun invokeVirtualMethod() = "bar"
         }
     """.trimIndent()
     )

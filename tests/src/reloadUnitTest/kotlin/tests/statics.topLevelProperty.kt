@@ -3,8 +3,8 @@
  * Use of this source code is governed by the Apache 2.0 license that can be found in the LICENSE file.
  */
 
-package org.jetbrains.compose.reload.tests
+@file:JvmName("staticsTopLevelProperty")
 
-enum class EnumCases {
-    A, B, C
-}
+package tests
+
+val topLevelProperty = "foo"

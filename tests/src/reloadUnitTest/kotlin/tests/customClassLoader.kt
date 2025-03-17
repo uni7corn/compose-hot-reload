@@ -1,9 +1,9 @@
 /*
  * Copyright 2024-2025 JetBrains s.r.o. and Compose Hot Reload contributors.
- * Use of this source code is governed by the Apache 2.0 license that can be found in the license/LICENSE.txt file.
+ * Use of this source code is governed by the Apache 2.0 license that can be found in the LICENSE file.
  */
 
-package org.jetbrains.compose.reload.tests
+package tests
 
 import androidx.compose.material.Text
 import androidx.compose.ui.Modifier
@@ -41,7 +41,7 @@ fun `test - ui code in separate ClassLoader`() {
     val result = CompletableFuture<Unit>()
     thread(name = "Custom Class Loader | Parallel Universe", contextClassLoader = classLoader) {
         try {
-            val isolated = classLoader.loadClass("org.jetbrains.compose.reload.tests.Isolated")!!
+            val isolated = classLoader.loadClass("tests.Isolated")!!
             val testMethod = isolated.getMethod("runTestInCustomClassLoader")
             testMethod.invoke(null)
             result.complete(Unit)
@@ -90,7 +90,7 @@ object Isolated {
 
         compileAndReload(
             """
-        package org.jetbrains.compose.reload.tests
+        package tests
 
         object CustomClassLoader {
             fun text() = "After"
