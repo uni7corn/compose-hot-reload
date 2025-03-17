@@ -29,7 +29,7 @@ class WindowsIntegrationTest(
 
     features {
         buildCache {
-            name = "Windows: Android SDK"
+            name = "(Windows) Android SDK"
             use = true
             publish = true
             rules = """
@@ -47,7 +47,7 @@ class WindowsIntegrationTest(
         }
 
         buildCache {
-            name = "Windows: Gradle (Caches)"
+            name = "(Windows) Gradle (Caches)"
             use = true
             publish = true
             rules = """
@@ -56,7 +56,7 @@ class WindowsIntegrationTest(
         }
 
         buildCache {
-            name = "Windows: Gradle (Wrapper)"
+            name = "(Windows) Gradle (Wrapper)"
             use = true
             publish = true
             rules = """
@@ -65,7 +65,7 @@ class WindowsIntegrationTest(
         }
 
         buildCache {
-            name = "Windows: Gradle (Wrapper)"
+            name = "(Windows) Gradle (Wrapper)"
             use = true
             publish = true
             rules = """
@@ -76,7 +76,7 @@ class WindowsIntegrationTest(
         buildCache {
             use = true
             publish = true
-            name = "Windows: Functional Test Gradle Cache (modules-2)"
+            name = "(Windows) Functional Test Gradle Cache (modules-2)"
             rules = """
                 tests/build/gradleHome/caches/modules-2/files-2.1
                 tests/build/gradleHome/caches/modules-2/metadata-2.106
