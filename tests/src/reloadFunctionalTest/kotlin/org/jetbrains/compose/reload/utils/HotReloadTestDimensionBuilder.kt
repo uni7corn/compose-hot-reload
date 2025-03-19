@@ -115,6 +115,17 @@ class HotReloadTestDimensionFilter : HotReloadTestDimensionExtension {
             result = result.filter { it.composeVersion.version == enforcedComposeVersions }
         }
 
+        if (System.getProperty("hostIntegrationTests") == "true") {
+            result = result.filter { context ->
+                context.kotlinVersion.version.toString() ==
+                    repositoryDeclaredTestDimensions.kotlin.single { it.isDefault }.version
+            }.filter { context ->
+                context.composeVersion.version ==
+                    repositoryDeclaredTestDimensions.compose.single { it.isDefault }.version
+            }
+        }
+
+
         return result
     }
 

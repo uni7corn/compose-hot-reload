@@ -44,6 +44,7 @@ tasks.reloadFunctionalTest.configure {
     useJUnitPlatform {
         if (providers.gradleProperty("host-integration-tests").orNull == "true") {
             includeTags("HostIntegrationTest")
+            systemProperty("hostIntegrationTests", "true")
         }
     }
 }
