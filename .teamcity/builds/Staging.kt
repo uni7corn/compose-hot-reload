@@ -57,6 +57,7 @@ object StagingDeploy : BuildType({
                     exit 1
                 fi
                 
+                git pull origin master --rebase
                 git push origin %build.vcs.number%:refs/heads/master -v
             """.trimIndent()
         }
