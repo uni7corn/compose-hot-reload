@@ -14,6 +14,7 @@ import jetbrains.buildServer.configs.kotlin.BuildType
 import jetbrains.buildServer.configs.kotlin.buildFeatures.buildCache
 import jetbrains.buildServer.configs.kotlin.buildSteps.gradle
 
+
 class Test(
     override val requiredHost: Host
 ) : BuildType({
@@ -25,42 +26,12 @@ class Test(
         **/build/reports/** => reports.zip
     """.trimIndent()
 
-    features {
-        buildCache {
-            use = true
-            publish = true
-            name = "Functional Test Gradle Cache (modules-2)"
-            rules = """
-                tests/build/gradleHome/caches/modules-2/files-2.1
-                tests/build/gradleHome/caches/modules-2/metadata-2.106
-                tests/build/gradleHome/caches/modules-2/metadata-2.107
-            """.trimIndent()
-        }
 
-        buildCache {
-            use = true
-            publish = true
-            name = "Functional Test Gradle Cache (build-cache-2)"
-            rules = """
-                tests/build/gradleHome/caches/build-cache-1
-            """.trimIndent()
-        }
-
-
-        buildCache {
-            use = true
-            publish = true
-            name = "Functional Test Gradle Cache (wrapper)"
-            rules = """
-                tests/build/gradleHome/wrapper
-            """.trimIndent()
-        }
-    }
 
     steps {
         gradle {
             name = "Test"
-            tasks = "check -i --continue -x apiCheck -x publishLocally -Pchr.tests.sequential"
+            tasks = "check -i --continue -x apiCheck -x publishLocally -x reloadFunctionalTest"
 
             /* Any host other than linux is considered to only run 'host integration tests' */
             if (requiredHost != Host.Linux) {

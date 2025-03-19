@@ -12,7 +12,7 @@ import java.nio.file.Path
 import kotlin.io.path.readText
 
 internal val repositoryDeclaredTestDimensions by lazy {
-    val testDimensionsJson: Path = repositoryRoot.resolve("testDimensions.json")
+    val testDimensionsJson: Path = repositoryRoot.resolve(".teamcity/testDimensions.json")
     Json.decodeFromString<DeclaredTestDimensions>(testDimensionsJson.readText())
 }
 

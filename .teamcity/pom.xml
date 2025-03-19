@@ -27,6 +27,15 @@
         <enabled>true</enabled>
       </snapshots>
     </repository>
+    <repository>
+      <id>central</id>
+      <name>Maven Central</name>
+      <layout>default</layout>
+      <url>https://repo1.maven.org/maven2</url>
+      <snapshots>
+        <enabled>false</enabled>
+      </snapshots>
+    </repository>
   </repositories>
 
   <pluginRepositories>
@@ -100,5 +109,11 @@
       <version>${kotlin.version}</version>
       <scope>compile</scope>
     </dependency>
+    <dependency>
+      <groupId>org.jetbrains.kotlinx</groupId>
+      <artifactId>kotlinx-serialization-json</artifactId>
+      <version>1.8.0</version>
+    </dependency>
+
   </dependencies>
 </project>

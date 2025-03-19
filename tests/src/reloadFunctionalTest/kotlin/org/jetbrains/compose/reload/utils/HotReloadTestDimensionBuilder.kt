@@ -98,3 +98,24 @@ class HotReloadTestDimensionBuilder : HotReloadTestDimensionExtension {
         )
     }
 }
+
+
+class HotReloadTestDimensionFilter : HotReloadTestDimensionExtension {
+    override fun transform(
+        context: ExtensionContext,
+        tests: List<HotReloadTestInvocationContext>
+    ): List<HotReloadTestInvocationContext> {
+        var result = tests.toList()
+
+        System.getenv("TESTED_KOTLIN_VERSION")?.let { enforcedKotlinVersion ->
+            result = result.filter { it.kotlinVersion.version.toString() == enforcedKotlinVersion }
+        }
+
+        System.getenv("TESTED_COMPOSE_VERSION")?.let { enforcedComposeVersions ->
+            result = result.filter { it.composeVersion.version == enforcedComposeVersions }
+        }
+
+        return result
+    }
+
+}

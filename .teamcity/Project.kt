@@ -14,6 +14,7 @@ import builds.Test
 import builds.TestIntelliJPluginCheck
 import builds.WindowsIntegrationTest
 import builds.conventions.configureConventions
+import builds.functionalTests
 import builds.utils.Host
 import jetbrains.buildServer.configs.kotlin.ParameterDisplay
 import jetbrains.buildServer.configs.kotlin.Project
@@ -34,6 +35,9 @@ object ComposeHotReloadProject : Project({
     buildType(AllTests)
     val linuxTest = Test(Host.Linux)
     val windowsTest = WindowsIntegrationTest()
+    val functionalTests = functionalTests()
+
+    functionalTests.forEach { buildType(it) }
 
     buildType(linuxTest)
     buildType(windowsTest)
@@ -52,6 +56,7 @@ object ComposeHotReloadProject : Project({
                     buildType(ApiCheck)
                     buildType(SamplesCheck)
                     buildType(TestIntelliJPluginCheck)
+                    functionalTests.forEach { buildType(it) }
                 }
             }
         }
