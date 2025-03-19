@@ -47,24 +47,6 @@ class WindowsIntegrationTest(
         }
 
         buildCache {
-            name = "(Windows) Gradle (Caches)"
-            use = true
-            publish = true
-            rules = """
-                .local/gradle/caches/
-            """.trimIndent()
-        }
-
-        buildCache {
-            name = "(Windows) Gradle (Wrapper)"
-            use = true
-            publish = true
-            rules = """
-                .local/gradle/wrapper/
-            """.trimIndent()
-        }
-
-        buildCache {
             name = "(Windows) Gradle (Wrapper)"
             use = true
             publish = true
