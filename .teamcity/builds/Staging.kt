@@ -42,10 +42,21 @@ object StagingDeploy : BuildType({
         script {
             name = "Push"
             scriptContent = """
+                set -e
                 git remote -v
                 git log %build.vcs.number%
                 git fetch --unshallow origin master
+                git fetch origin staging
                 git log -n 5 origin/master
+                
+                if git branch -r --contains HEAD | grep 'staging' &>/dev/null;
+                 then 
+                    echo "origin/staging contains this commit";
+                 else 
+                    echo "origin/staging does not contain this commit";
+                    exit 1
+                fi
+                
                 git push origin %build.vcs.number%:refs/heads/master -v
             """.trimIndent()
         }
