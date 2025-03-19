@@ -17,6 +17,9 @@ import kotlinx.serialization.json.JsonArray
 import kotlinx.serialization.json.JsonObject
 import kotlinx.serialization.json.jsonObject
 import kotlinx.serialization.json.jsonPrimitive
+import java.nio.ByteBuffer
+import java.util.Base64
+import kotlin.io.encoding.ExperimentalEncodingApi
 import kotlin.io.path.Path
 import kotlin.io.path.readText
 
@@ -35,13 +38,21 @@ fun functionalTests(): List<FunctionalTest> {
     }
 }
 
-@OptIn(ExperimentalStdlibApi::class)
+@OptIn(ExperimentalStdlibApi::class, ExperimentalEncodingApi::class)
 class FunctionalTest(
     private val kotlinVersion: String,
     private val composeVersion: String
 ) : BuildType({
+    val key = run {
+        val hash = (kotlinVersion + composeVersion).hashCode()
+        val buffer = ByteBuffer.allocate(Int.SIZE_BYTES)
+        buffer.putInt(hash)
+        Base64.getUrlEncoder().withoutPadding().encodeToString(buffer.array())
+    }
+
+
     name = "Functional Test: (Kotlin $kotlinVersion, Compose $composeVersion)"
-    id("FunctionalTest_${kotlinVersion.plus(composeVersion).toByteArray().toHexString()}")
+    id("FunctionalTest_$key")
 
     artifactRules = """
         **/*-actual*
@@ -57,7 +68,7 @@ class FunctionalTest(
         buildCache {
             use = true
             publish = true
-            name = "Functional Test Gradle Cache (modules-2)"
+            name = "(${key}) Functional Test Gradle Cache (modules-2)"
             rules = """
                 tests/build/gradleHome/caches/modules-2/files-2.1
                 tests/build/gradleHome/caches/modules-2/metadata-2.106
@@ -68,7 +79,7 @@ class FunctionalTest(
         buildCache {
             use = true
             publish = true
-            name = "Functional Test Gradle Cache (build-cache-2)"
+            name = "(${key}) Functional Test Gradle Cache (build-cache-2)"
             rules = """
                 tests/build/gradleHome/caches/build-cache-1
             """.trimIndent()
@@ -78,7 +89,7 @@ class FunctionalTest(
         buildCache {
             use = true
             publish = true
-            name = "Functional Test Gradle Cache (wrapper)"
+            name = "(${key}) Functional Test Gradle Cache (wrapper)"
             rules = """
                 tests/build/gradleHome/wrapper
             """.trimIndent()
