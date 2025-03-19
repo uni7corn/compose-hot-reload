@@ -99,7 +99,7 @@ class FunctionalTest(
     steps {
         gradle {
             name = "Test"
-            tasks = "reloadFunctionalTest --continue -x publishLocally "
+            tasks = "reloadFunctionalTest --continue -x publishLocally -Pchr.tests.sequential"
         }
     }
 }),
