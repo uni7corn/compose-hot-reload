@@ -11,6 +11,7 @@ import org.jetbrains.compose.ExperimentalComposeLibrary
 plugins {
     kotlin("jvm")
     kotlin("plugin.compose")
+    kotlin("plugin.serialization")
 
     id("org.jetbrains.compose")
     id("org.jetbrains.compose.hot-reload")
@@ -59,6 +60,7 @@ dependencies {
     implementation(deps.slf4j.api)
     implementation(deps.logback)
     implementation(compose.runtime)
+    implementation(deps.kotlinxSerialization.json)
 
     reloadUnitTestImplementation(compose.uiTest)
 

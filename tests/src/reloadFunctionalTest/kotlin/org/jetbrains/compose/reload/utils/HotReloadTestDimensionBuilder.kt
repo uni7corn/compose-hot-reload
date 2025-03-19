@@ -1,0 +1,100 @@
+/*
+ * Copyright 2024-2025 JetBrains s.r.o. and Compose Hot Reload contributors.
+ * Use of this source code is governed by the Apache 2.0 license that can be found in the LICENSE file.
+ */
+
+@file:Suppress("SuspiciousCollectionReassignment")
+
+package org.jetbrains.compose.reload.utils
+
+import org.jetbrains.compose.reload.test.core.CompilerOption
+import org.jetbrains.compose.reload.test.gradle.HotReloadTestDimensionExtension
+import org.jetbrains.compose.reload.test.gradle.HotReloadTestInvocationContext
+import org.jetbrains.compose.reload.test.gradle.ProjectMode
+import org.jetbrains.compose.reload.test.gradle.TestedComposeVersion
+import org.jetbrains.compose.reload.test.gradle.TestedGradleVersion
+import org.jetbrains.compose.reload.test.gradle.TestedKotlinVersion
+import org.jetbrains.compose.reload.test.gradle.copy
+import org.jetbrains.kotlin.tooling.core.KotlinToolingVersion
+import org.junit.jupiter.api.extension.ExtensionContext
+import org.junit.platform.commons.util.AnnotationUtils
+
+class HotReloadTestDimensionBuilder : HotReloadTestDimensionExtension {
+    override fun transform(
+        context: ExtensionContext, tests: List<HotReloadTestInvocationContext>
+    ): List<HotReloadTestInvocationContext> {
+        val defaultKotlinVersion = repositoryDeclaredTestDimensions.kotlin.single { version ->
+            version.isDefault
+        }
+
+        val defaultGradleVersion = repositoryDeclaredTestDimensions.gradle.single { version ->
+            version.isDefault
+        }
+
+        val defaultComposeVersion = repositoryDeclaredTestDimensions.compose.single { version ->
+            version.isDefault
+        }
+
+        val baselineContext = HotReloadTestInvocationContext {
+            kotlinVersion = TestedKotlinVersion(KotlinToolingVersion(defaultKotlinVersion.version))
+            gradleVersion = TestedGradleVersion(defaultGradleVersion.version)
+            composeVersion = TestedComposeVersion(defaultComposeVersion.version)
+        }
+
+        var result = setOf(baselineContext)
+
+        /* Expand Kotlin Versions */
+        result += repositoryDeclaredTestDimensions.kotlin.flatMap { declaredKotlinVersion ->
+            result.map { context ->
+                context.copy {
+                    kotlinVersion = TestedKotlinVersion(KotlinToolingVersion(declaredKotlinVersion.version))
+                }
+            }
+        }
+
+        if (AnnotationUtils.isAnnotated(context.requiredTestMethod, GradleIntegrationTest::class.java)) {
+            /* Expand Gradle Versions */
+            result += repositoryDeclaredTestDimensions.gradle.flatMap { declaredGradleVersion ->
+                result.map { context ->
+                    context.copy {
+                        gradleVersion = TestedGradleVersion(declaredGradleVersion.version)
+                    }
+                }
+            }
+
+            /* Expand with testing against Kotlin/JVM as well */
+            result += result.map { context ->
+                context.copy { projectMode = ProjectMode.Jvm }
+            }
+        }
+
+        /* Expand Compose version */
+        if (!AnnotationUtils.isAnnotated(context.requiredTestMethod, QuickTest::class.java)) {
+            result += repositoryDeclaredTestDimensions.compose.map { declaredComposeVersion ->
+                baselineContext.copy {
+                    composeVersion = TestedComposeVersion(declaredComposeVersion.version)
+                }
+            }
+
+        }
+
+        /* Expand compiler options */
+        if (!AnnotationUtils.isAnnotated(context.requiredTestMethod, TestOnlyDefaultCompilerOptions::class.java)) {
+            result += baselineContext.copy {
+                compilerOption(
+                    CompilerOption.OptimizeNonSkippingGroups,
+                    !CompilerOption.OptimizeNonSkippingGroups.default
+                )
+            }
+        }
+
+        return result.sortedWith(
+            compareBy(
+                { it.kotlinVersion.version },
+                { it.gradleVersion.version },
+                { it.composeVersion.version },
+                { it.compilerOptions.contains(CompilerOption.OptimizeNonSkippingGroups) }
+            )
+        )
+    }
+}
