@@ -87,4 +87,4 @@ class WindowsIntegrationTest(
     }
 }), CommitStatusPublisher,
     HostRequirement.Windows,
-    HardwareCapacity.Medium
+    HardwareCapacity.Large
