@@ -35,23 +35,38 @@ fun functionalTests(): List<FunctionalTest> {
             val composeVersionString = composeVersion.jsonObject.getValue("version").jsonPrimitive.content
             FunctionalTest(kotlinVersionString, composeVersionString)
         }
-    }
+    }.plus(FunctionalTest(kotlinVersion = null, composeVersion = null, defaultCompilerOptions = false))
 }
 
 @OptIn(ExperimentalStdlibApi::class, ExperimentalEncodingApi::class)
 class FunctionalTest(
-    private val kotlinVersion: String,
-    private val composeVersion: String
+    private val kotlinVersion: String?,
+    private val composeVersion: String?,
+    private val defaultCompilerOptions: Boolean = true,
 ) : BuildType({
     val key = run {
-        val hash = (kotlinVersion + composeVersion).hashCode()
+        val hash = (kotlinVersion + composeVersion + defaultCompilerOptions).hashCode()
         val buffer = ByteBuffer.allocate(Int.SIZE_BYTES)
         buffer.putInt(hash)
         Base64.getUrlEncoder().withoutPadding().encodeToString(buffer.array())
     }
 
+    name = buildString {
+        append("Functional Test: (")
+        if (kotlinVersion != null) {
+            append("Kotlin $kotlinVersion, ")
+        }
 
-    name = "Functional Test: (Kotlin $kotlinVersion, Compose $composeVersion)"
+        if (composeVersion != null) {
+            append("Compose $composeVersion, ")
+        }
+
+        if (!defaultCompilerOptions) {
+            append("Non default compiler options")
+        }
+        append(")")
+    }
+
     id("FunctionalTest_$key")
 
     artifactRules = """
@@ -60,8 +75,15 @@ class FunctionalTest(
     """.trimIndent()
 
     params {
-        param("env.TESTED_KOTLIN_VERSION", kotlinVersion)
-        param("env.TESTED_COMPOSE_VERSION", composeVersion)
+        if (kotlinVersion != null) {
+            param("env.TESTED_KOTLIN_VERSION", kotlinVersion)
+        }
+
+        if (composeVersion != null) {
+            param("env.TESTED_COMPOSE_VERSION", composeVersion)
+        }
+
+        param("env.TESTED_DEFAULT_COMPILER_OPTIONS", defaultCompilerOptions.toString())
     }
 
     features {
