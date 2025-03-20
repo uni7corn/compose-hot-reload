@@ -48,7 +48,7 @@ class FunctionalTest(
         val hash = (kotlinVersion + composeVersion + defaultCompilerOptions).hashCode()
         val buffer = ByteBuffer.allocate(Int.SIZE_BYTES)
         buffer.putInt(hash)
-        Base64.getUrlEncoder().withoutPadding().encodeToString(buffer.array())
+        Base64.getUrlEncoder().withoutPadding().encodeToString(buffer.array()).replace("-", "_")
     }
 
     name = buildString {
