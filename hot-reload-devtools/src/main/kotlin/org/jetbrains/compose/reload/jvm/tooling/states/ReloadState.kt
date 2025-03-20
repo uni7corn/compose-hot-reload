@@ -58,7 +58,7 @@ fun CoroutineScope.launchReloadState() = launchState(ReloadState) {
                     collectedLogs += message
                 }
 
-                if (message.tag == TAG_COMPILER && message.message.startsWith("e: ")) {
+                if (message.tag == TAG_COMPILER && message.message.contains("e: ")) {
                     collectedLogs += message
                 }
             }
