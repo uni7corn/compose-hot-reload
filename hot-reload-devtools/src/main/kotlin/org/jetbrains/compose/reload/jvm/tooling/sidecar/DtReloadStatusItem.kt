@@ -162,7 +162,8 @@ private fun ErrorDialogWindow(
 ) {
     DialogWindow(
         onCloseRequest = onCloseRequest,
-        state = rememberDialogState(size = DpSize(1024.dp, 1400.dp)),
+        state = rememberDialogState(size = DpSize(512.dp, 512.dp)),
+        alwaysOnTop = true,
         title = state.reason
     ) {
         Column(Modifier.dtHorizontalPadding().dtVerticalPadding()) {
