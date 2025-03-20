@@ -117,13 +117,8 @@ class HotReloadTestDimensionFilter : HotReloadTestDimensionExtension {
 
         System.getenv("TESTED_DEFAULT_COMPILER_OPTIONS")?.toBooleanStrict()?.let { onlyDefaultCompilerOptions ->
             result = result.filter { context ->
-                if (onlyDefaultCompilerOptions) {
-                    if (context.compilerOptions.any { option -> option.value != option.key.default }) {
-                        return@filter false
-                    }
-                }
-
-                true
+                val isDefaultOnly = context.compilerOptions.all { option -> option.value == option.key.default }
+                isDefaultOnly == onlyDefaultCompilerOptions
             }
         }
 
