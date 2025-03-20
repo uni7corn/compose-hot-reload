@@ -55,7 +55,9 @@ class HotReloadTestDimensionBuilder : HotReloadTestDimensionExtension {
         if (AnnotationUtils.isAnnotated(context.requiredTestMethod, GradleIntegrationTest::class.java)) {
             /* Expand Gradle Versions */
             result += repositoryDeclaredTestDimensions.gradle.flatMap { declaredGradleVersion ->
-                result.map { context ->
+                result.mapNotNull { context ->
+                    /* Only expand on the default kotlin versions */
+                    if (context.kotlinVersion.version.toString() != defaultKotlinVersion.version) return@mapNotNull null
                     context.copy {
                         gradleVersion = TestedGradleVersion(declaredGradleVersion.version)
                     }
