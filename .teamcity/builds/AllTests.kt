@@ -38,6 +38,7 @@ object AllTests : BuildType({
                 +:<default>
                 +:master
                 +:rr/*
+                +:release/*
                 +pr: target=master sourceRepo=same github_role=member draft=false
             """.trimIndent()
         }
