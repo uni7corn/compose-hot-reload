@@ -31,10 +31,10 @@ object StagingDeploy : BuildType({
     }
 
     dependencies {
-        snapshot(AllTests) {
+        /*snapshot(AllTests) {
             this.onDependencyFailure = FailureAction.FAIL_TO_START
             this.onDependencyCancel = FailureAction.FAIL_TO_START
-        }
+        }*/
     }
 
     steps {
@@ -58,7 +58,7 @@ object StagingDeploy : BuildType({
                 fi
                 
                 git pull origin master --rebase
-                git push origin %build.vcs.number%:refs/heads/master -v
+                git push origin HEAD:refs/heads/master -v
             """.trimIndent()
         }
     }
