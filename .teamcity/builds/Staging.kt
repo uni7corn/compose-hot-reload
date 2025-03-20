@@ -31,10 +31,10 @@ object StagingDeploy : BuildType({
     }
 
     dependencies {
-        /*snapshot(AllTests) {
+        snapshot(AllTests) {
             this.onDependencyFailure = FailureAction.FAIL_TO_START
             this.onDependencyCancel = FailureAction.FAIL_TO_START
-        }*/
+        }
     }
 
     steps {
