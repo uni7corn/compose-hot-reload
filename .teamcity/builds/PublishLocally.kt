@@ -69,7 +69,9 @@ fun BuildType.configurePublishLocallyBuildCache(publish: Boolean = false) {
             name = "Gradle Cache (caches)"
             if (publish) {
                 rules = """
-                    .local/gradle/caches/
+                    .local/gradle/caches/modules-2/files-2.1
+                    .local/gradle/caches/modules-2/metadata-2.106
+                    .local/gradle/caches/modules-2/metadata-2.107
             """.trimIndent()
             }
         }
