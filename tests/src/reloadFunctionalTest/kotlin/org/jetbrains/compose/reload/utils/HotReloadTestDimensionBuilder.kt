@@ -127,6 +127,9 @@ class HotReloadTestDimensionFilter : HotReloadTestDimensionExtension {
                 context.kotlinVersion.version.toString() ==
                     repositoryDeclaredTestDimensions.kotlin.single { it.isDefault }.version
             }.filter { context ->
+                context.gradleVersion.version ==
+                    repositoryDeclaredTestDimensions.gradle.single { it.isDefault }.version
+            }.filter { context ->
                 context.composeVersion.version ==
                     repositoryDeclaredTestDimensions.compose.single { it.isDefault }.version
             }.filter { context ->
