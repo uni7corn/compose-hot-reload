@@ -5,8 +5,11 @@
 
 package org.jetbrains.compose.reload.jvm.tooling.sidecar
 
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.progressSemantics
 import androidx.compose.material.icons.Icons
@@ -22,7 +25,15 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment.Companion.CenterVertically
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.input.pointer.PointerIcon
+import androidx.compose.ui.input.pointer.pointerHoverIcon
+import androidx.compose.ui.semantics.Role
+import androidx.compose.ui.text.style.TextDecoration
+import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.window.DialogWindow
+import androidx.compose.ui.window.rememberDialogState
 import io.sellmair.evas.compose.composeValue
 import kotlinx.coroutines.delay
 import kotlinx.datetime.Clock
@@ -36,6 +47,11 @@ import org.jetbrains.compose.reload.jvm.tooling.states.ReloadState
 import org.jetbrains.compose.reload.jvm.tooling.tag
 import org.jetbrains.compose.reload.jvm.tooling.theme.DtColors
 import org.jetbrains.compose.reload.jvm.tooling.theme.DtPadding
+import org.jetbrains.compose.reload.jvm.tooling.theme.DtTextStyles
+import org.jetbrains.compose.reload.jvm.tooling.theme.dtHorizontalPadding
+import org.jetbrains.compose.reload.jvm.tooling.theme.dtVerticalPadding
+import org.jetbrains.compose.reload.jvm.tooling.widgets.DtCode
+import org.jetbrains.compose.reload.jvm.tooling.widgets.DtHeader2
 import org.jetbrains.compose.reload.jvm.tooling.widgets.DtSmallText
 import org.jetbrains.compose.reload.jvm.tooling.widgets.DtText
 
@@ -67,17 +83,6 @@ fun DtReloadStatusItem() {
 
 @Composable
 private fun ResultContent(state: ReloadState) {
-    val time = remember(state) {
-        val localTime = state.time.toLocalDateTime(TimeZone.currentSystemDefault()).time
-        localTime.format(LocalTime.Format {
-            hour()
-            char(':')
-            minute()
-            char(':')
-            second()
-        })
-    }
-
     var durationText by remember { mutableStateOf("") }
 
     LaunchedEffect(state) {
@@ -95,13 +100,78 @@ private fun ResultContent(state: ReloadState) {
     }
 
     Row(verticalAlignment = CenterVertically, horizontalArrangement = Arrangement.spacedBy(DtPadding.arrangement)) {
-        val text = when (state) {
-            is ReloadState.Ok -> "Success: Last reload: $time"
-            is ReloadState.Failed -> "Failed:${if (state.reason.isNotEmpty()) " ${state.reason}: " else ""} $time"
-            else -> ""
-        }
-
-        DtText(text, modifier = Modifier.tag(Tag.ReloadStatusText))
+        StatusText(state, Modifier.weight(1f))
         DtSmallText("(${durationText} ago)")
+    }
+}
+
+@Composable
+private fun StatusText(state: ReloadState, modifier: Modifier = Modifier) {
+    when (state) {
+        is ReloadState.Failed -> FailedStatusText(state, modifier)
+        is ReloadState.Ok -> SuccessStatusText(state, modifier)
+        is ReloadState.Reloading -> Unit
+    }
+}
+
+@Composable
+private fun SuccessStatusText(state: ReloadState.Ok, modifier: Modifier = Modifier) {
+    DtText(
+        "Success: Last reload: ${state.formattedTime()}",
+        modifier = modifier.tag(Tag.ReloadStatusText),
+        maxLines = 1, overflow = TextOverflow.Ellipsis
+    )
+}
+
+@Composable
+private fun FailedStatusText(state: ReloadState.Failed, modifier: Modifier) {
+    var isDialogVisible by remember { mutableStateOf(false) }
+
+    DtText(
+        "Failed:${if (state.reason.isNotEmpty()) " ${state.reason}: " else ""} ${state.formattedTime()}",
+        modifier = modifier.tag(Tag.ReloadStatusText)
+            .pointerHoverIcon(PointerIcon.Hand)
+            .clickable(role = Role.Button) { isDialogVisible = !isDialogVisible },
+        maxLines = 1, overflow = TextOverflow.Ellipsis,
+        style = DtTextStyles.code.copy(
+            textDecoration = TextDecoration.Underline
+        )
+    )
+
+    if (isDialogVisible) {
+        ErrorDialogWindow(state, onCloseRequest = { isDialogVisible = false })
+    }
+}
+
+
+private fun ReloadState.formattedTime(): String {
+    val localTime = time.toLocalDateTime(TimeZone.currentSystemDefault()).time
+    return localTime.format(LocalTime.Format {
+        hour()
+        char(':')
+        minute()
+        char(':')
+        second()
+    })
+}
+
+@Composable
+private fun ErrorDialogWindow(
+    state: ReloadState.Failed,
+    onCloseRequest: () -> Unit
+) {
+    DialogWindow(
+        onCloseRequest = onCloseRequest,
+        state = rememberDialogState(size = DpSize(1024.dp, 1400.dp)),
+        title = state.reason
+    ) {
+        Column(Modifier.dtHorizontalPadding().dtVerticalPadding()) {
+            DtHeader2("Reloading Code failed")
+            DtCode(state.reason)
+            DtConsole(
+                logs = state.logs.map { it.message },
+                modifier = Modifier.fillMaxSize()
+            )
+        }
     }
 }

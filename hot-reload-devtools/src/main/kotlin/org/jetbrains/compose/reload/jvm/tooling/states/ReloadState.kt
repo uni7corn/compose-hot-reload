@@ -6,13 +6,20 @@
 package org.jetbrains.compose.reload.jvm.tooling.states
 
 import io.sellmair.evas.State
+import io.sellmair.evas.flow
 import io.sellmair.evas.launchState
 import io.sellmair.evas.update
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.flow.filterIsInstance
+import kotlinx.coroutines.launch
 import kotlinx.datetime.Clock
 import kotlinx.datetime.Instant
 import org.jetbrains.compose.reload.jvm.tooling.orchestration
 import org.jetbrains.compose.reload.orchestration.OrchestrationMessage
+import org.jetbrains.compose.reload.orchestration.OrchestrationMessage.LogMessage.Companion.TAG_AGENT
+import org.jetbrains.compose.reload.orchestration.OrchestrationMessage.LogMessage.Companion.TAG_COMPILER
+import org.jetbrains.compose.reload.orchestration.OrchestrationMessage.LogMessage.Companion.TAG_RUNTIME
 import org.jetbrains.compose.reload.orchestration.asFlow
 
 sealed class ReloadState : State {
@@ -30,6 +37,7 @@ sealed class ReloadState : State {
     data class Failed(
         val reason: String,
         override val time: Instant = Clock.System.now(),
+        val logs: List<OrchestrationMessage.LogMessage> = emptyList(),
     ) : ReloadState()
 
     companion object Key : State.Key<ReloadState> {
@@ -40,20 +48,36 @@ sealed class ReloadState : State {
 
 fun CoroutineScope.launchReloadState() = launchState(ReloadState) {
     var currentReloadRequest: OrchestrationMessage.ReloadClassesRequest? = null
+    val collectedLogs = mutableListOf<OrchestrationMessage.LogMessage>()
+
+    launch {
+        ReloadCountState.flow().collectLatest { reloadCountState ->
+            collectedLogs.clear()
+            orchestration.asFlow().filterIsInstance<OrchestrationMessage.LogMessage>().collect { message ->
+                if (message.tag == TAG_RUNTIME || message.tag == TAG_AGENT) {
+                    collectedLogs += message
+                }
+
+                if (message.tag == TAG_COMPILER && message.message.startsWith("e: ")) {
+                    collectedLogs += message
+                }
+            }
+        }
+    }
 
     orchestration.asFlow().collect { message ->
         if (message is OrchestrationMessage.RecompileRequest) {
             ReloadState.Reloading().emit()
         }
 
-        if (message is OrchestrationMessage.LogMessage && message.tag == OrchestrationMessage.LogMessage.TAG_COMPILER) {
+        if (message is OrchestrationMessage.LogMessage && message.tag == TAG_COMPILER) {
             if (message.message.contains("executing build...")) {
                 currentReloadRequest = null
                 ReloadState.Reloading().emit()
             }
 
             if (message.message.contains("BUILD FAILED")) {
-                ReloadState.Failed("Compilation Failed").emit()
+                ReloadState.Failed("Compilation Failed", logs = collectedLogs.toList()).emit()
             }
 
             /*
@@ -81,7 +105,10 @@ fun CoroutineScope.launchReloadState() = launchState(ReloadState) {
 
         if (message is OrchestrationMessage.ReloadClassesResult) {
             if (message.isSuccess) ReloadState.Ok(time = Clock.System.now()).emit()
-            else ReloadState.Failed("Failed reloading classes (${message.errorMessage})").emit()
+            else ReloadState.Failed(
+                "Failed reloading classes (${message.errorMessage})",
+                logs = collectedLogs.toList()
+            ).emit()
         }
     }
 }

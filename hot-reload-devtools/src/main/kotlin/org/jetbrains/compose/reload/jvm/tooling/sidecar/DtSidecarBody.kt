@@ -29,6 +29,6 @@ internal fun DtSidecarBody(modifier: Modifier = Modifier) {
             color = animateReloadStatusColor(DtColors.text).value
         )
         DtSidecarStatusSection()
-        DtConsole(LogMessage.TAG_COMPILER, Modifier.fillMaxSize())
+        DtCompilerConsole(LogMessage.TAG_COMPILER, Modifier.fillMaxSize())
     }
 }
