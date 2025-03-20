@@ -129,6 +129,8 @@ class HotReloadTestDimensionFilter : HotReloadTestDimensionExtension {
             }.filter { context ->
                 context.composeVersion.version ==
                     repositoryDeclaredTestDimensions.compose.single { it.isDefault }.version
+            }.filter { context ->
+                context.compilerOptions.all { option -> option.value == option.key.default }
             }
         }
 
