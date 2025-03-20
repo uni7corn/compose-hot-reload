@@ -65,7 +65,9 @@ class HotReloadTestDimensionBuilder : HotReloadTestDimensionExtension {
             }
 
             /* Expand with testing against Kotlin/JVM as well */
-            result += result.map { context ->
+            result += result.mapNotNull { context ->
+                if (context.kotlinVersion.version.toString() != defaultKotlinVersion.version) return@mapNotNull null
+                if (context.gradleVersion.version != defaultGradleVersion.version) return@mapNotNull null
                 context.copy { projectMode = ProjectMode.Jvm }
             }
         }
