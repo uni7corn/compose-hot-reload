@@ -79,6 +79,17 @@ fun BuildType.configurePublishLocallyBuildCache(publish: Boolean = false) {
         buildCache {
             use = true
             this.publish = publish
+            name = "Gradle Cache (8.12.1)"
+            if(publish) {
+                rules = """
+                    .local/gradle/caches/8.12.1
+                """.trimIndent()
+            }
+        }
+
+        buildCache {
+            use = true
+            this.publish = publish
             name = "Gradle Cache (wrapper)"
             if (publish) {
                 rules = """
