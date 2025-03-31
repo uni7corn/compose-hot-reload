@@ -34,7 +34,18 @@ sealed interface ComposeHotReloadArgumentsBuilder {
     fun isRecompileContinuous(isRecompileContinuous: Provider<Boolean>)
 }
 
-fun JavaExec.withComposeHotReloadArguments(builder: ComposeHotReloadArgumentsBuilder.() -> Unit) {
+fun <T> T.withComposeHotReloadArguments(builder: ComposeHotReloadArgumentsBuilder.() -> Unit) where T : JavaForkOptions, T : Task {
+    project.composeHotReloadArguments(builder).applyTo(this)
+}
+
+@JvmName("withComposeHotReloadArguments")
+@Deprecated(
+    message = "Use withComposeHotReloadArguments instead",
+    level = DeprecationLevel.ERROR,
+    replaceWith = ReplaceWith("withComposeHotReloadArguments(builder)")
+)
+@PublishedApi
+internal fun JavaExec.withComposeHotReloadArgumentsJavaExec(builder: ComposeHotReloadArgumentsBuilder.() -> Unit) {
     project.composeHotReloadArguments(builder).applyTo(this)
 }
 

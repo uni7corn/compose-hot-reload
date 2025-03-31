@@ -23,6 +23,7 @@ public abstract interface class org/jetbrains/compose/reload/ComposeHotReloadArg
 public final class org/jetbrains/compose/reload/ComposeHotReloadArgumentsKt {
 	public static final fun composeHotReloadArguments (Lorg/gradle/api/Project;Lkotlin/jvm/functions/Function1;)Lorg/jetbrains/compose/reload/ComposeHotReloadArguments;
 	public static final fun withComposeHotReloadArguments (Lorg/gradle/api/tasks/JavaExec;Lkotlin/jvm/functions/Function1;)V
+	public static final fun withComposeHotReloadArguments (Lorg/gradle/process/JavaForkOptions;Lkotlin/jvm/functions/Function1;)V
 }
 
 public class org/jetbrains/compose/reload/ComposeHotReloadExtension {
