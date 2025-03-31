@@ -9,9 +9,7 @@ Iterate on your compose UIs faster, and let your creativity run free when buildi
   <img alt="Text changing depending on mode. Light: 'So light!' Dark: 'So dark!'" src="./readme-assets/banner_light.png">
 </picture>
 
-Make changes to your UI code in a Compose Multiplatform application, and see the results in real time. No restarts required. Compose Hot Reload runs your application on a special desktop JVM, and intelligently reloads your code whenever it is changed.  
-
-**This project is currently experimental.** No guarantees apply.
+Make changes to your UI code in a Compose Multiplatform application, and see the results in real time. No restarts required. Compose Hot Reload runs your application on a special desktop JVM, and intelligently reloads your code whenever it is changed.
 
 ## Getting Started
 
