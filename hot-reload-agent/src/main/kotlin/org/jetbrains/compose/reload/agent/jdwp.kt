@@ -5,6 +5,7 @@
 
 package org.jetbrains.compose.reload.agent
 
+import org.jetbrains.compose.reload.analysis.isIgnoredClassId
 import org.jetbrains.compose.reload.core.createLogger
 import org.jetbrains.compose.reload.core.toLeft
 import java.io.ByteArrayOutputStream
@@ -34,7 +35,9 @@ private object JdwpTracker : ClassFileTransformer {
         module: Module?, loader: ClassLoader?, className: String?, classBeingRedefined: Class<*>?,
         protectionDomain: ProtectionDomain?, classfileBuffer: ByteArray?
     ): ByteArray? {
-        if (classBeingRedefined == null || classfileBuffer == null || localReloadRequest.get() != null) return null
+        if (className == null || isIgnoredClassId(className) ||
+            classBeingRedefined == null || classfileBuffer == null || localReloadRequest.get() != null
+        ) return null
 
         return try {
             transformLock.lock()
