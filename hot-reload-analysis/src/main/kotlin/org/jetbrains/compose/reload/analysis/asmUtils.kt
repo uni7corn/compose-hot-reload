@@ -16,6 +16,7 @@ import org.objectweb.asm.tree.AbstractInsnNode
 import org.objectweb.asm.tree.ClassNode
 import org.objectweb.asm.tree.FieldInsnNode
 import org.objectweb.asm.tree.FieldNode
+import org.objectweb.asm.tree.IntInsnNode
 import org.objectweb.asm.tree.LdcInsnNode
 import org.objectweb.asm.tree.MethodInsnNode
 import org.objectweb.asm.tree.MethodNode
@@ -30,6 +31,8 @@ internal fun AbstractInsnNode.intValueOrNull(): Int? {
         Opcodes.ICONST_4 -> 4
         Opcodes.ICONST_5 -> 5
         Opcodes.ICONST_M1 -> -1
+        Opcodes.BIPUSH -> (this as IntInsnNode).operand
+        Opcodes.SIPUSH -> (this as IntInsnNode).operand
         else -> null
     }
 }

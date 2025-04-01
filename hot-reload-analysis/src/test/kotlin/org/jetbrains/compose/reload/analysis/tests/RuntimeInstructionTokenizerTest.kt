@@ -6,6 +6,7 @@
 package org.jetbrains.compose.reload.analysis.tests
 
 import org.jetbrains.compose.reload.analysis.ClassNode
+import org.jetbrains.compose.reload.analysis.RuntimeInstructionToken
 import org.jetbrains.compose.reload.analysis.render
 import org.jetbrains.compose.reload.analysis.tokenizeRuntimeInstructions
 import org.jetbrains.compose.reload.analysis.withIndent
@@ -17,6 +18,8 @@ import org.jetbrains.compose.reload.core.testFixtures.sanitized
 import org.jetbrains.compose.reload.test.core.TestEnvironment
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.TestInfo
+import org.junit.jupiter.api.fail
+import org.objectweb.asm.tree.MethodNode
 import kotlin.io.path.Path
 import kotlin.io.path.createParentDirectories
 import kotlin.io.path.exists
@@ -82,7 +85,47 @@ class RuntimeInstructionTokenizerTest {
         """.trimIndent()
     )
 
-    private fun doTest(compiler: Compiler, testInfo: TestInfo, code: String) {
+    @Test
+    fun `test - #122 - startRestartGroup with small number - BIPUSH`(compiler: Compiler, testInfo: TestInfo) = doTest(
+        compiler, testInfo, """
+            import androidx.compose.runtime.*
+         
+            @Composable
+            fun Foo() {
+                currentComposer.startRestartGroup(122)
+                currentComposer.endRestartGroup()
+            }
+        """.trimIndent()
+    ) { method, tokens ->
+        if (method.name != "Foo") return@doTest
+        if(tokens.find { it is RuntimeInstructionToken.StartRestartGroup && it.key.key == 122 } == null) {
+            fail("Cannot find 'StartRestartGroup' token with key '122'")
+        }
+    }
+
+    @Test
+    fun `test - #122 - startRestartGroup with small number - SIPUSH`(compiler: Compiler, testInfo: TestInfo) = doTest(
+        compiler, testInfo,
+        """
+            import androidx.compose.runtime.*
+         
+            @Composable
+            fun Foo() {
+                currentComposer.startRestartGroup(0x122)
+                currentComposer.endRestartGroup()
+            }
+        """.trimIndent(),
+    ) { method, tokens ->
+        if (method.name != "Foo") return@doTest
+        if(tokens.find { it is RuntimeInstructionToken.StartRestartGroup && it.key.key == 0x122 } == null) {
+            fail { "Cannot find 'StartRestartGroup' token with key '0x122'" }
+        }
+    }
+
+    private fun doTest(
+        compiler: Compiler, testInfo: TestInfo, code: String,
+        tokenAssertions: (method: MethodNode, List<RuntimeInstructionToken>) -> Unit = { _, _ -> }
+    ) {
         val directory = Path("src/test/resources/runtimeInstructionTokens")
             .resolve(testInfo.testClass.get().name.asFileName())
             .resolve(testInfo.testMethod.get().name.asFileName())
@@ -108,6 +151,8 @@ class RuntimeInstructionTokenizerTest {
                     classNode.methods.sortedBy { node -> node.name + node.desc }.forEach { methodNode ->
                         val tokens = tokenizeRuntimeInstructions(methodNode.instructions.toList())
                             .leftOr { right -> error("Failed to tokenize instructions: $right") }
+
+                        tokenAssertions(methodNode, tokens)
                         appendLine(methodNode.render(tokens))
                     }
                 }
