@@ -320,14 +320,13 @@ private object SourceInformationMarkerStartTokenizer : RuntimeInstructionTokeniz
         val key = expectedKeyLoad.intValueOrNull() ?: return null
 
         /* search for source information */
-        var sourceInformation: String = run sourceInformation@{
+        val sourceInformation: String = run sourceInformation@{
             while (consumer.hasNext()) {
                 when (val next = consumer.next()) {
                     is LabelNode -> continue
                     is LineNumberNode -> continue
                     is LdcInsnNode -> {
                         return@sourceInformation next.cst as? String ?: "N/A"
-                        break
                     }
                     else -> return null
                 }
