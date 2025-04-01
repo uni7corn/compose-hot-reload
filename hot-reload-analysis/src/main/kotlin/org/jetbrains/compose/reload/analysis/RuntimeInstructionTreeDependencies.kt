@@ -15,7 +15,7 @@ private const val lambdaMetaFactoryClassId = "java/lang/invoke/LambdaMetafactory
 private const val metafactoryMethodName = "metafactory"
 
 internal fun RuntimeInstructionTree.methodDependencies(): Set<MethodId> {
-    return tokens.filterIsInstance<RuntimeInstructionToken.BockToken>().flatMapTo(mutableSetOf()) { block ->
+    return tokens.filterIsInstance<RuntimeInstructionToken.BlockToken>().flatMapTo(mutableSetOf()) { block ->
         block.instructions.mapNotNull { instructionNode ->
             if (instructionNode is MethodInsnNode &&
                 (instructionNode.opcode == Opcodes.INVOKESTATIC ||
@@ -42,7 +42,7 @@ internal fun RuntimeInstructionTree.methodDependencies(): Set<MethodId> {
 
 internal fun RuntimeInstructionTree.fieldDependencies(): Set<FieldId> {
     return tokens
-        .filterIsInstance<RuntimeInstructionToken.BockToken>()
+        .filterIsInstance<RuntimeInstructionToken.BlockToken>()
         .flatMap { token -> token.instructions }
         .filterIsInstance<FieldInsnNode>()
         .filter { fieldInsnNode -> !isIgnoredClassId(fieldInsnNode.owner) }

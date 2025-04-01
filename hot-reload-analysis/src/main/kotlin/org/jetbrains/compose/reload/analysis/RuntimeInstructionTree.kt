@@ -5,7 +5,7 @@
 
 package org.jetbrains.compose.reload.analysis
 
-import org.jetbrains.compose.reload.analysis.RuntimeInstructionToken.BockToken
+import org.jetbrains.compose.reload.analysis.RuntimeInstructionToken.BlockToken
 import org.jetbrains.compose.reload.analysis.RuntimeInstructionToken.EndReplaceGroup
 import org.jetbrains.compose.reload.analysis.RuntimeInstructionToken.EndRestartGroup
 import org.jetbrains.compose.reload.analysis.RuntimeInstructionToken.JumpToken
@@ -53,7 +53,7 @@ internal fun parseRuntimeInstructionTreeLenient(methodId: MethodId, methodNode: 
     val tokens = tokenizeRuntimeInstructions(methodNode.instructions.toList()).leftOr { right ->
         /* Fallback for methods that even fail to tokenize */
         logger.warn("'tokenizeRuntimeInstructions' failed on $methodId: $right")
-        val tokens = listOf(BockToken(methodNode.instructions.toList()))
+        val tokens = listOf(BlockToken(methodNode.instructions.toList()))
         return RuntimeInstructionTree(
             group = methodNode.readFunctionKeyMetaAnnotation(),
             type = RuntimeScopeType.Method,
@@ -123,7 +123,7 @@ private fun parseRuntimeInstructionTree(
         val currentIndex = index
 
         when (currentToken) {
-            is BockToken, is LabelToken,
+            is BlockToken, is LabelToken,
             is SourceInformation, is SourceInformationMarkerStart, is SourceInformationMarkerEnd -> {
                 consumed += currentToken
                 index++

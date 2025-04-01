@@ -116,7 +116,7 @@ sealed class RuntimeInstructionToken {
         }
     }
 
-    data class BockToken(
+    data class BlockToken(
         override val instructions: List<AbstractInsnNode>
     ) : RuntimeInstructionToken() {
         override fun toString(): String {
@@ -383,7 +383,7 @@ private object BlockTokenizer : RuntimeInstructionTokenizer() {
             currentContext = currentContext.skip(1) ?: break
         }
         if (instructions.isEmpty()) return null
-        return RuntimeInstructionToken.BockToken(instructions).toLeft()
+        return RuntimeInstructionToken.BlockToken(instructions).toLeft()
     }
 
 }
