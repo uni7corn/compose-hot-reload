@@ -8,6 +8,7 @@ package org.jetbrains.compose.reload
 import org.gradle.api.DefaultTask
 import org.gradle.api.Project
 import org.gradle.api.file.ConfigurableFileCollection
+import org.gradle.api.provider.Property
 import org.gradle.api.tasks.InputFiles
 import org.gradle.api.tasks.Internal
 import org.gradle.api.tasks.PathSensitive
@@ -18,6 +19,7 @@ import org.gradle.kotlin.dsl.property
 import org.gradle.kotlin.dsl.withType
 import org.gradle.work.Incremental
 import org.gradle.work.InputChanges
+import org.jetbrains.compose.reload.gradle.InternalHotReloadGradleApi
 import org.jetbrains.compose.reload.gradle.capitalized
 import org.jetbrains.compose.reload.gradle.kotlinJvmOrNull
 import org.jetbrains.compose.reload.gradle.kotlinMultiplatformOrNull
@@ -65,14 +67,16 @@ internal fun composeReloadHotClasspathTaskName(compilation: KotlinCompilation<*>
     }
 }
 
-internal open class ComposeReloadHotClasspathTask : DefaultTask() {
+@InternalHotReloadGradleApi
+open class ComposeReloadHotClasspathTask : DefaultTask() {
     @get:InputFiles
     @get:PathSensitive(PathSensitivity.RELATIVE)
     @get:Incremental
     val classpath: ConfigurableFileCollection = project.objects.fileCollection()
 
     @get:Internal
-    val agentPort = project.objects.property<Int>()
+    val agentPort: Property<Int> = project.objects.property<Int>()
+        .convention(project.orchestrationPort)
 
     @TaskAction
     fun execute(inputs: InputChanges) {
