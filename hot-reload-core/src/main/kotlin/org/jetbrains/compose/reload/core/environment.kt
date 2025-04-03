@@ -69,7 +69,7 @@ public object HotReloadEnvironment {
     public val isHeadless: Boolean = systemBoolean(HotReloadProperty.IsHeadless, false)
     public val hotApplicationClasspath: List<Path>? = systemFiles(HotReloadProperty.HotClasspath)
     public val virtualMethodResolveEnabled: Boolean = systemBoolean(HotReloadProperty.VirtualMethodResolveEnabled, true)
-    public val dirtyResolveDepthLimit: Int = systemInt(HotReloadProperty.DirtyResolveDepthLimit) ?: 3
+    public val dirtyResolveDepthLimit: Int = systemInt(HotReloadProperty.DirtyResolveDepthLimit) ?: 5
 
     public val buildSystem: BuildSystem = systemEnum<BuildSystem>(
         property = HotReloadProperty.BuildSystem,
