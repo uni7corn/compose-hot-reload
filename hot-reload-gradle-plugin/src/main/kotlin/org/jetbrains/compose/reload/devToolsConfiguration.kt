@@ -15,9 +15,7 @@ import org.gradle.kotlin.dsl.dependencies
 import org.jetbrains.compose.ComposePlugin
 import org.jetbrains.compose.reload.core.HOT_RELOAD_COMPOSE_VERSION
 import org.jetbrains.compose.reload.core.HOT_RELOAD_VERSION
-import org.jetbrains.compose.reload.gradle.withComposePlugin
 import org.jetbrains.kotlin.gradle.plugin.KotlinPlatformType
-
 
 private const val composeHotReloadDevToolsConfigurationName = "composeHotReloadDevTools"
 
@@ -51,11 +49,15 @@ internal val Project.composeHotReloadDevToolsConfiguration: Configuration
                 project.dependencies.create("org.jetbrains.compose.hot-reload:devtools:$HOT_RELOAD_VERSION")
             )
 
-            project.withComposePlugin {
-                project.dependencies {
-                    configuration(ComposePlugin.Dependencies(project).desktop.currentOs) {
-                        version { constraint -> constraint.strictly(HOT_RELOAD_COMPOSE_VERSION) }
-                    }
+            /**
+             * Add the desktop dependency for the currentOs!
+             * The devtools need to have a suitable runtime (for the host) available.
+             * This runtime is not published as a dependency to the devtools because windows will need a different
+             * runtime from, let's say macOS.
+             */
+            project.dependencies {
+                configuration(ComposePlugin.Dependencies(project).desktop.currentOs) {
+                    version { constraint -> constraint.strictly(HOT_RELOAD_COMPOSE_VERSION) }
                 }
             }
         }

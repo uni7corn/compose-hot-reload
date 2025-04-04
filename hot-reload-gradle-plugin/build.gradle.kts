@@ -42,5 +42,6 @@ dependencies {
     testImplementation(deps.junit.jupiter)
     testImplementation(deps.junit.jupiter.engine)
     testImplementation(kotlin("gradle-plugin"))
+    testImplementation(deps.compose.gradlePlugin)
     testImplementation("com.android.tools.build:gradle:8.6.1")
 }
