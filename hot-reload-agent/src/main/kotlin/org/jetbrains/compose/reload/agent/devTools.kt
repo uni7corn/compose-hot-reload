@@ -8,9 +8,13 @@ package org.jetbrains.compose.reload.agent
 import org.jetbrains.compose.reload.core.HotReloadEnvironment
 import org.jetbrains.compose.reload.core.HotReloadProperty
 import org.jetbrains.compose.reload.core.HotReloadProperty.DevToolsClasspath
+import org.jetbrains.compose.reload.core.Os
 import org.jetbrains.compose.reload.core.createLogger
 import org.jetbrains.compose.reload.core.destroyWithDescendants
 import java.io.File
+import java.nio.file.Path
+import kotlin.io.path.Path
+import kotlin.io.path.absolutePathString
 import kotlin.jvm.optionals.getOrNull
 
 private val logger = createLogger()
@@ -21,17 +25,10 @@ internal fun launchDevtoolsApplication() {
 
     val classpath = HotReloadEnvironment.devToolsClasspath ?: error("Missing '${DevToolsClasspath}'")
 
-    val thisProcessInfo = ProcessHandle.current().info()
-
-    val java = thisProcessInfo.command().getOrNull() ?: run {
-        logger.error("Cannot find 'java' executable in current process")
-        return
-    }
-
-    val arguments = thisProcessInfo.arguments().getOrNull() ?: run {
-        logger.error("Cannot find arguments in current process")
-        emptyArray<String>()
-    }
+    val java = resolveDevtoolsJavaBinary()
+    val arguments = ProcessHandle.current().info().arguments().getOrNull()
+        ?.takeIf { java == ProcessHandle.current().info().command().getOrNull() }
+        ?: run { logger.error("Cannot find arguments in current process"); emptyArray<String>() }
 
     logger.info("Starting Dev Tools")
 
@@ -49,4 +46,20 @@ internal fun launchDevtoolsApplication() {
     Runtime.getRuntime().addShutdownHook(Thread {
         process.destroyWithDescendants()
     })
+}
+
+private fun resolveDevtoolsJavaBinary(): String? {
+    fun Path.resolveJavaHome(): Path = resolve(
+        if (Os.currentOrNull() == Os.Windows) "bin/java.exe" else "bin/java"
+    )
+
+    System.getProperty("java.home")?.let { javaHome ->
+        return Path(javaHome).resolveJavaHome().absolutePathString()
+    }
+
+    System.getenv("JAVA_HOME")?.let { javaHome ->
+        return Path(javaHome).resolveJavaHome().absolutePathString()
+    }
+
+    return null
 }

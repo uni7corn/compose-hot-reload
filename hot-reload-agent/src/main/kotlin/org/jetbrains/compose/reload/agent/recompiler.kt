@@ -10,6 +10,7 @@ import org.jetbrains.compose.reload.core.BuildSystem.Amper
 import org.jetbrains.compose.reload.core.BuildSystem.Gradle
 import org.jetbrains.compose.reload.core.HotReloadEnvironment
 import org.jetbrains.compose.reload.core.HotReloadProperty
+import org.jetbrains.compose.reload.core.Os
 import org.jetbrains.compose.reload.core.createLogger
 import org.jetbrains.compose.reload.core.destroyWithDescendants
 import org.jetbrains.compose.reload.orchestration.OrchestrationMessage
@@ -221,11 +222,9 @@ private fun createRecompilerGradleCommandLineArgs(
         logger.warn("Missing '${HotReloadProperty.GradleJavaHome}' property. Using system java")
     }
 
-    val gradleScriptCommand = if ("win" in System.getProperty("os.name").lowercase()) {
-        arrayOf("cmd", "/c", "gradlew.bat")
-    } else {
-        arrayOf("./gradlew")
-    }
+    val gradleScriptCommand = if (Os.currentOrNull() == Os.Windows) arrayOf("cmd", "/c", "gradlew.bat")
+    else arrayOf("./gradlew")
+
 
     val gradleTaskPath = if (gradleBuildProject == ":") ":$gradleBuildTask"
     else "$gradleBuildProject:$gradleBuildTask"
@@ -247,11 +246,8 @@ private fun createRecompilerGradleCommandLineArgs(
 }
 
 private fun createRecompilerAmperCommandLineArgs(amperBuildTask: String): List<String> {
-    val amperScriptCommand = if ("win" in System.getProperty("os.name").lowercase()) {
-        arrayOf("cmd", "/c", "amper.bat")
-    } else {
-        arrayOf("./amper")
-    }
+    val amperScriptCommand = if (Os.currentOrNull() == Os.Windows) arrayOf("cmd", "/c", "amper.bat")
+    else arrayOf("./amper")
 
     return listOfNotNull(
         *amperScriptCommand,
