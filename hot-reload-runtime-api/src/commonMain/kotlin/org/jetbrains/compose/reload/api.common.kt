@@ -18,7 +18,12 @@ public annotation class DevelopmentEntryPoint(
     val windowHeight: Int = 1024,
 )
 
+/**
+ * DevelopmentEntryPoint {} is called automatically invoked when using
+ * [androidx.compose.ui.window.Window]
+ */
 @Composable
+@DelicateHotReloadApi
 public expect fun DevelopmentEntryPoint(child: @Composable () -> Unit)
 
 @SubclassOptInRequired(InternalHotReloadApi::class)

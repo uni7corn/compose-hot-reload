@@ -7,6 +7,9 @@ package org.jetbrains.compose.reload.agent
 
 import javassist.ClassPool
 import javassist.LoaderClassPath
+import javassist.expr.MethodCall
+import org.jetbrains.compose.reload.analysis.ClassId
+import org.jetbrains.compose.reload.analysis.MethodId
 import java.util.WeakHashMap
 
 private val classPools = WeakHashMap<ClassLoader, ClassPool>()
@@ -18,3 +21,10 @@ internal fun getClassPool(loader: ClassLoader): ClassPool {
         }
     }
 }
+
+internal val MethodCall.methodId: MethodId
+    get() = MethodId(
+        classId = ClassId.fromFqn(this.className),
+        methodName = this.methodName,
+        methodDescriptor = this.method.signature,
+    )

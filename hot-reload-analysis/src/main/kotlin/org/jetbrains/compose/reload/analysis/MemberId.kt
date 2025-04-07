@@ -35,7 +35,6 @@ data class FieldId(
 inline val Method.methodId: MethodId
     get() = MethodId(declaringClass.classId, name, methodDescriptor = Type.getMethodDescriptor(this))
 
-
 val MethodId.isClassInitializer: Boolean
     get() = this.methodName == "<clinit>"
 

@@ -86,6 +86,26 @@ object Ids {
     object FunctionKeyMeta {
         val classId = ClassId("androidx/compose/runtime/internal/FunctionKeyMeta")
     }
+
+    object WindowDesktopKt {
+        val classId = ClassId("androidx/compose/ui/window/Window_desktopKt")
+    }
+
+    object ComposeWindow {
+        val classId = ClassId("androidx/compose/ui/awt/ComposeWindow")
+
+        val setContent_1 = MethodId(
+            classId,
+            methodName = "setContent",
+            methodDescriptor = "(Lkotlin/jvm/functions/Function3)V"
+        )
+
+        val setContent_3 = MethodId(
+            classId,
+            methodName = "setContent",
+            methodDescriptor = "(Lkotlin/jvm/functions/Function1;Lkotlin/jvm/functions/Function1;Lkotlin/jvm/functions/Function3;)V"
+        )
+    }
 }
 
 val ClassId.classInitializerMethodId: MethodId

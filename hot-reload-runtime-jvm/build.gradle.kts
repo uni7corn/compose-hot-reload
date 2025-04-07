@@ -26,12 +26,12 @@ kotlin {
 
 dependencies {
     sharedImplementation(compose.runtime)
+    sharedCompileOnly(compose.desktop.common)
 
     devCompileOnly(project(":hot-reload-core"))
     devCompileOnly(project(":hot-reload-agent"))
     devCompileOnly(project(":hot-reload-runtime-api"))
     devCompileOnly(project(":hot-reload-orchestration"))
-    devCompileOnly(compose.desktop.common)
 
     testImplementation(kotlin("test"))
     testImplementation(deps.junit.jupiter)

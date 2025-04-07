@@ -13,6 +13,7 @@ fun premain(@Suppress("unused") args: String?, instrumentation: Instrumentation)
     launchOrchestration()
 
     createPidfile()
+    launchWindowInstrumentation(instrumentation)
     launchComposeInstrumentation(instrumentation)
     launchRuntimeTracking(instrumentation)
     launchReloadRequestHandler(instrumentation)

@@ -12,6 +12,10 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.key
+import androidx.compose.ui.ExperimentalComposeUiApi
+import androidx.compose.ui.awt.ComposeWindow
+import androidx.compose.ui.input.key.KeyEvent
+import androidx.compose.ui.window.FrameWindowScope
 import kotlinx.coroutines.flow.filterIsInstance
 import org.jetbrains.compose.reload.agent.orchestration
 import org.jetbrains.compose.reload.agent.send
@@ -67,4 +71,33 @@ fun DevelopmentEntryPoint(child: @Composable () -> Unit) {
     UIRendered(
         windowId = windowId, reloadRequestId = currentHotReloadState.reloadRequestId, currentHotReloadState.iteration
     ).send()
+}
+
+
+@Suppress("unused", "EXTENSION_SHADOWED_BY_MEMBER") // used by instrumentation
+@OptIn(ExperimentalComposeUiApi::class)
+@PublishedApi
+internal fun ComposeWindow.setContent(
+    onPreviewKeyEvent: (KeyEvent) -> Boolean,
+    onKeyEvent: (KeyEvent) -> Boolean,
+    content: @Composable FrameWindowScope.() -> Unit
+) {
+    setContent(onPreviewKeyEvent = onPreviewKeyEvent, onKeyEvent = onKeyEvent) {
+        DevelopmentEntryPoint {
+            content()
+        }
+    }
+}
+
+@Suppress("unused", "EXTENSION_SHADOWED_BY_MEMBER") // used by instrumentation
+@OptIn(ExperimentalComposeUiApi::class)
+@PublishedApi
+internal fun ComposeWindow.setContent(
+    content: @Composable FrameWindowScope.() -> Unit
+) {
+    setContent {
+        DevelopmentEntryPoint {
+            content()
+        }
+    }
 }

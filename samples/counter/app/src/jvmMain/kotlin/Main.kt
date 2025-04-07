@@ -7,7 +7,6 @@ import androidx.compose.ui.window.rememberWindowState
 import io.sellmair.evas.Events
 import io.sellmair.evas.States
 import io.sellmair.evas.compose.installEvas
-import org.jetbrains.compose.reload.DevelopmentEntryPoint
 import org.slf4j.LoggerFactory
 import java.awt.Color
 import java.io.File
@@ -30,9 +29,7 @@ fun main() {
         ) {
             window.background = Color.WHITE
             installEvas(events, states) {
-                DevelopmentEntryPoint {
-                    App()
-                }
+                App()
             }
         }
     }

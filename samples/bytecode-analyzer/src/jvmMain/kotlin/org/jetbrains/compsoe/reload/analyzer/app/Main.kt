@@ -24,7 +24,6 @@ import kotlinx.coroutines.CoroutineExceptionHandler
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
-import org.jetbrains.compose.reload.DevelopmentEntryPoint
 import org.jetbrains.compose.reload.core.createLogger
 import org.jetbrains.compsoe.reload.analyzer.app.states.*
 import org.jetbrains.compsoe.reload.analyzer.app.ui.AppTheme
@@ -51,17 +50,15 @@ fun main() {
         alwaysOnTop = true,
     ) {
         installEvas(applicationScope.coroutineContext.eventsOrThrow, applicationScope.coroutineContext.statesOrThrow) {
-            DevelopmentEntryPoint {
-                AppTheme {
-                    Row(modifier = Modifier.background(MaterialTheme.colorScheme.background)) {
-                        Box(
-                            modifier = Modifier.fillMaxHeight()
-                        ) {
-                            NavigationBar()
-                        }
-
-                        FileView()
+            AppTheme {
+                Row(modifier = Modifier.background(MaterialTheme.colorScheme.background)) {
+                    Box(
+                        modifier = Modifier.fillMaxHeight()
+                    ) {
+                        NavigationBar()
                     }
+
+                    FileView()
                 }
             }
         }
