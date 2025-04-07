@@ -8,6 +8,7 @@ package org.jetbrains.compose.reload.analysis
 import org.jetbrains.compose.reload.core.HotReloadEnvironment
 import org.jetbrains.compose.reload.core.createLogger
 import org.jetbrains.compose.reload.core.simpleName
+import org.jetbrains.compose.reload.core.withClosure
 import kotlin.time.measureTimedValue
 
 private val logger = createLogger()
@@ -35,7 +36,7 @@ private fun RuntimeInfo.resolveDirtyRuntimeScopeInfos(redefined: RuntimeInfo): L
     val dirtyComposeScopes = resolveDirtyComposeScopes(redefined)
     val dirtyMethods = resolveDirtyMethods(redefined) + resolveRemovedMethods(redefined)
     val dirtyFields = resolveDirtyFields(redefined)
-    val transitivelyDirty = resolveTransitivelyDirty(redefined, dirtyMethods , dirtyFields)
+    val transitivelyDirty = resolveTransitivelyDirty(redefined, dirtyMethods, dirtyFields)
 
     return buildSet {
         addAll(dirtyMethods.map { it.rootScope })
@@ -58,7 +59,7 @@ private fun RuntimeInfo.resolveRemovedMethods(redefined: RuntimeInfo): List<Meth
     return redefined.classIndex.flatMap { (classId, redefinedClass) ->
         val previousClass = classIndex[classId] ?: return@flatMap emptyList()
         previousClass.methods.mapNotNull { (methodId, method) ->
-            if(methodId in redefinedClass.methods) return@mapNotNull null
+            if (methodId in redefinedClass.methods) return@mapNotNull null
             else method
         }
     }
@@ -138,6 +139,14 @@ private fun RuntimeInfo.resolveTransitivelyDirty(
          * and will enqueue the associated member for further traversal if necessary.
          */
         fun markDirty(scopeInfo: RuntimeScopeInfo) {
+            if (scopeInfo.group != null && SpecialComposeGroupKeys.isRememberGroup(scopeInfo.group)) {
+                /**
+                 * If we do not have 'OptimizeNonSkippingGroups' enabled, then we should really mark
+                 * the parent of 'remember' groups as dirty.
+                 */
+                return markDirty(resolveParentRuntimeScopeInfo(redefined, scopeInfo) ?: return)
+            }
+
             result.add(scopeInfo)
 
             /**
@@ -208,4 +217,23 @@ private fun RuntimeScopeInfo.invalidationKey(): Long {
 
 private fun Iterable<RuntimeScopeInfo>.invalidationKey(): Long = fold(0L) { acc, scope ->
     31L * acc + scope.invalidationKey()
+}
+
+private fun RuntimeInfo.resolveParentRuntimeScopeInfo(
+    redefined: RuntimeInfo, scope: RuntimeScopeInfo
+): RuntimeScopeInfo? {
+    val methodInfo = redefined.methodIndex[scope.methodId] ?: methodIndex[scope.methodId]
+    if (methodInfo == null) {
+        logger.error("'resolveParentScope' could not find method '${scope.methodId}'")
+        return null
+    }
+
+    val parentScope = methodInfo.rootScope.withClosure { child -> child.children }
+        .find { scope in it.children }
+
+    if (parentScope == null) {
+        logger.error("'resolveParentScope' could not find parent for '$scope'")
+    }
+
+    return parentScope
 }
