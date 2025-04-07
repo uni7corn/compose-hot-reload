@@ -33,9 +33,9 @@ fun RuntimeInfo.resolveDirtyRuntimeScopes(redefined: RuntimeInfo): RuntimeDirtyS
 
 private fun RuntimeInfo.resolveDirtyRuntimeScopeInfos(redefined: RuntimeInfo): List<RuntimeScopeInfo> {
     val dirtyComposeScopes = resolveDirtyComposeScopes(redefined)
-    val dirtyMethods = resolveDirtyMethods(redefined)
+    val dirtyMethods = resolveDirtyMethods(redefined) + resolveRemovedMethods(redefined)
     val dirtyFields = resolveDirtyFields(redefined)
-    val transitivelyDirty = resolveTransitivelyDirty(redefined, dirtyMethods, dirtyFields)
+    val transitivelyDirty = resolveTransitivelyDirty(redefined, dirtyMethods , dirtyFields)
 
     return buildSet {
         addAll(dirtyMethods.map { it.rootScope })
@@ -51,6 +51,16 @@ private fun RuntimeInfo.resolveDirtyMethods(redefined: RuntimeInfo): List<Method
             return@mapNotNull redefinedMethod
         }
         null
+    }
+}
+
+private fun RuntimeInfo.resolveRemovedMethods(redefined: RuntimeInfo): List<MethodInfo> {
+    return redefined.classIndex.flatMap { (classId, redefinedClass) ->
+        val previousClass = classIndex[classId] ?: return@flatMap emptyList()
+        previousClass.methods.mapNotNull { (methodId, method) ->
+            if(methodId in redefinedClass.methods) return@mapNotNull null
+            else method
+        }
     }
 }
 
