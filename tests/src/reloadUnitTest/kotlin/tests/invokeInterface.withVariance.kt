@@ -6,7 +6,6 @@
 package tests
 
 import androidx.compose.material3.Text
-import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
@@ -17,6 +16,7 @@ import androidx.compose.ui.test.runComposeUiTest
 import org.jetbrains.compose.reload.DevelopmentEntryPoint
 import org.jetbrains.compose.reload.test.HotReloadUnitTest
 import org.jetbrains.compose.reload.test.compileAndReload
+import tests.InvokeInterfaceWithVariance.instance
 
 interface InvokeInterfaceWithVarianceInterface<T> {
     fun invokeInterfaceMethod(param: T): String
@@ -31,16 +31,6 @@ class InvokeInterfaceWithVarianceTestClass : InvokeInterfaceWithVarianceInterfac
 
 object InvokeInterfaceWithVariance {
     val instance: InvokeInterfaceWithVarianceInterface<String> = InvokeInterfaceWithVarianceTestClass()
-
-    /*
-    We're using a dedicated function for this test to work around
-    https://youtrack.jetbrains.com/issue/KT-75159/
-    */
-    @Composable
-    fun render() {
-        val text = remember { instance.invokeInterfaceMethod("foo") }
-        Text(text = text, modifier = Modifier.testTag("text"))
-    }
 }
 
 @OptIn(ExperimentalTestApi::class)
@@ -48,7 +38,8 @@ object InvokeInterfaceWithVariance {
 fun `test - invokeInterface method dependency - with variance`() = runComposeUiTest {
     setContent {
         DevelopmentEntryPoint {
-            InvokeInterfaceWithVariance.render()
+            val text = remember { instance.invokeInterfaceMethod("foo") }
+            Text(text = text, modifier = Modifier.testTag("text"))
         }
     }
 
