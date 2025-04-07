@@ -7,9 +7,12 @@
 
 package org.jetbrains.compose.reload.jvm
 
-import androidx.compose.runtime.*
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.key
 import kotlinx.coroutines.flow.filterIsInstance
-import kotlinx.coroutines.flow.update
 import org.jetbrains.compose.reload.agent.orchestration
 import org.jetbrains.compose.reload.agent.send
 import org.jetbrains.compose.reload.core.createLogger
@@ -46,27 +49,19 @@ fun DevelopmentEntryPoint(child: @Composable () -> Unit) {
     /* Agent */
     val currentHotReloadState by hotReloadState.collectAsState()
 
-    CompositionLocalProvider(hotReloadStateLocal provides currentHotReloadState) {
-        key(currentHotReloadState.key) {
-            logger.orchestration("Composing UI: $currentHotReloadState")
-            runCatching { child() }.onFailure { exception ->
-                logger.orchestration("Failed invoking 'JvmDevelopmentEntryPoint':", exception)
+    key(currentHotReloadState.key) {
+        logger.orchestration("Composing UI: $currentHotReloadState")
+        runCatching { child() }.onFailure { exception ->
+            logger.orchestration("Failed invoking 'JvmDevelopmentEntryPoint':", exception)
 
-                /*
-                UI-Exception: Nuke state captured in the UI by incrementing the key
-                 */
-                hotReloadState.update { state -> state.copy(key = state.key + 1, error = exception) }
+            UIException(
+                windowId = windowId,
+                message = exception.message,
+                stacktrace = exception.stackTrace.toList()
+            ).send()
 
-                UIException(
-                    windowId = windowId,
-                    message = exception.message,
-                    stacktrace = exception.stackTrace.toList()
-                ).send()
-
-            }.getOrThrow()
-        }
+        }.getOrThrow()
     }
-
 
     /* Notify orchestration about the UI being rendered */
     UIRendered(
