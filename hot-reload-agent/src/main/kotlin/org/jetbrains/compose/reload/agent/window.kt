@@ -87,14 +87,14 @@ private fun transformWindowKt(loader: ClassLoader?, classfileBuffer: ByteArray?)
                         transformed = true
                     }
                 } catch (t: Throwable) {
-                    logger.error("Failed to transform 'setContent' method", t)
+                    logger.orchestration("Failed to transform 'setContent' method", t)
                 }
             }
         })
 
         return if (transformed) ctClass.toBytecode() else null
     } catch (t: Throwable) {
-        logger.error("Failed to transform 'WindowKt'", t)
+        logger.orchestration("Failed to transform 'WindowKt'", t)
         return null
     }
 }
