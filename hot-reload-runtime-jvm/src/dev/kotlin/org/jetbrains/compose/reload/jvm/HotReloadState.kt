@@ -15,7 +15,8 @@ import java.util.UUID
 internal data class HotReloadState(
     val reloadRequestId: UUID? = null,
     val iteration: Int,
-    val error: Throwable? = null,
+    val reloadError: Throwable? = null,
+    val uiError: Throwable? = null,
     val key: Int = 0,
 ) {
     override fun toString(): String {
@@ -23,7 +24,8 @@ internal data class HotReloadState(
             append("{ ")
             append("iteration=$iteration, ")
             append("key=$key, ")
-            if (error != null) append("error=${error.message}, ")
+            if (reloadError != null) append("error=${reloadError.message}, ")
+            if (uiError != null) append("uiError=${uiError.message}, ")
             append(" }")
         }
     }
@@ -37,7 +39,8 @@ internal val hotReloadState: MutableStateFlow<HotReloadState> = MutableStateFlow
             state.copy(
                 reloadRequestId = reloadRequestId,
                 iteration = state.iteration + 1,
-                error = result.exceptionOrNull()
+                reloadError = result.exceptionOrNull(),
+                key = state.key + if (state.uiError != null) 1 else 0,
             )
         }
     }
