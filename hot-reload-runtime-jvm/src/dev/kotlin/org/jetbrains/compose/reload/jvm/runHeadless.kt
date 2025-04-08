@@ -29,6 +29,8 @@ import kotlinx.coroutines.isActive
 import kotlinx.coroutines.job
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.selects.onTimeout
+import kotlinx.coroutines.selects.select
 import kotlinx.coroutines.yield
 import org.jetbrains.compose.reload.InternalHotReloadApi
 import org.jetbrains.compose.reload.agent.orchestration
@@ -71,26 +73,33 @@ suspend fun runHeadlessApplication(
     /* Main loop */
     applicationScope.launch {
         var time = 0L
-        val delay = 128.milliseconds
-        while (isActive) {
-            val render = scene.render(time)
-            while (isActive) {
-                if (scene.hasInvalidations()) break
-                val message = messages.tryReceive().getOrNull() ?: break
+        val delay = 256.milliseconds
 
-                if (message !is OrchestrationMessage.Ack) {
+            while (isActive) {
+                time += delay.inWholeNanoseconds
+
+                if (scene.hasInvalidations()) {
+                    scene.render(time)
+                    continue
+                }
+
+                val message = select {
+                    messages.onReceive { it }
+                    onTimeout(delay) { null }
+                }
+
+                if (message != null && message !is OrchestrationMessage.Ack) {
                     orchestration.sendMessage(OrchestrationMessage.Ack(message.messageId)).get()
                 }
 
                 /* Break out for TestEvents and give the main thread time to handle that */
                 if (message is OrchestrationMessage.TestEvent) {
                     yield()
-                    break
                 }
 
                 if (message is OrchestrationMessage.TakeScreenshotRequest) {
                     val baos = ByteArrayOutputStream()
-                    ImageIO.write(render.toComposeImageBitmap().toAwtImage(), "png", baos)
+                    ImageIO.write(scene.render(time).toComposeImageBitmap().toAwtImage(), "png", baos)
                     orchestration.sendMessage(OrchestrationMessage.Screenshot("png", baos.toByteArray())).get()
                     logger.debug("Screenshot sent")
                 }
@@ -101,9 +110,6 @@ suspend fun runHeadlessApplication(
                 }
             }
 
-            delay(delay)
-            time += delay.inWholeNanoseconds
-        }
     }
 }
 
