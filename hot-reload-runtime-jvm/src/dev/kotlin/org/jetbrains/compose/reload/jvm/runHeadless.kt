@@ -75,40 +75,43 @@ suspend fun runHeadlessApplication(
         var time = 0L
         val delay = 256.milliseconds
 
-            while (isActive) {
-                time += delay.inWholeNanoseconds
+        while (isActive) {
+            time += delay.inWholeNanoseconds
 
-                if (scene.hasInvalidations()) {
-                    scene.render(time)
-                    continue
-                }
-
-                val message = select {
-                    messages.onReceive { it }
-                    onTimeout(delay) { null }
-                }
-
-                if (message != null && message !is OrchestrationMessage.Ack) {
-                    orchestration.sendMessage(OrchestrationMessage.Ack(message.messageId)).get()
-                }
-
-                /* Break out for TestEvents and give the main thread time to handle that */
-                if (message is OrchestrationMessage.TestEvent) {
-                    yield()
-                }
-
-                if (message is OrchestrationMessage.TakeScreenshotRequest) {
-                    val baos = ByteArrayOutputStream()
-                    ImageIO.write(scene.render(time).toComposeImageBitmap().toAwtImage(), "png", baos)
-                    orchestration.sendMessage(OrchestrationMessage.Screenshot("png", baos.toByteArray())).get()
-                    logger.debug("Screenshot sent")
-                }
-
-                if (message is ShutdownRequest) {
-                    applicationScope.coroutineContext.job.cancelChildren()
-                    return@launch
-                }
+            if (scene.hasInvalidations()) {
+                scene.render(time)
+                continue
             }
+
+            val message = select {
+                messages.onReceive { it }
+                onTimeout(delay) { null }
+            }
+
+            if (message != null &&
+                message !is OrchestrationMessage.Ack &&
+                message !is OrchestrationMessage.LogMessage
+            ) {
+                orchestration.sendMessage(OrchestrationMessage.Ack(message.messageId)).get()
+            }
+
+            /* Break out for TestEvents and give the main thread time to handle that */
+            if (message is OrchestrationMessage.TestEvent) {
+                yield()
+            }
+
+            if (message is OrchestrationMessage.TakeScreenshotRequest) {
+                val baos = ByteArrayOutputStream()
+                ImageIO.write(scene.render(time).toComposeImageBitmap().toAwtImage(), "png", baos)
+                orchestration.sendMessage(OrchestrationMessage.Screenshot("png", baos.toByteArray())).get()
+                logger.debug("Screenshot sent")
+            }
+
+            if (message is ShutdownRequest) {
+                applicationScope.coroutineContext.job.cancelChildren()
+                return@launch
+            }
+        }
 
     }
 }
