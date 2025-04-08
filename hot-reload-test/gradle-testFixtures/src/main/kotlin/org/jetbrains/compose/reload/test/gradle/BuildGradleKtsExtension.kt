@@ -95,6 +95,7 @@ private val kmpBuildGradleKtsTemplate = Template(
     }
     
     tasks.withType<JavaExec>().configureEach {
+        maxHeapSize = "1G"
         {{$javaExecConfigureKey}}
     }
     
