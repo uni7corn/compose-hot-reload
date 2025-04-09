@@ -77,7 +77,6 @@ internal class HotReloadTestFixtureExtension(
             )
         )
 
-
         return HotReloadTestFixture(
             testClassName = testClass.get().name,
             testMethodName = testMethod.get().name,
@@ -94,6 +93,5 @@ internal fun ExtensionContext.getHotReloadTestFixtureOrThrow(): HotReloadTestFix
     return getStore(namespace).get(
         HotReloadTestFixtureExtension.Companion.testFixtureKey,
         HotReloadTestFixture::class.java
-    )
-        ?: error("Missing '${HotReloadTestFixture::class.simpleName}'")
+    ) ?: error("Missing '${HotReloadTestFixture::class.simpleName}'")
 }

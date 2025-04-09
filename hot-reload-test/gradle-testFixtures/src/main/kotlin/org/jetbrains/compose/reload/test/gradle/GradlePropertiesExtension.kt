@@ -8,8 +8,8 @@ package org.jetbrains.compose.reload.test.gradle
 import org.jetbrains.compose.reload.core.asTemplateOrThrow
 import org.jetbrains.compose.reload.core.renderOrThrow
 import org.junit.jupiter.api.extension.ExtensionContext
+import org.junit.platform.commons.support.AnnotationSupport.findRepeatableAnnotations
 import java.util.ServiceLoader
-import javax.swing.plaf.basic.BasicHTML.propertyKey
 
 public interface GradlePropertiesExtension {
     public fun properties(context: ExtensionContext): List<String>
@@ -17,11 +17,17 @@ public interface GradlePropertiesExtension {
 
 internal fun renderGradleProperties(context: ExtensionContext): String = gradlePropertiesTemplate.renderOrThrow {
     androidEnabledKey(context.testedAndroidVersion != null)
-    ServiceLoader.load(GradlePropertiesExtension::class.java).toList().forEach { extension ->
-        extension.properties(context).forEach { property ->
-            propertyKey(property)
+    findRepeatableAnnotations(context.requiredTestMethod, ExtendGradleProperties::class.java)
+        .plus(findRepeatableAnnotations(context.requiredTestClass, ExtendGradleProperties::class.java))
+        .map { annotation ->
+            annotation.extension.objectInstance ?: annotation.extension.java.getConstructor().newInstance()
         }
-    }
+        .plus(ServiceLoader.load(GradlePropertiesExtension::class.java).toList())
+        .forEach { extension ->
+            extension.properties(context).forEach { property ->
+                propertiesKey(property)
+            }
+        }
 }
 
 private const val androidEnabledKey = "android.enabled"

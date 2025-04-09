@@ -171,8 +171,9 @@ private class ComposeHotReloadArgumentsImpl(
                 java.inputs.files(devToolsClasspath)
             }
         }
-
-        if (java is JavaExec) {
+        if (java is Task && java.project.jetbrainsRuntimeBinary.isPresent) {
+            java.executable(java.project.jetbrainsRuntimeBinary.get())
+        } else if (java is JavaExec && java.project.composeHotReloadExtension.useJetBrainsRuntime.get()) {
             java.javaLauncher.set(java.project.jetbrainsRuntimeLauncher())
         }
     }
@@ -234,7 +235,6 @@ private class ComposeHotReloadArgumentsImpl(
         javaHome.orNull?.let { javaHome ->
             add("-D${HotReloadProperty.GradleJavaHome.key}=$javaHome")
         }
-
 
         /* Forward the orchestration port if one is explicitly requested (client mode) */
         if (orchestrationPort.isPresent) {

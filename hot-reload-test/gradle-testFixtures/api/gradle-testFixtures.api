@@ -63,6 +63,14 @@ public abstract interface annotation class org/jetbrains/compose/reload/test/gra
 	public abstract fun value ()[Lorg/jetbrains/compose/reload/test/gradle/ExtendBuildGradleKts;
 }
 
+public abstract interface annotation class org/jetbrains/compose/reload/test/gradle/ExtendGradleProperties : java/lang/annotation/Annotation {
+	public abstract fun extension ()Ljava/lang/Class;
+}
+
+public abstract interface annotation class org/jetbrains/compose/reload/test/gradle/ExtendGradleProperties$Container : java/lang/annotation/Annotation {
+	public abstract fun value ()[Lorg/jetbrains/compose/reload/test/gradle/ExtendGradleProperties;
+}
+
 public abstract interface annotation class org/jetbrains/compose/reload/test/gradle/ExtendHotReloadTestDimension : java/lang/annotation/Annotation {
 	public abstract fun extension ()Ljava/lang/Class;
 }

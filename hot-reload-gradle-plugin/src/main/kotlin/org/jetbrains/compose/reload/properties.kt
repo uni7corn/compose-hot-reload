@@ -38,3 +38,9 @@ internal val Project.isIdeaSync: Provider<Boolean>
 internal val Project.autoRuntimeDependenciesEnabled: Provider<Boolean>
     get() = providers.gradleProperty("compose.reload.autoRuntimeDependenciesEnabled").map { raw -> raw.toBoolean() }
         .orElse(true)
+
+
+internal val Project.jetbrainsRuntimeBinary: Provider<String>
+    get() = providers.systemProperty("compose.reload.jbr.binary")
+        .orElse(providers.gradleProperty("compose.reload.jbr.binary"))
+        .orElse(providers.environmentVariable("COMPOSE_RELOAD_JBR_BINARY"))

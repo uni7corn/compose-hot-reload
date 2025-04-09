@@ -14,7 +14,6 @@ import org.gradle.kotlin.dsl.register
 import org.gradle.kotlin.dsl.withType
 import org.jetbrains.compose.reload.core.HotReloadProperty
 import org.jetbrains.compose.reload.gradle.createDebuggerJvmArguments
-import org.jetbrains.compose.reload.gradle.jetbrainsRuntimeLauncher
 import org.jetbrains.compose.reload.gradle.kotlinJvmOrNull
 import org.jetbrains.compose.reload.gradle.kotlinMultiplatformOrNull
 import org.jetbrains.kotlin.gradle.InternalKotlinGradlePluginApi
@@ -50,10 +49,6 @@ private fun KotlinTarget.createComposeHotReloadExecTask() {
 }
 
 internal fun JavaExec.configureJavaExecTaskForHotReload(compilation: Provider<KotlinCompilation<*>>) {
-    if (project.composeHotReloadExtension.useJetBrainsRuntime.get()) {
-        javaLauncher.set(project.jetbrainsRuntimeLauncher())
-    }
-
     classpath = project.files(compilation.map { it.applicationClasspath })
 
     withComposeHotReloadArguments {

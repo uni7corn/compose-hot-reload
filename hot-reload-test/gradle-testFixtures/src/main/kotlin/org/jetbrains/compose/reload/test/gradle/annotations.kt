@@ -40,4 +40,8 @@ public annotation class ExtendBuildGradleKts(val extension: KClass<out BuildGrad
 
 @Repeatable
 @Target(AnnotationTarget.CLASS, AnnotationTarget.FUNCTION)
+public annotation class ExtendGradleProperties(val extension: KClass<out GradlePropertiesExtension>)
+
+@Repeatable
+@Target(AnnotationTarget.CLASS, AnnotationTarget.FUNCTION)
 public annotation class ExtendHotReloadTestDimension(val extension: KClass<out HotReloadTestDimensionExtension>)
