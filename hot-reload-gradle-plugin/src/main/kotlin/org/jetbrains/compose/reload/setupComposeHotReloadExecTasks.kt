@@ -37,9 +37,15 @@ internal fun Project.setupComposeHotReloadExecTasks() {
 }
 
 private fun KotlinTarget.createComposeHotReloadExecTask() {
-    @OptIn(InternalKotlinGradlePluginApi::class)
-    project.tasks.register<KotlinJvmRun>("${name}Run") {
-        configureJavaExecTaskForHotReload(project.provider { compilations.getByName("main") })
+    if (!project.isIdeaWithHotReloadPlugin.get()) {
+        @OptIn(InternalKotlinGradlePluginApi::class)
+        project.tasks.register<KotlinJvmRun>("${name}Run") {
+            configureJavaExecTaskForHotReload(project.provider { compilations.getByName("main") })
+        }
+    }
+
+    project.tasks.register<ComposeHotRun>("${name}RunHot") {
+        compilation.set(project.provider { compilations.getByName("main") })
     }
 }
 

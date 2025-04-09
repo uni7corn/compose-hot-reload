@@ -10,6 +10,9 @@ import org.gradle.api.provider.Provider
 import org.jetbrains.compose.reload.core.HotReloadProperty
 import org.jetbrains.kotlin.konan.target.HostManager
 
+internal val Project.isIdeaWithHotReloadPlugin: Provider<Boolean>
+    get() = providers.systemProperty("idea.compose.hot-reload").map { raw -> raw.toBoolean() }.orElse(false)
+
 internal val Project.isHeadless: Provider<Boolean>
     get() = providers.gradleProperty(HotReloadProperty.IsHeadless.key).map { raw -> raw.toBoolean() }
 
