@@ -5,7 +5,10 @@
 
 package org.jetbrains.compose.reload.tests
 
+import org.jetbrains.compose.reload.core.HOT_RELOAD_VERSION
 import org.jetbrains.compose.reload.orchestration.OrchestrationMessage
+import org.jetbrains.compose.reload.test.gradle.BuildGradleKtsExtension
+import org.jetbrains.compose.reload.test.gradle.ExtendBuildGradleKts
 import org.jetbrains.compose.reload.test.gradle.HotReloadTest
 import org.jetbrains.compose.reload.test.gradle.HotReloadTestFixture
 
@@ -13,9 +16,11 @@ import org.jetbrains.compose.reload.test.gradle.checkScreenshot
 import org.jetbrains.compose.reload.test.gradle.initialSourceCode
 import org.jetbrains.compose.reload.test.gradle.replaceSourceCodeAndReload
 import org.jetbrains.compose.reload.test.gradle.sendTestEvent
+import org.junit.jupiter.api.extension.ExtensionContext
 import kotlin.test.assertEquals
 import kotlin.test.fail
 
+@ExtendBuildGradleKts(AfterHotReloadEffectTest.Extension::class)
 class AfterHotReloadEffectTest {
     @HotReloadTest
     fun `test - invokeAfterHotReload`(fixture: HotReloadTestFixture) = fixture.runTest {
@@ -120,6 +125,12 @@ class AfterHotReloadEffectTest {
             skipToMessage<OrchestrationMessage.UIRendered>()
             fixture.checkScreenshot("2-C")
             testEventScanner.cancel()
+        }
+    }
+
+    class Extension : BuildGradleKtsExtension {
+        override fun commonDependencies(context: ExtensionContext): String? {
+            return "implementation(\"org.jetbrains.compose.hot-reload:runtime-api:$HOT_RELOAD_VERSION\")"
         }
     }
 }

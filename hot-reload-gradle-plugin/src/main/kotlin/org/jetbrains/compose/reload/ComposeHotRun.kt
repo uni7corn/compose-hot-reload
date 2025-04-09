@@ -21,7 +21,6 @@ internal fun Project.setupComposeHotRunConventions() {
         task.configureJavaExecTaskForHotReload(task.compilation)
     }
 
-
     tasks.withType<ComposeHotRun>().configureEach { task ->
         task.description = "Compose Application Run (Hot Reload enabled) | -PmainClass=..."
 
@@ -63,7 +62,6 @@ internal fun Project.setupComposeHotRunConventions() {
         }
     }
 }
-
 
 sealed class AbstractComposeHotRun : JavaExec() {
     @Transient

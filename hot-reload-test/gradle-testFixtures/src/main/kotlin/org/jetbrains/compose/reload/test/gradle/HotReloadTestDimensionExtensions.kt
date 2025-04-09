@@ -32,6 +32,7 @@ internal class ProjectModeHotReloadTestDimensionExtension : HotReloadTestDimensi
         if (tests.isEmpty()) return tests
         val testMethod = context.testMethod.getOrNull() ?: return tests
         val annotations = findRepeatableAnnotations(testMethod, TestedProjectMode::class.java)
+            .plus(findRepeatableAnnotations(context.requiredTestClass, TestedProjectMode::class.java))
         if (annotations.isEmpty()) return tests
         val modes = annotations.map { it.mode }.toSet()
 

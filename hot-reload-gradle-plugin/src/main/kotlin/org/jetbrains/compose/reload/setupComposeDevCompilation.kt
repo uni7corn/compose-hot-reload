@@ -8,6 +8,7 @@ package org.jetbrains.compose.reload
 import org.gradle.api.Project
 import org.gradle.kotlin.dsl.withType
 import org.jetbrains.compose.ComposePlugin
+import org.jetbrains.compose.reload.core.HOT_RELOAD_VERSION
 import org.jetbrains.compose.reload.gradle.kotlinJvmOrNull
 import org.jetbrains.compose.reload.gradle.kotlinMultiplatformOrNull
 import org.jetbrains.compose.reload.gradle.withComposePlugin
@@ -30,6 +31,10 @@ private fun KotlinTarget.setupComposeDevCompilation() {
     dev.associateWith(main)
 
     dev.defaultSourceSet.dependencies {
+        if (project.autoRuntimeDependenciesEnabled.get()) {
+            implementation("org.jetbrains.compose.hot-reload:runtime-api:$HOT_RELOAD_VERSION")
+        }
+
         project.withComposePlugin {
             implementation(ComposePlugin.Dependencies(project).desktop.currentOs)
         }

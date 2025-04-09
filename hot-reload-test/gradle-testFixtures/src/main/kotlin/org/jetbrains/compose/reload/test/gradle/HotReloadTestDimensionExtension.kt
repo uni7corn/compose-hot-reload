@@ -17,11 +17,11 @@ public interface HotReloadTestDimensionExtension {
 }
 
 internal fun buildHotReloadTestDimensions(context: ExtensionContext): List<HotReloadTestInvocationContext> {
-    val fromAnnotation = findRepeatableAnnotations(
-        context.requiredTestMethod, ExtendHotReloadTestDimension::class.java
-    ).map { annotation ->
-        annotation.extension.objectInstance ?: annotation.extension.java.getDeclaredConstructor().newInstance()
-    }
+    val fromAnnotation = findRepeatableAnnotations(context.requiredTestMethod, ExtendHotReloadTestDimension::class.java)
+        .plus(findRepeatableAnnotations(context.requiredTestClass, ExtendHotReloadTestDimension::class.java))
+        .map { annotation ->
+            annotation.extension.objectInstance ?: annotation.extension.java.getDeclaredConstructor().newInstance()
+        }
 
     return ServiceLoader.load(HotReloadTestDimensionExtension::class.java).plus(fromAnnotation)
         .fold(listOf(HotReloadTestInvocationContext())) { tests, extension ->

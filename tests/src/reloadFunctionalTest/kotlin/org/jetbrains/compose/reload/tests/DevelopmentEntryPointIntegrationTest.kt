@@ -46,7 +46,6 @@ class DevelopmentEntryPointIntegrationTest {
             import androidx.compose.runtime.*
             import androidx.compose.ui.unit.*
             import androidx.compose.ui.window.*
-            import org.jetbrains.compose.reload.AfterHotReloadEffect
             import org.jetbrains.compose.reload.test.*
             
             fun main() {

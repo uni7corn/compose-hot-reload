@@ -5,16 +5,59 @@
 
 package org.jetbrains.compose.reload
 
+import org.gradle.api.Project
+import org.gradle.api.artifacts.Configuration
 import org.gradle.api.artifacts.component.ComponentIdentifier
 import org.gradle.api.artifacts.component.ProjectComponentIdentifier
 import org.gradle.api.artifacts.type.ArtifactTypeDefinition
+import org.gradle.api.attributes.Category
+import org.gradle.api.attributes.Usage
+import org.gradle.api.attributes.java.TargetJvmEnvironment.STANDARD_JVM
+import org.gradle.api.attributes.java.TargetJvmEnvironment.TARGET_JVM_ENVIRONMENT_ATTRIBUTE
 import org.gradle.api.file.DuplicatesStrategy
 import org.gradle.api.file.FileCollection
 import org.gradle.api.tasks.Sync
 import org.gradle.internal.component.local.model.OpaqueComponentArtifactIdentifier
+import org.gradle.kotlin.dsl.named
+import org.gradle.kotlin.dsl.provideDelegate
+import org.jetbrains.compose.reload.core.HOT_RELOAD_VERSION
 import org.jetbrains.compose.reload.gradle.capitalized
 import org.jetbrains.compose.reload.gradle.composeHotReloadAgentRuntimeClasspath
 import org.jetbrains.kotlin.gradle.plugin.KotlinCompilation
+import org.jetbrains.kotlin.gradle.plugin.KotlinPlatformType
+
+private const val hotReloadRuntimeConfigurationName = "hotReloadRuntime"
+
+/**
+ * This configuration only contains the 'dev' variant of the 'hot-reload:runtime-*' artifacts.
+ */
+internal val Project.hotReloadRuntimeConfiguration: Configuration
+    get() = project.configurations.findByName(hotReloadRuntimeConfigurationName)
+        ?: project.configurations.create(hotReloadRuntimeConfigurationName) { configuration ->
+            configuration.isCanBeResolved = true
+            configuration.isCanBeConsumed = false
+            configuration.isVisible = false
+
+            configuration.attributes.attribute(KotlinPlatformType.attribute, KotlinPlatformType.jvm)
+            configuration.attributes.attribute(Usage.USAGE_ATTRIBUTE, project.objects.named(COMPOSE_DEV_RUNTIME_USAGE))
+            configuration.attributes.attribute(Category.CATEGORY_ATTRIBUTE, project.objects.named(Category.LIBRARY))
+            configuration.attributes.attribute(TARGET_JVM_ENVIRONMENT_ATTRIBUTE, project.objects.named(STANDARD_JVM))
+
+            /**
+             * The dev runtime should also include the 'runtime-api,' which will resolve to the dev variant,
+             * practically engaging the 'DevelopmentEntryPoint {}' transformations
+             */
+            project.dependencies.add(
+                configuration.name,
+                "org.jetbrains.compose.hot-reload:runtime-api:$HOT_RELOAD_VERSION"
+            )
+        }
+
+/**
+ * Contains the 'dev' variant of the 'hot reload runtime':
+ * Aka. the version of the runtime which is required for running in hot reload mode.
+ */
+val Project.hotReloadRuntimeClasspath: FileCollection get() = hotReloadRuntimeConfiguration
 
 /**
  * The raw runtime classpath: This will be the direct output of the

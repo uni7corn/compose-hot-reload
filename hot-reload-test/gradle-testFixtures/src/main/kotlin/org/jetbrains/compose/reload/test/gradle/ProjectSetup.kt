@@ -30,6 +30,7 @@ internal fun HotReloadTestFixture.setupProject(context: ExtensionContext) {
     /* Setup build.gradle.kts files */
     val buildGradleKts = renderBuildGradleKts(context)
     findRepeatableAnnotations(context.requiredTestMethod, BuildGradleKts::class.java)
+        .plus(findRepeatableAnnotations(context.requiredTestClass, BuildGradleKts::class.java))
         .map { annotation -> annotation.path }.toSet()
         .map { path -> projectDir.subproject(path) }
         .ifEmpty { setOf(projectDir) }

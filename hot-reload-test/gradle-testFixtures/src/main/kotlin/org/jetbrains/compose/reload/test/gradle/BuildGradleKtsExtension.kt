@@ -37,11 +37,12 @@ public fun renderBuildGradleKts(context: ExtensionContext): String {
     else kmpBuildGradleKtsTemplate
 
     return template.renderOrThrow {
-        val extensionsFromAnnotation = findRepeatableAnnotations(
-            context.requiredTestMethod, ExtendBuildGradleKts::class.java
-        ).map { annotation ->
-            annotation.extension.objectInstance ?: annotation.extension.java.getConstructor().newInstance()
-        }
+        val extensionsFromAnnotation =
+            findRepeatableAnnotations(context.requiredTestMethod, ExtendBuildGradleKts::class.java)
+                .plus(findRepeatableAnnotations(context.requiredTestClass, ExtendBuildGradleKts::class.java))
+                .map { annotation ->
+                    annotation.extension.objectInstance ?: annotation.extension.java.getConstructor().newInstance()
+                }
 
         ServiceLoader.load(BuildGradleKtsExtension::class.java).plus(extensionsFromAnnotation).forEach { extension ->
             headerKey(extension.header(context))

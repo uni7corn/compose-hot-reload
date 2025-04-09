@@ -71,14 +71,19 @@ internal val KotlinCompilation<*>.composeDevRuntimeDependencies: Configuration b
     val runtimeConfiguration = project.configurations.getByName(runtimeConfigurationName)
 
     project.configurations.create(runtimeConfigurationName + "ComposeDev").apply {
+        /**
+         * Extend from the regural 'runtimeConfiguration' as well as the 'hotReloadRuntime' which will
+         * bring in additional runtime artifacts required by hot-reload
+         */
         extendsFrom(runtimeConfiguration)
+        extendsFrom(project.hotReloadRuntimeConfiguration)
+
         isCanBeResolved = true
         isCanBeConsumed = false
         attributes.attribute(KotlinPlatformType.attribute, KotlinPlatformType.jvm)
         attributes.attribute(Usage.USAGE_ATTRIBUTE, project.objects.named(COMPOSE_DEV_RUNTIME_USAGE))
         attributes.attribute(Category.CATEGORY_ATTRIBUTE, project.objects.named(Category.LIBRARY))
         attributes.attribute(TARGET_JVM_ENVIRONMENT_ATTRIBUTE, project.objects.named(STANDARD_JVM))
-
     }
 }
 
@@ -117,7 +122,6 @@ private fun KotlinTarget.createComposeHotReloadRuntimeElements() {
         }
     }
 }
-
 
 internal class ComposeHotReloadCompatibility : AttributeCompatibilityRule<Usage> {
     override fun execute(details: CompatibilityCheckDetails<Usage>) {
