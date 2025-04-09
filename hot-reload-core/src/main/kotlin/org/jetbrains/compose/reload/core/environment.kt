@@ -14,6 +14,7 @@ public enum class HotReloadProperty(public val key: String) {
     OrchestrationPort("compose.reload.orchestration.port"),
     PidFile("compose.reload.pidFile"),
     IsHeadless("compose.reload.headless"),
+    IsHotReloadBuild("compose.reload.isHotReloadBuild"),
     HotClasspath("compose.reload.hotApplicationClasspath"),
     VirtualMethodResolveEnabled("compose.reload.virtualMethodResolveEnabled"),
     DirtyResolveDepthLimit("compose.reload.dirtyResolveDepthLimit"),

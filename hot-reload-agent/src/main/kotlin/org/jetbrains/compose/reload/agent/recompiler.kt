@@ -234,8 +234,9 @@ private fun createRecompilerGradleCommandLineArgs(
         gradleTaskPath,
         "--console=plain",
 
+        "-D${HotReloadProperty.IsHotReloadBuild.key}=true",
+        "-P${HotReloadProperty.IsHotReloadBuild.key}=true",
         "-D${HotReloadProperty.OrchestrationPort.key}=$orchestrationPort",
-
         "-D${HotReloadProperty.GradleJavaHome.key}=${HotReloadEnvironment.gradleJavaHome?.pathString}"
             .takeIf { HotReloadEnvironment.gradleJavaHome != null },
 

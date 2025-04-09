@@ -10,6 +10,15 @@ import org.gradle.api.provider.Provider
 import org.jetbrains.compose.reload.core.HotReloadProperty
 import org.jetbrains.kotlin.konan.target.HostManager
 
+/**
+ * true, if the current build was started by 'Compose Hot Reload' with the intention of quickly 'recompiling' the code
+ * false otherwise.
+ */
+val Project.isHotReloadBuild: Boolean
+    get() = providers.gradleProperty(HotReloadProperty.IsHotReloadBuild.key).map { raw -> raw.toBoolean() }
+        .orElse(providers.systemProperty(HotReloadProperty.IsHotReloadBuild.key).map { raw -> raw.toBoolean() })
+        .orElse(false).get()
+
 internal val Project.isIdeaWithHotReloadPlugin: Provider<Boolean>
     get() = providers.systemProperty("idea.compose.hot-reload").map { raw -> raw.toBoolean() }.orElse(false)
 
@@ -38,7 +47,6 @@ internal val Project.isIdeaSync: Provider<Boolean>
 internal val Project.autoRuntimeDependenciesEnabled: Provider<Boolean>
     get() = providers.gradleProperty("compose.reload.autoRuntimeDependenciesEnabled").map { raw -> raw.toBoolean() }
         .orElse(true)
-
 
 internal val Project.jetbrainsRuntimeBinary: Provider<String>
     get() = providers.systemProperty("compose.reload.jbr.binary")

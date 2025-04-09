@@ -53,6 +53,10 @@ internal fun Project.setupComposeReloadHotClasspathTask(compilation: KotlinCompi
     val hotApplicationClasses = compilation.hotApplicationClasspath
 
     return tasks.register(name, ComposeReloadHotClasspathTask::class.java) { task ->
+        assert(isHotReloadBuild) {
+            "Expected ${ComposeReloadHotClasspathTask::class.simpleName} to be configured only during hot reload builds"
+        }
+
         task.classpath.from(hotApplicationClasses)
         task.dependsOn(hotApplicationClasses)
     }
