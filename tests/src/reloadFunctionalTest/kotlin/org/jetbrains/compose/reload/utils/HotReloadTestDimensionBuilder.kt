@@ -47,10 +47,12 @@ class HotReloadTestDimensionBuilder : HotReloadTestDimensionExtension {
         var result = setOf(baselineContext)
 
         /* Expand Kotlin Versions */
-        result += repositoryDeclaredTestDimensions.kotlin.flatMap { declaredKotlinVersion ->
-            result.map { context ->
-                context.copy {
-                    kotlinVersion = TestedKotlinVersion(KotlinToolingVersion(declaredKotlinVersion.version))
+        if (!AnnotationUtils.isAnnotated(context.requiredTestMethod, QuickTest::class.java)) {
+            result += repositoryDeclaredTestDimensions.kotlin.flatMap { declaredKotlinVersion ->
+                result.map { context ->
+                    context.copy {
+                        kotlinVersion = TestedKotlinVersion(KotlinToolingVersion(declaredKotlinVersion.version))
+                    }
                 }
             }
         }
