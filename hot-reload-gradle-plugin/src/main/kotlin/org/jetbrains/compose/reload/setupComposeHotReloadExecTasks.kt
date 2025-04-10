@@ -13,7 +13,7 @@ import org.gradle.api.tasks.JavaExec
 import org.gradle.kotlin.dsl.register
 import org.gradle.kotlin.dsl.withType
 import org.jetbrains.compose.reload.core.HotReloadProperty
-import org.jetbrains.compose.reload.gradle.createDebuggerJvmArguments
+import org.jetbrains.compose.reload.core.issueNewDebugSessionJvmArguments
 import org.jetbrains.compose.reload.gradle.kotlinJvmOrNull
 import org.jetbrains.compose.reload.gradle.kotlinMultiplatformOrNull
 import org.jetbrains.kotlin.gradle.InternalKotlinGradlePluginApi
@@ -75,7 +75,7 @@ internal fun JavaExec.configureJavaExecTaskForHotReload(compilation: Provider<Ko
             Provisioning a new debug session. This will return jvm args for the debug agent.
             Since we would like to debug our hot reload agent, we ensure that the debug agent is listed first.
              */
-            jvmArgs = createDebuggerJvmArguments(intellijDebuggerDispatchPort).toList() + jvmArgs.orEmpty()
+            jvmArgs = issueNewDebugSessionJvmArguments(intellijDebuggerDispatchPort).toList() + jvmArgs.orEmpty()
         }
 
         logger.info("Running ${mainClass.get()}...")

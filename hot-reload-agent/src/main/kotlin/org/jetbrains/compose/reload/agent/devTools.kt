@@ -10,6 +10,7 @@ import org.jetbrains.compose.reload.core.HotReloadProperty
 import org.jetbrains.compose.reload.core.HotReloadProperty.DevToolsClasspath
 import org.jetbrains.compose.reload.core.Os
 import org.jetbrains.compose.reload.core.createLogger
+import org.jetbrains.compose.reload.core.issueNewDebugSessionJvmArguments
 import java.io.File
 import java.nio.file.Path
 import kotlin.io.path.Path
@@ -37,6 +38,7 @@ internal fun launchDevtoolsApplication() {
         "-D${HotReloadProperty.GradleBuildContinuous.key}=${HotReloadEnvironment.gradleBuildContinuous}",
         "-D${HotReloadProperty.DevToolsTransparencyEnabled.key}=${HotReloadEnvironment.devToolsTransparencyEnabled}",
         "-Dapple.awt.UIElement=true",
+        *issueNewDebugSessionJvmArguments(),
         "org.jetbrains.compose.reload.jvm.tooling.Main",
         "--applicationCommand=$java",
         *arguments.map { arg -> "--applicationArg=$arg" }.toTypedArray()

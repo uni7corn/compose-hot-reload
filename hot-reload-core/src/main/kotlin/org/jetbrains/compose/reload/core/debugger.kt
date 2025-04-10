@@ -3,26 +3,27 @@
  * Use of this source code is governed by the Apache 2.0 license that can be found in the LICENSE file.
  */
 
-package org.jetbrains.compose.reload.gradle
+package org.jetbrains.compose.reload.core
 
 import java.io.DataOutputStream
 import java.net.ServerSocket
 import java.net.Socket
 
-/*
-When the Gradle Runner from IntelliJ is started in 'Debug Mode' it will start a 'Debug Dispatch Server'.
-This server can be used to start debug servers on IntelliJ.
-Therefore, we will try to find a suitable free port, connect to the dispatch server and request a
-debug server being created at this port. Once this server was launched, we can launch the actual
-JVM instructing it to connect to the said debug server.
-
-If we're not in debug mode, an empty array will be returned.
+/**
+ * When the Gradle Runner from IntelliJ is started in 'Debug Mode' it will start a 'Debug Dispatch Server'.
+ * This server can be used to start debug servers on IntelliJ.
+ * Therefore, we will try to find a suitable free port, connect to the dispatch server and request a
+ * debug server being created at this port. Once this server was launched, we can launch the actual
+ * JVM instructing it to connect to the said debug server.
+ *
+ * If we're not in debug mode, an empty array will be returned.
  */
-@InternalHotReloadGradleApi
-fun createDebuggerJvmArguments(intellijDebugDispatchPort: Int?): Array<String> {
-    val port = ServerSocket(0).use { it.localPort }
-
+@InternalHotReloadApi
+public fun issueNewDebugSessionJvmArguments(
+    intellijDebugDispatchPort: Int? = HotReloadEnvironment.intellijDebuggerDispatchPort
+): Array<String> {
     intellijDebugDispatchPort?.let { dispatchPort ->
+        val port = ServerSocket(0).use { it.localPort }
         //logger.info("Setting up debugger: dispatch.port=$dispatchPort; debug.port=$port")
         Socket("127.0.0.1", dispatchPort).use { debugDispatchSocket ->
             val output = DataOutputStream(debugDispatchSocket.getOutputStream())

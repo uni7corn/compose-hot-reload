@@ -20,7 +20,7 @@ import org.gradle.api.tasks.testing.TestFailure
 import org.gradle.api.tasks.testing.TestOutputEvent
 import org.jetbrains.compose.reload.core.HotReloadProperty
 import org.jetbrains.compose.reload.core.destroyWithDescendants
-import org.jetbrains.compose.reload.gradle.createDebuggerJvmArguments
+import org.jetbrains.compose.reload.core.issueNewDebugSessionJvmArguments
 import org.jetbrains.compose.reload.orchestration.OrchestrationMessage
 import org.jetbrains.compose.reload.orchestration.OrchestrationServer
 import org.jetbrains.compose.reload.orchestration.invokeWhenReceived
@@ -126,7 +126,7 @@ internal class HotReloadUnitTestExecutor(
                 "-cp",
                 classpath.filter { it.exists() }.asPath +
                     pathSeparator + agentClasspath.asPath,
-                *createDebuggerJvmArguments(intellijDebuggerDispatchPort),
+                *issueNewDebugSessionJvmArguments(intellijDebuggerDispatchPort),
                 "-javaagent:${agentJar.asPath}",
                 "-XX:+AllowEnhancedClassRedefinition",
                 "-Dapple.awt.UIElement=true",
