@@ -5,7 +5,6 @@
 
 package org.jetbrains.compose.reload.core
 
-
 public sealed class Either<out L, out R> {
     public fun leftOrNull(): L? = if (this is Left) value else null
     public fun rightOrNull(): R? = if (this is Right) value else null

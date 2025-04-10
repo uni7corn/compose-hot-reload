@@ -15,6 +15,7 @@ asm = "9.7.1"
 evas = "1.2.0"
 ktor = "3.1.0"
 shadow = "9.0.0-beta9"
+kaml = "0.76.0"
 
 [libraries]
 coroutines-core = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-core", version.ref = "coroutines" }
@@ -28,6 +29,7 @@ binaryCompatibilityValidator-gradlePlugin = { module = "org.jetbrains.kotlinx:bi
 
 kotlinxDatetime = { module = "org.jetbrains.kotlinx:kotlinx-datetime", version.ref = "kotlinxDatetime" }
 kotlinxSerialization-json = { module = "org.jetbrains.kotlinx:kotlinx-serialization-json", version.ref = "kotlinxSerialization" }
+kotlinxSerialization-kaml = { module = "com.charleskorn.kaml:kaml", version.ref = "kaml" }
 
 slf4j-api = { module = "org.slf4j:slf4j-api", version.ref = "slf4j" }
 logback = { module = "ch.qos.logback:logback-classic", version.ref = "logback" }

@@ -20,7 +20,7 @@ import java.net.Socket
  */
 @InternalHotReloadApi
 public fun issueNewDebugSessionJvmArguments(
-    intellijDebugDispatchPort: Int? = HotReloadEnvironment.intellijDebuggerDispatchPort
+    intellijDebugDispatchPort: Int? = HotReloadEnvironment.intelliJDebuggerDispatchPort
 ): Array<String> {
     intellijDebugDispatchPort?.let { dispatchPort ->
         val port = ServerSocket(0).use { it.localPort }

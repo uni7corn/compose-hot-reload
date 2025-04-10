@@ -7,48 +7,15 @@ package org.jetbrains.compose.reload
 
 import org.gradle.api.Project
 import org.gradle.api.provider.Provider
-import org.jetbrains.compose.reload.core.HotReloadProperty
-import org.jetbrains.kotlin.konan.target.HostManager
+import org.jetbrains.compose.reload.gradle.core.composeReloadIsHotReloadBuild
 
 /**
  * true, if the current build was started by 'Compose Hot Reload' with the intention of quickly 'recompiling' the code
  * false otherwise.
+ *
+ * See [org.jetbrains.compose.reload.core.HotReloadProperty.IsHotReloadBuild]
  */
-val Project.isHotReloadBuild: Boolean
-    get() = providers.gradleProperty(HotReloadProperty.IsHotReloadBuild.key).map { raw -> raw.toBoolean() }
-        .orElse(providers.systemProperty(HotReloadProperty.IsHotReloadBuild.key).map { raw -> raw.toBoolean() })
-        .orElse(false).get()
-
-internal val Project.isIdeaWithHotReloadPlugin: Provider<Boolean>
-    get() = providers.systemProperty("idea.compose.hot-reload").map { raw -> raw.toBoolean() }.orElse(false)
-
-internal val Project.isHeadless: Provider<Boolean>
-    get() = providers.gradleProperty(HotReloadProperty.IsHeadless.key).map { raw -> raw.toBoolean() }
-
-internal val Project.isDevToolsEnabled: Provider<Boolean>
-    get() = providers.gradleProperty(HotReloadProperty.DevToolsEnabled.key).map { raw -> raw.toBoolean() }
-
-internal val Project.isDevToolsTransparencyEnabled: Provider<Boolean>
-    get() = providers.gradleProperty(HotReloadProperty.DevToolsTransparencyEnabled.key).map(String?::toBoolean)
-        .orElse(providers.systemProperty(HotReloadProperty.DevToolsTransparencyEnabled.key).map(String?::toBoolean))
-        .orElse(!HostManager.hostIsLinux)
-
-internal val Project.isRecompileContinuous: Provider<Boolean>
-    get() = providers.gradleProperty("compose.build.continuous").map { raw -> raw.toBoolean() }
-
-internal val Project.orchestrationPort: Provider<Int>
-    get() = (providers.systemProperty(HotReloadProperty.OrchestrationPort.key)
-        .orElse(providers.gradleProperty(HotReloadProperty.OrchestrationPort.key)))
-        .map { value -> value.toInt() }
+val Project.isHotReloadBuild: Boolean get() = composeReloadIsHotReloadBuild
 
 internal val Project.isIdeaSync: Provider<Boolean>
     get() = providers.systemProperty("idea.sync.active").map { raw -> raw.toBoolean() }
-
-internal val Project.autoRuntimeDependenciesEnabled: Provider<Boolean>
-    get() = providers.gradleProperty("compose.reload.autoRuntimeDependenciesEnabled").map { raw -> raw.toBoolean() }
-        .orElse(true)
-
-internal val Project.jetbrainsRuntimeBinary: Provider<String>
-    get() = providers.systemProperty("compose.reload.jbr.binary")
-        .orElse(providers.gradleProperty("compose.reload.jbr.binary"))
-        .orElse(providers.environmentVariable("COMPOSE_RELOAD_JBR_BINARY"))

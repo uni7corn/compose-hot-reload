@@ -17,6 +17,14 @@ import org.gradle.process.JavaForkOptions
 import org.jetbrains.compose.reload.core.BuildSystem
 import org.jetbrains.compose.reload.core.HotReloadProperty
 import org.jetbrains.compose.reload.gradle.composeHotReloadAgentJar
+import org.jetbrains.compose.reload.gradle.core.composeReloadDevToolsEnabled
+import org.jetbrains.compose.reload.gradle.core.composeReloadDevToolsTransparencyEnabled
+import org.jetbrains.compose.reload.gradle.core.composeReloadDirtyResolveDepthLimit
+import org.jetbrains.compose.reload.gradle.core.composeReloadGradleBuildContinuous
+import org.jetbrains.compose.reload.gradle.core.composeReloadIsHeadless
+import org.jetbrains.compose.reload.gradle.core.composeReloadJetBrainsRuntimeBinary
+import org.jetbrains.compose.reload.gradle.core.composeReloadOrchestrationPort
+import org.jetbrains.compose.reload.gradle.core.composeReloadVirtualMethodResolveEnabled
 import org.jetbrains.compose.reload.gradle.jetbrainsRuntimeLauncher
 import java.io.File
 
@@ -66,22 +74,22 @@ private class ComposeHotReloadArgumentsBuilderImpl(
     private var hotClasspath: FileCollection? = null
 
     private val isHeadless: Property<Boolean> = project.objects.property(Boolean::class.java)
-        .value(project.isHeadless)
+        .value(project.composeReloadIsHeadless)
 
     private val pidFile: Property<File> = project.objects.property(File::class.java)
 
     private var devToolsClasspath: FileCollection = project.composeHotReloadDevToolsConfiguration
 
     private val devToolsEnabled: Property<Boolean> = project.objects.property(Boolean::class.java)
-        .value(project.isDevToolsEnabled)
+        .value(project.composeReloadDevToolsEnabled)
 
     private val devToolsTransparencyEnabled: Property<Boolean> = project.objects.property(Boolean::class.java)
-        .value(project.isDevToolsTransparencyEnabled)
+        .value(project.composeReloadDevToolsTransparencyEnabled)
 
     private val reloadTaskName: Property<String> = project.objects.property(String::class.java)
 
     private val isRecompileContinues: Property<Boolean> = project.objects.property(Boolean::class.java)
-        .value(project.isRecompileContinuous)
+        .value(project.composeReloadGradleBuildContinuous)
 
 
     override fun setAgentJar(files: FileCollection) {
@@ -139,7 +147,10 @@ private class ComposeHotReloadArgumentsBuilderImpl(
             devToolsTransparencyEnabled = devToolsTransparencyEnabled,
             reloadTaskName = reloadTaskName,
             isRecompileContinues = isRecompileContinues,
-            orchestrationPort = project.orchestrationPort,
+            orchestrationPort = project.provider { project.composeReloadOrchestrationPort },
+            /* Non API elements */
+            virtualMethodResolveEnabled = project.composeReloadVirtualMethodResolveEnabled,
+            dirtyResolveDepthLimit = project.composeReloadDirtyResolveDepthLimit
         )
     }
 }
@@ -158,7 +169,10 @@ private class ComposeHotReloadArgumentsImpl(
     private val devToolsTransparencyEnabled: Provider<Boolean>,
     private val reloadTaskName: Provider<String>,
     private val isRecompileContinues: Provider<Boolean>,
-    private val orchestrationPort: Provider<Int>
+    private val orchestrationPort: Provider<Int>,
+    /* Non API elements */
+    private val virtualMethodResolveEnabled: Boolean,
+    private val dirtyResolveDepthLimit: Int,
 ) : ComposeHotReloadArguments {
 
     override fun applyTo(java: JavaForkOptions) {
@@ -171,11 +185,12 @@ private class ComposeHotReloadArgumentsImpl(
                 java.inputs.files(devToolsClasspath)
             }
         }
-        if (java is Task && java.project.jetbrainsRuntimeBinary.isPresent) {
-            java.executable(java.project.jetbrainsRuntimeBinary.get())
+        if (java is Task && java.project.composeReloadJetBrainsRuntimeBinary != null) {
+            java.executable(java.project.composeReloadJetBrainsRuntimeBinary)
         } else if (java is JavaExec && java.project.composeHotReloadExtension.useJetBrainsRuntime.get()) {
             java.javaLauncher.set(java.project.jetbrainsRuntimeLauncher())
         }
+
     }
 
     override fun asArguments(): Iterable<String> = buildList {
@@ -241,6 +256,9 @@ private class ComposeHotReloadArgumentsImpl(
             logger.quiet("Using orchestration server port: ${orchestrationPort.get()}")
             add("-D${HotReloadProperty.OrchestrationPort.key}=${orchestrationPort.get()}")
         }
+
+        add("-D${HotReloadProperty.VirtualMethodResolveEnabled.key}=$virtualMethodResolveEnabled")
+        add("-D${HotReloadProperty.DirtyResolveDepthLimit.key}=$dirtyResolveDepthLimit")
     }.also { arguments ->
         if (logger.isInfoEnabled) {
             logger.info("Compose Hot Reload arguments:\n${arguments.joinToString("\n") { it.prependIndent("  ") }}")

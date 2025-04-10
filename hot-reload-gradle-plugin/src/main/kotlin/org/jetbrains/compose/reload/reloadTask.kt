@@ -21,6 +21,7 @@ import org.gradle.work.Incremental
 import org.gradle.work.InputChanges
 import org.jetbrains.compose.reload.gradle.InternalHotReloadGradleApi
 import org.jetbrains.compose.reload.gradle.capitalized
+import org.jetbrains.compose.reload.gradle.core.composeReloadOrchestrationPort
 import org.jetbrains.compose.reload.gradle.kotlinJvmOrNull
 import org.jetbrains.compose.reload.gradle.kotlinMultiplatformOrNull
 import org.jetbrains.compose.reload.orchestration.OrchestrationClientRole.Compiler
@@ -43,7 +44,7 @@ internal fun Project.setupComposeReloadHotClasspathTasks() {
     tasks.withType<ComposeReloadHotClasspathTask>().configureEach { task ->
         task.outputs.upToDateWhen { true }
         task.group = "compose"
-        task.agentPort.set(project.orchestrationPort)
+        task.agentPort.set(project.composeReloadOrchestrationPort)
     }
 }
 
@@ -80,7 +81,7 @@ open class ComposeReloadHotClasspathTask : DefaultTask() {
 
     @get:Internal
     val agentPort: Property<Int> = project.objects.property<Int>()
-        .convention(project.orchestrationPort)
+        .convention(project.composeReloadOrchestrationPort)
 
     @TaskAction
     fun execute(inputs: InputChanges) {

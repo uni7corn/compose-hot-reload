@@ -14,6 +14,7 @@ import org.gradle.kotlin.dsl.register
 import org.gradle.kotlin.dsl.withType
 import org.jetbrains.compose.reload.core.HotReloadProperty
 import org.jetbrains.compose.reload.core.issueNewDebugSessionJvmArguments
+import org.jetbrains.compose.reload.gradle.core.composeReloadIdeaComposeHotReload
 import org.jetbrains.compose.reload.gradle.kotlinJvmOrNull
 import org.jetbrains.compose.reload.gradle.kotlinMultiplatformOrNull
 import org.jetbrains.kotlin.gradle.InternalKotlinGradlePluginApi
@@ -36,7 +37,7 @@ internal fun Project.setupComposeHotReloadExecTasks() {
 }
 
 private fun KotlinTarget.createComposeHotReloadExecTask() {
-    if (!project.isIdeaWithHotReloadPlugin.get()) {
+    if (!project.composeReloadIdeaComposeHotReload) {
         @OptIn(InternalKotlinGradlePluginApi::class)
         project.tasks.register<KotlinJvmRun>("${name}Run") {
             configureJavaExecTaskForHotReload(project.provider { compilations.getByName("main") })

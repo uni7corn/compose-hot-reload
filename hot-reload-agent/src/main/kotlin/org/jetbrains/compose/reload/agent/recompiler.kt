@@ -19,6 +19,7 @@ import org.jetbrains.compose.reload.orchestration.OrchestrationMessage.LogMessag
 import org.jetbrains.compose.reload.orchestration.OrchestrationMessage.RecompileRequest
 import org.jetbrains.compose.reload.orchestration.invokeWhenReceived
 import java.io.File
+import java.nio.file.Path
 import java.util.concurrent.LinkedBlockingQueue
 import java.util.concurrent.TimeUnit
 import kotlin.concurrent.thread
@@ -26,9 +27,9 @@ import kotlin.io.path.pathString
 
 private val logger = createLogger()
 
-private val buildSystem: BuildSystem = HotReloadEnvironment.buildSystem
+private val buildSystem: BuildSystem? = HotReloadEnvironment.buildSystem
 
-private val gradleBuildRoot: String? = HotReloadEnvironment.gradleBuildRoot
+private val gradleBuildRoot: Path? = HotReloadEnvironment.gradleBuildRoot
 private val gradleBuildProject: String? = HotReloadEnvironment.gradleBuildProject
 private val gradleBuildTask: String? = HotReloadEnvironment.gradleBuildTask
 
@@ -51,6 +52,8 @@ private val recompileRequests = LinkedBlockingQueue<RecompileRequest>(
 )
 
 internal fun launchRecompiler() {
+    if (buildSystem == null) return
+
     val port = orchestration.port
     logger.debug("'Compose Recompiler': Using orchestration at '$port'")
 
@@ -185,12 +188,12 @@ private fun ProcessBuilder.startRecompilerProcess(): Int? {
 }
 
 private fun createRecompilerProcessBuilder(
-    gradleBuildRoot: String,
+    gradleBuildRoot: Path,
     gradleBuildProject: String,
     gradleBuildTask: String,
     orchestrationPort: Int
 ): ProcessBuilder {
-    return ProcessBuilder().directory(File(gradleBuildRoot))
+    return ProcessBuilder().directory(gradleBuildRoot.toFile())
         .command(
             createRecompilerGradleCommandLineArgs(
                 gradleBuildProject = gradleBuildProject,

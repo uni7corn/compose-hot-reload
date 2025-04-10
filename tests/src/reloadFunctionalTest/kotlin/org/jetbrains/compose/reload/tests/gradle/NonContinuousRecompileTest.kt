@@ -5,6 +5,7 @@
 
 package org.jetbrains.compose.reload.tests.gradle
 
+import org.jetbrains.compose.reload.core.HotReloadProperty
 import org.jetbrains.compose.reload.orchestration.OrchestrationMessage
 import org.jetbrains.compose.reload.orchestration.OrchestrationMessage.RecompileRequest
 import org.jetbrains.compose.reload.test.gradle.HotReloadTest
@@ -25,7 +26,7 @@ class NonContinuousRecompileTest {
         projectDir.resolve("gradle.properties")
             .createParentDirectories()
             .apply { if (!exists()) createFile() }
-            .appendLines(listOf("compose.build.continuous=false"))
+            .appendLines(listOf("${HotReloadProperty.GradleBuildContinuous.key}=false"))
 
         runTransaction {
             this initialSourceCode """

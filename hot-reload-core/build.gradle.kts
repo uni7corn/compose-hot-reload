@@ -92,15 +92,19 @@ run {
         }
     }
 
+    val generateEnvironmentSources = tasks.register<properties.GenerateHotReloadEnvironmentTask>("generateHotReloadEnvironment") {
+        outputSourcesDir = generatedSourceDir
+    }
+
     kotlin {
         sourceSets.main.get().kotlin.srcDir(generatedSourceDir)
     }
 
-    tasks.named("sourcesJar").dependsOn(writeBuildConfig)
+    tasks.named("sourcesJar").dependsOn(writeBuildConfig, generateEnvironmentSources)
     tasks.register("prepareKotlinIdeaImport") {
-        dependsOn(writeBuildConfig)
+        dependsOn(writeBuildConfig, generateEnvironmentSources)
     }
     kotlin.target.compilations.getByName("main").compileTaskProvider.configure {
-        dependsOn(writeBuildConfig)
+        dependsOn(writeBuildConfig, generateEnvironmentSources)
     }
 }
