@@ -137,7 +137,7 @@ DevToolsClasspath:
 DevToolsTransparencyEnabled:
   key: compose.reload.devToolsTransparencyEnabled
   type: boolean
-  default: "(Os.currentOrNull() != Os.Windows).toString()"
+  default: "(Os.currentOrNull() != Os.Linux).toString()"
   defaultIsExpression: true
   target: [ application, build, devtools ]
   documentation: |
