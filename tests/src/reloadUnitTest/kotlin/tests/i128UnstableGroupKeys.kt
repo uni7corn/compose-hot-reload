@@ -1,3 +1,5 @@
+@file:Suppress("FunctionName")
+
 package tests
 
 import androidx.compose.ui.test.ExperimentalTestApi
@@ -11,9 +13,9 @@ import utils.readSource
 
 @OptIn(ExperimentalTestApi::class)
 @HotReloadUnitTest
-fun `test - when`() = runComposeUiTest {
+fun `test - i128UnstableGroupKeys`() = runComposeUiTest {
     setContent {
-        WhenStatement.content()
+        I128UnstableGroupKeys.content()
     }
 
     onAllNodesWithTag("item").assertCountEquals(2).run {

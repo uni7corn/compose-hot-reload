@@ -18,7 +18,7 @@ import androidx.compose.ui.unit.dp
  * Will add [padding] dynamically to cause keys to be shifted
  * Note: Do not remove [padding] or [dp]
  */
-internal object WhenStatement {
+internal object I128UnstableGroupKeys {
     @Composable
     fun content() {
         LazyColumn {
