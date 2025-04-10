@@ -12,6 +12,7 @@ import org.gradle.api.file.FileCollection
 import org.gradle.api.internal.tasks.testing.TestExecuter
 import org.gradle.api.tasks.Classpath
 import org.gradle.api.tasks.Input
+import org.gradle.api.tasks.InputFile
 import org.gradle.api.tasks.Internal
 import org.gradle.api.tasks.Nested
 import org.gradle.api.tasks.Optional
@@ -34,6 +35,7 @@ import org.jetbrains.kotlin.gradle.plugin.KotlinCompilation
 import org.jetbrains.kotlin.gradle.plugin.KotlinTarget
 import org.jetbrains.kotlin.gradle.targets.jvm.KotlinJvmTarget
 import org.jetbrains.kotlin.gradle.tasks.BaseKotlinCompile
+import java.io.File
 
 open class HotReloadUnitTestTask : AbstractTestTask() {
 
@@ -71,6 +73,10 @@ open class HotReloadUnitTestTask : AbstractTestTask() {
     @get:Nested
     internal val launcher = project.jetbrainsRuntimeLauncher()
 
+    @get:InputFile
+    internal val javaExecutable = project.providers.environmentVariable("COMPOSE_RELOAD_JBR_BINARY")
+        .map(::File).orElse(launcher.map { it.executablePath.asFile })
+
     @get:Internal
     internal val intellijDebuggerDispatchPort = project.intellijDebuggerDispatchPort
 
@@ -98,7 +104,7 @@ open class HotReloadUnitTestTask : AbstractTestTask() {
 
     override fun createTestExecuter(): TestExecuter<out HotReloadTestExecutionSpec?>? {
         return HotReloadUnitTestExecutor(
-            javaExecutable = launcher.get().executablePath.asFile,
+            javaExecutable = javaExecutable.get(),
             workingDir = workingDir.asFile.get(),
             classpath = classpath,
             testClasses = testClasses,
