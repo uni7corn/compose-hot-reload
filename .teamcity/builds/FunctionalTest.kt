@@ -15,6 +15,7 @@ import jetbrains.buildServer.configs.kotlin.buildSteps.gradle
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.JsonArray
 import kotlinx.serialization.json.JsonObject
+import kotlinx.serialization.json.booleanOrNull
 import kotlinx.serialization.json.jsonObject
 import kotlinx.serialization.json.jsonPrimitive
 import java.nio.ByteBuffer
@@ -30,10 +31,21 @@ fun functionalTests(): List<FunctionalTest> {
     val composeVersions = root.getValue("compose") as JsonArray
 
     return kotlinVersions.flatMap { kotlinVersion ->
-        composeVersions.map { composeVersion ->
+        composeVersions.flatMap { composeVersion ->
             val kotlinVersionString = kotlinVersion.jsonObject.getValue("version").jsonPrimitive.content
             val composeVersionString = composeVersion.jsonObject.getValue("version").jsonPrimitive.content
-            FunctionalTest(kotlinVersionString, composeVersionString)
+            val isDefaultKotlinVersion = kotlinVersion.jsonObject["isDefault"]?.jsonPrimitive?.booleanOrNull == true
+            val isDefaultComposeVersion = composeVersion.jsonObject["isDefault"]?.jsonPrimitive?.booleanOrNull == true
+
+            // Create buckets
+            if (isDefaultKotlinVersion && isDefaultComposeVersion) {
+                return@flatMap listOf(
+                    FunctionalTest(kotlinVersionString, composeVersionString, bucket = 1, bucketsSize = 2),
+                    FunctionalTest(kotlinVersionString, composeVersionString, bucket = 2, bucketsSize = 2)
+                )
+            }
+
+            listOf(FunctionalTest(kotlinVersionString, composeVersionString))
         }
     }.plus(FunctionalTest(kotlinVersion = null, composeVersion = null, defaultCompilerOptions = false))
 }
@@ -43,9 +55,11 @@ class FunctionalTest(
     private val kotlinVersion: String?,
     private val composeVersion: String?,
     private val defaultCompilerOptions: Boolean = true,
+    private val bucket: Int? = null,
+    private val bucketsSize: Int? = null,
 ) : BuildType({
     val key = run {
-        val hash = (kotlinVersion + composeVersion + defaultCompilerOptions).hashCode()
+        val hash = (kotlinVersion + composeVersion + defaultCompilerOptions + bucket + bucketsSize).hashCode()
         val buffer = ByteBuffer.allocate(Int.SIZE_BYTES)
         buffer.putInt(hash)
         Base64.getUrlEncoder().withoutPadding().encodeToString(buffer.array()).replace("-", "_")
@@ -53,17 +67,26 @@ class FunctionalTest(
 
     name = buildString {
         append("Functional Test: (")
-        if (kotlinVersion != null) {
-            append("Kotlin $kotlinVersion, ")
-        }
+        append(
+            buildList {
+                if (kotlinVersion != null) {
+                    add("Kotlin $kotlinVersion")
+                }
 
-        if (composeVersion != null) {
-            append("Compose $composeVersion, ")
-        }
+                if (composeVersion != null) {
+                    add("Compose $composeVersion")
+                }
 
-        if (!defaultCompilerOptions) {
-            append("Non default compiler options")
-        }
+                if (!defaultCompilerOptions) {
+                    add("Non default compiler options")
+                }
+
+                if (bucket != null && bucketsSize != null) {
+                    add("($bucket/$bucketsSize)")
+                }
+            }.joinToString(", ")
+        )
+
         append(")")
     }
 
@@ -81,6 +104,11 @@ class FunctionalTest(
 
         if (composeVersion != null) {
             param("env.TESTED_COMPOSE_VERSION", composeVersion)
+        }
+
+        if (bucket != null && bucketsSize != null) {
+            param("env.TESTED_BUCKET", bucket.toString())
+            param("env.TESTED_BUCKET_SIZE", bucketsSize.toString())
         }
 
         param("env.TESTED_DEFAULT_COMPILER_OPTIONS", defaultCompilerOptions.toString())

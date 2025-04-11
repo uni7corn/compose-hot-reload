@@ -186,6 +186,7 @@ public final class org/jetbrains/compose/reload/test/gradle/HotReloadTestInvocat
 	public final fun getAndroidVersion ()Lorg/jetbrains/compose/reload/test/gradle/TestedAndroidVersion;
 	public final fun getCompilerOptions ()Lorg/jetbrains/compose/reload/test/gradle/TestedCompilerOptions;
 	public final fun getComposeVersion ()Lorg/jetbrains/compose/reload/test/gradle/TestedComposeVersion;
+	public final fun getDisplayName ()Ljava/lang/String;
 	public fun getDisplayName (I)Ljava/lang/String;
 	public fun getExtras ()Lorg/jetbrains/kotlin/tooling/core/Extras;
 	public final fun getGradleVersion ()Lorg/jetbrains/compose/reload/test/gradle/TestedGradleVersion;

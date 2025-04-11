@@ -21,6 +21,7 @@ import org.junit.jupiter.api.extension.ExtensionContext
 import org.junit.platform.commons.util.AnnotationUtils
 import java.awt.GraphicsEnvironment
 import kotlin.jvm.optionals.getOrNull
+import kotlin.math.absoluteValue
 
 class HotReloadTestDimensionBuilder : HotReloadTestDimensionExtension {
     override fun transform(
@@ -149,6 +150,14 @@ class HotReloadTestDimensionFilter : HotReloadTestDimensionExtension {
             result = result.filter { invocationContext ->
                 AnnotationUtils.findAnnotation(context.requiredTestMethod, Headless::class.java)
                     .getOrNull()?.isHeadless ?: true
+            }
+        }
+
+        val bucket = System.getenv("TESTED_BUCKET")?.toInt()
+        val bucketsSize = System.getenv("TESTED_BUCKET_SIZE")?.toInt()
+        if (bucket != null && bucketsSize != null) {
+            result = result.filter { invocationContext ->
+                (invocationContext.getDisplayName().hashCode().absoluteValue % bucketsSize) + 1 == bucket
             }
         }
 

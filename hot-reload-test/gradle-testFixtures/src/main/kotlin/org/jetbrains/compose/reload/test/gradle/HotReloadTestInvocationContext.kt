@@ -29,15 +29,18 @@ public data class HotReloadTestInvocationContext(
     val projectMode: ProjectMode get() = extras[ProjectMode.key] ?: ProjectMode.Kmp
     val compilerOptions: TestedCompilerOptions = extras[TestedCompilerOptions.key] ?: TestedCompilerOptions.default
 
-    override fun getDisplayName(invocationIndex: Int): String {
+    public fun getDisplayName(): String {
         return buildString {
-
             extras.entries.forEach { (_, value) ->
                 if (value is HotReloadTestDimension && value.displayName() != null) {
                     append(" ${value.displayName()},")
                 }
             }
         }
+    }
+
+    override fun getDisplayName(invocationIndex: Int): String {
+        return getDisplayName()
     }
 
     override fun getAdditionalExtensions(): List<Extension> {
