@@ -16,5 +16,13 @@ configurations.all {
 
         substitute(module("org.jetbrains.compose.hot-reload:runtime-api-jvm"))
             .using(project(":hot-reload-runtime-api"))
+
+        all {
+            val requested = this.requested
+            if (requested !is ModuleComponentSelector) return@all
+            if (requested.group.startsWith(project.group.toString())) {
+                useTarget("${requested.group}:${requested.module}:${project.version}")
+            }
+        }
     }
 }
