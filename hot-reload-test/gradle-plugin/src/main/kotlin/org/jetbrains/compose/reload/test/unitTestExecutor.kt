@@ -177,6 +177,15 @@ internal class HotReloadUnitTestExecutor(
                 TestFailure.fromTestFrameworkFailure(TimeoutException("Test '${testMethodDescriptor}' timed out"))
             )
         }
+
+        if (process.exitValue() != 0) {
+            processor.failure(
+                testMethodDescriptor.id,
+                TestFailure.fromTestFrameworkFailure(
+                    Exception("Test '${testMethodDescriptor}' exitCode = ${process.exitValue()}")
+                )
+            )
+        }
     }
 
     override fun stopNow() {
