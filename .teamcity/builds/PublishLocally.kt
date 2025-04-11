@@ -82,7 +82,7 @@ fun BuildType.configurePublishLocallyBuildCache(publish: Boolean = false) {
         }
 
         buildCache {
-            use = true
+            use = !publish
             this.publish = publish
             name = "Gradle Cache (8.12.1)"
             if (publish) {
