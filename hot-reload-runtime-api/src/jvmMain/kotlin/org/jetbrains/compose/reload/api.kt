@@ -8,15 +8,20 @@
 package org.jetbrains.compose.reload
 
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.InternalComposeApi
 import androidx.compose.runtime.LaunchedEffect
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.job
 import org.jetbrains.compose.reload.jvm.isHotReloadActive
 
 
-@OptIn(InternalComposeApi::class)
+/**
+ * Provides an "entry point" for Compose Hot Reload to reload code.
+ * Note: When using a regular 'Window', there is *no need anymore* to wrap the code manually.
+ * This function might only be applicable for non-window-based applications.
+ */
 @Composable
+@DelicateHotReloadApi
+@Deprecated("DevelopmentEntryPoint {} is no longer needed and the default dependency will be removed soon")
 public actual fun DevelopmentEntryPoint(child: @Composable () -> Unit) {
     org.jetbrains.compose.reload.jvm.DevelopmentEntryPoint(child)
 }
@@ -41,6 +46,7 @@ public actual val staticHotReloadScope: HotReloadScope =
 
 
 @Composable
+@DelicateHotReloadApi
 public actual fun AfterHotReloadEffect(action: () -> Unit) {
     if (!isHotReloadActive) return
 

@@ -19,11 +19,13 @@ public annotation class DevelopmentEntryPoint(
 )
 
 /**
- * DevelopmentEntryPoint {} is called automatically invoked when using
- * [androidx.compose.ui.window.Window]
+ * Provides an "entry point" for Compose Hot Reload to reload code.
+ * Note: When using a regular 'Window', there is *no need anymore* to wrap the code manually.
+ * This function might only be applicable for non-window-based applications.
  */
 @Composable
 @DelicateHotReloadApi
+@Deprecated("DevelopmentEntryPoint {} is no longer needed and the default dependency will be removed soon")
 public expect fun DevelopmentEntryPoint(child: @Composable () -> Unit)
 
 @SubclassOptInRequired(InternalHotReloadApi::class)
@@ -68,5 +70,5 @@ public expect val staticHotReloadScope: HotReloadScope
  * This method will be called before the next frame after the hot reload is rendered.
  */
 @Composable
-@OptIn(DelicateHotReloadApi::class)
+@DelicateHotReloadApi
 public expect fun AfterHotReloadEffect(action: () -> Unit)
