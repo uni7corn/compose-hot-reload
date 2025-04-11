@@ -28,7 +28,9 @@ val checkPublishLocally by tasks.registering(CheckPublicationTask::class) {
 
 val publishLocally by tasks.registering {
     dependsOn(updateVersions)
-    finalizedBy(checkPublishLocally)
+    if (isCI) {
+        finalizedBy(checkPublishLocally)
+    }
 }
 
 val cleanDeploy by tasks.registering(Delete::class) {
