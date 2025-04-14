@@ -88,6 +88,11 @@ suspend fun runHeadlessApplication(
                 onTimeout(delay) { null }
             }
 
+            if (message is ShutdownRequest) {
+                applicationScope.coroutineContext.job.cancelChildren()
+                return@launch
+            }
+
             if (message != null &&
                 message !is OrchestrationMessage.Ack &&
                 message !is OrchestrationMessage.LogMessage
@@ -105,11 +110,6 @@ suspend fun runHeadlessApplication(
                 ImageIO.write(scene.render(time).toComposeImageBitmap().toAwtImage(), "png", baos)
                 orchestration.sendMessage(OrchestrationMessage.Screenshot("png", baos.toByteArray())).get()
                 logger.debug("Screenshot sent")
-            }
-
-            if (message is ShutdownRequest) {
-                applicationScope.coroutineContext.job.cancelChildren()
-                return@launch
             }
         }
 
