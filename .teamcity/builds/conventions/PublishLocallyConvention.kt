@@ -25,13 +25,6 @@ fun BuildType.publishLocallyConventions() {
             name = "Publish Locally"
             tasks = "publishLocally"
         })
-
-        items.add(1, GradleBuildStep {
-            name = "Compile"
-            tasks = "compile resolveDependencies testClasses testFixturesClasses " +
-                "reloadUnitTestClasses reloadFunctionalTestClasses reloadFunctionalTestWarmupClasses " +
-                "-i"
-        })
     }
 
     features {
