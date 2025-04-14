@@ -6,7 +6,6 @@
 import builds.AllTests
 import builds.ApiCheck
 import builds.PublishDevBuild
-import builds.PublishLocally
 import builds.PublishToMavenCentralProject
 import builds.SamplesCheck
 import builds.StagingDeploy
@@ -50,7 +49,6 @@ object ComposeHotReloadProject : Project({
             buildType(windowsTest)
 
             sequential {
-                buildType(PublishLocally)
                 parallel {
                     buildType(linuxTest)
                     buildType(ApiCheck)
@@ -62,8 +60,6 @@ object ComposeHotReloadProject : Project({
         }
         buildType(AllTests)
     }
-
-    buildType(PublishLocally)
 
     buildType(PublishDevBuild)
     buildType(StagingDeploy)

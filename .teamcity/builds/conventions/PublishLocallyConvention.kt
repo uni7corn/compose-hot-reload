@@ -5,27 +5,76 @@
 
 package builds.conventions
 
-import builds.PublishLocally
-import builds.configurePublishLocallyBuildCache
+import builds.utils.Host
 import jetbrains.buildServer.configs.kotlin.BuildType
+import jetbrains.buildServer.configs.kotlin.buildFeatures.buildCache
+import jetbrains.buildServer.configs.kotlin.buildSteps.GradleBuildStep
 
 interface PublishLocallyConvention
 
 fun BuildType.publishLocallyConventions() {
     if (this !is PublishLocallyConvention) return
+    val thisBuildType = this
 
-    configurePublishLocallyBuildCache()
+    artifactRules = """
+        build/repo => repo.zip
+    """.trimIndent()
 
-    dependencies {
-        dependency(PublishLocally) {
-            snapshot {
+    steps {
+        items.add(0, GradleBuildStep {
+            name = "Publish Locally"
+            tasks = "publishLocally"
+        })
+
+        items.add(1, GradleBuildStep {
+            name = "Compile"
+            tasks = "compile resolveDependencies testClasses testFixturesClasses " +
+                "reloadUnitTestClasses reloadFunctionalTestClasses reloadFunctionalTestWarmupClasses " +
+                "-i"
+        })
+    }
+
+    features {
+        if (thisBuildType.requiredHost == Host.Linux) {
+            buildCache {
+                use = true
+                publish = true
+                name = "Android SDK"
+                rules = """
+                    %android-sdk.location%/licenses
+                    %android-sdk.location%/platforms
+                    %android-sdk.location%/build-tools
+                    """.trimIndent()
             }
+        }
 
-            artifacts {
-                artifactRules = """
-                    repo.zip!** => build/repo
-                """.trimIndent()
-            }
+        buildCache {
+            use = true
+            publish = true
+            name = "Gradle Build Cache"
+            rules = """
+                .local/build-cache
+            """.trimIndent()
+        }
+
+        buildCache {
+            use = true
+            publish = true
+            name = "${thisBuildType.name} Gradle Cache (caches)"
+            rules = """
+                .local/gradle/caches/modules-2/files-2.1
+                .local/gradle/caches/modules-2/metadata-2.106
+                .local/gradle/caches/modules-2/metadata-2.107
+            """.trimIndent()
+        }
+
+        buildCache {
+            use = true
+            publish = true
+            name = "Gradle Cache (wrapper)"
+            rules = """
+                .local/gradle/wrapper
+            """.trimIndent()
         }
     }
 }
