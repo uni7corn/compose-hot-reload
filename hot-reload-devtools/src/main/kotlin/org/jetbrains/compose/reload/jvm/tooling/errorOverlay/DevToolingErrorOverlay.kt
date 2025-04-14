@@ -40,6 +40,8 @@ import androidx.compose.ui.window.WindowState
 import io.sellmair.evas.compose.composeFlow
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.map
+import org.jetbrains.compose.reload.core.HotReloadEnvironment
+import org.jetbrains.compose.reload.core.HotReloadEnvironment.devToolsTransparencyEnabled
 import org.jetbrains.compose.reload.core.WindowId
 import org.jetbrains.compose.reload.jvm.tooling.send
 import org.jetbrains.compose.reload.jvm.tooling.states.UIErrorDescription
@@ -58,7 +60,7 @@ internal fun ApplicationScope.DevToolingErrorOverlay(windowId: WindowId, windowS
             onCloseRequest = {},
             state = windowState,
             undecorated = true,
-            transparent = true,
+            transparent = devToolsTransparencyEnabled,
             resizable = false,
             focusable = false,
             alwaysOnTop = true
