@@ -58,6 +58,17 @@ class WindowsIntegrationTest(
         buildCache {
             use = true
             publish = true
+            name = "(Windows) Gradle Cache (modules-2)"
+            rules = """
+                .local/gradle/caches/modules-2/files-2.1
+                .local/gradle/caches/modules-2/metadata-2.106
+                .local/gradle/caches/modules-2/metadata-2.107
+            """.trimIndent()
+        }
+
+        buildCache {
+            use = true
+            publish = true
             name = "(Windows) Functional Test Gradle Cache (modules-2)"
             rules = """
                 tests/build/gradleHome/caches/modules-2/files-2.1
