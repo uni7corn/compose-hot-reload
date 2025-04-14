@@ -11,12 +11,6 @@
    */
 configurations.all {
     resolutionStrategy.dependencySubstitution {
-        substitute(module("org.jetbrains.compose.hot-reload:runtime-api"))
-            .using(project(":hot-reload-runtime-api"))
-
-        substitute(module("org.jetbrains.compose.hot-reload:runtime-api-jvm"))
-            .using(project(":hot-reload-runtime-api"))
-
         all dependency@{
             val requested = this.requested
             if (requested !is ModuleComponentSelector) return@dependency

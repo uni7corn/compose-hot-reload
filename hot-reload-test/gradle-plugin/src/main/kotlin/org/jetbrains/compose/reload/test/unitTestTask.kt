@@ -6,6 +6,7 @@
 package org.jetbrains.compose.reload.test
 
 import org.gradle.api.Project
+import org.gradle.api.attributes.Usage
 import org.gradle.api.file.ConfigurableFileCollection
 import org.gradle.api.file.DirectoryProperty
 import org.gradle.api.file.FileCollection
@@ -18,11 +19,14 @@ import org.gradle.api.tasks.Nested
 import org.gradle.api.tasks.Optional
 import org.gradle.api.tasks.testing.AbstractTestTask
 import org.gradle.kotlin.dsl.getByType
+import org.gradle.kotlin.dsl.named
 import org.gradle.kotlin.dsl.register
 import org.gradle.kotlin.dsl.withType
 import org.gradle.language.base.plugins.LifecycleBasePlugin.VERIFICATION_GROUP
 import org.jetbrains.compose.ComposeExtension
 import org.jetbrains.compose.reload.core.HOT_RELOAD_VERSION
+import org.jetbrains.compose.reload.gradle.HotReloadUsage
+import org.jetbrains.compose.reload.gradle.HotReloadUsageType
 import org.jetbrains.compose.reload.gradle.composeHotReloadAgentJar
 import org.jetbrains.compose.reload.gradle.composeHotReloadAgentRuntimeClasspath
 import org.jetbrains.compose.reload.gradle.files
@@ -150,9 +154,16 @@ private fun KotlinTarget.configureDefaultHotReloadTestTask() {
     val compilation = compilations.create("reloadUnitTest")
     compilation.associateWith(main)
 
+    project.configurations.getByName(
+        compilation.runtimeDependencyConfigurationName ?: error("Missing 'runtimeDependencyConfigurationName'")
+    ).apply {
+        attributes.attribute(Usage.USAGE_ATTRIBUTE, project.objects.named(HotReloadUsage.COMPOSE_DEV_RUNTIME_USAGE))
+        attributes.attribute(HotReloadUsageType.attribute, HotReloadUsageType.Dev)
+    }
+
     compilation.defaultSourceSet.dependencies {
         implementation("org.jetbrains.compose.hot-reload:test:${HOT_RELOAD_VERSION}")
-        implementation("org.jetbrains.compose.hot-reload:runtime-jvm:${HOT_RELOAD_VERSION}:dev")
+        implementation("org.jetbrains.compose.hot-reload:runtime-jvm:${HOT_RELOAD_VERSION}")
         project.withComposePlugin {
             implementation(project.extensions.getByType<ComposeExtension>().dependencies.desktop.currentOs)
         }
