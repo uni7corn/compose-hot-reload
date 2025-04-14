@@ -86,6 +86,10 @@ class ProjectDependencyTest {
                 ${if (dependencyProjectHasPluginApplied) """id("org.jetbrains.compose.hot-reload")""" else ""}
             }
             
+            kotlin {
+                jvmToolchain(21)
+            }
+            
             ${
                 when (fixture.projectMode) {
                     ProjectMode.Kmp -> """
