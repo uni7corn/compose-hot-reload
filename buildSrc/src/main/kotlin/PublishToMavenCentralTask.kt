@@ -13,6 +13,7 @@ import io.ktor.client.request.forms.formData
 import io.ktor.client.request.forms.submitForm
 import io.ktor.client.request.get
 import io.ktor.client.request.parameter
+import io.ktor.client.request.post
 import io.ktor.client.request.setBody
 import io.ktor.client.request.url
 import io.ktor.client.statement.bodyAsText
@@ -104,7 +105,7 @@ abstract class PublishToMavenCentralTask : DefaultTask() {
         while (true) {
             logger.quiet("Checking Deployment Status: $deploymentId")
 
-            val statusResponse = get {
+            val statusResponse = post {
                 bearerAuth(bearerToken)
                 accept(ContentType.Application.Json)
                 url("https://central.sonatype.com/api/v1/publisher/status")
