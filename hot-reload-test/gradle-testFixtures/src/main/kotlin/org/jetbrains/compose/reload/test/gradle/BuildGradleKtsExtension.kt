@@ -128,6 +128,10 @@ private val jvmBuildGradleKtsTemplate = Template(
         {{$pluginsKey}}
     }
     
+    kotlin {
+        jvmToolchain(21)
+    }
+    
     dependencies {
         {{$commonDependenciesKey}}
         {{$jvmMainDependenciesKey}}
