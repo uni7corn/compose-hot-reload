@@ -7,6 +7,7 @@ package org.jetbrains.compose.reload.tests.gradle
 
 import org.jetbrains.compose.reload.core.HOT_RELOAD_VERSION
 import org.jetbrains.compose.reload.test.gradle.BuildGradleKts
+import org.jetbrains.compose.reload.test.gradle.Debug
 import org.jetbrains.compose.reload.test.gradle.HotReloadTest
 import org.jetbrains.compose.reload.test.gradle.HotReloadTestFixture
 import org.jetbrains.compose.reload.test.gradle.ProjectMode
@@ -49,6 +50,13 @@ class ProjectDependencyTest {
                 """include(":app")"""
             )
         )
+
+        fixture.projectDir.subproject("app").buildGradleKts.appendText("""
+            kotlin {
+                jvmToolchain(21)
+            }
+            
+        """.trimIndent())
 
         if (fixture.projectMode == ProjectMode.Kmp) {
             fixture.projectDir.subproject("app").buildGradleKts.appendText(
