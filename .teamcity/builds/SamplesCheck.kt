@@ -28,4 +28,4 @@ object SamplesCheck : BuildType({
             workingDir = "samples/bytecode-analyzer"
         }
     }
-}), CommitStatusPublisher, PublishLocallyConvention, HardwareCapacity.Small
+}), CommitStatusPublisher, PublishLocallyConvention, HardwareCapacity.Medium

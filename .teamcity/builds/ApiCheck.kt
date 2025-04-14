@@ -22,4 +22,4 @@ object ApiCheck : BuildType({
         }
     }
 
-}), CommitStatusPublisher, PublishLocallyConvention, HardwareCapacity.Small
+}), CommitStatusPublisher, PublishLocallyConvention, HardwareCapacity.Medium

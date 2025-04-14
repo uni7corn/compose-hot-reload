@@ -21,4 +21,4 @@ object TestIntelliJPluginCheck : BuildType({
             workingDir = "hot-reload-test/idea-plugin"
         }
     }
-}), CommitStatusPublisher, PublishLocallyConvention, HardwareCapacity.Small
+}), CommitStatusPublisher, PublishLocallyConvention, HardwareCapacity.Medium
