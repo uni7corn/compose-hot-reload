@@ -3,9 +3,8 @@
  * Use of this source code is governed by the Apache 2.0 license that can be found in the LICENSE file.
  */
 
-import org.gradle.api.attributes.java.TargetJvmEnvironment.TARGET_JVM_ENVIRONMENT_ATTRIBUTE
+import org.jetbrains.compose.reload.gradle.HotReloadUsageType
 import org.jetbrains.kotlin.gradle.dsl.KotlinJvmProjectExtension
-import org.jetbrains.kotlin.gradle.plugin.KotlinPlatformType
 
 plugins {
     kotlin("jvm") apply false
@@ -37,17 +36,30 @@ extensions.configure<KotlinJvmProjectExtension> {
         archiveClassifier.set("dev")
     }
 
+    project.configurations.getByName(target.apiElementsConfigurationName).apply {
+        attributes.attribute(HotReloadUsageType.attribute, HotReloadUsageType.Main)
+    }
+
+    val runtimeElements = project.configurations.getByName(target.runtimeElementsConfigurationName).apply {
+        attributes.attribute(HotReloadUsageType.attribute, HotReloadUsageType.Main)
+    }
+
     val jvmDevRuntimeElements = project.configurations.create("jvmDevRuntimeElements") {
         extendsFrom(dev.configurations.runtimeDependencyConfiguration)
         isCanBeResolved = false
         isCanBeConsumed = true
 
-        attributes.attribute(Usage.USAGE_ATTRIBUTE, project.objects.named("compose-dev-java-runtime"))
-        attributes.attribute(Category.CATEGORY_ATTRIBUTE, project.objects.named(Category.LIBRARY))
-        attributes.attribute(LibraryElements.LIBRARY_ELEMENTS_ATTRIBUTE, project.objects.named(LibraryElements.JAR))
-        attributes.attribute(KotlinPlatformType.attribute, KotlinPlatformType.jvm)
-        attributes.attribute(TARGET_JVM_ENVIRONMENT_ATTRIBUTE, project.objects.named(TargetJvmEnvironment.STANDARD_JVM))
-        attributes.attribute(Bundling.BUNDLING_ATTRIBUTE, objects.named(Bundling.EXTERNAL))
+        afterEvaluate {
+            runtimeElements.attributes.keySet().forEach { key ->
+                val value = runtimeElements.attributes.getAttribute(key) ?: return@forEach
+                @Suppress("UNCHECKED_CAST")
+                key as Attribute<Any>
+                attributes.attribute(key, value)
+            }
+
+            attributes.attribute(Usage.USAGE_ATTRIBUTE, project.objects.named("compose-dev-java-runtime"))
+            attributes.attribute(HotReloadUsageType.attribute, HotReloadUsageType.Dev)
+        }
 
         outgoing.artifact(jvmDevJar) {
             classifier = "dev"

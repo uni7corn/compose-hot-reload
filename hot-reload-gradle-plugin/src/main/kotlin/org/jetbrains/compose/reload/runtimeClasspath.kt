@@ -21,6 +21,8 @@ import org.gradle.internal.component.local.model.OpaqueComponentArtifactIdentifi
 import org.gradle.kotlin.dsl.named
 import org.gradle.kotlin.dsl.provideDelegate
 import org.jetbrains.compose.reload.core.HOT_RELOAD_VERSION
+import org.jetbrains.compose.reload.gradle.HotReloadUsage.COMPOSE_DEV_RUNTIME_USAGE
+import org.jetbrains.compose.reload.gradle.HotReloadUsageType
 import org.jetbrains.compose.reload.gradle.capitalized
 import org.jetbrains.compose.reload.gradle.composeHotReloadAgentRuntimeClasspath
 import org.jetbrains.kotlin.gradle.plugin.KotlinCompilation
@@ -39,17 +41,17 @@ internal val Project.hotReloadRuntimeConfiguration: Configuration
             configuration.isVisible = false
 
             configuration.attributes.attribute(KotlinPlatformType.attribute, KotlinPlatformType.jvm)
-            configuration.attributes.attribute(Usage.USAGE_ATTRIBUTE, project.objects.named(COMPOSE_DEV_RUNTIME_USAGE))
             configuration.attributes.attribute(Category.CATEGORY_ATTRIBUTE, project.objects.named(Category.LIBRARY))
             configuration.attributes.attribute(TARGET_JVM_ENVIRONMENT_ATTRIBUTE, project.objects.named(STANDARD_JVM))
+            configuration.attributes.attribute(Usage.USAGE_ATTRIBUTE, project.objects.named(COMPOSE_DEV_RUNTIME_USAGE))
+            configuration.attributes.attribute(HotReloadUsageType.attribute, HotReloadUsageType.Dev)
 
             /**
              * The dev runtime should also include the 'runtime-api,' which will resolve to the dev variant,
              * practically engaging the 'DevelopmentEntryPoint {}' transformations
              */
             project.dependencies.add(
-                configuration.name,
-                "org.jetbrains.compose.hot-reload:runtime-api:$HOT_RELOAD_VERSION"
+                configuration.name, "org.jetbrains.compose.hot-reload:runtime-api:$HOT_RELOAD_VERSION"
             )
         }
 

@@ -33,8 +33,16 @@ repositories {
         }
     }
 
-
     mavenCentral()
+}
+
+val syncGradleCore = tasks.register<Sync>("syncGradleCore") {
+    from(file("../hot-reload-gradle-core/src/main/kotlin/org/jetbrains/compose/reload/gradle/HotReloadUsage.kt"))
+    into(kotlin.sourceSets.getByName("main").kotlin.srcDirs.first().resolve("core"))
+}
+
+tasks.compileKotlin.configure {
+    dependsOn(syncGradleCore)
 }
 
 val bootstrapVersion = providers.fileContents(layout.projectDirectory.file("../gradle.properties")).asBytes
@@ -45,9 +53,10 @@ val bootstrapVersion = providers.fileContents(layout.projectDirectory.file("../g
     }
 
 dependencies {
+    implementation("org.jetbrains.compose.hot-reload:core:${bootstrapVersion.get()}")
+    implementation("org.jetbrains.compose.hot-reload:gradle-core:${bootstrapVersion.get()}")
     implementation("org.jetbrains.compose.hot-reload:gradle-plugin:${bootstrapVersion.get()}")
     implementation("org.jetbrains.compose.hot-reload:test-gradle-plugin:${bootstrapVersion.get()}")
-    implementation("org.jetbrains.compose.hot-reload:core:${bootstrapVersion.get()}")
     implementation(kotlin("gradle-plugin:${deps.versions.kotlin.get()}"))
     implementation("org.jetbrains.kotlin.plugin.compose:org.jetbrains.kotlin.plugin.compose.gradle.plugin:${deps.versions.kotlin.get()}")
     implementation("org.jetbrains.kotlin.plugin.serialization:org.jetbrains.kotlin.plugin.serialization.gradle.plugin:${deps.versions.kotlin.get()}")

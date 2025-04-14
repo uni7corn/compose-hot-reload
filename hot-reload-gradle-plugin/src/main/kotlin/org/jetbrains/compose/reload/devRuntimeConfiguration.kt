@@ -11,15 +11,15 @@ import org.gradle.api.Project
 import org.gradle.api.artifacts.Configuration
 import org.gradle.api.artifacts.type.ArtifactTypeDefinition
 import org.gradle.api.artifacts.type.ArtifactTypeDefinition.ARTIFACT_TYPE_ATTRIBUTE
-import org.gradle.api.attributes.AttributeCompatibilityRule
 import org.gradle.api.attributes.Category
-import org.gradle.api.attributes.CompatibilityCheckDetails
 import org.gradle.api.attributes.Usage
 import org.gradle.api.attributes.java.TargetJvmEnvironment.STANDARD_JVM
 import org.gradle.api.attributes.java.TargetJvmEnvironment.TARGET_JVM_ENVIRONMENT_ATTRIBUTE
 import org.gradle.api.internal.artifacts.transform.UnzipTransform
 import org.gradle.kotlin.dsl.named
 import org.gradle.kotlin.dsl.withType
+import org.jetbrains.compose.reload.gradle.HotReloadUsage
+import org.jetbrains.compose.reload.gradle.HotReloadUsageType
 import org.jetbrains.compose.reload.gradle.kotlinJvmOrNull
 import org.jetbrains.compose.reload.gradle.kotlinMultiplatformOrNull
 import org.jetbrains.kotlin.gradle.plugin.KotlinCompilation
@@ -28,18 +28,12 @@ import org.jetbrains.kotlin.gradle.plugin.KotlinTarget
 import org.jetbrains.kotlin.gradle.targets.jvm.KotlinJvmTarget
 import org.jetbrains.kotlin.tooling.core.extrasLazyProperty
 
-internal const val COMPOSE_DEV_RUNTIME_USAGE = "compose-dev-java-runtime"
-
-
 /**
  * Hot Reloading works significantly better if only class directories are used.
  * Therefore, this method will create additional variants which will provide the classes dirs directly
  * as outgoing runtime elements.
  */
 internal fun Project.setupComposeHotReloadRuntimeElements() {
-    project.dependencies.attributesSchema.attribute(Usage.USAGE_ATTRIBUTE)
-        .compatibilityRules.add(ComposeHotReloadCompatibility::class.java)
-
     project.dependencies.registerTransform(UnzipTransform::class.java) { transform ->
         transform.from.attribute(ARTIFACT_TYPE_ATTRIBUTE, ArtifactTypeDefinition.JAR_TYPE)
         transform.to.attribute(ARTIFACT_TYPE_ATTRIBUTE, ArtifactTypeDefinition.DIRECTORY_TYPE)
@@ -72,7 +66,7 @@ internal val KotlinCompilation<*>.composeDevRuntimeDependencies: Configuration b
 
     project.configurations.create(runtimeConfigurationName + "ComposeDev").apply {
         /**
-         * Extend from the regural 'runtimeConfiguration' as well as the 'hotReloadRuntime' which will
+         * Extend from the regular 'runtimeConfiguration' as well as the 'hotReloadRuntime' which will
          * bring in additional runtime artifacts required by hot-reload
          */
         extendsFrom(runtimeConfiguration)
@@ -81,9 +75,10 @@ internal val KotlinCompilation<*>.composeDevRuntimeDependencies: Configuration b
         isCanBeResolved = true
         isCanBeConsumed = false
         attributes.attribute(KotlinPlatformType.attribute, KotlinPlatformType.jvm)
-        attributes.attribute(Usage.USAGE_ATTRIBUTE, project.objects.named(COMPOSE_DEV_RUNTIME_USAGE))
+        attributes.attribute(Usage.USAGE_ATTRIBUTE, project.objects.named(HotReloadUsage.COMPOSE_DEV_RUNTIME_USAGE))
         attributes.attribute(Category.CATEGORY_ATTRIBUTE, project.objects.named(Category.LIBRARY))
         attributes.attribute(TARGET_JVM_ENVIRONMENT_ATTRIBUTE, project.objects.named(STANDARD_JVM))
+        attributes.attribute(HotReloadUsageType.attribute, HotReloadUsageType.Dev)
     }
 }
 
@@ -98,9 +93,10 @@ private fun KotlinTarget.createComposeHotReloadRuntimeElements() {
         configuration.extendsFrom(runtimeConfiguration)
 
         configuration.attributes.attribute(KotlinPlatformType.attribute, platformType)
-        configuration.attributes.attribute(Usage.USAGE_ATTRIBUTE, project.objects.named(COMPOSE_DEV_RUNTIME_USAGE))
+        configuration.attributes.attribute(Usage.USAGE_ATTRIBUTE, project.objects.named(HotReloadUsage.COMPOSE_DEV_RUNTIME_USAGE))
         configuration.attributes.attribute(Category.CATEGORY_ATTRIBUTE, project.objects.named(Category.LIBRARY))
         configuration.attributes.attribute(TARGET_JVM_ENVIRONMENT_ATTRIBUTE, project.objects.named(STANDARD_JVM))
+        configuration.attributes.attribute(HotReloadUsageType.attribute, HotReloadUsageType.Dev)
 
         configuration.isCanBeResolved = false
         configuration.isCanBeConsumed = true
@@ -119,16 +115,6 @@ private fun KotlinTarget.createComposeHotReloadRuntimeElements() {
             artifact.builtBy(main.output.allOutputs)
             artifact.builtBy(main.compileTaskProvider)
             artifact.type = ArtifactTypeDefinition.DIRECTORY_TYPE
-        }
-    }
-}
-
-internal class ComposeHotReloadCompatibility : AttributeCompatibilityRule<Usage> {
-    override fun execute(details: CompatibilityCheckDetails<Usage>) {
-        if (details.consumerValue?.name == COMPOSE_DEV_RUNTIME_USAGE &&
-            details.producerValue?.name == Usage.JAVA_RUNTIME
-        ) {
-            details.compatible()
         }
     }
 }

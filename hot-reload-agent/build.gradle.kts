@@ -1,6 +1,8 @@
 import com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar
 import org.jetbrains.compose.ComposePlugin
+import org.jetbrains.compose.reload.gradle.HotReloadUsage
 import org.jetbrains.kotlin.gradle.plugin.KotlinPlatformType
+import org.jetbrains.compose.reload.gradle.HotReloadUsageType
 
 /*
  * Copyright 2024-2025 JetBrains s.r.o. and Compose Hot Reload contributors.
@@ -93,7 +95,18 @@ tasks.withType<Jar>().configureEach {
     )
 }
 
+/*
+Let's set the 'Main' usage by default.
+Used to bootstrap alpha06
+ */
+configurations.configureEach {
+    if (this.isCanBeConsumed) return@configureEach
+    attributes.attribute(HotReloadUsageType.attribute, HotReloadUsageType.Main)
+}
+
 val composeRuntime by project.configurations.creating {
+    isCanBeConsumed = false
+
     attributes {
         attribute(Category.CATEGORY_ATTRIBUTE, objects.named(Category.LIBRARY))
         attribute(Usage.USAGE_ATTRIBUTE, objects.named(Usage.JAVA_RUNTIME))
@@ -102,10 +115,13 @@ val composeRuntime by project.configurations.creating {
 }
 
 val hotReloadRuntime by project.configurations.creating {
+    isCanBeConsumed = false
+
     attributes {
         attribute(Category.CATEGORY_ATTRIBUTE, objects.named(Category.LIBRARY))
-        attribute(Usage.USAGE_ATTRIBUTE, objects.named("compose-dev-java-runtime"))
+        attribute(Usage.USAGE_ATTRIBUTE, objects.named(HotReloadUsage.COMPOSE_DEV_RUNTIME_USAGE))
         attribute(KotlinPlatformType.attribute, KotlinPlatformType.jvm)
+        attribute(HotReloadUsageType.attribute, HotReloadUsageType.Dev)
     }
 }
 

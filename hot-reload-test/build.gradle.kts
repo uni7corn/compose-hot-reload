@@ -2,6 +2,8 @@
  * Copyright 2024-2025 JetBrains s.r.o. and Compose Hot Reload contributors.
  * Use of this source code is governed by the Apache 2.0 license that can be found in the LICENSE file.
  */
+import org.jetbrains.compose.reload.gradle.HotReloadUsage
+import org.jetbrains.compose.reload.gradle.HotReloadUsageType
 
 plugins {
     kotlin("jvm")
@@ -10,6 +12,7 @@ plugins {
     `maven-publish`
     `publishing-conventions`
     `api-validation-conventions`
+    `bootstrap-conventions`
 }
 
 kotlin {
@@ -30,34 +33,18 @@ dependencies {
     implementation(project(":hot-reload-core"))
     implementation(project(":hot-reload-analysis"))
     implementation(kotlin("compiler-embeddable"))
-
-    compileOnly(project(":hot-reload-agent"))
     implementation(project(":hot-reload-orchestration"))
     api(compose.material3)
     implementation(compose.components.resources)
 }
 
-
-/* Add special 'dev' runtime dependency */
-internal class ComposeDevJavaRuntimeCompatibilityRule : AttributeCompatibilityRule<Usage> {
-    override fun execute(details: CompatibilityCheckDetails<Usage>) {
-        if (details.consumerValue?.name == "compose-dev-java-runtime" &&
-            details.producerValue?.name == Usage.JAVA_RUNTIME
-        ) {
-            details.compatible()
-        }
-    }
-}
-
-dependencies.attributesSchema.attribute(Usage.USAGE_ATTRIBUTE).compatibilityRules.add(
-    ComposeDevJavaRuntimeCompatibilityRule::class.java
-)
-
 configurations.compileClasspath {
-    attributes.attribute(Usage.USAGE_ATTRIBUTE, project.objects.named("compose-dev-java-runtime"))
+    attributes.attribute(HotReloadUsageType.attribute, HotReloadUsageType.Dev)
+    attributes.attribute(Usage.USAGE_ATTRIBUTE, project.objects.named(HotReloadUsage.COMPOSE_DEV_RUNTIME_USAGE))
 }
 
 dependencies {
+    compileOnly(project(":hot-reload-agent"))
     compileOnly(project(":hot-reload-runtime-api"))
-    compileOnly(project(":hot-reload-runtime-jvm", configuration = "jvmDevRuntimeElements"))
+    compileOnly(project(":hot-reload-runtime-jvm"))
 }

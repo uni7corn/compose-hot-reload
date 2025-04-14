@@ -3,6 +3,7 @@
  * Use of this source code is governed by the Apache 2.0 license that can be found in the LICENSE file.
  */
 
+import org.jetbrains.compose.reload.gradle.HotReloadUsage
 import org.jetbrains.kotlin.gradle.plugin.KotlinPluginWrapper
 import org.jetbrains.kotlin.gradle.plugin.mpp.KotlinUsages
 
@@ -10,15 +11,6 @@ plugins {
     `java-base` apply false
 }
 
-open class ComposeDevUsageCompatibilityRule : AttributeCompatibilityRule<Usage> {
-    override fun execute(details: CompatibilityCheckDetails<Usage>) {
-        if (details.consumerValue?.name == "compose-dev-java-runtime" &&
-            details.producerValue?.name == Usage.JAVA_RUNTIME
-        ) {
-            details.compatible()
-        }
-    }
-}
 
 plugins.withType<KotlinPluginWrapper> {
     dependencies {
@@ -26,9 +18,8 @@ plugins.withType<KotlinPluginWrapper> {
             "testImplementation"(testFixtures(project(":hot-reload-core")))
         }
 
-        attributesSchema.attribute(Usage.USAGE_ATTRIBUTE).compatibilityRules.add(
-            ComposeDevUsageCompatibilityRule::class.java
-        )
+        attributesSchema.attribute(Usage.USAGE_ATTRIBUTE)
+            .compatibilityRules.add(HotReloadUsage.CompatibilityRule::class.java)
     }
 }
 
