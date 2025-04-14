@@ -92,8 +92,7 @@ class WindowsIntegrationTest(
 
         gradle {
             name = "Test"
-            tasks = "check -i --continue -x apiCheck -x publishLocally -Pchr.tests.sequential"
-            tasks += " -Phost-integration-tests=true"
+            tasks = "check -i --continue -x apiCheck -x publishLocally -Phost-integration-tests=true"
         }
     }
 }), CommitStatusPublisher,
