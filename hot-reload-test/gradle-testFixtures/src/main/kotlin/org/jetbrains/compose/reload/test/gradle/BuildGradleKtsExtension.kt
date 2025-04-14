@@ -79,9 +79,10 @@ private val kmpBuildGradleKtsTemplate = Template(
    
     kotlin {
         {{if $androidEnabledKey}}
-        jvmToolchain(21)
         androidTarget()
         {{/if}}
+        
+        jvmToolchain(21)
         
         {{$kotlinKey}}
         jvm()
