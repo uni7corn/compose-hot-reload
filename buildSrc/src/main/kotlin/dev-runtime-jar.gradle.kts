@@ -47,7 +47,6 @@ extensions.configure<KotlinJvmProjectExtension> {
         attributes.attribute(LibraryElements.LIBRARY_ELEMENTS_ATTRIBUTE, project.objects.named(LibraryElements.JAR))
         attributes.attribute(KotlinPlatformType.attribute, KotlinPlatformType.jvm)
         attributes.attribute(TARGET_JVM_ENVIRONMENT_ATTRIBUTE, project.objects.named(TargetJvmEnvironment.STANDARD_JVM))
-        attributes.attribute(Usage.USAGE_ATTRIBUTE, project.objects.named("compose-dev-java-runtime"))
         attributes.attribute(Bundling.BUNDLING_ATTRIBUTE, objects.named(Bundling.EXTERNAL))
 
         outgoing.artifact(jvmDevJar) {

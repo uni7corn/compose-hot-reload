@@ -14,7 +14,6 @@ plugins {
     `tests-with-compiler`
     `test-conventions`
     com.gradleup.shadow
-    `dev-runtime-jar`
 }
 
 kotlin.compilerOptions {
