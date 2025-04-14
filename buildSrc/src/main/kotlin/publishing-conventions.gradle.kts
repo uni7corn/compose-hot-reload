@@ -48,6 +48,9 @@ plugins.withType<MavenPublishPlugin>().all {
         publications.withType<MavenPublication>().configureEach {
             signPublicationIfKeyPresent()
 
+            suppressPomMetadataWarningsFor("testFixturesApiElements")
+            suppressPomMetadataWarningsFor("testFixturesRuntimeElements")
+
             artifactId = project.name.removePrefix("hot-reload-")
 
             pom {
