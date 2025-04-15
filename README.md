@@ -9,7 +9,10 @@ Iterate on your compose UIs faster, and let your creativity run free when buildi
   <img alt="Text changing depending on mode. Light: 'So light!' Dark: 'So dark!'" src="./readme-assets/banner_light.png">
 </picture>
 
-Make changes to your UI code in a Compose Multiplatform application, and see the results in real time. No restarts required. Compose Hot Reload runs your application on a special desktop JVM, and intelligently reloads your code whenever it is changed.
+Make changes to your UI code in a Compose Multiplatform application and see the results in real time. 
+No restarts required.
+Compose Hot Reload runs your application on the JetBrains Runtime 
+and intelligently reloads your code whenever it is changed.
 
 ## Getting Started
 
@@ -30,7 +33,31 @@ plugins {
 }
 ```
 
+### Run the application
+#### Multiplatform + IntelliJ
+Using Kotlin Multiplatform and IntelliJ, launching your app is as simple as pressing 'run' on your main function:
+<img alt="IntelliJ Run Gutter" src="./readme-assets/run-gutter.png">
+
+#### Launch from Gradle task
+The plugin will create the following tasks to launch the application in 'hot reload mode':
+- `:jvmRunHot`: Multiplatform
+- `:runHot`: Kotlin/JVM
+
+The tasks 'mainClass' can be configured:
+```kotlin
+tasks.withType<ComposeHotRun>().configureEach {
+    mainClass.set("com.example.MainKt")
+}
+```
+
+and then launched with
+```shell
+./gradlew jvmRunHot // optional, provide mainClass using -PmainClass=com.example.MainKt
+```
+
 ### Enable 'OptimizeNonSkippingGroups':
+Note: This optimization is not required, but will lead to a better user experience.
+It is expected that the feature will be enabled by default in future versions of the compiler.
 
 Add the following to your `build.gradle.kts`:
 
@@ -59,49 +86,6 @@ plugins {
 ```
 The Compose Hot Reload Gradle plugin will then use this resolver to automatically provision a compatible JDK.
 
-### Provide an entry point for your UI to hot-reload
-
-In the `desktop` source set of your project, add the following code to a file of your choice, e.g. `DevMain.kt`
-
-```kotlin
-package my.app
-
-import androidx.compose.material.Text
-import androidx.compose.runtime.Composable
-import androidx.compose.ui.unit.dp
-import androidx.compose.ui.window.WindowState
-import androidx.compose.ui.window.singleWindowApplication
-import org.jetbrains.compose.reload.DevelopmentEntryPoint
-
-fun main() {
-    singleWindowApplication(
-        title = "My CHR App",
-        state = WindowState(width = 800.dp, height = 800.dp),
-        alwaysOnTop = true
-    ) {
-        DevelopmentEntryPoint {
-            MainPage()
-        }
-    }
-}
-
-@Composable
-fun MainPage() {
-    Text("🔥") // Write your own code, call your own composables, or load an entire app.
-    // Make changes, and see them live.
-}
-```
-
-### Optional: Create a custom entry point to launch your hot application
-
-In a regular Kotlin Multiplatform project, you can start your main function by pressing the run ▶️ gutter icon for your `main` function. If you prefer starting your application via a Gradle task, you can register
-
-```kotlin
-// build.gradle.kts
-tasks.register<ComposeHotRun>("runHot") {
-    mainClass.set("my.app.DevMainKt")
-}
-```
 
 ## FAQ
 
