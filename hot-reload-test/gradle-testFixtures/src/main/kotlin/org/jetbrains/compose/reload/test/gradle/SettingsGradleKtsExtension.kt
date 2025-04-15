@@ -104,12 +104,6 @@ internal class DefaultSettingsGradleKts : SettingsGradleKtsExtension {
 
     override fun pluginManagementRepositories(context: ExtensionContext): String? {
         return """
-            maven("https://packages.jetbrains.team/maven/p/firework/dev") {
-                mavenContent {
-                    includeGroupAndSubgroups("org.jetbrains.compose.hot-reload")
-                }
-            }
-            
             gradlePluginPortal {
                 content {
                     includeGroupByRegex("org.gradle.*")
@@ -135,12 +129,6 @@ internal class DefaultSettingsGradleKts : SettingsGradleKtsExtension {
 
     override fun dependencyResolutionManagementRepositories(context: ExtensionContext): String? {
         return """
-            maven("https://packages.jetbrains.team/maven/p/firework/dev") {
-                mavenContent {
-                    includeGroupAndSubgroups("org.jetbrains.compose.hot-reload")
-                }
-            }
-            
             google {
                 mavenContent {
                     includeGroupByRegex(".*android.*")
