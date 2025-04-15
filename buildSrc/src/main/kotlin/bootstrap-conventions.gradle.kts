@@ -3,20 +3,22 @@
  * Use of this source code is governed by the Apache 2.0 license that can be found in the license/LICENSE.txt file.
  */
 
-
 /*
-   Required to enforce no accidental resolve to the -api-jvm, published by the runtime api project.
-   Usually such substitutions are made automatically by Gradle, but there seems to be an issue
-   with the sub-publications of the KMP project
-   */
-configurations.all {
+We make sure to replace all module dependencies with their project counterparts.
+*/
+configurations.configureEach {
     resolutionStrategy.dependencySubstitution {
         all dependency@{
             val requested = this.requested
             if (requested !is ModuleComponentSelector) return@dependency
-            if (requested.group.startsWith(project.group.toString())) {
-                useTarget("${requested.group}:${requested.module}:${project.version}")
+            if (requested.group != project.group.toString()) return@dependency
+
+            val projectPath = when (requested.module) {
+                "test-gradle" -> ":hot-reload-test:gradle-testFixtures"
+                else -> ":hot-reload-${requested.module}"
             }
+
+            useTarget(project(projectPath))
         }
     }
 }
