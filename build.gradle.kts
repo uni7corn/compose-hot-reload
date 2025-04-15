@@ -26,6 +26,10 @@ val checkPublishLocally by tasks.registering(CheckPublicationTask::class) {
     publicationDirectory.set(layout.buildDirectory.dir("repo"))
 }
 
+val cleanPublishLocally by tasks.registering(Delete::class) {
+    delete(layout.buildDirectory.dir("repo"))
+}
+
 val publishLocally by tasks.registering {
     dependsOn(updateVersions)
     if (isCI) {
@@ -56,9 +60,11 @@ val publishBootstrap by tasks.registering {
 }
 
 subprojects {
-    publishLocally.configure {
-        this.dependsOn(tasks.named { name -> name == "publishAllPublicationsToLocalRepository" })
-    }
+    /* Configure 'publishLocally' */
+    tasks.configureEach { mustRunAfter(cleanPublishLocally) }
+    val publishLocallyTasks = tasks.named { name -> name == "publishAllPublicationsToLocalRepository" }
+    publishLocallyTasks.configureEach { dependsOn(cleanPublishLocally) }
+    publishLocally.configure { dependsOn(publishLocallyTasks) }
 
     /* Configure 'publishDeploy' */
     tasks.configureEach { mustRunAfter(cleanDeploy) }
