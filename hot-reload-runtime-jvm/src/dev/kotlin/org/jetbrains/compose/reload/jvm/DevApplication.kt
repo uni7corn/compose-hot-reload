@@ -63,9 +63,7 @@ internal fun main(args: Array<String>) {
                 runCatching { Taskbar.getTaskbar().iconImage = composeLogoBitmap.await() }
             }
 
-            org.jetbrains.compose.reload.jvm.DevelopmentEntryPoint {
-                invokeUI(resolvedClass, funName)
-            }
+            invokeUI(resolvedClass, funName)
         }
     }
 }
