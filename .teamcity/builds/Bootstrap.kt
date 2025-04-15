@@ -20,6 +20,8 @@ object BootstrapDeploy : BuildType({
     type = Type.DEPLOYMENT
 
     vcs {
+        cleanCheckout = true
+
         branchFilter = """
             +:bootstrap
             +:bootstrap/*
@@ -45,11 +47,6 @@ object BootstrapDeploy : BuildType({
 
     steps {
         setupGit()
-
-        gradle {
-            name = "clean"
-            tasks = "clean"
-        }
 
         gradle {
             workingDir = "repository-tools"
