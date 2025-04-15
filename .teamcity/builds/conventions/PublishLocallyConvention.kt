@@ -16,6 +16,10 @@ fun BuildType.publishLocallyConventions() {
     if (this !is PublishLocallyConvention) return
     val thisBuildType = this
 
+    params {
+        param("bootstrap", "false")
+    }
+
     artifactRules = """
         build/repo => repo.zip
     """.trimIndent()
@@ -24,6 +28,15 @@ fun BuildType.publishLocallyConventions() {
         items.add(0, GradleBuildStep {
             name = "Publish Locally"
             tasks = "publishLocally"
+        })
+
+        items.add(0, GradleBuildStep {
+            conditions {
+                matches("bootstrap", "true")
+            }
+
+            name = "Publish Bootstrap"
+            tasks = "publishBootstrap"
         })
     }
 

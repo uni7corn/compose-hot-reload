@@ -5,6 +5,7 @@
 
 import builds.AllTests
 import builds.ApiCheck
+import builds.BootstrapDeploy
 import builds.PublishDevBuild
 import builds.PublishToMavenCentralProject
 import builds.SamplesCheck
@@ -63,6 +64,7 @@ object ComposeHotReloadProject : Project({
 
     buildType(PublishDevBuild)
     buildType(StagingDeploy)
+    buildType(BootstrapDeploy)
 
     subProject(PublishToMavenCentralProject)
 

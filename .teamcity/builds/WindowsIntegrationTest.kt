@@ -19,6 +19,7 @@ class WindowsIntegrationTest(
     id("Tests_$requiredHost")
 
     params {
+        param("bootstrap", "false")
         param("env.ANDROID_HOME", "%system.teamcity.build.workingDir%/.local/android-sdk")
     }
 
@@ -86,13 +87,22 @@ class WindowsIntegrationTest(
         }
 
         gradle {
+            name = "Bootstrap"
+            tasks = "publishBootstrap -i"
+            conditions {
+                matches("bootstrap", "true")
+            }
+        }
+
+        gradle {
             name = "Build"
             tasks = "publishLocally -i"
         }
 
         gradle {
             name = "Test"
-            tasks = "check -i --continue -x apiCheck -x publishLocally -Pchr.tests.sequential -Phost-integration-tests=true"
+            tasks = "check -i --continue -x apiCheck -x publishLocally " +
+                "-Pchr.tests.sequential -Phost-integration-tests=true"
         }
     }
 }), CommitStatusPublisher,

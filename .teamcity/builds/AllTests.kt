@@ -18,6 +18,13 @@ object AllTests : BuildType({
     description = "All tests"
     type = Type.COMPOSITE
 
+    params {
+        checkbox(
+            "reverse.dep.*.bootstrap",
+            label = "Bootstrap", value = "false", checked = "true", unchecked = "false"
+        )
+    }
+
     features {
         pullRequests {
             vcsRootExtId = Github.id.toString()

@@ -26,8 +26,6 @@ class Test(
         **/build/reports/** => reports.zip
     """.trimIndent()
 
-
-
     steps {
         gradle {
             name = "Test"
