@@ -40,6 +40,10 @@ plugins.withType<MavenPublishPlugin>().all {
                 name = "local"
             }
 
+            maven(rootProject.layout.buildDirectory.dir("bootstrap")) {
+                name = "bootstrap"
+            }
+
             maven(rootProject.layout.buildDirectory.dir("deploy")) {
                 name = "deploy"
             }

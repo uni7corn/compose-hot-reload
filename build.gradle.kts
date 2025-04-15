@@ -46,6 +46,15 @@ val publishDeploy by tasks.registering {
     finalizedBy(checkPublishDeploy)
 }
 
+
+val cleanBootstrap by tasks.registering(Delete::class) {
+    delete(layout.buildDirectory.dir("bootstrap"))
+}
+
+val publishBootstrap by tasks.registering {
+    dependsOn(updateVersions)
+}
+
 subprojects {
     publishLocally.configure {
         this.dependsOn(tasks.named { name -> name == "publishAllPublicationsToLocalRepository" })
@@ -56,6 +65,12 @@ subprojects {
     val publishDeployTasks = tasks.named { name -> name == "publishAllPublicationsToDeployRepository" }
     publishDeployTasks.configureEach { dependsOn(cleanDeploy) }
     publishDeploy.configure { dependsOn(publishDeployTasks) }
+
+    /* Configure 'publishBootstrap' */
+    tasks.configureEach { mustRunAfter(cleanBootstrap) }
+    val publishBootstrapTasks = tasks.named { name -> name == "publishAllPublicationsToBootstrapRepository" }
+    publishBootstrapTasks.configureEach { dependsOn(cleanBootstrap) }
+    publishBootstrap.configure { dependsOn(publishBootstrapTasks) }
 }
 
 val buildMavenCentralDeployBundle by tasks.registering(Zip::class) {

@@ -7,7 +7,7 @@
 
 pluginManagement {
     repositories {
-        maven(file("build/repo"))
+        maven(file("build/bootstrap"))
         maven("https://packages.jetbrains.team/maven/p/firework/dev") {
             mavenContent {
                 includeGroupAndSubgroups("org.jetbrains.compose.hot-reload")
@@ -41,7 +41,7 @@ dependencyResolutionManagement {
     repositories {
         repositoriesMode = RepositoriesMode.FAIL_ON_PROJECT_REPOS
 
-        maven(file("build/repo"))
+        maven(file("build/bootstrap"))
         maven("https://packages.jetbrains.team/maven/p/firework/dev") {
             mavenContent {
                 includeGroupAndSubgroups("org.jetbrains.compose.hot-reload")
