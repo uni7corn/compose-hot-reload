@@ -44,7 +44,7 @@ private fun KotlinTarget.createComposeHotReloadExecTask() {
         }
     }
 
-    project.tasks.register<ComposeHotRun>("${name}RunHot") {
+    project.tasks.register<ComposeHotRun>("${name}RunHot".replaceFirstChar { it.lowercase() }) {
         compilation.set(project.provider { compilations.getByName("main") })
     }
 }

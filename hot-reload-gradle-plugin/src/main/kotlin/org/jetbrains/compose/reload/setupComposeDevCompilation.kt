@@ -41,7 +41,9 @@ private fun KotlinTarget.setupComposeDevCompilation() {
         }
     }
 
-    project.tasks.register("devRun", ComposeDevRun::class.java) { task ->
+    project.tasks.register(
+        "${targetName}RunDev".replaceFirstChar { it.lowercase() }, ComposeDevRun::class.java
+    ) { task ->
         task.compilation.set(dev)
     }
 }

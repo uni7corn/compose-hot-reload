@@ -28,7 +28,7 @@ public fun HotReloadTestFixture.launchDevApplication(
             }
 
             append(":")
-            append("devRun")
+            append("jvmRunDev")
         }
 
         gradleRunner.build(runTaskPath, "-DclassName=$className", "-DfunName=$funName")
