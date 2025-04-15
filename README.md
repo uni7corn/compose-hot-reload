@@ -54,7 +54,7 @@ Gradle can perform the download and setup for the JBR automatically for you via 
 Add the following to your `settings.gradle.kts`:
 ```kotlin
 plugins {
-    id("org.gradle.toolchains.foojay-resolver-convention") version "0.9.0"
+    id("org.gradle.toolchains.foojay-resolver-convention") version "0.10.0"
 }
 ```
 The Compose Hot Reload Gradle plugin will then use this resolver to automatically provision a compatible JDK.
