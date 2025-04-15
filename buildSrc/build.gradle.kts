@@ -36,15 +36,6 @@ repositories {
     mavenCentral()
 }
 
-val syncGradleCore = tasks.register<Sync>("syncGradleCore") {
-    from(file("../hot-reload-gradle-core/src/main/kotlin/org/jetbrains/compose/reload/gradle/HotReloadUsage.kt"))
-    into(kotlin.sourceSets.getByName("main").kotlin.srcDirs.first().resolve("core"))
-}
-
-tasks.compileKotlin.configure {
-    dependsOn(syncGradleCore)
-}
-
 val bootstrapVersion = providers.fileContents(layout.projectDirectory.file("../gradle.properties")).asBytes
     .map { content ->
         val properties = Properties()
