@@ -78,8 +78,8 @@ object PublishDevBuild : BuildType({
         }
 
         gradle {
-            name = "Publish Locally"
-            tasks = "publishLocally"
+            name = "Build Bootstrap"
+            tasks = "publishBootstrap"
         }
 
         gradle {
