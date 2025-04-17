@@ -63,9 +63,6 @@ public suspend fun GradleRunner.build(vararg args: String): ExitCode? {
         *args,
     )
 
-    processBuilder.environment()["JAVA_HOME"] = System.getProperty("java.home")
-    processBuilder.environment()["GRADLE_USER_HOME"] = gradleHome.absolutePathString()
-
     val exitCode = CompletableDeferred<ExitCode?>()
     val scopeJob = currentCoroutineContext().job
 

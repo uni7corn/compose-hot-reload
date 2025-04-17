@@ -21,7 +21,9 @@ import org.gradle.kotlin.dsl.withType
 import org.jetbrains.compose.reload.core.HOT_RELOAD_VERSION
 import org.jetbrains.compose.reload.core.HotReloadProperty
 import org.jetbrains.compose.reload.core.Os
+import org.jetbrains.compose.reload.gradle.core.composeReloadJetBrainsRuntimeBinary
 import org.jetbrains.compose.reload.gradle.files
+import org.jetbrains.compose.reload.gradle.jetbrainsRuntimeLauncher
 import org.jetbrains.compose.reload.gradle.kotlinJvmOrNull
 import org.jetbrains.compose.reload.gradle.kotlinMultiplatformOrNull
 import org.jetbrains.compose.reload.gradle.withKotlinPlugin
@@ -36,6 +38,14 @@ import kotlin.io.path.listDirectoryEntries
 import kotlin.io.path.name
 import kotlin.io.path.walk
 import kotlin.io.path.writeText
+
+private val Project.testGradleUserHome get() = project.layout.buildDirectory.dir("gradleHome").get().asFile
+
+private val Project.testJavaHome
+    get() = (project.composeReloadJetBrainsRuntimeBinary?.toFile() ?: project.jetbrainsRuntimeLauncher()
+        .get().executablePath.asFile)
+        .parentFile.parentFile
+
 
 internal fun Project.configureGradleTestTasks() {
     tasks.withType<HotReloadFunctionalTestTask>().configureEach { task ->
@@ -62,6 +72,9 @@ internal fun Project.configureGradleTestTasks() {
             "reloadTests.screenshotsDirectory",
             task.screenshotsDirectory.map { it.asFile.absolutePath }.string()
         )
+
+        task.environment("GRADLE_USER_HOME", project.testGradleUserHome.absolutePath)
+        task.environment("JAVA_HOME", testJavaHome.absolutePath)
 
         intellijDebuggerDispatchPort.orNull?.let { port ->
             task.environment(HotReloadProperty.IntelliJDebuggerDispatchPort.key, port.toString())
@@ -175,19 +188,22 @@ abstract class HotReloadFunctionalTestTask : Test() {
 internal open class StopFunctionalTestGradleDaemonsTask : DefaultTask() {
 
     @get:Internal
-    internal val gradleUserHome = project.layout.buildDirectory.dir("gradleHome")
+    internal val gradleUserHome = project.testGradleUserHome
+
+    @get:Internal
+    internal val javaHome = project.testJavaHome
 
     @OptIn(ExperimentalPathApi::class)
     @TaskAction
     fun stopDaemons() {
         val binaryName = if (Os.currentOrNull() == Os.Windows) "gradle.bat" else "gradle"
-        val dists = gradleUserHome.get().asFile.toPath().resolve("wrapper/dists")
+        val dists = gradleUserHome.toPath().resolve("wrapper/dists")
         dists.listDirectoryEntries().filter { it.isDirectory() }.forEach { dist ->
             logger.quiet("Stopping daemons for '${dist.name}'")
             val binary = dist.walk().first { it.endsWith("bin/$binaryName") }
             val builder = ProcessBuilder(binary.absolutePathString(), "--stop")
-            builder.environment()["GRADLE_USER_HOME"] = gradleUserHome.get().asFile.absolutePath
-            builder.environment()["JAVA_HOME"] = System.getProperty("java.home")
+            builder.environment()["GRADLE_USER_HOME"] = gradleUserHome.absolutePath
+            builder.environment()["JAVA_HOME"] = javaHome.absolutePath
             builder.redirectErrorStream(true)
             val process = builder.start()
             process.inputStream.bufferedReader().forEachLine { logger.quiet(it) }
