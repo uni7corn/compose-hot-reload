@@ -93,4 +93,8 @@ object ComposeHotReloadProject : Project({
             display = ParameterDisplay.HIDDEN,
         )
     }
+
+    cleanup {
+        artifacts(days = 7)
+    }
 })
