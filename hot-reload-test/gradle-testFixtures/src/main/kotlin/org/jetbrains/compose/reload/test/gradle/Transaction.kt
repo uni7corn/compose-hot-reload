@@ -24,7 +24,10 @@ import org.jetbrains.compose.reload.core.createLogger
 import org.jetbrains.compose.reload.core.withAsyncTrace
 import org.jetbrains.compose.reload.orchestration.OrchestrationClientRole
 import org.jetbrains.compose.reload.orchestration.OrchestrationMessage
+import org.jetbrains.compose.reload.orchestration.OrchestrationMessage.Ack
 import org.jetbrains.compose.reload.orchestration.OrchestrationMessage.ClientDisconnected
+import org.jetbrains.compose.reload.orchestration.OrchestrationMessage.LogMessage
+import org.jetbrains.compose.reload.orchestration.OrchestrationMessage.Ping
 import org.jetbrains.compose.reload.orchestration.OrchestrationMessage.RecompilerReady
 import org.jetbrains.compose.reload.orchestration.OrchestrationMessage.ReloadClassesRequest
 import org.jetbrains.compose.reload.orchestration.OrchestrationMessage.ReloadClassesResult
@@ -123,6 +126,10 @@ public class TransactionScope internal constructor(
         skipToMessage<OrchestrationMessage>("Waiting for application to start") { message ->
             if (message is UIRendered) uiRendered = true
             if (message is RecompilerReady) recompilerReady = true
+            if (message !is LogMessage && message !is Ack && message !is Ping) {
+                logger.debug("application startup: received message: ${message.javaClass.simpleName}")
+                logger.debug("application startup: uiRendered=$uiRendered, recompilerReady=$recompilerReady")
+            }
             uiRendered && recompilerReady
         }
     }
@@ -144,7 +151,7 @@ public class TransactionScope internal constructor(
     }
 
     public suspend fun sync(): Unit = withAsyncTrace("'sync'") {
-        val ping = OrchestrationMessage.Ping()
+        val ping = Ping()
         ping.send()
         awaitAck(ping)
     }
@@ -153,8 +160,8 @@ public class TransactionScope internal constructor(
         /*
         There is no ACK for an ACK, and there is also no ACk for a shutdown request.
          */
-        if (message is OrchestrationMessage.Ack || message is OrchestrationMessage.ShutdownRequest) return@run
-        skipToMessage<OrchestrationMessage.Ack>("Waiting for ack of '${message.javaClass.simpleName}'") { ack ->
+        if (message is Ack || message is OrchestrationMessage.ShutdownRequest) return@run
+        skipToMessage<Ack>("Waiting for ack of '${message.javaClass.simpleName}'") { ack ->
             ack.acknowledgedMessageId == message.messageId
         }
     }
