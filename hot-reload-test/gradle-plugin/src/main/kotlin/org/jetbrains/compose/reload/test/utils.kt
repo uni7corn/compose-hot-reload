@@ -6,8 +6,6 @@
 package org.jetbrains.compose.reload.test
 
 import org.gradle.api.Project
-import org.gradle.api.provider.Provider
-import java.io.Serializable
 
 internal fun lowerCamelCase(vararg parts: String?): String {
     return buildString {
