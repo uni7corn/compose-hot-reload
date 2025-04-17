@@ -6,6 +6,7 @@
 package org.jetbrains.compose.reload.tests.gradle
 
 import org.jetbrains.compose.reload.core.HotReloadProperty
+import org.jetbrains.compose.reload.core.createLogger
 import org.jetbrains.compose.reload.orchestration.OrchestrationMessage
 import org.jetbrains.compose.reload.orchestration.OrchestrationMessage.RecompileRequest
 import org.jetbrains.compose.reload.test.gradle.HotReloadTest
@@ -20,6 +21,8 @@ import kotlin.io.path.exists
 import kotlin.test.assertEquals
 
 class NonContinuousRecompileTest {
+    private val logger = createLogger()
+
     @HotReloadTest
     @GradleIntegrationTest
     fun `test - non continuous build`(fixture: HotReloadTestFixture) = fixture.runTest {
@@ -54,6 +57,13 @@ class NonContinuousRecompileTest {
 
             launchChildTransaction {
                 val result = skipToMessage<OrchestrationMessage.RecompileResult> { result ->
+                    if (result.recompileRequestId != recompileRequest.messageId) {
+                        logger.warn(
+                            "Suspicious RecompileResult: ${result.recompileRequestId}; " +
+                                "expected: ${recompileRequest.messageId}"
+                        )
+                    }
+
                     result.recompileRequestId == recompileRequest.messageId
                 }
                 assertEquals(0, result.exitCode)
@@ -65,6 +75,7 @@ class NonContinuousRecompileTest {
             }
 
             recompileRequest.send()
+            logger.info("Recompile Request sent: $recompileRequest")
         }
     }
 }
