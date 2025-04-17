@@ -10,6 +10,7 @@ import org.jetbrains.compose.reload.core.renderOrThrow
 import org.junit.jupiter.api.extension.ExtensionContext
 import org.junit.platform.commons.support.AnnotationSupport.findRepeatableAnnotations
 import java.util.ServiceLoader
+import kotlin.time.Duration.Companion.minutes
 
 public interface GradlePropertiesExtension {
     public fun properties(context: ExtensionContext): List<String>
@@ -34,6 +35,8 @@ private const val androidEnabledKey = "android.enabled"
 private const val propertiesKey = "properties"
 private val gradlePropertiesTemplate = """
     org.gradle.caching=true
+    org.gradle.jvmargs=-Xmx1G -XX:+UseParallelGC
+    org.gradle.daemon.idletimeout=${10.minutes.inWholeMilliseconds}
     {{if $androidEnabledKey}}
     android.useAndroidX=true
     {{/if}}

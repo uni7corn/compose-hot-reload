@@ -126,6 +126,9 @@ public class TransactionScope internal constructor(
         skipToMessage<OrchestrationMessage>("Waiting for application to start") { message ->
             if (message is UIRendered) uiRendered = true
             if (message is RecompilerReady) recompilerReady = true
+            if (message is ClientDisconnected && message.clientRole == OrchestrationClientRole.Application) {
+                fail("Application disconnected")
+            }
             if (message !is LogMessage && message !is Ack && message !is Ping) {
                 logger.debug("application startup: received message: ${message.javaClass.simpleName}")
                 logger.debug("application startup: uiRendered=$uiRendered, recompilerReady=$recompilerReady")

@@ -5,6 +5,7 @@
 
 package org.jetbrains.compose.reload.test.gradle
 
+import kotlinx.coroutines.awaitCancellation
 import kotlinx.coroutines.launch
 import org.jetbrains.compose.reload.test.core.InternalHotReloadTestApi
 
@@ -28,9 +29,17 @@ public fun HotReloadTestFixture.launchDevApplication(
             }
 
             append(":")
-            append("jvmRunDev")
+            append(
+                when (launchMode) {
+                    ApplicationLaunchMode.GradleBlocking -> "jvmRunDev"
+                    ApplicationLaunchMode.Detached -> "jvmRunDevAsync"
+                }
+            )
         }
 
         gradleRunner.build(runTaskPath, "-DclassName=$className", "-DfunName=$funName")
+        if (launchMode == ApplicationLaunchMode.Detached) {
+            awaitCancellation()
+        }
     }
 }

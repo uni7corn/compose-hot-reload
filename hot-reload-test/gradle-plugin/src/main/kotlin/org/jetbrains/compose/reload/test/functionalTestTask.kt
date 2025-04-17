@@ -5,6 +5,7 @@
 
 package org.jetbrains.compose.reload.test
 
+import org.gradle.api.DefaultTask
 import org.gradle.api.Project
 import org.gradle.api.file.DirectoryProperty
 import org.gradle.api.file.RegularFileProperty
@@ -12,12 +13,14 @@ import org.gradle.api.plugins.JavaBasePlugin.VERIFICATION_GROUP
 import org.gradle.api.provider.Property
 import org.gradle.api.tasks.InputFile
 import org.gradle.api.tasks.Internal
+import org.gradle.api.tasks.TaskAction
 import org.gradle.api.tasks.TaskProvider
 import org.gradle.api.tasks.testing.Test
 import org.gradle.kotlin.dsl.register
 import org.gradle.kotlin.dsl.withType
 import org.jetbrains.compose.reload.core.HOT_RELOAD_VERSION
 import org.jetbrains.compose.reload.core.HotReloadProperty
+import org.jetbrains.compose.reload.core.Os
 import org.jetbrains.compose.reload.gradle.files
 import org.jetbrains.compose.reload.gradle.kotlinJvmOrNull
 import org.jetbrains.compose.reload.gradle.kotlinMultiplatformOrNull
@@ -25,7 +28,13 @@ import org.jetbrains.compose.reload.gradle.withKotlinPlugin
 import org.jetbrains.kotlin.gradle.plugin.KotlinCompilation
 import org.jetbrains.kotlin.gradle.plugin.KotlinTarget
 import org.jetbrains.kotlin.gradle.targets.jvm.KotlinJvmTarget
+import kotlin.io.path.ExperimentalPathApi
+import kotlin.io.path.absolutePathString
 import kotlin.io.path.createParentDirectories
+import kotlin.io.path.isDirectory
+import kotlin.io.path.listDirectoryEntries
+import kotlin.io.path.name
+import kotlin.io.path.walk
 import kotlin.io.path.writeText
 
 internal fun Project.configureGradleTestTasks() {
@@ -89,6 +98,8 @@ internal fun Project.configureGradleTestTasks() {
 
         val warmup = registerHotReloadFunctionalTestTask(reloadFunctionalTestWarmupCompilation)
         val test = registerHotReloadFunctionalTestTask(reloadFunctionalTestCompilation)
+        val testFinalizer = tasks.register<StopFunctionalTestGradleDaemonsTask>("stopFunctionalTestDaemons")
+        test.configure { task -> task.finalizedBy(testFinalizer) }
 
         configureWarmup(warmup, test)
     }
@@ -158,4 +169,28 @@ abstract class HotReloadFunctionalTestTask : Test() {
     @get:Internal
     @Transient
     val compilation: Property<KotlinCompilation<*>> = project.objects.property(KotlinCompilation::class.java)
+}
+
+
+internal open class StopFunctionalTestGradleDaemonsTask : DefaultTask() {
+
+    @get:Internal
+    internal val gradleUserHome = project.layout.buildDirectory.dir("gradleHome")
+
+    @OptIn(ExperimentalPathApi::class)
+    @TaskAction
+    fun stopDaemons() {
+        val binaryName = if (Os.currentOrNull() == Os.Windows) "gradle.bat" else "gradle"
+        val dists = gradleUserHome.get().asFile.toPath().resolve("wrapper/dists")
+        dists.listDirectoryEntries().filter { it.isDirectory() }.forEach { dist ->
+            logger.quiet("Stopping daemons for '${dist.name}'")
+            val binary = dist.walk().first { it.endsWith("bin/$binaryName") }
+            val builder = ProcessBuilder(binary.absolutePathString(), "--stop")
+            builder.environment()["GRADLE_USER_HOME"] = gradleUserHome.get().asFile.absolutePath
+            builder.environment()["JAVA_HOME"] = System.getProperty("java.home")
+            builder.redirectErrorStream(true)
+            val process = builder.start()
+            process.inputStream.bufferedReader().forEachLine { logger.quiet(it) }
+        }
+    }
 }

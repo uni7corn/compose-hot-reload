@@ -86,7 +86,6 @@ class ScreenshotTests {
         fixture.checkScreenshot("after-2")
     }
 
-    @Debug(".*Android.*")
     @AndroidHotReloadTest
     fun `test - kmp with android and jvm`(fixture: HotReloadTestFixture) = fixture.runTest {
         fixture initialSourceCode """

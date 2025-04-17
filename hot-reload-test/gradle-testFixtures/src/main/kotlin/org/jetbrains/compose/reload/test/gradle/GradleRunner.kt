@@ -15,13 +15,11 @@ import org.slf4j.LoggerFactory
 import java.nio.file.Path
 import kotlin.concurrent.thread
 import kotlin.io.path.Path
-import kotlin.io.path.absolutePathString
 import kotlin.io.path.copyTo
 import kotlin.io.path.createDirectories
 import kotlin.io.path.createParentDirectories
 import kotlin.io.path.writeText
 import kotlin.test.fail
-import kotlin.time.Duration.Companion.minutes
 
 private val logger = LoggerFactory.getLogger("Gradle")
 
@@ -57,9 +55,6 @@ public suspend fun GradleRunner.build(vararg args: String): ExitCode? {
 
     val processBuilder = ProcessBuilder().directory(projectRoot.toFile()).command(
         *gradleScriptCommand,
-        "-Dorg.gradle.jvmargs=-Xmx1G",
-        "-Dgradle.user.home=${gradleHome.absolutePathString()}",
-        "-Dorg.gradle.daemon.idletimeout=${1.minutes.inWholeMilliseconds}",
         "-i", "-s",
         "--console=plain",
         "--configuration-cache",
@@ -68,8 +63,11 @@ public suspend fun GradleRunner.build(vararg args: String): ExitCode? {
         *args,
     )
 
-    val job = currentCoroutineContext().job
+    processBuilder.environment()["JAVA_HOME"] = System.getProperty("java.home")
+    processBuilder.environment()["GRADLE_USER_HOME"] = gradleHome.absolutePathString()
+
     val exitCode = CompletableDeferred<ExitCode?>()
+    val scopeJob = currentCoroutineContext().job
 
     val thread = thread(name = "Gradle Runner") {
         Thread.currentThread().setUncaughtExceptionHandler { _, e ->
@@ -79,7 +77,13 @@ public suspend fun GradleRunner.build(vararg args: String): ExitCode? {
 
         logger.info("Starting Gradle runner: ${processBuilder.command().joinToString("\n")}")
         val process = processBuilder.start()
-        job.invokeOnCompletion { process.destroyWithDescendants() }
+
+        scopeJob.invokeOnCompletion {
+            if (process.isAlive) {
+                logger.info("Killing Gradle invocation at '${process.pid()}'")
+                process.destroy()
+            }
+        }
 
         thread(name = "Gradle Runner Output Reader") {
             process.inputStream.bufferedReader().use { reader ->
@@ -107,14 +111,13 @@ public suspend fun GradleRunner.build(vararg args: String): ExitCode? {
             exitCode.complete(ExitCode(process.waitFor()))
         } catch (_: InterruptedException) {
             exitCode.complete(null)
-            logger.error("Gradle Runner: Interrupted by user. Killing Gradle process...")
-            process.destroyWithDescendants()
+            process.destroy()
         }
 
         runCatching { Runtime.getRuntime().removeShutdownHook(shutdownHook) }
     }
 
-    currentCoroutineContext().job.invokeOnCompletion {
+    scopeJob.invokeOnCompletion {
         if (!exitCode.isActive) {
             logger.error("Sending 'Shutdown' signal to Gradle runner thread")
             thread.interrupt()

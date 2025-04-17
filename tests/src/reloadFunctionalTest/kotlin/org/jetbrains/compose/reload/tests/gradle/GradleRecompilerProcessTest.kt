@@ -7,11 +7,14 @@ package org.jetbrains.compose.reload.tests.gradle
 
 import org.jetbrains.compose.reload.orchestration.OrchestrationClientRole.Compiler
 import org.jetbrains.compose.reload.orchestration.OrchestrationMessage
+import org.jetbrains.compose.reload.test.gradle.ApplicationLaunchMode
 import org.jetbrains.compose.reload.test.gradle.HotReloadTest
 import org.jetbrains.compose.reload.test.gradle.HotReloadTestFixture
+import org.jetbrains.compose.reload.test.gradle.TestedLaunchMode
 import org.jetbrains.compose.reload.test.gradle.initialSourceCode
 import org.jetbrains.compose.reload.utils.GradleIntegrationTest
 import org.jetbrains.compose.reload.utils.HostIntegrationTest
+import org.jetbrains.compose.reload.utils.QuickTest
 import java.util.concurrent.TimeUnit
 import kotlin.jvm.optionals.getOrNull
 import kotlin.test.fail
@@ -21,6 +24,8 @@ class GradleRecompilerProcessTest {
     @HotReloadTest
     @HostIntegrationTest
     @GradleIntegrationTest
+    @QuickTest
+    @TestedLaunchMode(ApplicationLaunchMode.GradleBlocking)
     fun `test - gradle recompiler process is stopped`(fixture: HotReloadTestFixture) = fixture.runTest {
         val clientConnected = fixture.runTransaction {
             fixture initialSourceCode """

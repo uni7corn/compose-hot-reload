@@ -16,9 +16,11 @@ import org.jetbrains.compose.reload.test.gradle.ProjectMode
 import org.jetbrains.compose.reload.test.gradle.TestedComposeVersion
 import org.jetbrains.compose.reload.test.gradle.TestedGradleVersion
 import org.jetbrains.compose.reload.test.gradle.TestedKotlinVersion
+import org.jetbrains.compose.reload.test.gradle.TestedLaunchMode
 import org.jetbrains.compose.reload.test.gradle.copy
 import org.jetbrains.kotlin.tooling.core.KotlinToolingVersion
 import org.junit.jupiter.api.extension.ExtensionContext
+import org.junit.platform.commons.support.AnnotationSupport
 import org.junit.platform.commons.util.AnnotationUtils
 import java.awt.GraphicsEnvironment
 import kotlin.jvm.optionals.getOrNull
@@ -40,10 +42,17 @@ class HotReloadTestDimensionBuilder : HotReloadTestDimensionExtension {
             version.isDefault
         }
 
+        val launchModes = AnnotationSupport.findRepeatableAnnotations(
+            context.requiredTestMethod, TestedLaunchMode::class.java
+        ).map { it.mode }.toSet().ifEmpty { ApplicationLaunchMode.entries.toList() }
+
+        val defaultLaunchMode = launchModes.singleOrNull() ?: ApplicationLaunchMode.default
+
         val baselineContext = HotReloadTestInvocationContext {
             kotlinVersion = TestedKotlinVersion(KotlinToolingVersion(defaultKotlinVersion.version))
             gradleVersion = TestedGradleVersion(defaultGradleVersion.version)
             composeVersion = TestedComposeVersion(defaultComposeVersion.version)
+            launchMode = defaultLaunchMode
         }
 
         var result = setOf(baselineContext)
@@ -79,7 +88,7 @@ class HotReloadTestDimensionBuilder : HotReloadTestDimensionExtension {
             }
 
             /* Expand testing against different launch modes */
-            result += ApplicationLaunchMode.entries.filter { it != ApplicationLaunchMode.default }.map { launchMode ->
+            result += launchModes.filter { it != ApplicationLaunchMode.default }.map { launchMode ->
                 baselineContext.copy {
                     this.launchMode = launchMode
                 }
@@ -93,7 +102,6 @@ class HotReloadTestDimensionBuilder : HotReloadTestDimensionExtension {
                     composeVersion = TestedComposeVersion(declaredComposeVersion.version)
                 }
             }
-
         }
 
         /* Expand compiler options */

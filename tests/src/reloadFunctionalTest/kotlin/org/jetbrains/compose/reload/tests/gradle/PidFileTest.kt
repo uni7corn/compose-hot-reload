@@ -27,7 +27,7 @@ class PidFileTest {
     @HotReloadTest
     @QuickTest
     fun `test - pid file`(fixture: HotReloadTestFixture) = fixture.runTest {
-        val pidFile = fixture.projectDir.resolve("build/run/jvmMain/jvmRun.pid")
+        val pidFile = fixture.projectDir.resolve("build/run/jvmMain/jvmRunHot.pid")
 
         fixture.runTransaction {
             fixture initialSourceCode """

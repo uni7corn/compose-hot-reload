@@ -28,7 +28,7 @@ plugins {
 
 dependencyResolutionManagement {
     repositories {
-        maven(file("../..//build/repo"))
+        maven(file("../../build/repo"))
         maven("https://packages.jetbrains.team/maven/p/firework/dev")
         mavenCentral()
         google()

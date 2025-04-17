@@ -7,6 +7,20 @@ public abstract interface class org/jetbrains/compose/reload/test/gradle/Android
 	public abstract fun manifestTag (Lorg/junit/jupiter/api/extension/ExtensionContext;)Ljava/lang/String;
 }
 
+public final class org/jetbrains/compose/reload/test/gradle/ApplicationLaunchMode : java/lang/Enum, org/jetbrains/compose/reload/test/gradle/HotReloadTestDimension {
+	public static final field Companion Lorg/jetbrains/compose/reload/test/gradle/ApplicationLaunchMode$Companion;
+	public static final field Detached Lorg/jetbrains/compose/reload/test/gradle/ApplicationLaunchMode;
+	public static final field GradleBlocking Lorg/jetbrains/compose/reload/test/gradle/ApplicationLaunchMode;
+	public fun displayName ()Ljava/lang/String;
+	public static fun getEntries ()Lkotlin/enums/EnumEntries;
+	public static fun valueOf (Ljava/lang/String;)Lorg/jetbrains/compose/reload/test/gradle/ApplicationLaunchMode;
+	public static fun values ()[Lorg/jetbrains/compose/reload/test/gradle/ApplicationLaunchMode;
+}
+
+public final class org/jetbrains/compose/reload/test/gradle/ApplicationLaunchMode$Companion {
+	public final fun getDefault ()Lorg/jetbrains/compose/reload/test/gradle/ApplicationLaunchMode;
+}
+
 public abstract interface annotation class org/jetbrains/compose/reload/test/gradle/BuildGradleKts : java/lang/annotation/Annotation {
 	public abstract fun path ()Ljava/lang/String;
 }
@@ -149,6 +163,7 @@ public final class org/jetbrains/compose/reload/test/gradle/HotReloadTestFixture
 	public final fun createReceiveChannel (Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
 	public final fun getDaemonTestScope ()Lkotlinx/coroutines/CoroutineScope;
 	public final fun getGradleRunner ()Lorg/jetbrains/compose/reload/test/gradle/GradleRunner;
+	public final fun getLaunchMode ()Lorg/jetbrains/compose/reload/test/gradle/ApplicationLaunchMode;
 	public final fun getOrchestration ()Lorg/jetbrains/compose/reload/orchestration/OrchestrationServer;
 	public final fun getProjectDir ()Lorg/jetbrains/compose/reload/test/gradle/ProjectDir;
 	public final fun getProjectMode ()Lorg/jetbrains/compose/reload/test/gradle/ProjectMode;
@@ -193,6 +208,7 @@ public final class org/jetbrains/compose/reload/test/gradle/HotReloadTestInvocat
 	public fun getExtras ()Lorg/jetbrains/kotlin/tooling/core/Extras;
 	public final fun getGradleVersion ()Lorg/jetbrains/compose/reload/test/gradle/TestedGradleVersion;
 	public final fun getKotlinVersion ()Lorg/jetbrains/compose/reload/test/gradle/TestedKotlinVersion;
+	public final fun getLaunchMode ()Lorg/jetbrains/compose/reload/test/gradle/ApplicationLaunchMode;
 	public final fun getProjectMode ()Lorg/jetbrains/compose/reload/test/gradle/ProjectMode;
 	public fun hashCode ()I
 	public fun toString ()Ljava/lang/String;
@@ -210,12 +226,14 @@ public final class org/jetbrains/compose/reload/test/gradle/HotReloadTestInvocat
 	public fun getExtras ()Lorg/jetbrains/kotlin/tooling/core/MutableExtras;
 	public final fun getGradleVersion ()Lorg/jetbrains/compose/reload/test/gradle/TestedGradleVersion;
 	public final fun getKotlinVersion ()Lorg/jetbrains/compose/reload/test/gradle/TestedKotlinVersion;
+	public final fun getLaunchMode ()Lorg/jetbrains/compose/reload/test/gradle/ApplicationLaunchMode;
 	public final fun getProjectMode ()Lorg/jetbrains/compose/reload/test/gradle/ProjectMode;
 	public final fun setAndroidVersion (Lorg/jetbrains/compose/reload/test/gradle/TestedAndroidVersion;)V
 	public final fun setCompilerOptions (Lorg/jetbrains/compose/reload/test/gradle/TestedCompilerOptions;)V
 	public final fun setComposeVersion (Lorg/jetbrains/compose/reload/test/gradle/TestedComposeVersion;)V
 	public final fun setGradleVersion (Lorg/jetbrains/compose/reload/test/gradle/TestedGradleVersion;)V
 	public final fun setKotlinVersion (Lorg/jetbrains/compose/reload/test/gradle/TestedKotlinVersion;)V
+	public final fun setLaunchMode (Lorg/jetbrains/compose/reload/test/gradle/ApplicationLaunchMode;)V
 	public final fun setProjectMode (Lorg/jetbrains/compose/reload/test/gradle/ProjectMode;)V
 }
 
@@ -226,6 +244,7 @@ public final class org/jetbrains/compose/reload/test/gradle/HotReloadTestInvocat
 	public static final fun getCompilerOptions (Lorg/junit/jupiter/api/extension/ExtensionContext;)Lorg/jetbrains/compose/reload/test/gradle/TestedCompilerOptions;
 	public static final fun getHotReloadTestInvocationContext (Lorg/junit/jupiter/api/extension/ExtensionContext;)Lorg/jetbrains/compose/reload/test/gradle/HotReloadTestInvocationContext;
 	public static final fun getHotReloadTestInvocationContextOrThrow (Lorg/junit/jupiter/api/extension/ExtensionContext;)Lorg/jetbrains/compose/reload/test/gradle/HotReloadTestInvocationContext;
+	public static final fun getLaunchMode (Lorg/junit/jupiter/api/extension/ExtensionContext;)Lorg/jetbrains/compose/reload/test/gradle/ApplicationLaunchMode;
 	public static final fun getProjectMode (Lorg/junit/jupiter/api/extension/ExtensionContext;)Lorg/jetbrains/compose/reload/test/gradle/ProjectMode;
 	public static final fun getTestedAndroidVersion (Lorg/junit/jupiter/api/extension/ExtensionContext;)Lorg/jetbrains/compose/reload/test/gradle/TestedAndroidVersion;
 	public static final fun getTestedComposeVersion (Lorg/junit/jupiter/api/extension/ExtensionContext;)Lorg/jetbrains/compose/reload/test/gradle/TestedComposeVersion;
@@ -463,6 +482,14 @@ public final class org/jetbrains/compose/reload/test/gradle/TestedKotlinVersion 
 
 public final class org/jetbrains/compose/reload/test/gradle/TestedKotlinVersion$Companion {
 	public final fun getDefault ()Lorg/jetbrains/compose/reload/test/gradle/TestedKotlinVersion;
+}
+
+public abstract interface annotation class org/jetbrains/compose/reload/test/gradle/TestedLaunchMode : java/lang/annotation/Annotation {
+	public abstract fun mode ()Lorg/jetbrains/compose/reload/test/gradle/ApplicationLaunchMode;
+}
+
+public abstract interface annotation class org/jetbrains/compose/reload/test/gradle/TestedLaunchMode$Container : java/lang/annotation/Annotation {
+	public abstract fun value ()[Lorg/jetbrains/compose/reload/test/gradle/TestedLaunchMode;
 }
 
 public abstract interface annotation class org/jetbrains/compose/reload/test/gradle/TestedProjectMode : java/lang/annotation/Annotation {

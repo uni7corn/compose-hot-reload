@@ -5,6 +5,7 @@
 
 package org.jetbrains.compose.reload.test.gradle
 
+import kotlinx.coroutines.awaitCancellation
 import kotlinx.coroutines.launch
 
 public fun HotReloadTestFixture.launchApplication(
@@ -13,12 +14,12 @@ public fun HotReloadTestFixture.launchApplication(
 ) {
     daemonTestScope.launch {
         val runTask = when (projectMode) {
-            ProjectMode.Kmp -> when(launchMode) {
+            ProjectMode.Kmp -> when (launchMode) {
                 ApplicationLaunchMode.GradleBlocking -> "jvmRun"
                 ApplicationLaunchMode.Detached -> "jvmRunHotAsync"
             }
 
-            ProjectMode.Jvm -> when(launchMode) {
+            ProjectMode.Jvm -> when (launchMode) {
                 ApplicationLaunchMode.GradleBlocking -> "runHot"
                 ApplicationLaunchMode.Detached -> "runHotAsync"
             }
@@ -37,5 +38,9 @@ public fun HotReloadTestFixture.launchApplication(
 
         val result = gradleRunner.build(*additionalArguments, runTaskPath)
         if (result != GradleRunner.ExitCode.success) error("Application Failed: $result")
+
+        if (launchMode == ApplicationLaunchMode.Detached) {
+            awaitCancellation()
+        }
     }
 }

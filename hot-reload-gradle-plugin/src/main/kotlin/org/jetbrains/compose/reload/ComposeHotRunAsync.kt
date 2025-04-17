@@ -15,9 +15,10 @@ import org.gradle.api.tasks.TaskProvider
 import org.gradle.kotlin.dsl.withType
 import org.gradle.work.DisableCachingByDefault
 import org.jetbrains.compose.reload.core.HotReloadProperty
-import org.jetbrains.compose.reload.core.PidFileInfo
 import org.jetbrains.compose.reload.core.LaunchMode
+import org.jetbrains.compose.reload.core.PidFileInfo
 import org.jetbrains.compose.reload.core.destroyWithDescendants
+import org.jetbrains.compose.reload.core.issueNewDebugSessionJvmArguments
 import org.jetbrains.compose.reload.core.leftOr
 import org.jetbrains.compose.reload.gradle.core.composeReloadJetBrainsRuntimeBinary
 import org.jetbrains.compose.reload.gradle.core.composeReloadStderrFile
@@ -83,11 +84,7 @@ private fun Project.registerComposeHotAsyncRunTask(
             task.stdinFile.set(project.composeReloadStdinFile?.toFile())
         }
 
-        task.mainClass.set(
-            project.providers.gradleProperty("mainClass")
-                .orElse(project.providers.systemProperty("mainClass"))
-                .orElse(runTask.flatMap { it.mainClass })
-        )
+        task.mainClass.set(runTask.flatMap { it.mainClass })
     }
 }
 
@@ -114,6 +111,11 @@ internal open class ComposeHotAsyncRun : DefaultTask() {
     @get:Internal
     internal val stderrFile = project.objects.fileProperty()
 
+    @get:Internal
+    internal val intellijDebuggerDispatchPort = project.providers
+        .environmentVariable(HotReloadProperty.IntelliJDebuggerDispatchPort.key)
+        .orNull?.toIntOrNull()
+
     @TaskAction
     fun runAsync() {
         /**
@@ -137,11 +139,12 @@ internal open class ComposeHotAsyncRun : DefaultTask() {
             stdinFile.orNull?.asFile?.let { file -> "-D${HotReloadProperty.StdinFile.key}=${file.absolutePath}" },
             "-D${HotReloadProperty.StdoutFile.key}=${stdoutFile.get().asFile.absolutePath}",
             "-D${HotReloadProperty.StderrFile.key}=${stderrFile.get().asFile.absolutePath}",
-            "-D${HotReloadProperty.LaunchMode.key}=${LaunchMode.Detached.name}"
+            "-D${HotReloadProperty.LaunchMode.key}=${LaunchMode.Detached.name}",
         ).toTypedArray()
 
         val processBuilder = ProcessBuilder(
             javaBinary.get().asFile.absolutePath,
+            *issueNewDebugSessionJvmArguments(intellijDebuggerDispatchPort),
             "@${argFile.asFile.get().absolutePath}",
             *additionalArguments,
             mainClass.get()
