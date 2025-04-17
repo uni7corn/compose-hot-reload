@@ -7,6 +7,7 @@
 
 package org.jetbrains.compose.reload.utils
 
+import org.jetbrains.compose.reload.core.createLogger
 import org.jetbrains.compose.reload.test.core.CompilerOption
 import org.jetbrains.compose.reload.test.gradle.ApplicationLaunchMode
 import org.jetbrains.compose.reload.test.gradle.Headless
@@ -23,8 +24,10 @@ import org.junit.jupiter.api.extension.ExtensionContext
 import org.junit.platform.commons.support.AnnotationSupport
 import org.junit.platform.commons.util.AnnotationUtils
 import java.awt.GraphicsEnvironment
+import java.security.MessageDigest
 import kotlin.jvm.optionals.getOrNull
-import kotlin.math.absoluteValue
+
+private val logger = createLogger()
 
 class HotReloadTestDimensionBuilder : HotReloadTestDimensionExtension {
     override fun transform(
@@ -126,6 +129,7 @@ class HotReloadTestDimensionBuilder : HotReloadTestDimensionExtension {
 }
 
 class HotReloadTestDimensionFilter : HotReloadTestDimensionExtension {
+
     override fun transform(
         context: ExtensionContext,
         tests: List<HotReloadTestInvocationContext>
@@ -173,13 +177,26 @@ class HotReloadTestDimensionFilter : HotReloadTestDimensionExtension {
         val bucketsCount = System.getenv("TESTED_BUCKETS_COUNT")?.toInt()
         if (bucket != null && bucketsCount != null) {
             result = result.filter { invocationContext ->
-                val hash = (context.requiredTestClass.name + "." + context.requiredTestMethod.name +
-                    invocationContext.getDisplayName()).hashCode()
-                ((hash % bucketsCount).absoluteValue + 1) == bucket
+                val testClassifier = "${context.requiredTestClass}.${context.requiredTestMethod.name} " +
+                    "(${invocationContext.getDisplayName()})"
+
+                val sha = MessageDigest.getInstance("SHA-256")
+                sha.update(testClassifier.encodeToByteArray())
+                val reducedHash = sha.digest().fold(0) { a, b -> a + b }.toUInt()
+                val currentTestBucket = (reducedHash % bucketsCount.toUInt()) + 1.toUInt()
+
+                logger.info(
+                    "Determined test bucket for: $testClassifier, " +
+                        "hash: $reducedHash, " +
+                        "bucket: $currentTestBucket," +
+                        "tested_bucket : $bucket, " +
+                        "buckets_count: $bucketsCount"
+                )
+
+                return@filter currentTestBucket == bucket.toUInt()
             }
         }
 
         return result
     }
-
 }
