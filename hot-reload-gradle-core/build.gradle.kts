@@ -36,6 +36,10 @@ run {
 
     tasks.named("sourcesJar").dependsOn(generatedSourcesTask)
 
+    tasks.register("prepareKotlinIdeaImport") {
+        dependsOn(generatedSourcesTask)
+    }
+
     val mainCompilation = kotlin.target.compilations.getByName("main")
     mainCompilation.compileTaskProvider.configure {
         dependsOn(generatedSourcesTask)
