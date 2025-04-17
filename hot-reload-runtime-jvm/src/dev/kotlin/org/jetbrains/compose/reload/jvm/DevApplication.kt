@@ -48,9 +48,7 @@ internal fun main(args: Array<String>) {
             height = annotation.windowWidth,
             timeout = 5.minutes
         ) {
-            org.jetbrains.compose.reload.jvm.DevelopmentEntryPoint {
-                invokeUI(resolvedClass, funName)
-            }
+            invokeUI(resolvedClass, funName)
         }
     } else {
         singleWindowApplication(
