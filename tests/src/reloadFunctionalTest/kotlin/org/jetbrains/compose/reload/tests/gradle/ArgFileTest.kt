@@ -19,14 +19,17 @@ import org.jetbrains.compose.reload.orchestration.OrchestrationClientRole.Applic
 import org.jetbrains.compose.reload.orchestration.OrchestrationMessage
 import org.jetbrains.compose.reload.orchestration.OrchestrationMessage.ClientConnected
 import org.jetbrains.compose.reload.orchestration.OrchestrationMessage.ShutdownRequest
+import org.jetbrains.compose.reload.test.gradle.ApplicationLaunchMode
 import org.jetbrains.compose.reload.test.gradle.GradleRunner
 import org.jetbrains.compose.reload.test.gradle.HotReloadTest
 import org.jetbrains.compose.reload.test.gradle.HotReloadTestFixture
 import org.jetbrains.compose.reload.test.gradle.ProjectMode
+import org.jetbrains.compose.reload.test.gradle.TestedLaunchMode
 import org.jetbrains.compose.reload.test.gradle.build
 import org.jetbrains.compose.reload.test.gradle.getDefaultMainKtSourceFile
 import org.jetbrains.compose.reload.utils.GradleIntegrationTest
 import org.jetbrains.compose.reload.utils.HostIntegrationTest
+import org.jetbrains.compose.reload.utils.QuickTest
 import java.io.IOException
 import java.io.InputStream
 import kotlin.io.path.createParentDirectories
@@ -41,6 +44,8 @@ class ArgFileTest {
     @HotReloadTest
     @HostIntegrationTest
     @GradleIntegrationTest
+    @TestedLaunchMode(ApplicationLaunchMode.Detached)
+    @QuickTest
     fun `test - launch application using argfile`(fixture: HotReloadTestFixture) = fixture.runTest {
         val testJob = currentCoroutineContext().job
 
