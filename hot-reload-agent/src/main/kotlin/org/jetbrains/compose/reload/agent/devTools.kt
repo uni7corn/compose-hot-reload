@@ -23,14 +23,9 @@ internal fun launchDevtoolsApplication() {
     if (!HotReloadEnvironment.devToolsEnabled) return
 
     val classpath = HotReloadEnvironment.devToolsClasspath ?: error("Missing '${DevToolsClasspath}'")
-
-    val java = resolveDevtoolsJavaBinary()
-    val arguments = ProcessHandle.current().info().arguments().getOrNull()
-        ?.takeIf { java == ProcessHandle.current().info().command().getOrNull() }
-        ?: run { logger.error("Cannot find arguments in current process"); emptyArray<String>() }
-
     logger.info("Starting Dev Tools")
 
+    val java = resolveDevtoolsJavaBinary()
     val properties = listOfNotNull(
         "-Dapple.awt.UIElement=true",
         "-D${HotReloadProperty.OrchestrationPort.key}=${orchestration.port}",
