@@ -37,7 +37,7 @@ private fun Project.registerArgfileTask(
     val createArgsTask = tasks.register(runTask.argFileTaskName(), ComposeHotArgfileTask::class.java) { task ->
         task.runTaskName.set(runTask.name)
         task.argFile.set(provider { runTask.get().argFile.get() })
-        task.arguments.addAll(provider { runTask.get().allJvmArgs })
+        task.arguments.addAll(provider { runTask.get().allJvmArgs + runTask.get().jvmArgs.orEmpty() })
         task.classpath.from(project.files { runTask.get().classpath })
     }
 
