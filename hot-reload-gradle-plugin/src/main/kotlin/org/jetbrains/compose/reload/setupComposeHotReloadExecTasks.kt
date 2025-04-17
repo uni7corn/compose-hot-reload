@@ -13,6 +13,7 @@ import org.gradle.api.tasks.JavaExec
 import org.gradle.kotlin.dsl.register
 import org.gradle.kotlin.dsl.withType
 import org.jetbrains.compose.reload.core.HotReloadProperty
+import org.jetbrains.compose.reload.core.LaunchMode
 import org.jetbrains.compose.reload.core.issueNewDebugSessionJvmArguments
 import org.jetbrains.compose.reload.gradle.core.composeReloadIdeaComposeHotReload
 import org.jetbrains.compose.reload.gradle.kotlinJvmOrNull
@@ -91,6 +92,7 @@ internal fun JavaExec.configureJavaExecTaskForHotReload(compilation: Provider<Ko
             argfile.orNull?.asFile?.toPath()?.createArgfile(allJvmArgs, classpath.files)
         }
 
+        jvmArgs = jvmArgs.orEmpty() + "-D${HotReloadProperty.LaunchMode.key}=${LaunchMode.GradleBlocking.name}"
         logger.info("Running ${mainClass.get()}...")
         logger.info("Classpath:\n${classpath.joinToString("\n")}")
     }

@@ -84,6 +84,7 @@ internal class HotReloadTestFixtureExtension(
             gradleRunner = gradleRunner,
             orchestration = orchestrationServer,
             projectMode = context.projectMode,
+            launchMode = context.launchMode,
             isDebug = debugAnnotation
         )
     }

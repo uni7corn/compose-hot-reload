@@ -8,6 +8,7 @@
 package org.jetbrains.compose.reload.utils
 
 import org.jetbrains.compose.reload.test.core.CompilerOption
+import org.jetbrains.compose.reload.test.gradle.ApplicationLaunchMode
 import org.jetbrains.compose.reload.test.gradle.Headless
 import org.jetbrains.compose.reload.test.gradle.HotReloadTestDimensionExtension
 import org.jetbrains.compose.reload.test.gradle.HotReloadTestInvocationContext
@@ -75,6 +76,13 @@ class HotReloadTestDimensionBuilder : HotReloadTestDimensionExtension {
                 if (context.kotlinVersion.version.toString() != defaultKotlinVersion.version) return@mapNotNull null
                 if (context.gradleVersion.version != defaultGradleVersion.version) return@mapNotNull null
                 context.copy { projectMode = ProjectMode.Jvm }
+            }
+
+            /* Expand testing against different launch modes */
+            result += ApplicationLaunchMode.entries.filter { it != ApplicationLaunchMode.default }.map { launchMode ->
+                baselineContext.copy {
+                    this.launchMode = launchMode
+                }
             }
         }
 

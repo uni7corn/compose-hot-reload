@@ -13,14 +13,18 @@ public fun HotReloadTestFixture.launchApplication(
 ) {
     daemonTestScope.launch {
         val runTask = when (projectMode) {
-            ProjectMode.Kmp -> "jvmRun"
-            ProjectMode.Jvm -> "run"
+            ProjectMode.Kmp -> when(launchMode) {
+                ApplicationLaunchMode.GradleBlocking -> "jvmRun"
+                ApplicationLaunchMode.Detached -> "jvmRunHotAsync"
+            }
+
+            ProjectMode.Jvm -> when(launchMode) {
+                ApplicationLaunchMode.GradleBlocking -> "runHot"
+                ApplicationLaunchMode.Detached -> "runHotAsync"
+            }
         }
 
-        val additionalArguments = when (projectMode) {
-            ProjectMode.Kmp -> arrayOf("-DmainClass=$mainClass")
-            ProjectMode.Jvm -> arrayOf()
-        }
+        val additionalArguments = arrayOf("-DmainClass=$mainClass")
 
         val runTaskPath = buildString {
             if (projectPath != ":") {

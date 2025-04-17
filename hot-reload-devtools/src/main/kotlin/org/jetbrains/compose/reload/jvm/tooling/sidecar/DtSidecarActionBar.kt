@@ -14,6 +14,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import io.sellmair.evas.compose.EvasLaunching
 import org.jetbrains.compose.reload.core.HotReloadEnvironment
+import org.jetbrains.compose.reload.core.HotReloadProperty
+import org.jetbrains.compose.reload.core.LaunchMode
 import org.jetbrains.compose.reload.core.createLogger
 import org.jetbrains.compose.reload.jvm.tooling.send
 import org.jetbrains.compose.reload.jvm.tooling.widgets.DtTextButton
@@ -52,6 +54,7 @@ fun DtSidecarActionBar(modifier: Modifier = Modifier.Companion) {
                 val processBuilder = ProcessBuilder(
                     System.getProperty("java.home") + "/bin/java",
                     "@" + (HotReloadEnvironment.argFile?.absolutePathString() ?: return@EvasLaunching),
+                    "-D${HotReloadProperty.LaunchMode.key}=${LaunchMode.Detached.name}",
                     HotReloadEnvironment.mainClass ?: return@EvasLaunching,
                 )
 

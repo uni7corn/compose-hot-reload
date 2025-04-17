@@ -48,6 +48,7 @@ internal constructor(
     public val gradleRunner: GradleRunner,
     public val orchestration: OrchestrationServer,
     public val projectMode: ProjectMode,
+    public val launchMode: ApplicationLaunchMode,
     @PublishedApi
     internal val isDebug: Boolean
 ) : AutoCloseable {

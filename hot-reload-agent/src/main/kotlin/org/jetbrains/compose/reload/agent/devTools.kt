@@ -15,7 +15,6 @@ import java.io.File
 import java.nio.file.Path
 import kotlin.io.path.Path
 import kotlin.io.path.absolutePathString
-import kotlin.jvm.optionals.getOrNull
 
 private val logger = createLogger()
 
@@ -42,6 +41,7 @@ internal fun launchDevtoolsApplication() {
         HotReloadEnvironment.stdinFile?.let { path -> "-D${HotReloadProperty.StdinFile.key}=$path" },
         HotReloadEnvironment.stdoutFile?.let { path -> "-D${HotReloadProperty.StdoutFile.key}=$path" },
         HotReloadEnvironment.stderrFile?.let { path -> "-D${HotReloadProperty.StderrFile.key}=$path" },
+        HotReloadEnvironment.launchMode?.let { launchMode -> "-D${HotReloadProperty.LaunchMode.key}=${launchMode.name}" },
     )
 
     val process = ProcessBuilder(

@@ -27,16 +27,13 @@ public data class HotReloadTestInvocationContext(
     val androidVersion: TestedAndroidVersion? get() = extras[TestedAndroidVersion.key]
     val gradleVersion: TestedGradleVersion get() = extras[TestedGradleVersion.key] ?: TestedGradleVersion.default
     val projectMode: ProjectMode get() = extras[ProjectMode.key] ?: ProjectMode.Kmp
+    val launchMode: ApplicationLaunchMode get() = extras[ApplicationLaunchMode.key] ?: ApplicationLaunchMode.default
     val compilerOptions: TestedCompilerOptions = extras[TestedCompilerOptions.key] ?: TestedCompilerOptions.default
 
     public fun getDisplayName(): String {
-        return buildString {
-            extras.entries.forEach { (_, value) ->
-                if (value is HotReloadTestDimension && value.displayName() != null) {
-                    append(" ${value.displayName()},")
-                }
-            }
-        }
+        return extras.entries.mapNotNull { (_, value) ->
+            (value as? HotReloadTestDimension)?.displayName()
+        }.joinToString(", ")
     }
 
     override fun getDisplayName(invocationIndex: Int): String {
@@ -79,6 +76,7 @@ public class HotReloadTestInvocationContextBuilder(
     public var androidVersion: TestedAndroidVersion? by extrasReadWriteProperty(TestedAndroidVersion.key)
     public var gradleVersion: TestedGradleVersion? by extrasReadWriteProperty(TestedGradleVersion.key)
     public var projectMode: ProjectMode? by extrasReadWriteProperty(ProjectMode.key)
+    public var launchMode: ApplicationLaunchMode? by extrasReadWriteProperty(ApplicationLaunchMode.key)
     public var compilerOptions: TestedCompilerOptions? by extrasReadWriteProperty(TestedCompilerOptions.key)
 
     public fun compilerOption(option: CompilerOption, enabled: Boolean) {
@@ -108,6 +106,9 @@ public val ExtensionContext.testedAndroidVersion: TestedAndroidVersion?
 
 public val ExtensionContext.projectMode: ProjectMode
     get() = hotReloadTestInvocationContextOrThrow.projectMode
+
+public val ExtensionContext.launchMode: ApplicationLaunchMode
+    get() = hotReloadTestInvocationContextOrThrow.launchMode
 
 public val ExtensionContext.compilerOptions: TestedCompilerOptions
     get() = hotReloadTestInvocationContextOrThrow.compilerOptions

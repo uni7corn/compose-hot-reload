@@ -11,6 +11,7 @@ import org.jetbrains.compose.reload.core.BuildSystem.Gradle
 import org.jetbrains.compose.reload.core.HotReloadEnvironment
 import org.jetbrains.compose.reload.core.HotReloadProperty
 import org.jetbrains.compose.reload.core.Os
+import org.jetbrains.compose.reload.core.LaunchMode
 import org.jetbrains.compose.reload.core.createLogger
 import org.jetbrains.compose.reload.core.destroyWithDescendants
 import org.jetbrains.compose.reload.orchestration.OrchestrationMessage
@@ -245,7 +246,10 @@ private fun createRecompilerGradleCommandLineArgs(
 
         /* Continuous mode arguments */
         "-t".takeIf { HotReloadEnvironment.gradleBuildContinuous },
-        "--no-daemon".takeIf { HotReloadEnvironment.gradleBuildContinuous },
+        "--no-daemon".takeIf {
+            HotReloadEnvironment.gradleBuildContinuous &&
+                HotReloadEnvironment.launchMode == LaunchMode.GradleBlocking
+        },
     )
 }
 

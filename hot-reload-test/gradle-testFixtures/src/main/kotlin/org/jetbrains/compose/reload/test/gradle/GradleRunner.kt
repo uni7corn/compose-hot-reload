@@ -21,6 +21,7 @@ import kotlin.io.path.createDirectories
 import kotlin.io.path.createParentDirectories
 import kotlin.io.path.writeText
 import kotlin.test.fail
+import kotlin.time.Duration.Companion.minutes
 
 private val logger = LoggerFactory.getLogger("Gradle")
 
@@ -58,7 +59,7 @@ public suspend fun GradleRunner.build(vararg args: String): ExitCode? {
         *gradleScriptCommand,
         "-Dorg.gradle.jvmargs=-Xmx1G",
         "-Dgradle.user.home=${gradleHome.absolutePathString()}",
-        "--no-daemon",
+        "-Dorg.gradle.daemon.idletimeout=${1.minutes.inWholeMilliseconds}",
         "-i", "-s",
         "--console=plain",
         "--configuration-cache",

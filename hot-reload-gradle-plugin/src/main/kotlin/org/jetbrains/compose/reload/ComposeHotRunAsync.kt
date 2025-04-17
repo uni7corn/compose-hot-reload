@@ -16,6 +16,7 @@ import org.gradle.kotlin.dsl.withType
 import org.gradle.work.DisableCachingByDefault
 import org.jetbrains.compose.reload.core.HotReloadProperty
 import org.jetbrains.compose.reload.core.PidFileInfo
+import org.jetbrains.compose.reload.core.LaunchMode
 import org.jetbrains.compose.reload.core.destroyWithDescendants
 import org.jetbrains.compose.reload.core.leftOr
 import org.jetbrains.compose.reload.gradle.core.composeReloadJetBrainsRuntimeBinary
@@ -136,6 +137,7 @@ internal open class ComposeHotAsyncRun : DefaultTask() {
             stdinFile.orNull?.asFile?.let { file -> "-D${HotReloadProperty.StdinFile.key}=${file.absolutePath}" },
             "-D${HotReloadProperty.StdoutFile.key}=${stdoutFile.get().asFile.absolutePath}",
             "-D${HotReloadProperty.StderrFile.key}=${stderrFile.get().asFile.absolutePath}",
+            "-D${HotReloadProperty.LaunchMode.key}=${LaunchMode.Detached.name}"
         ).toTypedArray()
 
         val processBuilder = ProcessBuilder(

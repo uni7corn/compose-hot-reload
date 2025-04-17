@@ -228,3 +228,11 @@ StderrFile:
   documentation: |
     Used by 'async'/'non-blocking' launches of the application.
     Will point to a file where the stderr is supposed to be written to.
+
+LaunchMode:
+  key: compose.reload.launchMode
+  type: enum
+  enumClass: org.jetbrains.compose.reload.core.LaunchMode
+  target: [ application, devtools ]
+  documentation: |
+    Tells the application 'how' it was launched
