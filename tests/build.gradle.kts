@@ -41,6 +41,14 @@ tasks.withType<AbstractTestTask> {
 }
 
 tasks.reloadFunctionalTest.configure {
+    providers.environmentVariable("TESTED_BUCKET").orNull?.let { value ->
+        environment("TESTED_BUCKET", value)
+    }
+
+    providers.environmentVariable("TESTED_BUCKETS_COUNT").orNull?.let { value ->
+        environment("TESTED_BUCKETS_COUNT", value)
+    }
+
     useJUnitPlatform {
         if (providers.gradleProperty("host-integration-tests").orNull == "true") {
             includeTags("HostIntegrationTest")
