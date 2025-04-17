@@ -24,7 +24,6 @@ class DevelopmentEntryPointTests {
     @HotReloadTest
     @GradleIntegrationTest
     @TestedProjectMode(ProjectMode.Kmp)
-    @TestedLaunchMode(ApplicationLaunchMode.GradleBlocking)
     fun `test - simple jvm project`(fixture: HotReloadTestFixture) = fixture.runTest {
         val mainKt = fixture.projectDir
             .resolve("src")

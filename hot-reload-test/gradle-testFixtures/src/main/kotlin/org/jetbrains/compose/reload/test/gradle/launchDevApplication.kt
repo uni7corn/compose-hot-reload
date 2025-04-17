@@ -37,7 +37,7 @@ public fun HotReloadTestFixture.launchDevApplication(
             )
         }
 
-        gradleRunner.build(runTaskPath, "-DclassName=$className", "-DfunName=$funName")
+        gradleRunner.build(runTaskPath, "--className", className, "--funName", funName)
         if (launchMode == ApplicationLaunchMode.Detached) {
             awaitCancellation()
         }

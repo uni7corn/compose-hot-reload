@@ -12,6 +12,7 @@ import org.gradle.api.tasks.InputFile
 import org.gradle.api.tasks.Internal
 import org.gradle.api.tasks.TaskAction
 import org.gradle.api.tasks.TaskProvider
+import org.gradle.api.tasks.options.Option
 import org.gradle.kotlin.dsl.withType
 import org.gradle.work.DisableCachingByDefault
 import org.jetbrains.compose.reload.core.HotReloadProperty
@@ -103,6 +104,12 @@ internal open class ComposeHotAsyncRun : DefaultTask() {
     internal val mainClass = project.objects.property(String::class.java)
 
     @get:Internal
+    internal val className = project.objects.property(String::class.java)
+
+    @get:Internal
+    internal val funName = project.objects.property(String::class.java)
+
+    @get:Internal
     internal val stdinFile = project.objects.fileProperty()
 
     @get:Internal
@@ -115,6 +122,24 @@ internal open class ComposeHotAsyncRun : DefaultTask() {
     internal val intellijDebuggerDispatchPort = project.providers
         .environmentVariable(HotReloadProperty.IntelliJDebuggerDispatchPort.key)
         .orNull?.toIntOrNull()
+
+    @Suppress("unused")
+    @Option(option = "mainClass", description = "Override the main class name")
+    fun mainClas(mainClass: String) {
+        this.mainClass.set(mainClass)
+    }
+
+    @Suppress("unused")
+    @Option(option = "className", description = "Provide the name of the class to execute")
+    fun className(className: String) {
+        this.className.set(className)
+    }
+
+    @Suppress("unused")
+    @Option(option = "funName", description = "Provide the name of the function to execute")
+    fun funName(funName: String) {
+        this.funName.set(funName)
+    }
 
     @TaskAction
     fun runAsync() {
@@ -135,19 +160,25 @@ internal open class ComposeHotAsyncRun : DefaultTask() {
         stdoutFile.get().asFile.toPath().createParentDirectories().deleteIfExists()
         stderrFile.get().asFile.toPath().createParentDirectories().deleteIfExists()
 
-        val additionalArguments = listOfNotNull(
+        val additionalJvmArguments = listOfNotNull(
             stdinFile.orNull?.asFile?.let { file -> "-D${HotReloadProperty.StdinFile.key}=${file.absolutePath}" },
             "-D${HotReloadProperty.StdoutFile.key}=${stdoutFile.get().asFile.absolutePath}",
             "-D${HotReloadProperty.StderrFile.key}=${stderrFile.get().asFile.absolutePath}",
             "-D${HotReloadProperty.LaunchMode.key}=${LaunchMode.Detached.name}",
         ).toTypedArray()
 
+        val additionalArguments = listOfNotNull(
+            *className.orNull?.let { className -> arrayOf("--className", className) }.orEmpty(),
+            *funName.orNull?.let { funName -> arrayOf("--funName", funName) }.orEmpty()
+        ).toTypedArray()
+
         val processBuilder = ProcessBuilder(
             javaBinary.get().asFile.absolutePath,
             *issueNewDebugSessionJvmArguments(intellijDebuggerDispatchPort),
             "@${argFile.asFile.get().absolutePath}",
-            *additionalArguments,
-            mainClass.get()
+            *additionalJvmArguments,
+            mainClass.get(),
+            *additionalArguments
         )
             .redirectOutput(stdoutFile.get().asFile)
             .redirectError(stderrFile.get().asFile)

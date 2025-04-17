@@ -9,11 +9,12 @@ import org.gradle.api.Project
 import org.gradle.api.tasks.InputFile
 import org.gradle.api.tasks.Internal
 import org.gradle.api.tasks.JavaExec
-import org.gradle.api.tasks.OutputFile
+import org.gradle.api.tasks.options.Option
 import org.gradle.kotlin.dsl.property
 import org.gradle.kotlin.dsl.withType
 import org.jetbrains.compose.reload.gradle.kotlinJvmOrNull
 import org.jetbrains.compose.reload.gradle.kotlinMultiplatformOrNull
+import org.jetbrains.compose.reload.gradle.string
 import org.jetbrains.kotlin.gradle.plugin.KotlinCompilation
 import org.jetbrains.kotlin.gradle.targets.jvm.KotlinJvmTarget
 
@@ -47,21 +48,8 @@ internal fun Project.setupComposeHotRunConventions() {
     /* Configure the dev run: Expect -DclassName and -DfunName */
     tasks.withType<ComposeDevRun>().configureEach { task ->
         task.description = "Compose Application Dev Run (Hot Reload enabled) | -PclassName=... -PfunName=..."
-
-        val className = project.providers.systemProperty("className")
-            .orElse(project.providers.gradleProperty("className"))
-
-        val funName = project.providers.systemProperty("funName")
-            .orElse(project.providers.gradleProperty("funName"))
-
-        task.inputs.property("className", className)
-        task.inputs.property("funName", funName)
-
         task.mainClass.set("org.jetbrains.compose.reload.jvm.DevApplication")
-
-        task.doFirst {
-            task.args("--className", className.get(), "--funName", funName.get())
-        }
+        task.args("--className", task.className.string(), "--funName", task.funName.string())
     }
 }
 
@@ -95,10 +83,41 @@ sealed class AbstractComposeHotRun : JavaExec() {
  *
  * ```
  */
-open class ComposeHotRun : AbstractComposeHotRun()
+open class ComposeHotRun : AbstractComposeHotRun() {
+    @Suppress("unused")
+    @Option(option = "mainClass", description = "Override the main class name")
+    internal fun mainClas(mainClass: String) {
+        this.mainClass.set(mainClass)
+    }
+}
 
 /**
  * Default 'Dev' Run task which will use the 'DevApplication' to display a given composable
  * using the "className" and "funName" properties.
  */
-internal open class ComposeDevRun : AbstractComposeHotRun()
+internal open class ComposeDevRun : AbstractComposeHotRun() {
+
+    @get:Internal
+    internal val className = project.objects.property<String>().value(
+        project.providers.systemProperty("className")
+            .orElse(project.providers.gradleProperty("className"))
+    )
+
+    @get:Internal
+    internal val funName = project.objects.property<String>().value(
+        project.providers.systemProperty("funName")
+            .orElse(project.providers.gradleProperty("funName"))
+    )
+
+    @Suppress("unused")
+    @Option(option = "className", description = "Provide the name of the class to execute")
+    internal fun className(className: String) {
+        this.className.set(className)
+    }
+
+    @Suppress("unused")
+    @Option(option = "funName", description = "Provide the name of the function to execute")
+    internal fun funName(funName: String) {
+        this.funName.set(funName)
+    }
+}

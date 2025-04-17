@@ -6,8 +6,10 @@
 package org.jetbrains.compose.reload.gradle
 
 import org.gradle.api.Project
+import org.gradle.api.provider.Provider
 import org.jetbrains.kotlin.gradle.dsl.KotlinJvmProjectExtension
 import org.jetbrains.kotlin.gradle.dsl.KotlinMultiplatformExtension
+import java.io.Serializable
 import java.util.Locale
 
 @InternalHotReloadGradleApi
@@ -55,5 +57,24 @@ fun Project.withKotlinPlugin(block: () -> Unit) {
 
     pluginManager.withPlugin("org.jetbrains.kotlin.multiplatform") {
         block()
+    }
+}
+
+
+@InternalHotReloadGradleApi
+fun Provider<String>.string() = StringProvider(this)
+
+@InternalHotReloadGradleApi
+class StringProvider(val property: Provider<String>) : Serializable {
+    override fun toString(): String {
+        return property.get()
+    }
+
+    fun writeReplace(): Any {
+        return property.get()
+    }
+
+    fun readResolve(): Any {
+        return property.get()
     }
 }
