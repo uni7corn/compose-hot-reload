@@ -38,6 +38,7 @@ class WindowsIntegrationTest(
             """.trimIndent()
         }
 
+        /*
         buildCache {
             name = "(Windows) .konan"
             use = true
@@ -45,7 +46,7 @@ class WindowsIntegrationTest(
             rules = """
                .local/konan
            """.trimIndent()
-        }
+        }*/
 
         buildCache {
             name = "(Windows) Gradle (Wrapper)"
