@@ -12,21 +12,15 @@ import kotlinx.serialization.descriptors.PrimitiveSerialDescriptor
 import kotlinx.serialization.encoding.Decoder
 import kotlinx.serialization.encoding.Encoder
 import kotlinx.serialization.json.Json
-import kotlinx.serialization.modules.SerializersModule
 import java.nio.file.Path
 import kotlin.io.path.Path
 import kotlin.io.path.pathString
-
-private val module = SerializersModule {
-
-}
 
 private val json = Json {
     ignoreUnknownKeys = true
     isLenient = true
     coerceInputValues = true
     encodeDefaults = true
-    serializersModule = module
 }
 
 private val prettyJson = Json {
@@ -35,7 +29,6 @@ private val prettyJson = Json {
     coerceInputValues = true
     encodeDefaults = true
     prettyPrint = true
-    serializersModule = module
 }
 
 @Serializable(with = IdeaComposeHotReloadModelSerializer::class)
