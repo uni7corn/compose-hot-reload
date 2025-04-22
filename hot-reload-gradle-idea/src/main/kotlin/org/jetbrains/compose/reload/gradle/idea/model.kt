@@ -45,6 +45,11 @@ public fun IdeaComposeHotReloadModel(
     runTasks = runTasks,
 )
 
+public fun IdeaComposeHotReloadModel.copy(): IdeaComposeHotReloadModel = IdeaComposeHotReloadModelImpl(
+    version = version,
+    runTasks = runTasks.map { it.copy() },
+)
+
 @Serializable
 internal data class IdeaComposeHotReloadModelImpl(
     override val version: String? = null,
@@ -101,6 +106,16 @@ public fun IdeaComposeHotRunTask(
     targetName = targetName,
     compilationName = compilationName,
     sourceSets = sourceSets,
+    argFile = argFile,
+    argFileTaskName = argFileTaskName,
+)
+
+public fun IdeaComposeHotRunTask.copy(): IdeaComposeHotRunTask = IdeaComposeHotRunTaskImpl(
+    taskName = taskName,
+    taskClass = taskClass,
+    targetName = targetName,
+    compilationName = compilationName,
+    sourceSets = sourceSets.toList(),
     argFile = argFile,
     argFileTaskName = argFileTaskName,
 )
