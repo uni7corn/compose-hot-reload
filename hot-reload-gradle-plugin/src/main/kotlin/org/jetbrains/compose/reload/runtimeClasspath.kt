@@ -137,7 +137,7 @@ private open class SyncArtifactsTask : DefaultTask() {
 
     @Suppress("unused") // UP-TO-DATE checks
     @get:Classpath
-    val files: FileCollection get() = project.files { artifactCollection.get().map { it.artifactFiles } }
+    val files: FileCollection = project.files { artifactCollection.get().map { it.artifactFiles } }
 
 
     @get:OutputDirectory
