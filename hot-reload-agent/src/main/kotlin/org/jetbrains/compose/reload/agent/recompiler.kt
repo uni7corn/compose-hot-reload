@@ -36,7 +36,7 @@ private val gradleBuildProject: String? = HotReloadEnvironment.gradleBuildProjec
 private val gradleBuildTask: String? = HotReloadEnvironment.gradleBuildTask
 private val isGradleDaemon = run {
     if (HotReloadEnvironment.buildSystem != Gradle) return@run false
-    if (HotReloadEnvironment.gradleBuildContinuous) return@run true
+    if (!HotReloadEnvironment.gradleBuildContinuous) return@run true
     when (HotReloadEnvironment.launchMode) {
         LaunchMode.Ide, LaunchMode.Detached -> true
         LaunchMode.GradleBlocking -> false
