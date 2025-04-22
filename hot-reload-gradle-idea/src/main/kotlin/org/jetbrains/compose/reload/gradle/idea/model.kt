@@ -9,6 +9,8 @@ import kotlinx.serialization.KSerializer
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.descriptors.PrimitiveKind
 import kotlinx.serialization.descriptors.PrimitiveSerialDescriptor
+import kotlinx.serialization.encoding.Decoder
+import kotlinx.serialization.encoding.Encoder
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.modules.SerializersModule
 import java.nio.file.Path
@@ -16,19 +18,7 @@ import kotlin.io.path.Path
 import kotlin.io.path.pathString
 
 private val module = SerializersModule {
-    polymorphic(
-        baseClass = IdeaComposeHotRunTask::class,
-        actualClass = IdeaComposeHotRunTaskImpl::class,
-        actualSerializer = IdeaComposeHotRunTaskImpl.serializer()
-    )
-    polymorphicDefaultDeserializer(IdeaComposeHotRunTask::class) { IdeaComposeHotRunTaskImpl.serializer() }
 
-    polymorphic(
-        baseClass = IdeaComposeHotReloadModel::class,
-        actualClass = IdeaComposeHotReloadModelImpl::class,
-        actualSerializer = IdeaComposeHotReloadModelImpl.serializer()
-    )
-    polymorphicDefaultDeserializer(IdeaComposeHotReloadModel::class) { IdeaComposeHotReloadModelImpl.serializer() }
 }
 
 private val json = Json {
@@ -48,6 +38,7 @@ private val prettyJson = Json {
     serializersModule = module
 }
 
+@Serializable(with = IdeaComposeHotReloadModelSerializer::class)
 public interface IdeaComposeHotReloadModel : java.io.Serializable {
     public val version: String?
     public val runTasks: List<IdeaComposeHotRunTask>
@@ -78,7 +69,7 @@ internal data class IdeaComposeHotReloadModelImpl(
         @Suppress("unused")
         private fun readResolve(): Any {
             val string = binary.decodeToString()
-            return json.decodeFromString<IdeaComposeHotReloadModel>(string)
+            return json.decodeFromString<IdeaComposeHotReloadModelImpl>(string)
         }
     }
 
@@ -92,6 +83,7 @@ internal data class IdeaComposeHotReloadModelImpl(
     }
 }
 
+@Serializable(with = IdeaComposeHotRunTaskSerializer::class)
 public interface IdeaComposeHotRunTask : java.io.Serializable {
     public val taskName: String?
     public val taskClass: String?
@@ -134,9 +126,33 @@ internal data class IdeaComposeHotRunTaskImpl(
 
 private class PathSerializer : KSerializer<Path> {
     override val descriptor = PrimitiveSerialDescriptor("Path", PrimitiveKind.STRING)
-    override fun serialize(encoder: kotlinx.serialization.encoding.Encoder, value: Path) =
+    override fun serialize(encoder: Encoder, value: Path) =
         encoder.encodeString(value.pathString)
 
-    override fun deserialize(decoder: kotlinx.serialization.encoding.Decoder): Path =
+    override fun deserialize(decoder: Decoder): Path =
         Path(decoder.decodeString())
+}
+
+private class IdeaComposeHotReloadModelSerializer : KSerializer<IdeaComposeHotReloadModel> {
+    override val descriptor = IdeaComposeHotReloadModelImpl.serializer().descriptor
+    override fun serialize(encoder: Encoder, value: IdeaComposeHotReloadModel) {
+        value as? IdeaComposeHotReloadModelImpl ?: error("Can't serialize ${value::class}")
+        IdeaComposeHotReloadModelImpl.serializer().serialize(encoder, value)
+    }
+
+    override fun deserialize(decoder: Decoder): IdeaComposeHotReloadModel {
+        return IdeaComposeHotReloadModelImpl.serializer().deserialize(decoder)
+    }
+}
+
+private class IdeaComposeHotRunTaskSerializer : KSerializer<IdeaComposeHotRunTask> {
+    override val descriptor = IdeaComposeHotReloadModelImpl.serializer().descriptor
+    override fun serialize(encoder: Encoder, value: IdeaComposeHotRunTask) {
+        value as? IdeaComposeHotRunTaskImpl ?: error("Can't serialize ${value::class}")
+        IdeaComposeHotRunTaskImpl.serializer().serialize(encoder, value)
+    }
+
+    override fun deserialize(decoder: Decoder): IdeaComposeHotRunTask {
+        return IdeaComposeHotRunTaskImpl.serializer().deserialize(decoder)
+    }
 }
