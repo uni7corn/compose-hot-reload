@@ -10,8 +10,8 @@ import org.jetbrains.compose.reload.core.BuildSystem.Amper
 import org.jetbrains.compose.reload.core.BuildSystem.Gradle
 import org.jetbrains.compose.reload.core.HotReloadEnvironment
 import org.jetbrains.compose.reload.core.HotReloadProperty
-import org.jetbrains.compose.reload.core.Os
 import org.jetbrains.compose.reload.core.LaunchMode
+import org.jetbrains.compose.reload.core.Os
 import org.jetbrains.compose.reload.core.createLogger
 import org.jetbrains.compose.reload.core.destroyWithDescendants
 import org.jetbrains.compose.reload.orchestration.OrchestrationMessage
@@ -25,6 +25,7 @@ import java.util.concurrent.LinkedBlockingQueue
 import java.util.concurrent.TimeUnit
 import kotlin.concurrent.thread
 import kotlin.io.path.pathString
+import kotlin.streams.asSequence
 
 private val logger = createLogger()
 
@@ -33,6 +34,16 @@ private val buildSystem: BuildSystem? = HotReloadEnvironment.buildSystem
 private val gradleBuildRoot: Path? = HotReloadEnvironment.gradleBuildRoot
 private val gradleBuildProject: String? = HotReloadEnvironment.gradleBuildProject
 private val gradleBuildTask: String? = HotReloadEnvironment.gradleBuildTask
+private val isGradleDaemon = run {
+    if (HotReloadEnvironment.buildSystem != Gradle) return@run false
+    if (HotReloadEnvironment.gradleBuildContinuous) return@run true
+    when (HotReloadEnvironment.launchMode) {
+        LaunchMode.Ide, LaunchMode.Detached -> true
+        LaunchMode.GradleBlocking -> false
+        null -> false
+    }
+}
+
 
 private val amperBuildRoot: String? = HotReloadEnvironment.amperBuildRoot
 private val amperBuildTask: String? = HotReloadEnvironment.amperBuildTask
@@ -135,7 +146,7 @@ internal fun launchRecompiler() {
     }
 
     orchestration.invokeWhenClosed {
-        logger.debug("'Compose Recompiler': Sending close signal")
+        logger.debug("'Recompiler': Sending close signal")
         recompilerThread.interrupt()
         recompilerThread.join()
     }
@@ -155,7 +166,7 @@ private fun ProcessBuilder.startRecompilerProcess(): Int? {
     val process: Process = start()
     val shutdownHook = thread(start = false) {
         logger.debug("'Recompiler': Destroying process (Shutdown)")
-        process.destroyWithDescendants()
+        process.destroyRecompilerProcess()
     }
 
     Runtime.getRuntime().addShutdownHook(shutdownHook)
@@ -174,10 +185,10 @@ private fun ProcessBuilder.startRecompilerProcess(): Int? {
         process.waitFor()
     } catch (_: InterruptedException) {
         logger.debug("'Recompiler': Destroying process")
-        process.destroyWithDescendants()
+        process.destroyRecompilerProcess()
         if (!process.waitFor(15, TimeUnit.SECONDS)) {
             logger.debug("'Recompiler': Force destroying process (Interrupt)")
-            process.destroyForcibly()
+            process.destroyWithDescendants()
         }
         null
     }
@@ -246,10 +257,7 @@ private fun createRecompilerGradleCommandLineArgs(
 
         /* Continuous mode arguments */
         "-t".takeIf { HotReloadEnvironment.gradleBuildContinuous },
-        "--no-daemon".takeIf {
-            HotReloadEnvironment.gradleBuildContinuous &&
-                HotReloadEnvironment.launchMode == LaunchMode.GradleBlocking
-        },
+        "--no-daemon".takeUnless { isGradleDaemon },
     )
 }
 
@@ -262,4 +270,22 @@ private fun createRecompilerAmperCommandLineArgs(amperBuildTask: String): List<S
         "task",
         amperBuildTask,
     )
+}
+
+private fun Process.destroyRecompilerProcess() {
+    if (isGradleDaemon) {
+        destroyWithDescendants()
+        return
+    }
+
+    if (supportsNormalTermination()) {
+        destroy()
+        return
+    }
+
+    /**
+     * If we cannot terminate gracefully, then we try to destroy direct child processes (Gradle Wrapper)
+     */
+    children().asSequence().toList().forEach { child -> child.destroy() }
+    destroy()
 }
