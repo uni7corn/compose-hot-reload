@@ -95,6 +95,8 @@ object ComposeHotReloadProject : Project({
     }
 
     cleanup {
-        artifacts(days = 7)
+        baseRule {
+            artifacts(days = 3)
+        }
     }
 })
