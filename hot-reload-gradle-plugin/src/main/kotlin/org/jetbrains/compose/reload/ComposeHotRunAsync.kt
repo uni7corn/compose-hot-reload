@@ -28,7 +28,6 @@ import org.jetbrains.compose.reload.gradle.core.composeReloadStdoutFile
 import org.jetbrains.compose.reload.gradle.jetbrainsRuntimeLauncher
 import java.util.concurrent.TimeUnit
 import kotlin.io.path.createParentDirectories
-import kotlin.io.path.deleteIfExists
 import kotlin.io.path.isRegularFile
 import kotlin.jvm.optionals.getOrNull
 
@@ -157,8 +156,8 @@ internal open class ComposeHotAsyncRun : DefaultTask() {
         }
 
         pidFile.get().asFile.toPath().createParentDirectories()
-        stdoutFile.get().asFile.toPath().createParentDirectories().deleteIfExists()
-        stderrFile.get().asFile.toPath().createParentDirectories().deleteIfExists()
+        stdoutFile.get().asFile.toPath().createParentDirectories()
+        stderrFile.get().asFile.toPath().createParentDirectories()
 
         val additionalJvmArguments = listOfNotNull(
             stdinFile.orNull?.asFile?.let { file -> "-D${HotReloadProperty.StdinFile.key}=${file.absolutePath}" },
