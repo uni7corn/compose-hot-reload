@@ -56,8 +56,11 @@ internal fun JavaExec.configureJavaExecTaskForHotReload(compilation: Provider<Ko
     val argfile = if (this is AbstractComposeHotRun) this.argFile
     else compilation.flatMap { compilation -> compilation.runBuildFile("$name.argfile") }
 
+    val pidfile = if (this is AbstractComposeHotRun) this.pidFile
+    else compilation.flatMap { compilation -> compilation.runBuildFile("$name.pid") }
+
     withComposeHotReloadArguments {
-        setPidFile(compilation.map { compilation -> compilation.runBuildFile("$name.pid").get().asFile })
+        setPidFile(pidfile.map { it.asFile })
         setArgFile(argfile.map { it.asFile })
         setReloadTaskName(compilation.map { compilation -> composeReloadHotClasspathTaskName(compilation) })
     }
