@@ -18,6 +18,7 @@ import org.gradle.api.tasks.PathSensitive
 import org.gradle.api.tasks.PathSensitivity
 import org.gradle.api.tasks.TaskAction
 import org.gradle.api.tasks.TaskProvider
+import org.gradle.initialization.BuildCancellationToken
 import org.gradle.kotlin.dsl.property
 import org.gradle.kotlin.dsl.withType
 import org.gradle.work.DisableCachingByDefault
@@ -41,10 +42,10 @@ import org.jetbrains.kotlin.gradle.plugin.KotlinCompilation
 import java.io.File
 import java.util.zip.ZipEntry
 import java.util.zip.ZipFile
+import javax.inject.Inject
 import kotlin.io.path.createParentDirectories
 import kotlin.io.path.deleteIfExists
 import kotlin.io.path.outputStream
-import kotlin.system.exitProcess
 
 
 internal fun Project.setupComposeReloadHotClasspathTasks() {
@@ -88,7 +89,7 @@ internal fun composeReloadHotClasspathTaskName(compilation: KotlinCompilation<*>
 
 @DisableCachingByDefault(because = "Should always run")
 @InternalHotReloadGradleApi
-open class ComposeReloadHotClasspathTask : DefaultTask() {
+abstract class ComposeReloadHotClasspathTask : DefaultTask() {
     @get:InputFiles
     @get:PathSensitive(PathSensitivity.RELATIVE)
     @get:Incremental
@@ -111,10 +112,14 @@ open class ComposeReloadHotClasspathTask : DefaultTask() {
     val classesDirectory: DirectoryProperty = project.objects.directoryProperty()
         .convention(project.layout.buildDirectory.dir("run/$name/classes"))
 
+    @Inject
+    abstract fun getCancellationToken(): BuildCancellationToken
+
     @TaskAction
     fun execute(inputs: InputChanges) {
         val client = runCatching { connectOrchestrationClient(Compiler, agentPort.get()) }.getOrNull() ?: run {
             logger.quiet("Failed to create 'OrchestrationClient'!")
+            getCancellationToken().cancel()
             error("Failed to create 'OrchestrationClient'!")
         }
 
