@@ -38,15 +38,15 @@ class WindowsIntegrationTest(
             """.trimIndent()
         }
 
-        /*
+
         buildCache {
-            name = "(Windows) .konan"
+            name = "(Windows) .konan/dependencies"
             use = true
             publish = true
             rules = """
-               .local/konan
+               .local/konan/dependencies
            """.trimIndent()
-        }*/
+        }
 
         buildCache {
             name = "(Windows) Gradle (Wrapper)"
