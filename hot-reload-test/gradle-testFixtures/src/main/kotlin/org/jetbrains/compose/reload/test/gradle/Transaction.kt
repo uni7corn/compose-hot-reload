@@ -132,7 +132,7 @@ public class TransactionScope internal constructor(
                 fail("Application disconnected")
             }
             if (message !is LogMessage && message !is Ack && message !is Ping) {
-                logger.debug("application startup: received message: ${message.javaClass.simpleName}")
+                logger.debug("application startup: received message: $message")
                 logger.debug("application startup: uiRendered=$uiRendered, recompilerReady=$recompilerReady")
             }
             uiRendered && recompilerReady
