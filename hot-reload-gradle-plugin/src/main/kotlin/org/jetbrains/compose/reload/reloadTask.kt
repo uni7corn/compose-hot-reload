@@ -115,7 +115,7 @@ open class ComposeReloadHotClasspathTask : DefaultTask() {
     fun execute(inputs: InputChanges) {
         val client = runCatching { connectOrchestrationClient(Compiler, agentPort.get()) }.getOrNull() ?: run {
             logger.quiet("Failed to create 'OrchestrationClient'!")
-            exitProcess(-1)
+            error("Failed to create 'OrchestrationClient'!")
         }
 
         val classpathSnapshotFile = classpathSnapshotFile.get().asFile
