@@ -165,6 +165,7 @@ internal open class ComposeHotAsyncRun : DefaultTask() {
             "-D${HotReloadProperty.StdoutFile.key}=${stdoutFile.get().asFile.absolutePath}",
             "-D${HotReloadProperty.StderrFile.key}=${stderrFile.get().asFile.absolutePath}",
             "-D${HotReloadProperty.LaunchMode.key}=${LaunchMode.Detached.name}",
+            "-D${HotReloadProperty.MainClass.key}=${mainClass.get()}",
         ).toTypedArray()
 
         val additionalArguments = listOfNotNull(
