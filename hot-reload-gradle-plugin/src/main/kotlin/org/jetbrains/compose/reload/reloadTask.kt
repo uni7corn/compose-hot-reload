@@ -45,6 +45,7 @@ import java.util.zip.ZipFile
 import javax.inject.Inject
 import kotlin.io.path.createParentDirectories
 import kotlin.io.path.deleteIfExists
+import kotlin.io.path.exists
 import kotlin.io.path.outputStream
 
 
@@ -123,37 +124,47 @@ abstract class ComposeReloadHotClasspathTask : DefaultTask() {
             error("Failed to create 'OrchestrationClient'!")
         }
 
-        val classpathSnapshotFile = classpathSnapshotFile.get().asFile
-
-        val snapshot = if (classpathSnapshotFile.exists()) classpathSnapshotFile.readClasspathSnapshot()
-        else ClasspathSnapshot(classpath)
-
-        try {
+        client.use {
             client.sendMessage(OrchestrationMessage.RecompilerReady())
 
+            val classpathSnapshotFile = classpathSnapshotFile.get().asFile.toPath()
             if (!inputs.isIncremental) {
-                logger.debug("Non-Incremental compile: Rejecting")
+                logger.debug("Non-incremental run: Taking classpath snapshot")
+                classpathSnapshotFile.writeClasspathSnapshot(ClasspathSnapshot(classpath))
                 return
             }
 
-            logger.quiet("Incremental run")
-            val changedClassFiles = mutableMapOf<File, ChangeType>()
-            inputs.getFileChanges(classpath).forEach { change ->
-                if (change.file.isFile && change.file.extension == "class") {
-                    changedClassFiles += resolveChangedClassFile(change)
+            val snapshot = if (classpathSnapshotFile.exists()) classpathSnapshotFile.readClasspathSnapshot()
+            else ClasspathSnapshot(classpath)
+
+            /* Let's collect changes, prepare the reload classes request and fire */
+            logger.quiet("Building 'ReloadClassesRequest'")
+            try {
+                val changedClassFiles = mutableMapOf<File, ChangeType>()
+                inputs.getFileChanges(classpath).forEach { change ->
+                    if (change.file.isFile && change.file.extension == "class") {
+                        changedClassFiles += resolveChangedClassFile(change)
+                    }
+
+                    if (change.file.isFile && change.file.extension == "jar") {
+                        changedClassFiles += resolveChangedJar(snapshot, change)
+                    }
                 }
 
-                if (change.file.isFile && change.file.extension == "jar") {
-                    changedClassFiles += resolveChangedJar(snapshot, change)
+                client.sendMessage(ReloadClassesRequest(changedClassFiles))
+            } catch (t: Throwable) {
+                /* We're in trouble; How shall we handle the snapshot? Let's try to take a new one? */
+                logger.error("Failed to reload classes", t)
+                try {
+                    classpathSnapshotFile
+                        .createParentDirectories()
+                        .writeClasspathSnapshot(ClasspathSnapshot(classpath))
+                } catch (suppressed: Throwable) {
+                    logger.error("Failed to write classpath snapshot", suppressed)
+                } finally {
+                    throw t
                 }
             }
-
-            client.sendMessage(ReloadClassesRequest(changedClassFiles))
-
-        } finally {
-            client.closeGracefully()
-            classpathSnapshotFile.toPath().createParentDirectories()
-                .writeClasspathSnapshot(snapshot)
         }
     }
 
