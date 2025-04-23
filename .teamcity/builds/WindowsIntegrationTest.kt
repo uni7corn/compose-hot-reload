@@ -40,7 +40,7 @@ class WindowsIntegrationTest(
 
 
         buildCache {
-            name = "(Windows) .konan/dependencies"
+            name = "(Windows) .konan dependencies"
             use = true
             publish = true
             rules = """
