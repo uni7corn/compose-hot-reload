@@ -67,7 +67,7 @@ internal fun launchRecompiler() {
     if (buildSystem == null) return
 
     val port = orchestration.port
-    logger.debug("'Compose Recompiler': Using orchestration at '$port'")
+    logger.debug("'Recompiler': Using orchestration at '$port'")
 
     val processBuilder = when (buildSystem) {
         Amper -> {
@@ -115,7 +115,7 @@ internal fun launchRecompiler() {
 
 
     val recompilerThread = thread(name = "Recompiler") {
-        logger.debug("'Recompiler' started")
+        logger.debug("'Recompiler': started")
 
         try {
             /*
@@ -128,7 +128,9 @@ internal fun launchRecompiler() {
 
             while (true) {
                 val requests = takeRecompileRequests()
+                logger.debug("'Recompiler': Requests: ${requests.map { it.messageId }}")
                 val exitCode = processBuilder.startRecompilerProcess()
+                logger.debug("'Recompiler': Requests: ${requests.map { it.messageId }}: Exit code: $exitCode")
                 requests.forEach { request ->
                     OrchestrationMessage.RecompileResult(
                         recompileRequestId = request.messageId,
@@ -175,7 +177,7 @@ private fun ProcessBuilder.startRecompilerProcess(): Int? {
         process.inputStream.bufferedReader().use { reader ->
             while (true) {
                 val nextLine = reader.readLine() ?: break
-                logger.debug("'Compose Recompiler' output: $nextLine")
+                logger.debug("'Recompiler': output: $nextLine")
                 LogMessage(TAG_COMPILER, nextLine).send()
             }
         }
@@ -194,7 +196,7 @@ private fun ProcessBuilder.startRecompilerProcess(): Int? {
     }
 
 
-    logger.debug("Recompile finished '$exitCode'")
+    logger.debug("'Recompiler': finished '$exitCode'")
     runCatching { Runtime.getRuntime().removeShutdownHook(shutdownHook) }
     return exitCode
 }
