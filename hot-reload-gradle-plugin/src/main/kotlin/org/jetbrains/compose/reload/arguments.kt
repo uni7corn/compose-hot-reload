@@ -26,6 +26,7 @@ import org.jetbrains.compose.reload.gradle.core.composeReloadJetBrainsRuntimeBin
 import org.jetbrains.compose.reload.gradle.core.composeReloadOrchestrationPort
 import org.jetbrains.compose.reload.gradle.core.composeReloadStderrFile
 import org.jetbrains.compose.reload.gradle.core.composeReloadStdinFile
+import org.jetbrains.compose.reload.gradle.core.composeReloadStdoutFile
 import org.jetbrains.compose.reload.gradle.core.composeReloadVirtualMethodResolveEnabled
 import org.jetbrains.compose.reload.gradle.jetbrainsRuntimeLauncher
 import java.io.File
@@ -173,7 +174,7 @@ private class ComposeHotReloadArgumentsBuilderImpl(
             virtualMethodResolveEnabled = project.composeReloadVirtualMethodResolveEnabled,
             dirtyResolveDepthLimit = project.composeReloadDirtyResolveDepthLimit,
             stdinFile = project.composeReloadStdinFile?.toFile(),
-            stdoutFile = project.composeReloadStdinFile?.toFile(),
+            stdoutFile = project.composeReloadStdoutFile?.toFile(),
             stderrFile = project.composeReloadStderrFile?.toFile(),
         )
     }
