@@ -20,10 +20,6 @@ fun BuildType.publishLocallyConventions() {
         param("bootstrap", "false")
     }
 
-    artifactRules = """
-        build/repo => repo.zip
-    """.trimIndent()
-
     steps {
         items.add(0, GradleBuildStep {
             name = "Publish Locally"
