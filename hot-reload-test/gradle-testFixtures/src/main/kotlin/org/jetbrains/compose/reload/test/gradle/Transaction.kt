@@ -65,8 +65,10 @@ public class TransactionScope internal constructor(
     }
 
     public suspend fun launchChildTransaction(block: suspend TransactionScope.() -> Unit): Job {
+        val receiveChannel = fixture.createReceiveChannel()
+
         return launch(AsyncTraces("launchChildTransaction")) {
-            TransactionScope(fixture, this@launch, fixture.createReceiveChannel()).block()
+            TransactionScope(fixture, this@launch, receiveChannel).block()
         }
     }
 
