@@ -9,6 +9,7 @@ import org.jetbrains.compose.reload.core.HotReloadProperty
 import org.jetbrains.compose.reload.core.createLogger
 import org.jetbrains.compose.reload.orchestration.OrchestrationMessage
 import org.jetbrains.compose.reload.orchestration.OrchestrationMessage.RecompileRequest
+import org.jetbrains.compose.reload.orchestration.OrchestrationMessage.RecompileResult
 import org.jetbrains.compose.reload.test.gradle.HotReloadTest
 import org.jetbrains.compose.reload.test.gradle.HotReloadTestFixture
 import org.jetbrains.compose.reload.test.gradle.checkScreenshot
@@ -32,23 +33,25 @@ class NonContinuousRecompileTest {
             .appendLines(listOf("${HotReloadProperty.GradleBuildContinuous.key}=false"))
 
         runTransaction {
-            this initialSourceCode """
-            import androidx.compose.foundation.layout.*
-            import androidx.compose.ui.unit.sp
-            import androidx.compose.ui.window.*
-            import org.jetbrains.compose.reload.test.*
-            
-            fun main() {
-                screenshotTestApplication {
-                    TestText("Before")
-                }
+            launchChildTransaction {
+                skipToMessage<RecompileResult>("Waiting for initial 'Recompile Result'")
             }
-            """.trimIndent()
 
-            skipToMessage<OrchestrationMessage.RecompileResult>()
-            fixture.checkScreenshot("0-before")
+            this initialSourceCode """
+                import androidx.compose.foundation.layout.*
+                import androidx.compose.ui.unit.sp
+                import androidx.compose.ui.window.*
+                import org.jetbrains.compose.reload.test.*
+                
+                fun main() {
+                    screenshotTestApplication {
+                        TestText("Before")
+                    }
+                }
+                """.trimIndent()
         }
 
+        fixture.checkScreenshot("0-before")
         replaceSourceCode("Before", "After")
         checkScreenshot("1-beforeRequest")
 
@@ -56,7 +59,9 @@ class NonContinuousRecompileTest {
             val recompileRequest = RecompileRequest()
 
             launchChildTransaction {
-                val result = skipToMessage<OrchestrationMessage.RecompileResult> { result ->
+                val result = skipToMessage<RecompileResult>(
+                    "Waiting for recompile result of '${recompileRequest.messageId}'"
+                ) { result ->
                     if (result.recompileRequestId != recompileRequest.messageId) {
                         logger.warn(
                             "Suspicious RecompileResult: ${result.recompileRequestId}; " +
