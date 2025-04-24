@@ -51,6 +51,7 @@ class RuntimeDependenciesTest {
 
         fixture.resolveRuntimeClasspath("app").assertMatches(
             PathRegex(".*/app/build/run/jvmMain/classpath/classes"),
+            PathRegex(".*/app/build/run/jvmMain/classpath/hot"),
             PathRegex(".*/app/build/run/jvmMain/classpath/libs/lib/.*/lib-jvm.jar"),
             *stdlib,
             *hotReloadAgentDependencies,
@@ -99,6 +100,7 @@ class RuntimeDependenciesTest {
 
         fixture.resolveRuntimeClasspath("app").assertMatches(
             PathRegex(".*/app/build/run/jvmMain/classpath/classes"),
+            PathRegex(".*/app/build/run/jvmMain/classpath/hot"),
             PathRegex(".*/app/build/run/jvmMain/classpath/libs/lib/.*/lib-jvm.jar"),
             *stdlib,
             *hotReloadAgentDependencies,
@@ -116,6 +118,7 @@ class RuntimeDependenciesTest {
     fun `test - hot jvm project`(fixture: HotReloadTestFixture) = fixture.runTest {
         fixture.resolveRuntimeClasspath().assertMatches(
             PathRegex(".*/build/run/main/classpath/classes"),
+            PathRegex(".*/build/run/main/classpath/hot"),
             *stdlib,
             *hotReloadAgentDependencies,
             *hotReloadRuntimeDependencies,

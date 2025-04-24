@@ -13,6 +13,7 @@ import org.gradle.api.file.RegularFileProperty
 import org.gradle.api.provider.Property
 import org.gradle.api.tasks.InputFiles
 import org.gradle.api.tasks.Internal
+import org.gradle.api.tasks.OutputDirectory
 import org.gradle.api.tasks.OutputFile
 import org.gradle.api.tasks.PathSensitive
 import org.gradle.api.tasks.PathSensitivity
@@ -49,6 +50,20 @@ import kotlin.io.path.exists
 import kotlin.io.path.outputStream
 
 
+/**
+ * Represents the directory where 'hot' classes will be put for the running application
+ * to load them from.
+ */
+internal val KotlinCompilation<*>.hotClassesOutputDirectory
+    get() = runBuildDirectory("classpath/hot")
+
+/**
+ * The associated file containing the runtime-classpath snapshot used by the [ComposeReloadHotClasspathTask]
+ */
+internal val KotlinCompilation<*>.composeHotReloadClasspathSnapshotFile
+    get() = runBuildDirectory("classpath").map { it.file("snapshot.bin") }
+
+
 internal fun Project.setupComposeReloadHotClasspathTasks() {
     kotlinMultiplatformOrNull?.targets?.all { target ->
         target.compilations.all { compilation -> setupComposeReloadHotClasspathTask(compilation) }
@@ -75,7 +90,8 @@ internal fun Project.setupComposeReloadHotClasspathTask(compilation: KotlinCompi
 
         task.classpath.from(hotRuntimeFiles)
         task.dependsOn(hotRuntimeFiles)
-        task.classesDirectory.set(compilation.composeHotClassesRuntimeDirectory)
+        task.classpathSnapshotFile.set(compilation.composeHotReloadClasspathSnapshotFile)
+        task.classesDirectory.set(compilation.hotClassesOutputDirectory)
     }
 }
 
@@ -109,7 +125,7 @@ abstract class ComposeReloadHotClasspathTask : DefaultTask() {
      * This directory should be part of the classpath of a running application to support loading
      * new classes from this directory.
      */
-    @get:Internal
+    @get:OutputDirectory
     val classesDirectory: DirectoryProperty = project.objects.directoryProperty()
         .convention(project.layout.buildDirectory.dir("run/$name/classes"))
 

@@ -19,6 +19,7 @@ import org.gradle.api.attributes.java.TargetJvmEnvironment.TARGET_JVM_ENVIRONMEN
 import org.gradle.api.file.DirectoryProperty
 import org.gradle.api.file.FileCollection
 import org.gradle.api.tasks.Classpath
+import org.gradle.api.tasks.Delete
 import org.gradle.api.tasks.Internal
 import org.gradle.api.tasks.OutputDirectory
 import org.gradle.api.tasks.Sync
@@ -78,9 +79,6 @@ internal val Project.hotReloadRuntimeConfiguration: Configuration
  */
 val Project.hotReloadRuntimeClasspath: FileCollection get() = hotReloadRuntimeConfiguration
 
-internal val KotlinCompilation<*>.composeHotClassesRuntimeDirectory
-    get() = runBuildDirectory("classpath/classes")
-
 internal val KotlinCompilation<*>.composeHotReloadRuntimeClasspath: FileCollection by lazyProperty {
     val thisOutput = output.allOutputs
     val agentClasspath = project.composeHotReloadAgentRuntimeClasspath()
@@ -94,28 +92,38 @@ internal val KotlinCompilation<*>.composeHotReloadRuntimeClasspath: FileCollecti
     }
 
     val classesDirectory = runBuildDirectory("classpath/classes")
-    val hotLibsDirectory = runBuildDirectory("classpath/libs")
+    val libsDirectory = runBuildDirectory("classpath/libs")
+
+    val cleanHotClasses = project.tasks.register<Delete>(
+        camelCase("clean", target.name, compilationName, "hot", "classes")
+    ) {
+        val hotClassesDir = hotClassesOutputDirectory
+        delete(hotClassesDir)
+        delete(composeHotReloadClasspathSnapshotFile)
+        doLast { hotClassesDir.get().asFile.toPath().createDirectories() }
+    }
 
     val syncClasses = project.tasks.register<Sync>(
-        camelCase("build", target.name, compilationName, "startup", "classpath")
+        camelCase("sync", target.name, compilationName, "startup", "classes")
     ) {
         destinationDir = classesDirectory.get().asFile
         from(thisOutput)
     }
 
-    val snycHotLibs = project.tasks.register<SyncArtifactsTask>(
-        camelCase("build", target.name, compilationName, "startup", "libs")
+    val syncLibs = project.tasks.register<SyncArtifactsTask>(
+        camelCase("sync", target.name, compilationName, "startup", "libs")
     ) {
         artifactCollection.add(hotLibs.artifacts)
-        destinationDir.set(hotLibsDirectory.get())
+        destinationDir.set(libsDirectory.get())
     }
 
     project.files(
         agentClasspath,
-        composeHotClassesRuntimeDirectory,
-        snycHotLibs.map { it.destinationDir.asFileTree },
+        hotClassesOutputDirectory,
+        classesDirectory,
+        syncLibs.map { it.destinationDir.asFileTree },
         coldLibs.files,
-    ).builtBy(syncClasses, snycHotLibs)
+    ).builtBy(cleanHotClasses, syncClasses, syncLibs)
 }
 
 internal val KotlinCompilation<*>.hotRuntimeFiles: FileCollection by lazyProperty {
