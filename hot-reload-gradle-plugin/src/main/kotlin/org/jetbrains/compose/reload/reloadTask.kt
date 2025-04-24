@@ -33,11 +33,13 @@ import org.jetbrains.compose.reload.gradle.kotlinJvmOrNull
 import org.jetbrains.compose.reload.gradle.kotlinMultiplatformOrNull
 import org.jetbrains.compose.reload.orchestration.OrchestrationClientRole.Compiler
 import org.jetbrains.compose.reload.orchestration.OrchestrationMessage
+import org.jetbrains.compose.reload.orchestration.OrchestrationMessage.CriticalException
 import org.jetbrains.compose.reload.orchestration.OrchestrationMessage.ReloadClassesRequest
 import org.jetbrains.compose.reload.orchestration.OrchestrationMessage.ReloadClassesRequest.ChangeType
 import org.jetbrains.compose.reload.orchestration.OrchestrationMessage.ReloadClassesRequest.ChangeType.Added
 import org.jetbrains.compose.reload.orchestration.OrchestrationMessage.ReloadClassesRequest.ChangeType.Modified
 import org.jetbrains.compose.reload.orchestration.OrchestrationMessage.ReloadClassesRequest.ChangeType.Removed
+import org.jetbrains.compose.reload.orchestration.OrchestrationMessage.ShutdownRequest
 import org.jetbrains.compose.reload.orchestration.connectOrchestrationClient
 import org.jetbrains.kotlin.gradle.plugin.KotlinCompilation
 import java.io.File
@@ -168,16 +170,20 @@ abstract class ComposeReloadHotClasspathTask : DefaultTask() {
                 }
 
                 client.sendMessage(ReloadClassesRequest(changedClassFiles))
+
+                classpathSnapshotFile
+                    .createParentDirectories()
+                    .writeClasspathSnapshot(snapshot)
             } catch (t: Throwable) {
                 /* We're in trouble; How shall we handle the snapshot? Let's try to take a new one? */
                 logger.error("Failed to reload classes", t)
                 try {
-                    classpathSnapshotFile
-                        .createParentDirectories()
-                        .writeClasspathSnapshot(ClasspathSnapshot(classpath))
+                    client.sendMessage(CriticalException(clientRole = Compiler, t))
+                    client.sendMessage(ShutdownRequest("$name failed:  ${t.javaClass.name}"))
                 } catch (suppressed: Throwable) {
                     logger.error("Failed to write classpath snapshot", suppressed)
                 } finally {
+                    runCatching { classpathSnapshotFile.deleteIfExists() }
                     throw t
                 }
             }

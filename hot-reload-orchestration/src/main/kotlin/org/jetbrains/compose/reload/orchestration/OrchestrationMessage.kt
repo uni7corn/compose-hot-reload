@@ -6,6 +6,7 @@
 package org.jetbrains.compose.reload.orchestration
 
 import org.jetbrains.compose.reload.core.WindowId
+import org.jetbrains.compose.reload.core.withLinearClosure
 import java.io.File
 import java.io.Serializable
 import java.util.UUID
@@ -199,7 +200,16 @@ public sealed class OrchestrationMessage : Serializable {
         public val message: String?,
         public val exceptionClassName: String?,
         public val stacktrace: List<StackTraceElement>
-    ) : OrchestrationMessage()
+    ) : OrchestrationMessage() {
+        public constructor(
+            clientRole: OrchestrationClientRole, throwable: Throwable
+        ) : this(
+            clientRole = clientRole,
+            message = throwable.message,
+            exceptionClassName = throwable.javaClass.name,
+            stacktrace = throwable.withLinearClosure { it.cause }.flatMap { it.stackTrace.toList() }
+        )
+    }
 
 
     /**

@@ -123,6 +123,64 @@ class UpToDateTest {
         replaceSourceCodeAndReload("lib()", "\"Hot: 4\"")
         checkScreenshot("4-change4")
     }
+
+    @QuickTest
+    @HotReloadTest
+    @BuildGradleKts("")
+    @BuildGradleKts("lib")
+    fun `test - flip - flop`(fixture: HotReloadTestFixture) = fixture.runTest {
+        projectDir.buildGradleKts.appendText(
+            """
+            kotlin {
+                sourceSets.commonMain.dependencies {
+                    implementation(project(":lib"))
+                }
+            }
+            """.trimIndent()
+        )
+
+        val libKts = projectDir.subproject("lib").resolve(fixture.getDefaultMainKtSourceFile())
+            .resolveSibling("lib.kt")
+            .createParentDirectories()
+
+        libKts.writeText(
+            """
+            fun lib() = "Before"
+        """.trimIndent()
+        )
+
+        fixture initialSourceCode """
+            import androidx.compose.foundation.layout.*
+            import androidx.compose.ui.unit.sp
+            import androidx.compose.ui.window.*
+            import org.jetbrains.compose.reload.test.*
+            
+            fun main() {
+                screenshotTestApplication {
+                    TestText(lib())
+                }
+            }
+            """.trimIndent()
+        fixture.checkScreenshot("0-before")
+
+        fixture.replaceSourceCodeAndReload(libKts.pathString, "Before", "After")
+        fixture.checkScreenshot("1-after")
+
+        fixture.replaceSourceCodeAndReload(libKts.pathString, "After", "Before")
+        fixture.checkScreenshot("0-before")
+
+        fixture.replaceSourceCodeAndReload(libKts.pathString, "Before", "After")
+        fixture.checkScreenshot("1-after")
+
+        fixture.replaceSourceCodeAndReload("lib()", "\"Before\"")
+        fixture.checkScreenshot("0-before")
+
+        fixture.replaceSourceCodeAndReload("Before", "After")
+        fixture.checkScreenshot("1-after")
+
+        fixture.replaceSourceCodeAndReload("After", "Goodbye")
+        fixture.checkScreenshot("2-goodbye")
+    }
 }
 
 private class DirectoryContent(private val path: Path) {

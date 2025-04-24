@@ -35,6 +35,8 @@ internal fun reload(
             return@mapNotNull null
         }
 
+        logger.info("${change.name}:  $file")
+
         if (file.extension != "class") {
             logger.warn("$change: $file is not a class")
             return@mapNotNull null
