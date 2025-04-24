@@ -8,6 +8,7 @@ plugins {
     `maven-publish`
     `publishing-conventions`
     `java-test-fixtures`
+    `api-validation-conventions`
 }
 
 kotlin {
