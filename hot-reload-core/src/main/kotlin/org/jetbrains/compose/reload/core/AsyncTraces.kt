@@ -25,7 +25,33 @@ public suspend inline fun <T> withAsyncTrace(
     title: String? = null, noinline block: suspend CoroutineScope.() -> T
 ): T {
     val newTrace = AsyncTraces(title)
-    return withContext(context = newTrace, block = block)
+    return withContext(context = newTrace) {
+        try {
+            block()
+        } catch (t: Throwable) {
+            t.addSuppressed(AsyncTracesThrowable(newTrace))
+            throw t
+        }
+    }
+}
+
+@PublishedApi
+internal class AsyncTracesThrowable(trace: AsyncTraces) : Throwable() {
+    override val message: String = "Async Traces"
+
+    inner class FrameThrowable(private val frame: AsyncTraces.Frame) : Throwable() {
+        override val message: String? = frame.title
+    }
+
+    init {
+        stackTrace = emptyArray()
+        trace.frames.fold(this as Throwable) { throwable, frame ->
+            FrameThrowable(frame).apply {
+                this.stackTrace = frame.stackTraceElements.toTypedArray()
+                throwable.initCause(this)
+            }
+        }
+    }
 }
 
 public suspend fun AsyncTraces(title: String? = null): AsyncTraces {
