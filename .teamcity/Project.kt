@@ -12,7 +12,8 @@ import builds.SamplesCheck
 import builds.StagingDeploy
 import builds.Test
 import builds.TestIntelliJPluginCheck
-import builds.WindowsIntegrationTest
+import builds.WindowsFunctionalTest
+import builds.WindowsTest
 import builds.conventions.configureConventions
 import builds.functionalTests
 import builds.utils.Host
@@ -34,30 +35,28 @@ object ComposeHotReloadProject : Project({
     /* Tests */
     buildType(AllTests)
     val linuxTest = Test(Host.Linux)
-    val windowsTest = WindowsIntegrationTest()
+    val windowsFunctionalTestsTest = WindowsFunctionalTest()
+    val windowsTests = WindowsTest()
     val functionalTests = functionalTests()
 
     functionalTests.forEach { buildType(it) }
 
     buildType(linuxTest)
-    buildType(windowsTest)
+    buildType(windowsFunctionalTestsTest)
+    buildType(windowsTests)
     buildType(ApiCheck)
     buildType(SamplesCheck)
     buildType(TestIntelliJPluginCheck)
 
     sequential {
         parallel {
-            buildType(windowsTest)
-
-            sequential {
-                parallel {
-                    buildType(linuxTest)
-                    buildType(ApiCheck)
-                    buildType(SamplesCheck)
-                    buildType(TestIntelliJPluginCheck)
-                    functionalTests.forEach { buildType(it) }
-                }
-            }
+            buildType(windowsFunctionalTestsTest)
+            buildType(windowsTests)
+            buildType(linuxTest)
+            buildType(ApiCheck)
+            buildType(SamplesCheck)
+            buildType(TestIntelliJPluginCheck)
+            functionalTests.forEach { buildType(it) }
         }
         buildType(AllTests)
     }

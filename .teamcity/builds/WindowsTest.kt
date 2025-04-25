@@ -13,8 +13,7 @@ import jetbrains.buildServer.configs.kotlin.BuildType
 import jetbrains.buildServer.configs.kotlin.buildFeatures.buildCache
 import jetbrains.buildServer.configs.kotlin.buildSteps.gradle
 
-class WindowsIntegrationTest(
-) : BuildType({
+class WindowsTest() : BuildType({
     name = "Tests: $requiredHost"
     id("Tests_$requiredHost")
 
@@ -32,26 +31,34 @@ class WindowsIntegrationTest(
         buildCache {
             name = "(Windows) Android SDK"
             use = true
-            publish = true
+            publish = false
             rules = """
                 .local/android-sdk
             """.trimIndent()
         }
 
-
         buildCache {
             name = "(Windows) .konan dependencies"
             use = true
-            publish = true
+            publish = false
             rules = """
                .local/konan/dependencies
            """.trimIndent()
         }
 
         buildCache {
+            name = "(Windows) .konan prebuilt"
+            use = true
+            publish = false
+            rules = """
+                .local/konan/kotlin-native-prebuilt-windows-x86_64-2.1.20
+            """.trimIndent()
+        }
+
+        buildCache {
             name = "(Windows) Gradle (Wrapper)"
             use = true
-            publish = true
+            publish = false
             rules = """
                 .local/gradle/wrapper/
             """.trimIndent()
@@ -59,23 +66,12 @@ class WindowsIntegrationTest(
 
         buildCache {
             use = true
-            publish = true
+            publish = false
             name = "(Windows) Gradle Cache (modules-2)"
             rules = """
                 .local/gradle/caches/modules-2/files-2.1
                 .local/gradle/caches/modules-2/metadata-2.106
                 .local/gradle/caches/modules-2/metadata-2.107
-            """.trimIndent()
-        }
-
-        buildCache {
-            use = true
-            publish = true
-            name = "(Windows) Functional Test Gradle Cache (modules-2)"
-            rules = """
-                tests/build/gradleHome/caches/modules-2/files-2.1
-                tests/build/gradleHome/caches/modules-2/metadata-2.106
-                tests/build/gradleHome/caches/modules-2/metadata-2.107
             """.trimIndent()
         }
     }
@@ -96,16 +92,12 @@ class WindowsIntegrationTest(
         }
 
         gradle {
-            name = "Build"
-            tasks = "publishLocally -i"
-        }
-
-        gradle {
             name = "Test"
-            tasks = "check -i --continue -x apiCheck -x publishLocally " +
-                "-Pchr.tests.sequential -Phost-integration-tests=true"
+            tasks = "check -i --continue -x apiCheck " +
+                "-x reloadFunctionalTest -x reloadFunctionalTestWarmup " +
+                "-Pchr.tests.sequential"
         }
     }
 }), CommitStatusPublisher,
     HostRequirement.Windows,
-    HardwareCapacity.Large
+    HardwareCapacity.Medium
