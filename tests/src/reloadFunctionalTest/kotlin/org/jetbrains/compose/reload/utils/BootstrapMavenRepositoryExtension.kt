@@ -20,7 +20,7 @@ class BootstrapMavenRepositoryExtension : SettingsGradleKtsRepositoriesExtension
         }
 
         return """
-            maven("https://maven.pkg.jetbrains.space/kotlin/p/kotlin/bootstrap") {
+            maven("https://packages.jetbrains.team/maven/p/kt/bootstrap/") {
                 mavenContent {
                     includeGroupAndSubgroups("org.jetbrains.kotlin")
                 }
