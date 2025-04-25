@@ -1,11 +1,11 @@
 {
   "kotlin": [
     {
-      "version": "2.1.20",
-      "isDefault": true
+      "version": "2.1.20"
     },
     {
-      "version": "2.1.21-RC"
+      "version": "2.1.21-RC",
+      "isDefault": true
     },
     {
       "version": "2.2.20-dev-1156"
