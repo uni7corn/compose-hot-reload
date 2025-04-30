@@ -39,6 +39,15 @@ fun BuildType.buildCacheConventions() {
        }
 
        buildCache {
+           name = "($host)  Gradle (jdks)"
+           use = isConsumer
+           publish = isPublisher
+           rules = """
+               .local/gradle/jdks/
+           """.trimIndent()
+       }
+
+       buildCache {
            name = "($host) Gradle (Wrapper)"
            use = isConsumer
            publish = isPublisher
