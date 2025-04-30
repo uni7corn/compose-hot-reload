@@ -41,8 +41,8 @@ class BuildCache(
         }
 
         gradle {
-            name = "Warmup"
-            tasks = "reloadFunctionalTestWarmup"
+            name = "Compile & Warmup"
+            tasks = "compile reloadFunctionalTestWarmup"
         }
     }
 }), HostRequirement.Dynamic,
