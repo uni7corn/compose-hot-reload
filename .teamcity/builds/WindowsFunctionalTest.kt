@@ -28,12 +28,6 @@ class WindowsFunctionalTest() : BuildType({
 
     steps {
         gradle {
-            name = "Install Android SDK"
-            tasks = "installAndroidSdk"
-            workingDir = "repository-tools"
-        }
-
-        gradle {
             name = "Bootstrap"
             tasks = "publishBootstrap -i"
             conditions {
