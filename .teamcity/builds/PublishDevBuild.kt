@@ -5,6 +5,7 @@
 
 package builds
 
+import builds.conventions.BuildCacheConvention
 import builds.conventions.PublishDevPrivilege
 import builds.conventions.PushPrivilege
 import builds.conventions.setupGit
@@ -114,4 +115,4 @@ object PublishDevBuild : BuildType({
             """.trimIndent()
         }
     }
-}), PushPrivilege, PublishDevPrivilege
+}), PushPrivilege, PublishDevPrivilege, BuildCacheConvention.Consumer
