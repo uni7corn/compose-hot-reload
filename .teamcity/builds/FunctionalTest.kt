@@ -11,6 +11,7 @@ import builds.conventions.HardwareCapacity
 import builds.conventions.HostRequirement
 import builds.conventions.PublishLocallyConvention
 import jetbrains.buildServer.configs.kotlin.BuildType
+import jetbrains.buildServer.configs.kotlin.buildFeatures.buildCache
 import jetbrains.buildServer.configs.kotlin.buildSteps.gradle
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.JsonArray
@@ -96,6 +97,17 @@ class FunctionalTest(
         **/*-actual*
         **/build/reports/** => reports.zip
     """.trimIndent()
+
+    features {
+        buildCache {
+            use = true
+            publish = true
+            name = "(${key}) Functional Test Gradle (build-cache)"
+            rules = """
+                tests/build/gradleHome/caches/build-cache-1
+            """.trimIndent()
+        }
+    }
 
     params {
         if (kotlinVersion != null) {

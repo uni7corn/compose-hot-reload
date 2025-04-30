@@ -11,6 +11,7 @@ import builds.conventions.HardwareCapacity
 import builds.conventions.HostRequirement
 import builds.conventions.requiredHost
 import jetbrains.buildServer.configs.kotlin.BuildType
+import jetbrains.buildServer.configs.kotlin.buildFeatures.buildCache
 import jetbrains.buildServer.configs.kotlin.buildSteps.gradle
 
 class WindowsFunctionalTest() : BuildType({
@@ -26,6 +27,17 @@ class WindowsFunctionalTest() : BuildType({
         **/*-actual*
         **/build/reports/** => reports.zip
     """.trimIndent()
+
+    features {
+        buildCache {
+            use = true
+            publish = true
+            name = "(Windows) Functional Test Gradle (build-cache)"
+            rules = """
+                tests/build/gradleHome/caches/build-cache-1
+            """.trimIndent()
+        }
+    }
 
     steps {
         gradle {
