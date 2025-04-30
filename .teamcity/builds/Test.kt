@@ -5,15 +5,14 @@
 
 package builds
 
+import builds.conventions.BuildCacheConvention
 import builds.conventions.CommitStatusPublisher
 import builds.conventions.HardwareCapacity
 import builds.conventions.HostRequirement
 import builds.conventions.PublishLocallyConvention
 import builds.utils.Host
 import jetbrains.buildServer.configs.kotlin.BuildType
-import jetbrains.buildServer.configs.kotlin.buildFeatures.buildCache
 import jetbrains.buildServer.configs.kotlin.buildSteps.gradle
-
 
 class Test(
     override val requiredHost: Host
@@ -29,7 +28,8 @@ class Test(
     steps {
         gradle {
             name = "Test"
-            tasks = "check -i --continue -x apiCheck -x publishLocally -x reloadFunctionalTest -x reloadFunctionalTestWarmup"
+            tasks =
+                "check -i --continue -x apiCheck -x publishLocally -x reloadFunctionalTest -x reloadFunctionalTestWarmup"
 
             /* Any host other than linux is considered to only run 'host integration tests' */
             if (requiredHost != Host.Linux) {
@@ -40,4 +40,5 @@ class Test(
 }), PublishLocallyConvention,
     CommitStatusPublisher,
     HostRequirement.Dynamic,
-    HardwareCapacity.Medium
+    HardwareCapacity.Medium,
+    BuildCacheConvention.Consumer
