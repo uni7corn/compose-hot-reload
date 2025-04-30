@@ -5,6 +5,7 @@
 
 package builds
 
+import builds.conventions.BuildCacheConvention
 import builds.conventions.CommitStatusPublisher
 import builds.conventions.HardwareCapacity
 import builds.conventions.HostRequirement
@@ -48,4 +49,5 @@ class WindowsFunctionalTest() : BuildType({
     }
 }), CommitStatusPublisher,
     HostRequirement.Windows,
-    HardwareCapacity.Medium
+    HardwareCapacity.Medium,
+    BuildCacheConvention.Consumer

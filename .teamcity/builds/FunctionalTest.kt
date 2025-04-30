@@ -5,6 +5,7 @@
 
 package builds
 
+import builds.conventions.BuildCacheConvention
 import builds.conventions.CommitStatusPublisher
 import builds.conventions.HardwareCapacity
 import builds.conventions.HostRequirement
@@ -122,4 +123,5 @@ class FunctionalTest(
 }), PublishLocallyConvention,
     CommitStatusPublisher,
     HostRequirement.Linux,
-    HardwareCapacity.Medium
+    HardwareCapacity.Medium,
+    BuildCacheConvention.Consumer
