@@ -4,19 +4,35 @@ import kotlin.io.path.Path
 import kotlin.io.path.absolutePathString
 import kotlin.io.path.createDirectories
 import kotlin.io.path.createParentDirectories
+import kotlin.io.path.exists
 import kotlin.io.path.outputStream
+
 
 fun main() {
     val sdkZipFile = Path(".local/android-sdk.zip").createParentDirectories()
     val sdkDir = Path(".local/android-sdk").createParentDirectories()
-    val sdkManager = sdkDir.resolve("cmdline-tools/bin/sdkmanager.bat")
-
-
-    URI("https://dl.google.com/android/repository/commandlinetools-win-11076708_latest.zip?hl=de").toURL()
-        .openStream().use { input ->
-            input.copyTo(sdkZipFile.outputStream())
+    val sdkManager = sdkDir.resolve("cmdline-tools/bin").resolve(
+        when (Os.current()) {
+            Os.Windows -> "sdkmanager.bat"
+            Os.MacOs -> "sdkmanager"
+            Os.Linux -> "sdkmanager"
         }
+    )
 
+    if (sdkManager.exists()) return
+
+    val url = when (Os.current()) {
+        Os.Windows ->
+            "https://dl.google.com/android/repository/commandlinetools-win-13114758_latest.zip?hl=de"
+        Os.MacOs ->
+            "https://dl.google.com/android/repository/commandlinetools-mac-13114758_latest.zip?hl=de"
+        Os.Linux ->
+            "https://dl.google.com/android/repository/commandlinetools-linux-13114758_latest.zip?hl=de"
+    }
+
+    URI(url).toURL().openStream().use { input ->
+        input.copyTo(sdkZipFile.outputStream())
+    }
 
     ZipFile(sdkZipFile.toFile()).use {
         it.entries().asSequence().forEach { entry ->
@@ -37,8 +53,12 @@ fun main() {
 
     sdkManager.toFile().setExecutable(true)
 
+    val command = if (System.getProperty("os.name").startsWith("Win")) {
+        listOf("cmd", "/c", sdkManager.absolutePathString())
+    } else listOf(sdkManager.absolutePathString())
+
     val process = ProcessBuilder(
-        "cmd", "/c", sdkManager.absolutePathString(),
+        *command.toTypedArray(),
         "--sdk_root=${sdkDir.absolutePathString()}",
         "--install",
         "platforms;android-34",
@@ -49,7 +69,7 @@ fun main() {
     )
         .redirectError(ProcessBuilder.Redirect.INHERIT)
         .redirectOutput(ProcessBuilder.Redirect.INHERIT)
-    .start()
+        .start()
 
     runCatching {
         process.outputStream.writer().use { writer ->

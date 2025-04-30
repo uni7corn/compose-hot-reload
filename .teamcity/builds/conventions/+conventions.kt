@@ -17,6 +17,7 @@ fun BuildType.configureConventions() {
     hostRequirementConventions()
     commitPublisherConventions()
     hardwareCapacity()
+    buildCacheConventions()
 }
 
 
@@ -31,6 +32,7 @@ private fun BuildType.defaultConventions() {
 
     params {
         param("env.GRADLE_USER_HOME", "%system.teamcity.build.checkoutDir%/.local/gradle")
+        param("env.ANDROID_HOME", "%system.teamcity.build.workingDir%/.local/android-sdk")
         param("env.KONAN_DATA_DIR", "%system.teamcity.build.checkoutDir%/.local/konan")
     }
 }

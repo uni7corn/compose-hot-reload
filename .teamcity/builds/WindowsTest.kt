@@ -5,12 +5,12 @@
 
 package builds
 
+import builds.conventions.BuildCacheConvention
 import builds.conventions.CommitStatusPublisher
 import builds.conventions.HardwareCapacity
 import builds.conventions.HostRequirement
 import builds.conventions.requiredHost
 import jetbrains.buildServer.configs.kotlin.BuildType
-import jetbrains.buildServer.configs.kotlin.buildFeatures.buildCache
 import jetbrains.buildServer.configs.kotlin.buildSteps.gradle
 
 class WindowsTest() : BuildType({
@@ -19,62 +19,12 @@ class WindowsTest() : BuildType({
 
     params {
         param("bootstrap", "false")
-        param("env.ANDROID_HOME", "%system.teamcity.build.workingDir%/.local/android-sdk")
     }
 
     artifactRules = """
         **/*-actual*
         **/build/reports/** => reports.zip
     """.trimIndent()
-
-    features {
-        buildCache {
-            name = "(Windows) Android SDK"
-            use = true
-            publish = false
-            rules = """
-                .local/android-sdk
-            """.trimIndent()
-        }
-
-        buildCache {
-            name = "(Windows) .konan dependencies"
-            use = true
-            publish = false
-            rules = """
-               .local/konan/dependencies
-           """.trimIndent()
-        }
-
-        buildCache {
-            name = "(Windows) .konan prebuilt"
-            use = true
-            publish = false
-            rules = """
-                .local/konan/kotlin-native-prebuilt-windows-x86_64-2.1.20
-            """.trimIndent()
-        }
-
-        buildCache {
-            name = "(Windows) Gradle (Wrapper)"
-            use = true
-            publish = false
-            rules = """
-                .local/gradle/wrapper/
-            """.trimIndent()
-        }
-
-        buildCache {
-            use = true
-            publish = false
-            name = "(Windows) Gradle Cache (modules-2)"
-            rules = """
-                .local/gradle/caches/modules-2/files-2.1
-                .local/gradle/caches/modules-2/metadata-2.106
-                .local/gradle/caches/modules-2/metadata-2.107
-            """.trimIndent()
-        }
-    }
 
     steps {
         gradle {
@@ -100,4 +50,5 @@ class WindowsTest() : BuildType({
     }
 }), CommitStatusPublisher,
     HostRequirement.Windows,
-    HardwareCapacity.Medium
+    HardwareCapacity.Medium,
+    BuildCacheConvention.Consumer
