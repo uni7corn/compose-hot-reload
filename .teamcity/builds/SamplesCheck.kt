@@ -5,6 +5,7 @@
 
 package builds
 
+import builds.conventions.BuildCacheConvention
 import builds.conventions.CommitStatusPublisher
 import builds.conventions.HardwareCapacity
 import builds.conventions.PublishLocallyConvention
@@ -28,4 +29,7 @@ object SamplesCheck : BuildType({
             workingDir = "samples/bytecode-analyzer"
         }
     }
-}), CommitStatusPublisher, PublishLocallyConvention, HardwareCapacity.Medium
+}), CommitStatusPublisher,
+    PublishLocallyConvention,
+    HardwareCapacity.Medium,
+    BuildCacheConvention.Consumer

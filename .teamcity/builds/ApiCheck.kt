@@ -5,6 +5,7 @@
 
 package builds
 
+import builds.conventions.BuildCacheConvention
 import builds.conventions.CommitStatusPublisher
 import builds.conventions.HardwareCapacity
 import builds.conventions.PublishLocallyConvention
@@ -22,4 +23,7 @@ object ApiCheck : BuildType({
         }
     }
 
-}), CommitStatusPublisher, PublishLocallyConvention, HardwareCapacity.Medium
+}), CommitStatusPublisher,
+    PublishLocallyConvention,
+    HardwareCapacity.Medium,
+    BuildCacheConvention.Consumer
