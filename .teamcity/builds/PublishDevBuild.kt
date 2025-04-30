@@ -11,6 +11,7 @@ import builds.conventions.setupGit
 import jetbrains.buildServer.configs.kotlin.BuildType
 import jetbrains.buildServer.configs.kotlin.buildFeatures.buildCache
 import jetbrains.buildServer.configs.kotlin.buildSteps.gradle
+import jetbrains.buildServer.configs.kotlin.buildSteps.script
 import jetbrains.buildServer.configs.kotlin.triggers.ScheduleTrigger
 import jetbrains.buildServer.configs.kotlin.triggers.schedule
 
@@ -102,6 +103,15 @@ object PublishDevBuild : BuildType({
             workingDir = "repository-tools"
             name = "Push"
             tasks = "push pushDevVersionTag"
+        }
+
+        script {
+            name = "Update 'staging''"
+            scriptContent = """
+                git fetch origin staging
+                git rebase origin/staging
+                git push origin HEAD:refs/heads/staging -v --force-with-lease
+            """.trimIndent()
         }
     }
 }), PushPrivilege, PublishDevPrivilege
