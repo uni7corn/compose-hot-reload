@@ -52,7 +52,16 @@ fun BuildType.buildCacheConventions() {
            use = isConsumer
            publish = isPublisher
            rules = """
-                .local/gradle/wrapper/
+                .local/gradle/wrapper
+            """.trimIndent()
+       }
+
+       buildCache {
+           use = isConsumer
+           publish = isPublisher
+           name = "($host) Gradle (transforms-4)"
+           rules = """
+                .local/gradle/caches/transforms-4
             """.trimIndent()
        }
 
