@@ -61,7 +61,6 @@ plugins.withType<MavenPublishPlugin>().all {
 
             suppressPomMetadataWarningsFor("testFixturesApiElements")
             suppressPomMetadataWarningsFor("testFixturesRuntimeElements")
-            val defaultArtifactId = artifactId
 
             afterEvaluate {
                 artifactId = artifactId.replace(project.name, extension.artifactId.get())
