@@ -169,7 +169,8 @@ abstract class ComposeReloadHotClasspathTask : DefaultTask() {
                     }
                 }
 
-                client.sendMessage(ReloadClassesRequest(changedClassFiles))
+                logger.quiet("Sending 'ReloadClassesRequest' with '${changedClassFiles.size}' changed classes")
+                client.sendMessage(ReloadClassesRequest(changedClassFiles)).get()
 
                 classpathSnapshotFile
                     .createParentDirectories()
