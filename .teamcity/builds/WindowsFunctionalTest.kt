@@ -49,13 +49,8 @@ class WindowsFunctionalTest() : BuildType({
         }
 
         gradle {
-            name = "Build"
-            tasks = "publishLocally -i"
-        }
-
-        gradle {
             name = "Test"
-            tasks = "reloadFunctionalTest -i --continue -x publishLocally " +
+            tasks = "reloadFunctionalTest -i --continue " +
                 "-Pchr.tests.sequential -Phost-integration-tests=true"
         }
     }
