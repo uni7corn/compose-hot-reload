@@ -26,6 +26,7 @@ class BuildCache(
     triggers {
         schedule {
             withPendingChangesOnly = true
+            branchFilter = "+:<default>"
             daily {
                 timezone = "Europe/Berlin"
                 hour = 4
