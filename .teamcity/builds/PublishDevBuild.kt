@@ -10,7 +10,6 @@ import builds.conventions.PublishDevPrivilege
 import builds.conventions.PushPrivilege
 import builds.conventions.setupGit
 import jetbrains.buildServer.configs.kotlin.BuildType
-import jetbrains.buildServer.configs.kotlin.buildFeatures.buildCache
 import jetbrains.buildServer.configs.kotlin.buildSteps.gradle
 import jetbrains.buildServer.configs.kotlin.buildSteps.script
 import jetbrains.buildServer.configs.kotlin.triggers.ScheduleTrigger
@@ -22,17 +21,6 @@ object PublishDevBuild : BuildType({
 
     vcs {
         cleanCheckout = true
-    }
-
-    features {
-        buildCache {
-            name = "Android SDK"
-            rules = """
-                %android-sdk.location%/licenses
-                %android-sdk.location%/platforms
-                %android-sdk.location%/build-tools
-            """.trimIndent()
-        }
     }
 
     triggers {
@@ -62,11 +50,6 @@ object PublishDevBuild : BuildType({
 
     steps {
         setupGit()
-
-        gradle {
-            name = "clean"
-            tasks = "clean"
-        }
 
         gradle {
             name = "Api Check"
