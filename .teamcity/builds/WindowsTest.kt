@@ -44,5 +44,5 @@ class WindowsTest() : BuildType({
     }
 }), CommitStatusPublisher,
     HostRequirement.Windows,
-    HardwareCapacity.Medium,
+    HardwareCapacity.Large,
     BuildCacheConvention.Consumer
