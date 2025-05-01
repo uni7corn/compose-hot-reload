@@ -27,7 +27,7 @@ class BuildCache(
         schedule {
             withPendingChangesOnly = true
             branchFilter = "+:<default>"
-            daily {
+            schedulingPolicy = daily {
                 timezone = "Europe/Berlin"
                 hour = 4
             }
