@@ -3,7 +3,7 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.material3.Text
              
 @Composable
-fun Value(): String? {                                      	// Method (group=ComposeGroupKey(key=-1250970360))
+fun Value(): String? {
     return "value: 0"                                       	// Method (group=ComposeGroupKey(key=-1250970360))
 }
 

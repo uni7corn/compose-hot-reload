@@ -17,7 +17,7 @@ fun Foo(value: Int) {                                       	// Method (group=Co
 }                                                           	// Method (group=ComposeGroupKey(key=-643616831))
 
 @Composable
-inline fun Bar(content: @Composable () -> Unit) {           	// Method (group=ComposeGroupKey(key=1571995832))
+inline fun Bar(content: @Composable () -> Unit) {
     Text("Bar A")                                           	// Method (group=ComposeGroupKey(key=1571995832))
     content()                                               	// Method (group=ComposeGroupKey(key=1571995832))
     Text("Bar B")                                           	// Method (group=ComposeGroupKey(key=1571995832))
