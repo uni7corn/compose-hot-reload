@@ -129,14 +129,20 @@ fun DtSidecarWindowContent(
                         exit = if (devToolsTransparencyEnabled) fadeOut(tween(50)) else ExitTransition.None
                     ),
                 ) {
-                    DtComposeLogo(
-                        Modifier.size(28.dp).padding(4.dp),
-                        tint = animateReloadStatusColor(
-                            idleColor = composeLogoColor,
-                            reloadingColor = DtColors.statusColorOrange2
-                        ).value
-                    )
+                    Column(
+                        horizontalAlignment = Alignment.CenterHorizontally,
+                    ) {
+                        DtComposeLogo(
+                            Modifier.size(28.dp).padding(4.dp),
+                            tint = animateReloadStatusColor(
+                                idleColor = composeLogoColor,
+                                reloadingColor = DtColors.statusColorOrange2
+                            ).value
+                        )
+                        DtCollapsedReloadCounterStatusItem()
+                    }
                 }
+
 
             } else {
                 Column {
