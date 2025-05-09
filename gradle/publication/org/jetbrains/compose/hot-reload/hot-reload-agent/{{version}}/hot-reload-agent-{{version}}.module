@@ -62,7 +62,7 @@
           "group": "org.slf4j",
           "module": "slf4j-api",
           "version": {
-            "requires": "2.0.16"
+            "requires": "2.0.17"
           }
         },
         {

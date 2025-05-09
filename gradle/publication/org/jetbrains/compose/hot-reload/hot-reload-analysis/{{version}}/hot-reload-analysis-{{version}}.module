@@ -69,21 +69,21 @@
           "group": "org.slf4j",
           "module": "slf4j-api",
           "version": {
-            "requires": "2.0.16"
+            "requires": "2.0.17"
           }
         },
         {
           "group": "org.ow2.asm",
           "module": "asm",
           "version": {
-            "requires": "9.7.1"
+            "requires": "9.8"
           }
         },
         {
           "group": "org.ow2.asm",
           "module": "asm-tree",
           "version": {
-            "requires": "9.7.1"
+            "requires": "9.8"
           }
         },
         {

@@ -83,21 +83,21 @@
           "group": "org.ow2.asm",
           "module": "asm",
           "version": {
-            "requires": "9.7.1"
+            "requires": "9.8"
           }
         },
         {
           "group": "org.ow2.asm",
           "module": "asm-tree",
           "version": {
-            "requires": "9.7.1"
+            "requires": "9.8"
           }
         },
         {
           "group": "ch.qos.logback",
           "module": "logback-classic",
           "version": {
-            "requires": "1.5.16"
+            "requires": "1.5.18"
           }
         },
         {
