@@ -43,7 +43,7 @@ internal fun launchDevtoolsApplication() {
         java, "-cp", classpath.joinToString(File.pathSeparator),
         *properties.toTypedArray(),
         *issueNewDebugSessionJvmArguments(),
-        "org.jetbrains.compose.reload.jvm.tooling.Main",
+        "org.jetbrains.compose.devtools.Main",
     ).inheritIO().start()
 
     Runtime.getRuntime().addShutdownHook(Thread {
