@@ -22,6 +22,7 @@ import org.jetbrains.compose.reload.gradle.forAllJvmTargets
 import org.jetbrains.compose.reload.gradle.future
 import org.jetbrains.compose.reload.gradle.kotlinJvmOrNull
 import org.jetbrains.compose.reload.gradle.kotlinMultiplatformOrNull
+import org.jetbrains.compose.reload.gradle.launch
 import org.jetbrains.compose.reload.gradle.projectFuture
 import org.jetbrains.compose.reload.gradle.string
 import org.jetbrains.kotlin.gradle.InternalKotlinGradlePluginApi
@@ -32,14 +33,12 @@ import org.jetbrains.kotlin.gradle.targets.jvm.KotlinJvmTarget
 @OptIn(InternalKotlinGradlePluginApi::class)
 internal val Project.hotRunTasks: Future<Collection<TaskProvider<out AbstractComposeHotRun>>> by projectFuture {
     PluginStage.EagerConfiguration.await()
-    val hotProcessManager = project.hotProcessManagerTask.await().get()
 
     /* Configure task conventions */
     tasks.withType<AbstractComposeHotRun>().configureEach { task ->
         task.group = "run"
         task.configureJavaExecTaskForHotReload(task.compilation)
-        task.dependsOn(hotProcessManager)
-        hotProcessManager.pidFiles.from(task.pidFile)
+
 
         /* Wire up the dependency to the 'snapshot' task */
         task.dependsOn(task.snapshotTaskName)
@@ -114,6 +113,12 @@ internal fun JavaExec.configureJavaExecTaskForHotReload(compilation: Provider<Ko
         setArgFile(argfile.map { it.asFile })
         isRecompileContinuous(isRecompileContinuous)
         setReloadTaskName(compilation.map { compilation -> compilation.hotReloadTaskName })
+    }
+
+    project.launch {
+        val processManager = project.hotProcessManagerTask.await().get()
+        dependsOn(processManager)
+        processManager.pidFiles.from(pidfile)
     }
 
     val intellijDebuggerDispatchPort = project.providers
