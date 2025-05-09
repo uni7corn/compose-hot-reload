@@ -19,7 +19,9 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.State
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Brush
@@ -29,9 +31,13 @@ import androidx.compose.ui.graphics.TileMode
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import io.sellmair.evas.compose.composeFlow
-import io.sellmair.evas.compose.composeState
+import io.sellmair.evas.compose.composeValue
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.flow.flow
+import org.jetbrains.compose.reload.core.Update
 import org.jetbrains.compose.reload.jvm.tooling.states.ReloadState
 import org.jetbrains.compose.reload.jvm.tooling.theme.DtColors
 import kotlin.time.Duration.Companion.seconds
@@ -47,7 +53,7 @@ fun animateReloadStatusColor(
     val state = ReloadState.composeFlow()
 
     LaunchedEffect(idleColor, reloadingColor, okColor, errorColor) {
-        state.collectLatest { state ->
+        state.changes().collectLatest { (_, state) ->
             when (state) {
                 is ReloadState.Reloading -> {
                     color.animateTo(reloadingColor)
@@ -69,24 +75,37 @@ fun animateReloadStatusColor(
     return color.asState()
 }
 
+@OptIn(ExperimentalCoroutinesApi::class)
 @Composable
 fun animatedReloadStatusBrush(
     okColor: Color = DtColors.statusColorOk,
     errorColor: Color = DtColors.statusColorError,
+    idleColor: Color = Color.LightGray,
 ): Brush {
-    val state by ReloadState.composeState()
+    val state = ReloadState.composeValue()
+    var isIdle by remember { mutableStateOf(true) }
+
+    LaunchedEffect(state) {
+        if (state is ReloadState.Ok) {
+            delay(1.seconds)
+            isIdle = true
+        } else {
+            isIdle = false
+        }
+    }
 
     val movingColorA by animateColorAsState(
         when (state) {
-            is ReloadState.Ok -> okColor
-            is ReloadState.Failed ->  errorColor
+            is ReloadState.Ok -> if (isIdle) idleColor else okColor
+            is ReloadState.Failed -> errorColor
             is ReloadState.Reloading -> DtColors.statusColorOrange1
         }
     )
+
     val movingColorB by animateColorAsState(
         when (state) {
-            is ReloadState.Ok -> okColor
-            is ReloadState.Failed ->  errorColor
+            is ReloadState.Ok -> if (isIdle) idleColor else okColor
+            is ReloadState.Failed -> errorColor
             is ReloadState.Reloading -> DtColors.statusColorOrange2
         }
     )
@@ -118,8 +137,19 @@ fun Modifier.animatedReloadStatusBorder(
 ): Modifier {
     return border(
         width = width,
-        brush = animatedReloadStatusBrush(
-        ),
+        brush = animatedReloadStatusBrush(idleColor = idleColor),
         shape = shape
     )
+}
+
+private fun <T> Flow<T>.changes(): Flow<Update<T>> = flow<Update<T>> {
+    val NULL = Any()
+    var previous: Any? = NULL
+    collect { new ->
+        run emit@{
+            @Suppress("UNCHECKED_CAST")
+            emit(Update(if (previous != NULL) previous as T else return@emit, new))
+        }
+        previous = new
+    }
 }
