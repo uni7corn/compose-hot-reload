@@ -17,6 +17,7 @@ import org.jetbrains.compose.reload.agent.orchestration
 import org.jetbrains.compose.reload.agent.send
 import org.jetbrains.compose.reload.core.WindowId
 import org.jetbrains.compose.reload.core.createLogger
+import org.jetbrains.compose.reload.orchestration.OrchestrationClientRole
 import org.jetbrains.compose.reload.orchestration.OrchestrationMessage
 import org.jetbrains.compose.reload.orchestration.OrchestrationMessage.ApplicationWindowPositioned
 import org.jetbrains.compose.reload.orchestration.OrchestrationMessage.ClientConnected
@@ -36,29 +37,36 @@ internal fun startWindowManager(): WindowId? {
     val windowId = remember { WindowId.create() }
 
     LaunchedEffect(windowId) {
-        fun broadcastWindowPosition() {
-            if (!window.isActive) return
+        var isActive = true
+
+        fun broadcastActiveState() {
+            isActive = true
             ApplicationWindowPositioned(
                 windowId, window.x, window.y, window.width, window.height, isAlwaysOnTop = window.isAlwaysOnTop
             ).send()
         }
 
-        broadcastWindowPosition()
+        fun broadcastGone() {
+            isActive = false
+            OrchestrationMessage.ApplicationWindowGone(windowId).send()
+        }
+
+        broadcastActiveState()
 
         val windowListener = object : WindowAdapter() {
             override fun windowIconified(e: WindowEvent?) {
                 logger.debug("$windowId: $windowId: windowIconified")
-                OrchestrationMessage.ApplicationWindowGone(windowId).send()
+                broadcastGone()
             }
 
             override fun windowDeiconified(e: WindowEvent?) {
                 logger.debug("$windowId: windowDeiconified")
-                broadcastWindowPosition()
+                broadcastActiveState()
             }
 
             override fun windowClosed(e: WindowEvent?) {
                 logger.debug("$windowId: windowClosed")
-                OrchestrationMessage.ApplicationWindowGone(windowId).send()
+                broadcastGone()
             }
 
             override fun windowGainedFocus(e: WindowEvent?) {
@@ -69,7 +77,7 @@ internal fun startWindowManager(): WindowId? {
 
             override fun windowActivated(e: WindowEvent?) {
                 logger.debug("$windowId: windowActivated")
-                broadcastWindowPosition()
+                broadcastActiveState()
                 super.windowActivated(e)
             }
         }
@@ -77,23 +85,23 @@ internal fun startWindowManager(): WindowId? {
         val componentListener = object : ComponentAdapter() {
             override fun componentHidden(e: ComponentEvent?) {
                 logger.debug("$windowId: componentHidden")
-                OrchestrationMessage.ApplicationWindowGone(windowId).send()
+                broadcastGone()
             }
 
 
             override fun componentShown(e: ComponentEvent?) {
                 logger.debug("$windowId: componentShown")
-                broadcastWindowPosition()
+                broadcastActiveState()
             }
 
             override fun componentResized(e: ComponentEvent?) {
                 logger.trace("$windowId: componentResized")
-                broadcastWindowPosition()
+                broadcastActiveState()
             }
 
             override fun componentMoved(e: ComponentEvent?) {
                 logger.trace("$windowId: componentMoved")
-                broadcastWindowPosition()
+                broadcastActiveState()
             }
         }
 
@@ -104,14 +112,16 @@ internal fun startWindowManager(): WindowId? {
 
         launch {
             orchestration.asFlow().filterIsInstance<ClientConnected>().collect { message ->
-                broadcastWindowPosition()
+                if (message.clientRole == OrchestrationClientRole.Tooling && isActive) {
+                    broadcastActiveState()
+                }
             }
         }
 
         currentCoroutineContext().job.invokeOnCompletion {
             window.removeWindowListener(windowListener)
             window.removeComponentListener(componentListener)
-            OrchestrationMessage.ApplicationWindowGone(windowId).send()
+            broadcastGone()
         }
 
         awaitCancellation()
