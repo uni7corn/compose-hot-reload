@@ -7,6 +7,7 @@ package org.jetbrains.compose.reload.jvm
 
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.remember
 import kotlinx.coroutines.awaitCancellation
 import kotlinx.coroutines.currentCoroutineContext
 import kotlinx.coroutines.flow.filterIsInstance
@@ -20,27 +21,23 @@ import org.jetbrains.compose.reload.orchestration.OrchestrationMessage
 import org.jetbrains.compose.reload.orchestration.OrchestrationMessage.ApplicationWindowPositioned
 import org.jetbrains.compose.reload.orchestration.OrchestrationMessage.ClientConnected
 import org.jetbrains.compose.reload.orchestration.asFlow
-import java.awt.Window
 import java.awt.event.ComponentAdapter
 import java.awt.event.ComponentEvent
 import java.awt.event.WindowAdapter
 import java.awt.event.WindowEvent
-import java.util.WeakHashMap
 
-private val windowsIds = WeakHashMap<Window, WindowId>()
 
 private val logger = createLogger()
 
 @Composable
 @Suppress("INVISIBLE_REFERENCE")
 internal fun startWindowManager(): WindowId? {
-    val window = androidx.compose.ui.window.LocalWindow.current
-    val windowId = if (window != null) windowsIds.getOrPut(window) { WindowId.create() } else null
+    val window = androidx.compose.ui.window.LocalWindow.current ?: return null
+    val windowId = remember { WindowId.create() }
 
     LaunchedEffect(windowId) {
-        if (window == null || windowId == null) return@LaunchedEffect
-
         fun broadcastWindowPosition() {
+            if (!window.isActive) return
             ApplicationWindowPositioned(
                 windowId, window.x, window.y, window.width, window.height, isAlwaysOnTop = window.isAlwaysOnTop
             ).send()
