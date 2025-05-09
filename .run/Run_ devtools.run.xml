@@ -10,7 +10,7 @@
       </option>
       <option name="taskNames">
         <list>
-          <option value="devRun" />
+          <option value="runDev" />
         </list>
       </option>
       <option name="vmOptions" />
