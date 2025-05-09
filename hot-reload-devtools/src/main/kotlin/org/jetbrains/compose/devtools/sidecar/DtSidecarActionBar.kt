@@ -32,6 +32,7 @@ fun DtSidecarActionBar(modifier: Modifier = Modifier.Companion) {
     FlowRow(
         modifier = modifier.padding(horizontal = 8.dp, vertical = 8.dp),
         horizontalArrangement = Arrangement.spacedBy(8.dp),
+        verticalArrangement = Arrangement.spacedBy(8.dp)
     ) {
 
         if (!HotReloadEnvironment.gradleBuildContinuous) {

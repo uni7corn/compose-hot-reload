@@ -50,7 +50,7 @@ fun animateReloadStatusColor(
     errorColor: Color = DtColors.statusColorError,
 ): State<Color> {
     val color = remember { Animatable(idleColor) }
-    val state = ReloadState.Key.composeFlow()
+    val state = ReloadState.composeFlow()
 
     LaunchedEffect(idleColor, reloadingColor, okColor, errorColor) {
         state.changes().collectLatest { (_, state) ->

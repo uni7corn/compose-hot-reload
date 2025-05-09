@@ -103,14 +103,14 @@ fun DtSidecarWindowContent(
     ) {
         AnimatedContent(
             isExpanded,
-            modifier = Modifier.Companion
+            modifier = Modifier
                 .animatedReloadStatusBorder(
                     shape = DevToolingSidecarShape,
                     idleColor = if (isExpanded) Color.LightGray else Color.Transparent
                 )
                 .clip(DevToolingSidecarShape)
                 .background(DtColors.applicationBackground)
-                .animateReloadStatusBackground(if (isExpanded) Color.LightGray else DtColors.statusColorOk)
+                .animateReloadStatusBackground(DtColors.applicationBackground)
                 .weight(1f, fill = false),
             transitionSpec = {
                 if (devToolsTransparencyEnabled) {
