@@ -25,7 +25,7 @@ import org.jetbrains.compose.devtools.widgets.DtText
 
 @Composable
 fun DtExpandedReloadCounterStatusItem() {
-    val state = ReloadCountState.Key.composeValue()
+    val state = ReloadCountState.composeValue()
 
     if (state.successfulReloads > 0) {
         DtSidecarStatusItem(
@@ -35,7 +35,7 @@ fun DtExpandedReloadCounterStatusItem() {
             content = {
                 DtText(
                     "${state.successfulReloads} successful reloads",
-                    modifier = Modifier.Companion.tag(Tag.ReloadCounterText)
+                    modifier = Modifier.tag(Tag.ReloadCounterText)
                 )
             }
         )
@@ -44,7 +44,7 @@ fun DtExpandedReloadCounterStatusItem() {
 
 @Composable
 fun DtCollapsedReloadCounterStatusItem() {
-    val state = ReloadCountState.Key.composeValue()
+    val state = ReloadCountState.composeValue()
     if (state.successfulReloads < 1) return
 
     val scale = when {
@@ -56,7 +56,7 @@ fun DtCollapsedReloadCounterStatusItem() {
         modifier = Modifier.scale(scale)
     ) {
         if (state.successfulReloads < 100) {
-            Box(modifier = Modifier.size(10.dp)) {
+            Box(modifier = Modifier.size(12.dp)) {
                 Icon(Icons.Default.Refresh, "Reload")
             }
         }
