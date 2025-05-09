@@ -53,7 +53,7 @@
     <dependency>
       <groupId>org.jetbrains.compose.material3</groupId>
       <artifactId>material3-desktop</artifactId>
-      <version>1.7.3</version>
+      <version>1.8.0</version>
       <scope>compile</scope>
     </dependency>
     <dependency>
@@ -69,19 +69,19 @@
     <dependency>
       <groupId>org.jetbrains.kotlinx</groupId>
       <artifactId>kotlinx-coroutines-core-jvm</artifactId>
-      <version>1.10.1</version>
+      <version>1.10.2</version>
       <scope>runtime</scope>
     </dependency>
     <dependency>
       <groupId>org.jetbrains.kotlinx</groupId>
       <artifactId>kotlinx-coroutines-test-jvm</artifactId>
-      <version>1.10.1</version>
+      <version>1.10.2</version>
       <scope>runtime</scope>
     </dependency>
     <dependency>
       <groupId>org.jetbrains.kotlinx</groupId>
       <artifactId>kotlinx-coroutines-swing</artifactId>
-      <version>1.10.1</version>
+      <version>1.10.2</version>
       <scope>runtime</scope>
     </dependency>
     <dependency>
@@ -128,7 +128,7 @@
     <dependency>
       <groupId>org.jetbrains.compose.components</groupId>
       <artifactId>components-resources-desktop</artifactId>
-      <version>1.7.3</version>
+      <version>1.8.0</version>
       <scope>runtime</scope>
     </dependency>
   </dependencies>

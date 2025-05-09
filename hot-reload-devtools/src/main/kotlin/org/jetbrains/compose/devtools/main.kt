@@ -29,8 +29,11 @@ import org.jetbrains.compose.devtools.states.launchReloadCountState
 import org.jetbrains.compose.devtools.states.launchReloadState
 import org.jetbrains.compose.devtools.states.launchUIErrorState
 import org.jetbrains.compose.devtools.states.launchWindowsState
+import org.jetbrains.compose.reload.core.createLogger
 
 internal val applicationScope = CoroutineScope(Dispatchers.Main + SupervisorJob() + Events() + States())
+
+private val logger = createLogger()
 
 /**
  * The associated [WindowState] of the target application (aka, the application under hot-reload, which we're
@@ -55,7 +58,8 @@ fun main() {
             applicationScope.coroutineContext.eventsOrThrow,
             applicationScope.coroutineContext.statesOrThrow
         ) {
-            val windowsState = WindowsState.Key.composeValue()
+            val windowsState = WindowsState.composeValue()
+            logger.info("Composing '${windowsState.windows.size}' windows")
             windowsState.windows.forEach { (windowId, windowState) ->
                 key(windowId) {
                     CompositionLocalProvider(targetApplicationWindowStateLocal provides windowState) {

@@ -63,5 +63,6 @@ dependencies {
     testFixturesImplementation(kotlin("test"))
     testFixturesImplementation(deps.junit.jupiter)
     testFixturesImplementation(project(":hot-reload-core"))
+    testFixturesImplementation(testFixtures(project(":hot-reload-core")))
     testFixturesImplementation(project(":hot-reload-analysis"))
 }

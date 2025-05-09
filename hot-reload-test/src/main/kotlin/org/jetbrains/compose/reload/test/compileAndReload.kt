@@ -65,6 +65,7 @@ public fun compileAndReload(sourceCode: String) {
     arguments.moduleName = compileModuleName
     arguments.noStdlib = true
     arguments.kotlinHome = null
+    arguments.jvmTarget = "11"
     arguments.destinationAsFile = tempClassesDir.toFile()
     arguments.classpathAsList = compileClasspath.map { it.toFile().absoluteFile }
     arguments.pluginClasspaths = compilePluginClasspath.map { it.absolutePathString() }.toTypedArray()

@@ -220,6 +220,19 @@
         },
         {
           "group": "org.jetbrains.compose.hot-reload",
+          "module": "hot-reload-core",
+          "version": {
+            "requires": "{{Hot Reload Version}}"
+          },
+          "{{HASH}}": [
+            {
+              "group": "org.jetbrains.compose.hot-reload",
+              "name": "hot-reload-core-test-fixtures"
+            }
+          ]
+        },
+        {
+          "group": "org.jetbrains.compose.hot-reload",
           "module": "hot-reload-analysis",
           "version": {
             "requires": "{{Hot Reload Version}}"

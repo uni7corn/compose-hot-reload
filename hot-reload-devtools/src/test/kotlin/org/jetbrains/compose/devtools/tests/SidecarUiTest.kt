@@ -35,7 +35,6 @@ class SidecarUiTest {
 
     @Test
     fun `test - reload counter`() = runComposeUiTest {
-        mainClock.autoAdvance = false
         setContent {
             installEvas(events, states) {
                 DtSidecarWindowContent()
@@ -53,7 +52,6 @@ class SidecarUiTest {
 
     @Test
     fun `test - reload status`() = runComposeUiTest {
-        mainClock.autoAdvance = false
         setContent {
             installEvas(events, states) {
                 DtSidecarWindowContent()
@@ -86,7 +84,6 @@ class SidecarUiTest {
 
     @Test
     fun `test - error status`() = runComposeUiTest {
-        mainClock.autoAdvance = false
         setContent {
             installEvas(events, states) {
                 DtSidecarWindowContent()

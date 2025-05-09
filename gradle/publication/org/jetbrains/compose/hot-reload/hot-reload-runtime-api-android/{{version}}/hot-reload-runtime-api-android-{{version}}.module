@@ -78,7 +78,7 @@
           "group": "org.jetbrains.compose.runtime",
           "module": "runtime",
           "version": {
-            "requires": "1.7.3"
+            "requires": "1.8.0"
           },
           "excludes": [
             {
@@ -99,7 +99,7 @@
           "group": "org.jetbrains.kotlinx",
           "module": "kotlinx-coroutines-core",
           "version": {
-            "requires": "1.10.1"
+            "requires": "1.10.2"
           },
           "excludes": [
             {

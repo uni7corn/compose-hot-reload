@@ -95,6 +95,7 @@ class CompilerImpl(
         arguments.moduleName = "testModule"
         arguments.noStdlib = true
         arguments.kotlinHome = null
+        arguments.jvmTarget = "11"
         arguments.destinationAsFile = workingDir.resolve("classes").toFile()
 
         arguments.classpathAsList = System.getProperty("testCompilerClasspath")
