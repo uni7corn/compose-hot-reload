@@ -22,6 +22,7 @@ import org.jetbrains.compose.reload.gradle.future
 import org.jetbrains.compose.reload.gradle.projectFuture
 import org.jetbrains.kotlin.gradle.InternalKotlinGradlePluginApi
 import org.jetbrains.kotlin.gradle.plugin.KotlinTarget
+import org.jetbrains.kotlin.gradle.targets.jvm.KotlinJvmTarget
 import org.jetbrains.kotlin.gradle.targets.jvm.tasks.KotlinJvmRun
 
 internal val Project.jvmRunHijackTasks: Future<Collection<TaskProvider<out JavaExec>>> by projectFuture {
@@ -34,6 +35,7 @@ internal val KotlinTarget.hijackJvmRunTask: Future<TaskProvider<out KotlinJvmRun
     /* Ide support is present, no need for hijacking */
     if (project.composeReloadIdeaComposeHotReload) return@future null
     val mainCompilation = project.provider { compilations.getByName("main") }
+    if(this !is KotlinJvmTarget) return@future null
 
     val runTask = project.tasks.register<KotlinJvmRun>(camelCase(name, "run")) {
         mainClass.convention(

@@ -5,19 +5,34 @@
 
 package org.jetbrains.compose.reload.tests.gradle
 
-import org.jetbrains.compose.reload.test.gradle.GradleRunner
+import kotlinx.coroutines.flow.toList
 import org.jetbrains.compose.reload.test.gradle.HotReloadTest
 import org.jetbrains.compose.reload.test.gradle.HotReloadTestFixture
-import org.jetbrains.compose.reload.test.gradle.build
+import org.jetbrains.compose.reload.test.gradle.assertSuccessful
+import org.jetbrains.compose.reload.test.gradle.buildFlow
 import org.jetbrains.compose.reload.utils.GradleIntegrationTest
 import org.jetbrains.compose.reload.utils.QuickTest
-import kotlin.test.assertEquals
+import kotlin.io.path.appendText
 
 class TasksSmokeTest {
     @GradleIntegrationTest
     @HotReloadTest
     @QuickTest
     fun `test - tasks`(fixture: HotReloadTestFixture) = fixture.runTest {
-        assertEquals(GradleRunner.ExitCode.success, gradleRunner.build("tasks"))
+        gradleRunner.buildFlow("tasks").toList().assertSuccessful()
+    }
+
+    @GradleIntegrationTest
+    @HotReloadTest
+    @QuickTest
+    fun `test - tasks - with 'run' conflict - #174`(fixture: HotReloadTestFixture) = fixture.runTest {
+        projectDir.resolve("build.gradle.kts").appendText(
+            """
+            |
+            | tasks.register("run") {}
+        """.trimMargin()
+        )
+
+        gradleRunner.buildFlow("tasks").toList().assertSuccessful()
     }
 }
