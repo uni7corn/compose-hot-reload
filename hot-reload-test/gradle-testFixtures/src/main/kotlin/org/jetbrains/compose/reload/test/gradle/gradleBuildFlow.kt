@@ -20,8 +20,17 @@ public sealed class GradleBuildEvent {
     public sealed class Output : GradleBuildEvent() {
         public abstract val line: String
 
-        public data class Stdout(override val line: String) : Output()
-        public data class Stderr(override val line: String) : Output()
+        public data class Stdout(override val line: String) : Output() {
+            override fun toString(): String {
+                return line
+            }
+        }
+
+        public data class Stderr(override val line: String) : Output() {
+            override fun toString(): String {
+                return "stderr: $line"
+            }
+        }
     }
 
     public data class TaskStatus(
@@ -44,9 +53,10 @@ public fun Iterable<GradleBuildEvent>.assertTaskStatus(path: String): GradleBuil
     return events.single()
 }
 
-public fun Iterable<GradleBuildEvent>.assertTaskStatus(path: String, status: String?): Iterable<GradleBuildEvent> = apply {
-    assertEquals(GradleBuildEvent.TaskStatus(path, status), assertTaskStatus(path))
-}
+public fun Iterable<GradleBuildEvent>.assertTaskStatus(path: String, status: String?): Iterable<GradleBuildEvent> =
+    apply {
+        assertEquals(GradleBuildEvent.TaskStatus(path, status), assertTaskStatus(path))
+    }
 
 public fun Iterable<GradleBuildEvent>.assertTaskUpToDate(path: String): Iterable<GradleBuildEvent> =
     assertTaskStatus(path, "UP-TO-DATE")
@@ -60,11 +70,15 @@ public fun Iterable<GradleBuildEvent>.assertNoStatus(path: String): Iterable<Gra
 }
 
 public fun Iterable<GradleBuildEvent>.assertExit(): GradleBuildEvent.Exit {
-    return filterIsInstance<GradleBuildEvent.Exit>().firstOrNull() ?: fail("Missing '${GradleBuildEvent.Exit::class}' event")
+    return filterIsInstance<GradleBuildEvent.Exit>().firstOrNull()
+        ?: fail("Missing '${GradleBuildEvent.Exit::class}' event")
 }
 
 public fun Iterable<GradleBuildEvent>.assertExitCode(code: GradleRunner.ExitCode?): Iterable<GradleBuildEvent> = apply {
-    assertEquals(code, assertExit().code)
+    assertEquals(
+        code, assertExit().code,
+        "Expected exit code '${code?.value}' but was '${assertExit().code?.value}\n" + joinToString("\n")
+    )
 }
 
 public fun Iterable<GradleBuildEvent>.assertSuccessful(): Iterable<GradleBuildEvent> =
@@ -80,7 +94,12 @@ public fun GradleRunner.buildFlow(vararg args: String): Flow<GradleBuildEvent> =
         stdoutChannel.consumeAsFlow().collect { line ->
             send(GradleBuildEvent.Output.Stdout(line))
             taskStatusRegex.matchEntire(line)?.let { statusMatch ->
-                send(GradleBuildEvent.TaskStatus(statusMatch.groups["path"]!!.value, statusMatch.groups["status"]?.value))
+                send(
+                    GradleBuildEvent.TaskStatus(
+                        statusMatch.groups["path"]!!.value,
+                        statusMatch.groups["status"]?.value
+                    )
+                )
             }
         }
     }
