@@ -30,6 +30,7 @@ fun BuildType.buildCacheConventions() {
             name = "($host) konan"
             use = isConsumer
             publish = isPublisher
+            publishOnlyChanged = false
             rules = """
                .local/konan
            """.trimIndent()
@@ -39,6 +40,7 @@ fun BuildType.buildCacheConventions() {
             name = "($host) android sdk"
             use = isConsumer
             publish = isPublisher
+            publishOnlyChanged = false
             rules = """
                .local/android-sdk
            """.trimIndent()
@@ -48,6 +50,7 @@ fun BuildType.buildCacheConventions() {
             name = "($host)  Gradle (jdks)"
             use = isConsumer
             publish = isPublisher
+            publishOnlyChanged = false
             rules = """
                .local/gradle/jdks/
            """.trimIndent()
@@ -57,24 +60,27 @@ fun BuildType.buildCacheConventions() {
             name = "($host) Gradle (Wrapper)"
             use = isConsumer
             publish = isPublisher
+            publishOnlyChanged = false
             rules = """
                 .local/gradle/wrapper
             """.trimIndent()
         }
 
         buildCache {
+            name = "($host) Gradle (transforms-4)"
             use = isConsumer
             publish = isPublisher
-            name = "($host) Gradle (transforms-4)"
+            publishOnlyChanged = false
             rules = """
                 .local/gradle/caches/transforms-4
             """.trimIndent()
         }
 
         buildCache {
+            name = "($host) Gradle (modules-2)"
             use = isConsumer
             publish = isPublisher
-            name = "($host) Gradle (modules-2)"
+            publishOnlyChanged = false
             rules = """
                 .local/gradle/caches/modules-2/files-2.1
                 .local/gradle/caches/modules-2/metadata-2.107
@@ -82,38 +88,41 @@ fun BuildType.buildCacheConventions() {
         }
 
         buildCache {
+            name = "($host) Gradle (build-cache)"
             use = isConsumer
             publish = isPublisher
-            name = "($host) Gradle (build-cache)"
+            publishOnlyChanged = false
             rules = """
                 .local/build-cache
             """.trimIndent()
         }
 
         buildCache {
+            name = "(${host}) Functional Test Gradle (modules-2)"
             use = isConsumer
             publish = isPublisher
-            name = "(${host}) Functional Test Gradle (modules-2)"
+            publishOnlyChanged = true
             rules = """
                 tests/build/gradleHome/caches/modules-2/files-2.1
-                tests/build/gradleHome/caches/modules-2/metadata-2.106
                 tests/build/gradleHome/caches/modules-2/metadata-2.107
             """.trimIndent()
         }
 
         buildCache {
+            name = "(${host}) Functional Test Gradle (build-cache)"
             use = isConsumer
             publish = isPublisher
-            name = "(${host}) Functional Test Gradle (build-cache)"
+            publishOnlyChanged = false
             rules = """
                 tests/build/gradleHome/caches/build-cache-1
             """.trimIndent()
         }
 
         buildCache {
+            name = "(${host}) Functional Test Gradle (wrapper)"
             use = isConsumer
             publish = isPublisher
-            name = "(${host}) Functional Test Gradle (wrapper)"
+            publishOnlyChanged = false
             rules = """
                 tests/build/gradleHome/wrapper
             """.trimIndent()
