@@ -101,7 +101,19 @@ suspend fun project(): Project {
     return lifecycle.project
 }
 
-internal fun <T> Project.future(action: suspend () -> T): Future<T> {
+@InternalHotReloadGradleApi
+inline fun <reified T> Project.futureProvider(crossinline action: suspend () -> T): Provider<T> {
+    val property = objects.property(T::class.java)
+    launch {
+        PluginStage.DeferredConfiguration.await()
+        property.set(action())
+    }
+
+    return property
+}
+
+@InternalHotReloadGradleApi
+fun <T> Project.future(action: suspend () -> T): Future<T> {
     val future = Future<T>()
     launch {
         val result = runCatching { action() }

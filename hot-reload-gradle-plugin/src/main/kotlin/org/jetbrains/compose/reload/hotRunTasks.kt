@@ -12,6 +12,7 @@ import org.gradle.api.provider.Provider
 import org.gradle.api.tasks.JavaExec
 import org.gradle.api.tasks.TaskProvider
 import org.gradle.kotlin.dsl.withType
+import org.jetbrains.compose.reload.core.HOT_RELOAD_VERSION
 import org.jetbrains.compose.reload.core.HotReloadProperty
 import org.jetbrains.compose.reload.core.LaunchMode
 import org.jetbrains.compose.reload.core.issueNewDebugSessionJvmArguments
@@ -20,6 +21,7 @@ import org.jetbrains.compose.reload.gradle.PluginStage
 import org.jetbrains.compose.reload.gradle.await
 import org.jetbrains.compose.reload.gradle.forAllJvmTargets
 import org.jetbrains.compose.reload.gradle.future
+import org.jetbrains.compose.reload.gradle.futureProvider
 import org.jetbrains.compose.reload.gradle.kotlinJvmOrNull
 import org.jetbrains.compose.reload.gradle.kotlinMultiplatformOrNull
 import org.jetbrains.compose.reload.gradle.launch
@@ -107,6 +109,9 @@ internal fun JavaExec.configureJavaExecTaskForHotReload(compilation: Provider<Ko
     val isRecompileContinuous = if (this is AbstractComposeHotRun) this.isRecompileContinuous
     else project.provider { true }
 
+    val hotReloadTaskName = compilation.map { compilation -> compilation.hotReloadTaskName }
+    val hotReloadLifecycleTaskName = project.futureProvider { project.hotReloadLifecycleTask.await()?.name }
+
     withComposeHotReloadArguments {
         setMainClass(mainClass)
         setPidFile(pidfile.map { it.asFile })
@@ -130,6 +135,7 @@ internal fun JavaExec.configureJavaExecTaskForHotReload(compilation: Provider<Ko
             throw IllegalArgumentException(ErrorMessages.missingMainClassProperty(name))
         }
 
+
         if (intellijDebuggerDispatchPort != null) {
             /*
             Provisioning a new debug session. This will return jvm args for the debug agent.
@@ -147,7 +153,30 @@ internal fun JavaExec.configureJavaExecTaskForHotReload(compilation: Provider<Ko
         }
 
         jvmArgs = jvmArgs.orEmpty() + "-D${HotReloadProperty.LaunchMode.key}=${LaunchMode.GradleBlocking.name}"
-        logger.info("Running ${mainClass.get()}...")
-        logger.info("Classpath:\n${classpath.joinToString("\n")}")
+
+
+        logger.quiet(buildString {
+            append(
+                """
+            | ________________________________________________________________________________________________
+            | Compose Hot Reload ($HOT_RELOAD_VERSION)
+            | Running '${mainClass.get()}'
+            | ________________________________________________________________________________________________
+            """.trimIndent()
+            )
+
+            if (!isRecompileContinuous.get()) {
+                appendLine()
+                append(
+                    """
+                     | Explicit Reload Mode:
+                     | Use `./gradlew ${hotReloadLifecycleTaskName.get()}` to hot reload the application
+                     | Alternatively use `./gradlew ${hotReloadTaskName.get()}`
+                     | Use `./gradlew $name --auto` to automatically reload the application on source changes
+                     | ________________________________________________________________________________________________
+                """.trimIndent()
+                )
+            }
+        })
     }
 }
