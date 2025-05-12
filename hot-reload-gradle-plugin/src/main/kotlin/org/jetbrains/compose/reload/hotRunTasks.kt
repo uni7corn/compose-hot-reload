@@ -161,6 +161,7 @@ internal fun JavaExec.configureJavaExecTaskForHotReload(compilation: Provider<Ko
             | ________________________________________________________________________________________________
             | Compose Hot Reload ($HOT_RELOAD_VERSION)
             | Running '${mainClass.get()}'
+            | JetBrains Runtime: $executable
             | ________________________________________________________________________________________________
             """.trimIndent()
             )
