@@ -41,7 +41,7 @@ fun CoroutineScope.launchWindowsState() = launchState(WindowsState.Key) {
 
     orchestration.asFlow().collect { message ->
         if (message is OrchestrationMessage.ApplicationWindowPositioned) {
-            logger.debug("Positioned: '${message.windowId}'")
+            logger.trace("Positioned: '${message.windowId}'")
             val windowState = windows[message.windowId]
             if (windowState != null) {
                 windowState.placement = WindowPlacement.Floating
@@ -57,7 +57,7 @@ fun CoroutineScope.launchWindowsState() = launchState(WindowsState.Key) {
         }
 
         if (message is OrchestrationMessage.ApplicationWindowGone) {
-            logger.debug("Removed: '${message.windowId}'")
+            logger.trace("Removed: '${message.windowId}'")
             windows.remove(message.windowId)
             update()
         }
