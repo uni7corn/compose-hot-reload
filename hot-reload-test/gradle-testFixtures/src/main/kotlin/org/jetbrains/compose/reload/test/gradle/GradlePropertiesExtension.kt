@@ -9,7 +9,6 @@ import org.jetbrains.compose.reload.core.asTemplateOrThrow
 import org.jetbrains.compose.reload.core.issueNewDebugSessionJvmArguments
 import org.jetbrains.compose.reload.core.renderOrThrow
 import org.junit.jupiter.api.extension.ExtensionContext
-import org.junit.platform.commons.support.AnnotationSupport.findRepeatableAnnotations
 import java.util.ServiceLoader
 import kotlin.time.Duration.Companion.minutes
 
@@ -19,8 +18,7 @@ public interface GradlePropertiesExtension {
 
 internal fun renderGradleProperties(context: ExtensionContext): String = gradlePropertiesTemplate.renderOrThrow {
     androidEnabledKey(context.testedAndroidVersion != null)
-    findRepeatableAnnotations(context.requiredTestMethod, ExtendGradleProperties::class.java)
-        .plus(findRepeatableAnnotations(context.requiredTestClass, ExtendGradleProperties::class.java))
+    context.findRepeatableAnnotations<ExtendGradleProperties>()
         .map { annotation ->
             annotation.extension.objectInstance ?: annotation.extension.java.getConstructor().newInstance()
         }
@@ -28,6 +26,7 @@ internal fun renderGradleProperties(context: ExtensionContext): String = gradleP
         .forEach { extension ->
             extension.properties(context).forEach { property ->
                 propertiesKey(property)
+                "gradleVersion"(context.testedGradleVersion.version)
             }
         }
 }
