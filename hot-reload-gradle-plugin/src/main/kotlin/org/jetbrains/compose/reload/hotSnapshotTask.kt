@@ -110,11 +110,11 @@ internal abstract class HotSnapshotTask : DefaultTask() {
             } else mutableMapOf()
 
             inputs.getFileChanges(classpath).forEach { change ->
-                if (change.file.isFile && change.file.extension == "class") {
+                if (change.file.extension == "class") {
                     changedClassFiles += resolveChangedClassFile(change)
                 }
 
-                if (change.file.isFile && change.file.extension == "jar") {
+                if (change.file.extension == "jar") {
                     changedClassFiles += resolveChangedJar(snapshot, change)
                 }
             }
