@@ -5,6 +5,7 @@
 
 package org.jetbrains.compose.reload.orchestration
 
+import kotlinx.coroutines.CompletableJob
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.async
@@ -23,7 +24,11 @@ import org.jetbrains.compose.reload.orchestration.OrchestrationMessage.ClientDis
 import org.jetbrains.compose.reload.orchestration.OrchestrationMessage.LogMessage
 import org.jetbrains.compose.reload.orchestration.OrchestrationMessage.TestEvent
 import org.junit.jupiter.api.AfterEach
+import org.slf4j.Logger
 import java.util.Collections.synchronizedList
+import java.util.UUID
+import java.util.concurrent.ConcurrentHashMap
+import java.util.concurrent.atomic.AtomicInteger
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.fail
@@ -234,6 +239,46 @@ class ServerClientTest {
 
             client.close()
             testScheduler.advanceUntilIdle()
+        }
+    }
+
+    @Test
+    fun `test - stress test - fire and forget`() = runTest {
+        val senderCoroutines = 8
+        val messagesPerSender = 128
+
+        repeat(8) {
+            val server = use(startOrchestrationServer())
+            val messageChannel = server.asChannel()
+            val clientJobs = ConcurrentHashMap<UUID, CompletableJob>()
+            server.invokeWhenReceived<ClientDisconnected> { message ->
+                clientJobs[message.clientId]?.complete()
+            }
+
+
+            coroutineScope {
+                val index = AtomicInteger(0)
+
+                repeat(senderCoroutines) {
+                    launch(Dispatchers.IO) {
+                        repeat(messagesPerSender) {
+                            val myIndex = index.andIncrement
+                            connectOrchestrationClient(Unknown, server.port).use { client ->
+                                clientJobs[client.clientId] = Job()
+                                client.sendMessage(TestEvent(myIndex))
+                            }
+                        }
+                    }
+
+                }
+            }
+
+            /* Await all clients to disconnect */
+            clientJobs.values.forEach { it.join() }
+            server.closeGracefully()
+
+            val allMessages = messageChannel.toList().filterIsInstance<TestEvent>()
+            assertEquals(senderCoroutines * messagesPerSender, allMessages.size)
         }
     }
 }
