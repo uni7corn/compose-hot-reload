@@ -65,7 +65,7 @@ internal class DeclaredHotReloadProperty(
     val documentation: String?
 ) {
     enum class Type {
-        String, Boolean, Int, File, Files, Enum
+        String, Boolean, Int, Long, File, Files, Enum
     }
 
     enum class Target {
@@ -78,6 +78,7 @@ internal fun DeclaredHotReloadProperty.toKotlinType(nullable: Boolean = default 
         Type.String -> "String"
         Type.Boolean -> "Boolean"
         Type.Int -> "Int"
+        Type.Long -> "Long"
         Type.File -> "Path"
         Type.Files -> "List<Path>"
         Type.Enum -> (enumClass ?: error("Unknown enum ${type}"))
@@ -96,6 +97,7 @@ internal fun DeclaredHotReloadProperty.convertTypeCode(variableName: String) = w
     Type.String -> variableName
     Type.Boolean -> "$variableName.toBooleanStrict()"
     Type.Int -> "$variableName.toInt()"
+    Type.Long -> "$variableName.toLong()"
     Type.File -> "Path($variableName)"
     Type.Files -> "$variableName.split(File.pathSeparator).map(::Path)"
     Type.Enum -> """enumValueOf<${enumClass ?: error("Unknown enum ${type}")}>($variableName)"""

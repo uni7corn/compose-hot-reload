@@ -16,14 +16,12 @@ import org.jetbrains.compose.reload.orchestration.OrchestrationMessage
 import org.jetbrains.compose.reload.orchestration.asFlow
 import java.util.ServiceLoader
 import java.util.concurrent.Future
-import kotlin.system.exitProcess
 
 internal val orchestration: OrchestrationHandle = run {
     val handle = ServiceLoader.load(OrchestrationExtension::class.java)
         .firstNotNullOfOrNull { extension -> extension.getOrchestration() }
         ?: (OrchestrationClient(OrchestrationClientRole.Tooling) ?: error("Failed to create OrchestrationClient"))
 
-    handle.invokeWhenClosed { exitProcess(0) }
     handle
 }
 

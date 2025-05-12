@@ -207,7 +207,7 @@ internal open class ComposeHotAsyncRun : DefaultTask() {
 
         val processBuilder = ProcessBuilder(
             javaBinary.get().asFile.absolutePath,
-            *issueNewDebugSessionJvmArguments(intellijDebuggerDispatchPort),
+            *issueNewDebugSessionJvmArguments(name, intellijDebuggerDispatchPort),
             "@${argFile.asFile.get().absolutePath}",
             *additionalJvmArguments,
             mainClass.get(),

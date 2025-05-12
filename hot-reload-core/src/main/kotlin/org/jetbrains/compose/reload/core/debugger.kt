@@ -20,16 +20,15 @@ import java.net.Socket
  */
 @InternalHotReloadApi
 public fun issueNewDebugSessionJvmArguments(
-    intellijDebugDispatchPort: Int? = HotReloadEnvironment.intelliJDebuggerDispatchPort
+    processName: String, intellijDebugDispatchPort: Int? = HotReloadEnvironment.intelliJDebuggerDispatchPort
 ): Array<String> {
     intellijDebugDispatchPort?.let { dispatchPort ->
         val port = ServerSocket(0).use { it.localPort }
-        //logger.info("Setting up debugger: dispatch.port=$dispatchPort; debug.port=$port")
         Socket("127.0.0.1", dispatchPort).use { debugDispatchSocket ->
             val output = DataOutputStream(debugDispatchSocket.getOutputStream())
             output.use {
                 output.writeUTF("Gradle JVM") // Debugger ID
-                output.writeUTF("Hot Reload Test ${System.currentTimeMillis()}") // Process Name
+                output.writeUTF(processName) // Process Name
                 output.writeUTF("DEBUG_SERVER_PORT=$port") // Arguments
                 output.flush()
 

@@ -62,7 +62,7 @@ open class GenerateHotReloadEnvironmentTask : DefaultTask() {
                 }
 
                 public enum class Type {
-                    String, Int, Boolean, File, Files, Enum
+                    String, Int, Long, Boolean, File, Files, Enum
                 }
             }
         """.trimIndent().asTemplateOrThrow()
@@ -95,6 +95,7 @@ open class GenerateHotReloadEnvironmentTask : DefaultTask() {
                             Type.String -> "Type.String"
                             Type.Boolean -> "Type.Boolean"
                             Type.Int -> "Type.Int"
+                            Type.Long -> "Type.Long"
                             Type.File -> "Type.File"
                             Type.Files -> "Type.Files"
                             Type.Enum -> "Type.Enum"

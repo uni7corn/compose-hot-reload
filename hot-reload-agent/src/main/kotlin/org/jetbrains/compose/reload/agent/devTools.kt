@@ -6,49 +6,48 @@
 package org.jetbrains.compose.reload.agent
 
 import org.jetbrains.compose.reload.core.HotReloadEnvironment
-import org.jetbrains.compose.reload.core.HotReloadProperty
 import org.jetbrains.compose.reload.core.HotReloadProperty.DevToolsClasspath
+import org.jetbrains.compose.reload.core.HotReloadProperty.Environment.DevTools
 import org.jetbrains.compose.reload.core.Os
 import org.jetbrains.compose.reload.core.createLogger
 import org.jetbrains.compose.reload.core.issueNewDebugSessionJvmArguments
+import org.jetbrains.compose.reload.core.subprocessDefaultArguments
+import org.jetbrains.compose.reload.core.withHotReloadEnvironmentVariables
+import org.jetbrains.compose.reload.orchestration.OrchestrationMessage.LogMessage
+import org.jetbrains.compose.reload.orchestration.OrchestrationMessage.LogMessage.Companion.TAG_DEVTOOLS
 import java.io.File
 import java.nio.file.Path
+import kotlin.concurrent.thread
 import kotlin.io.path.Path
 import kotlin.io.path.absolutePathString
 
 private val logger = createLogger()
 
 internal fun launchDevtoolsApplication() {
-    if (HotReloadEnvironment.isHeadless) return
     if (!HotReloadEnvironment.devToolsEnabled) return
-
     val classpath = HotReloadEnvironment.devToolsClasspath ?: error("Missing '${DevToolsClasspath}'")
-    logger.info("Starting Dev Tools")
-
-    val java = resolveDevtoolsJavaBinary()
-    val properties = listOfNotNull(
-        "-Dapple.awt.UIElement=true",
-        "-D${HotReloadProperty.OrchestrationPort.key}=${orchestration.port}",
-        "-D${HotReloadProperty.GradleBuildContinuous.key}=${HotReloadEnvironment.gradleBuildContinuous}",
-        "-D${HotReloadProperty.DevToolsTransparencyEnabled.key}=${HotReloadEnvironment.devToolsTransparencyEnabled}",
-        HotReloadEnvironment.mainClass?.let { mainClass -> "-D${HotReloadProperty.MainClass.key}=$mainClass" },
-        HotReloadEnvironment.argFile?.let { path -> "-D${HotReloadProperty.ArgFile.key}=$path" },
-        HotReloadEnvironment.stdinFile?.let { path -> "-D${HotReloadProperty.StdinFile.key}=$path" },
-        HotReloadEnvironment.stdoutFile?.let { path -> "-D${HotReloadProperty.StdoutFile.key}=$path" },
-        HotReloadEnvironment.stderrFile?.let { path -> "-D${HotReloadProperty.StderrFile.key}=$path" },
-        HotReloadEnvironment.launchMode?.let { launchMode -> "-D${HotReloadProperty.LaunchMode.key}=${launchMode.name}" },
-    )
+    logger.info("Starting 'DevTools'")
 
     val process = ProcessBuilder(
-        java, "-cp", classpath.joinToString(File.pathSeparator),
-        *properties.toTypedArray(),
-        *issueNewDebugSessionJvmArguments(),
+        resolveDevtoolsJavaBinary(), "-cp", classpath.joinToString(File.pathSeparator),
+        *subprocessDefaultArguments(DevTools, orchestration.port).toTypedArray(),
+        *issueNewDebugSessionJvmArguments("DevTools"),
+        "-Dapple.awt.UIElement=true",
         "org.jetbrains.compose.devtools.Main",
-    ).inheritIO().start()
+    ).withHotReloadEnvironmentVariables(DevTools).start()
 
-    Runtime.getRuntime().addShutdownHook(Thread {
-        process.destroy()
-    })
+    thread(name = "DevTools: Stdout", isDaemon = true) {
+        process.inputStream.bufferedReader().forEachLine { line ->
+            LogMessage(TAG_DEVTOOLS, line).send()
+        }
+        logger.info("DevTools process exited")
+    }
+
+    thread(name = "DevTools: Stderr", isDaemon = true) {
+        process.errorStream.bufferedReader().forEachLine { line ->
+            LogMessage(TAG_DEVTOOLS, "stderr: $line").send()
+        }
+    }
 }
 
 private fun resolveDevtoolsJavaBinary(): String? {

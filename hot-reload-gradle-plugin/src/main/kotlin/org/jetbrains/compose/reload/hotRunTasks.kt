@@ -135,7 +135,7 @@ internal fun JavaExec.configureJavaExecTaskForHotReload(compilation: Provider<Ko
             Provisioning a new debug session. This will return jvm args for the debug agent.
             Since we would like to debug our hot reload agent, we ensure that the debug agent is listed first.
              */
-            jvmArgs = issueNewDebugSessionJvmArguments(intellijDebuggerDispatchPort).toList() + jvmArgs.orEmpty()
+            jvmArgs = issueNewDebugSessionJvmArguments(name, intellijDebuggerDispatchPort).toList() + jvmArgs.orEmpty()
         }
 
         /*

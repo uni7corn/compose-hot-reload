@@ -74,6 +74,7 @@ class StandaloneJarTest {
             ).joinToString(File.pathSeparator),
             "-D${HotReloadProperty.OrchestrationPort.key}=${server.port}",
             "-D${HotReloadProperty.IsHeadless.key}=true",
+            "-D${HotReloadProperty.DevToolsEnabled.key}=false",
             StandaloneJarTestMain::class.qualifiedName,
         ).inheritIO().start()
 

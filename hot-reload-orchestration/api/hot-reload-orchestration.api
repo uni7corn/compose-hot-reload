@@ -189,6 +189,7 @@ public final class org/jetbrains/compose/reload/orchestration/OrchestrationMessa
 	public static final field Companion Lorg/jetbrains/compose/reload/orchestration/OrchestrationMessage$LogMessage$Companion;
 	public static final field TAG_AGENT Ljava/lang/String;
 	public static final field TAG_COMPILER Ljava/lang/String;
+	public static final field TAG_DEVTOOLS Ljava/lang/String;
 	public static final field TAG_RUNTIME Ljava/lang/String;
 	public fun <init> (Ljava/lang/String;)V
 	public fun <init> (Ljava/lang/String;Ljava/lang/String;)V

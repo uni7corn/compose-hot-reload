@@ -3,17 +3,20 @@
  * Use of this source code is governed by the Apache 2.0 license that can be found in the LICENSE file.
  */
 
-package org.jetbrains.compose.reload.agent
+package org.jetbrains.compose.devtools
 
 import org.jetbrains.compose.reload.core.BuildSystem
 import org.jetbrains.compose.reload.core.BuildSystem.Amper
 import org.jetbrains.compose.reload.core.BuildSystem.Gradle
 import org.jetbrains.compose.reload.core.HotReloadEnvironment
 import org.jetbrains.compose.reload.core.HotReloadProperty
+import org.jetbrains.compose.reload.core.HotReloadProperty.Environment.BuildTool
 import org.jetbrains.compose.reload.core.LaunchMode
 import org.jetbrains.compose.reload.core.Os
 import org.jetbrains.compose.reload.core.createLogger
 import org.jetbrains.compose.reload.core.destroyWithDescendants
+import org.jetbrains.compose.reload.core.subprocessDefaultArguments
+import org.jetbrains.compose.reload.core.withHotReloadEnvironmentVariables
 import org.jetbrains.compose.reload.orchestration.OrchestrationMessage
 import org.jetbrains.compose.reload.orchestration.OrchestrationMessage.LogMessage
 import org.jetbrains.compose.reload.orchestration.OrchestrationMessage.LogMessage.Companion.TAG_COMPILER
@@ -115,8 +118,6 @@ internal fun launchRecompiler() {
 
 
     val recompilerThread = thread(name = "Recompiler") {
-        logger.debug("'Recompiler': started")
-
         try {
             while (true) {
                 val requests = takeRecompileRequests()
@@ -158,6 +159,8 @@ private fun takeRecompileRequests(): List<RecompileRequest> {
 
 private fun ProcessBuilder.startRecompilerProcess(): Int? {
     val process: Process = start()
+    logger.debug("'Recompiler': Started (${process.pid()})")
+
     val shutdownHook = thread(start = false) {
         logger.debug("'Recompiler': Destroying process (Shutdown)")
         process.destroyRecompilerProcess()
@@ -169,7 +172,6 @@ private fun ProcessBuilder.startRecompilerProcess(): Int? {
         process.inputStream.bufferedReader().use { reader ->
             while (true) {
                 val nextLine = reader.readLine() ?: break
-                logger.debug("'Recompiler': output: $nextLine")
                 LogMessage(TAG_COMPILER, nextLine).send()
             }
         }
@@ -207,6 +209,7 @@ private fun createRecompilerProcessBuilder(
                 orchestrationPort = orchestrationPort
             )
         )
+        .withHotReloadEnvironmentVariables(BuildTool)
         .apply { environment().putIfAbsent("JAVA_HOME", HotReloadEnvironment.gradleJavaHome?.pathString ?: "") }
         .redirectErrorStream(true)
 }
@@ -218,6 +221,7 @@ private fun createRecompilerProcessBuilder(
 ): ProcessBuilder {
     return ProcessBuilder().directory(File(amperBuildRoot))
         .command(createRecompilerAmperCommandLineArgs(amperBuildTask))
+        .withHotReloadEnvironmentVariables(BuildTool)
         .apply { environment().putIfAbsent("COMPOSE_HOT_RELOAD_ORCHESTRATION_PORT", orchestrationPort.toString()) }
         .redirectErrorStream(true)
 }
@@ -245,7 +249,7 @@ private fun createRecompilerGradleCommandLineArgs(
 
         "-D${HotReloadProperty.IsHotReloadBuild.key}=true",
         "-P${HotReloadProperty.IsHotReloadBuild.key}=true",
-        "-D${HotReloadProperty.OrchestrationPort.key}=$orchestrationPort",
+        *subprocessDefaultArguments(BuildTool, orchestrationPort).toTypedArray(),
         "-D${HotReloadProperty.GradleJavaHome.key}=${HotReloadEnvironment.gradleJavaHome?.pathString}"
             .takeIf { HotReloadEnvironment.gradleJavaHome != null },
 

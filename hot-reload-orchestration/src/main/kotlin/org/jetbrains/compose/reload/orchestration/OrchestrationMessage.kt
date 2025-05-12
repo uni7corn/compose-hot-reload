@@ -151,6 +151,7 @@ public sealed class OrchestrationMessage : Serializable {
             public const val TAG_COMPILER: String = "Compiler"
             public const val TAG_AGENT: String = "Agent"
             public const val TAG_RUNTIME: String = "Runtime"
+            public const val TAG_DEVTOOLS: String = "DevTools"
         }
 
         override fun toString(): String {

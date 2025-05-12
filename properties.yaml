@@ -34,7 +34,7 @@ IsHeadless:
   key: compose.reload.headless
   type: boolean
   default: "false"
-  target: [ application, build ]
+  target: [ application, devtools, build ]
   documentation: |
     Indicating whether or not the application is supposed to run in headless mode
 
@@ -77,7 +77,7 @@ BuildSystem:
   key: compose.reload.buildSystem
   type: enum
   enumClass: org.jetbrains.compose.reload.core.BuildSystem
-  target: [ application ]
+  target: [ application, devtools ]
   documentation: |
     Indicating the application which build system is supposed to be used for recompiling.
     See further build-system specific (Gradle, Amper, ...) properties.
@@ -85,7 +85,7 @@ BuildSystem:
 GradleJavaHome:
   key: org.gradle.java.home
   type: file
-  target: [ application ]
+  target: [ application, devtools ]
   documentation: |
     The 'java home' used to run Gradle. The recompiler will pick the same java to launch 
     the recompiler in order to avoid cache misses or other issues.
@@ -93,14 +93,14 @@ GradleJavaHome:
 GradleBuildRoot:
   key: gradle.build.root
   type: file
-  target: [ application ]
+  target: [ application, devtools ]
   documentation: |
     The root path to the current Gradle project
 
 GradleBuildProject:
   key: gradle.build.project
   type: string
-  target: [ application ]
+  target: [ application,devtools ]
   documentation: |
     The gradle 'path' to the 'project' which is currently executed and needs recompiling.
     e.g. ':app:' or ':' or ':someModule:composeApp'
@@ -108,7 +108,7 @@ GradleBuildProject:
 GradleBuildTask:
   key: gradle.build.task
   type: string
-  target: [ application ]
+  target: [ application, devtools ]
   documentation: |
     The name of the task which is supposed to be recompiled for hot reload. 
     This is typically the name of a 'ComposeReloadHotClasspathTask' task. 
@@ -117,7 +117,7 @@ GradleBuildContinuous:
   key: compose.reload.build.continuous
   type: boolean
   default: "false"
-  target: [ application, build ]
+  target: [ application, devtools, build ]
   documentation: |
     - true: Compose Hot Reload will start a recompiler Gradle Daemon, which will continuously rebuilt/reload the project
     by watching all  inputs to the build
@@ -126,18 +126,18 @@ GradleBuildContinuous:
 AmperBuildRoot:
   key: amper.build.root
   type: string
-  target: [ application ]
+  target: [ application, devtools ]
 
 AmperBuildTask:
   key: amper.build.task
   type: string
-  target: [ application ]
+  target: [ application, devtools ]
 
 DevToolsEnabled:
   key: compose.reload.devToolsEnabled
   type: boolean
   default: "true"
-  target: [ application, build ]
+  target: [ application, devtools, build ]
   documentation: |
     Flag to disable the 'devtools' application entirely
 
@@ -162,7 +162,7 @@ DevToolsTransparencyEnabled:
 IntelliJDebuggerDispatchPort:
   key: compose.reload.idea.debugger.dispatch.port
   type: int
-  target: [ application ]
+  target: [ application, devtools ]
   documentation: |
     Note: Expected as an environment variable, as this is expected to be transitively available
     to all child processes.\n
@@ -198,7 +198,7 @@ AutoRuntimeDependenciesEnabled:
 IdeaComposeHotReload:
   key: idea.compose.hot-reload
   type: boolean
-  target: [ build ]
+  target: [ build, application, devtools ]
   default: "false"
   documentation: |
     Set by IntelliJ to signal the Gradle Plugin that IDE tooling is available.
@@ -208,7 +208,7 @@ IdeaComposeHotReload:
 IdeaComposeHotReloadSupportVersion:
   key: idea.compose.hot-reload.version
   type: int
-  target: [ build ]
+  target: [ build, application, devtools ]
 
   documentation: |
     Set by IntelliJ during builds to convey its 'support level' for hot reload.
@@ -239,6 +239,15 @@ StderrFile:
   documentation: |
     Used by 'async'/'non-blocking' launches of the application.
     Will point to a file where the stderr is supposed to be written to.
+
+ParentPid:
+  key: compose.reload.parentPid
+  type: long
+  target: [ devtools, build ]
+  documentation: |
+    The pid of the parent process. This property is used by components that shall connect to the 
+    'orchestration' (e.g. recompiler, devtools, ...).
+    If the parent dies, it is expected that children exit as well.
 
 LaunchMode:
   key: compose.reload.launchMode
