@@ -55,28 +55,28 @@ internal fun startWindowManager(): WindowId? {
 
         val windowListener = object : WindowAdapter() {
             override fun windowIconified(e: WindowEvent?) {
-                logger.debug("$windowId: $windowId: windowIconified")
+                logger.trace("$windowId: $windowId: windowIconified")
                 broadcastGone()
             }
 
             override fun windowDeiconified(e: WindowEvent?) {
-                logger.debug("$windowId: windowDeiconified")
+                logger.trace("$windowId: windowDeiconified")
                 broadcastActiveState()
             }
 
             override fun windowClosed(e: WindowEvent?) {
-                logger.debug("$windowId: windowClosed")
+                logger.trace("$windowId: windowClosed")
                 broadcastGone()
             }
 
             override fun windowGainedFocus(e: WindowEvent?) {
-                logger.debug("$windowId: windowGainedFocus")
+                logger.trace("$windowId: windowGainedFocus")
                 OrchestrationMessage.ApplicationWindowGainedFocus(windowId).send()
                 super.windowGainedFocus(e)
             }
 
             override fun windowActivated(e: WindowEvent?) {
-                logger.debug("$windowId: windowActivated")
+                logger.trace("$windowId: windowActivated")
                 broadcastActiveState()
                 super.windowActivated(e)
             }
@@ -84,13 +84,13 @@ internal fun startWindowManager(): WindowId? {
 
         val componentListener = object : ComponentAdapter() {
             override fun componentHidden(e: ComponentEvent?) {
-                logger.debug("$windowId: componentHidden")
+                logger.trace("$windowId: componentHidden")
                 broadcastGone()
             }
 
 
             override fun componentShown(e: ComponentEvent?) {
-                logger.debug("$windowId: componentShown")
+                logger.trace("$windowId: componentShown")
                 broadcastActiveState()
             }
 
