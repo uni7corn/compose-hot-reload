@@ -24,12 +24,14 @@ import org.jetbrains.compose.reload.orchestration.OrchestrationMessage.ClientDis
 import org.jetbrains.compose.reload.orchestration.OrchestrationMessage.LogMessage
 import org.jetbrains.compose.reload.orchestration.OrchestrationMessage.TestEvent
 import org.junit.jupiter.api.AfterEach
+import org.junit.jupiter.api.assertThrows
 import java.util.Collections.synchronizedList
 import java.util.UUID
 import java.util.concurrent.ConcurrentHashMap
 import java.util.concurrent.atomic.AtomicInteger
 import kotlin.test.Test
 import kotlin.test.assertEquals
+import kotlin.test.assertFails
 import kotlin.test.fail
 import kotlin.time.Duration.Companion.minutes
 
@@ -279,6 +281,20 @@ class ServerClientTest {
 
             val allMessages = messageChannel.toList().filterIsInstance<TestEvent>()
             assertEquals(senderCoroutines * messagesPerSender, allMessages.size)
+        }
+    }
+
+    @Test
+    fun `test - stress test - connecting to closed server`() = runTest {
+        val server = use(startOrchestrationServer())
+        server.closeGracefully().get()
+
+        repeat(8) {
+            launch(Dispatchers.IO) {
+                repeat(128) {
+                    assertFails { connectOrchestrationClient(Unknown, server.port) }
+                }
+            }
         }
     }
 }

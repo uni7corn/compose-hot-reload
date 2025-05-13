@@ -83,6 +83,7 @@ private class OrchestrationClientImpl(
             }
 
             output.close()
+            this@OrchestrationClientImpl.closeGracefully()
         }
     }
 
@@ -118,7 +119,25 @@ private class OrchestrationClientImpl(
     fun start(): Future<Unit> {
         val isReady = CompletableFuture<Unit>()
         val handshake = OrchestrationHandshake(clientId, role, ProcessHandle.current().pid())
-        writer.sendMessage(handshake)
+
+        /*
+        If the handshake can't be sent within a short period of time, we will not assume a healthy
+        connection.
+         */
+        runCatching {
+            writer.sendMessage(handshake).get(15, TimeUnit.SECONDS)
+        }.onFailure { failure ->
+            closeGracefully()
+            isReady.completeExceptionally(failure)
+            return isReady
+        }
+
+        /* When closed before 'isReady' was done, we can signal back that the connection failed */
+        invokeWhenClosed {
+            if (isReady.isDone) {
+                isReady.completeExceptionally(IllegalStateException("Client was closed"))
+            }
+        }
 
         thread(name = "Orchestration Client Reader") {
             logger.debug("connected")
