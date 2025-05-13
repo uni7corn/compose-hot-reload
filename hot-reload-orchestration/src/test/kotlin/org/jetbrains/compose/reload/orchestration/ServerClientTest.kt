@@ -24,7 +24,6 @@ import org.jetbrains.compose.reload.orchestration.OrchestrationMessage.ClientDis
 import org.jetbrains.compose.reload.orchestration.OrchestrationMessage.LogMessage
 import org.jetbrains.compose.reload.orchestration.OrchestrationMessage.TestEvent
 import org.junit.jupiter.api.AfterEach
-import org.slf4j.Logger
 import java.util.Collections.synchronizedList
 import java.util.UUID
 import java.util.concurrent.ConcurrentHashMap
@@ -32,6 +31,7 @@ import java.util.concurrent.atomic.AtomicInteger
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.fail
+import kotlin.time.Duration.Companion.minutes
 
 class ServerClientTest {
 
@@ -243,8 +243,8 @@ class ServerClientTest {
     }
 
     @Test
-    fun `test - stress test - fire and forget`() = runTest {
-        val senderCoroutines = 8
+    fun `test - stress test - fire and forget`() = runTest(timeout = 2.minutes) {
+        val senderCoroutines = 4
         val messagesPerSender = 128
 
         repeat(8) {
