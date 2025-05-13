@@ -8,6 +8,7 @@ package org.jetbrains.compose.devtools.sidecar
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.EnterTransition
 import androidx.compose.animation.ExitTransition
+import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
@@ -103,6 +104,11 @@ fun DtSidecarWindowContent(
         modifier = modifier.fillMaxSize(),
         horizontalArrangement = Arrangement.End,
     ) {
+        val backgroundColor = animateColorAsState(
+            if (isExpanded) DtColors.applicationBackground
+            else DtColors.applicationBackgroundMinimized
+        )
+
         AnimatedContent(
             isExpanded,
             modifier = Modifier
@@ -111,8 +117,8 @@ fun DtSidecarWindowContent(
                     idleColor = if (isExpanded) DtColors.border else Color.Transparent
                 )
                 .clip(DevToolingSidecarShape)
-                .background(if (isExpanded) DtColors.applicationBackground else Color.Transparent)
-                .animateReloadStatusBackground(if (isExpanded) DtColors.applicationBackground else Color.Transparent)
+                .background(backgroundColor.value)
+                .animateReloadStatusBackground(backgroundColor.value)
                 .weight(1f, fill = false),
             transitionSpec = {
                 if (devToolsTransparencyEnabled) {
@@ -131,8 +137,7 @@ fun DtSidecarWindowContent(
                         enter = if (devToolsTransparencyEnabled) fadeIn(tween(220)) else EnterTransition.None,
                         exit = if (devToolsTransparencyEnabled) fadeOut(tween(50)) else ExitTransition.None
                     ).clickable { isExpandedChanged(true) }
-                        .padding(DtPadding.small)
-                    ,
+                        .padding(DtPadding.small),
                 ) {
                     DtComposeLogo(
                         Modifier.size(28.dp).padding(4.dp),
