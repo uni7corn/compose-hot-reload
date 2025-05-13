@@ -16,8 +16,8 @@ import androidx.compose.runtime.setValue
 import io.sellmair.evas.compose.installEvas
 import io.sellmair.evas.eventsOrThrow
 import io.sellmair.evas.statesOrThrow
-import org.jetbrains.compose.reload.DevelopmentEntryPoint
 import org.jetbrains.compose.devtools.sidecar.DtSidecarWindowContent
+import org.jetbrains.compose.reload.DevelopmentEntryPoint
 
 @DevelopmentEntryPoint
 @Composable

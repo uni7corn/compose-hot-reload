@@ -13,7 +13,6 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Modifier
 import io.sellmair.evas.compose.composeValue
 import org.jetbrains.compose.devtools.states.ConsoleLogState
-import org.jetbrains.compose.devtools.theme.dtHorizontalPadding
 import org.jetbrains.compose.devtools.widgets.DtHeader2
 
 @Composable

@@ -23,7 +23,6 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.unit.dp
 import org.jetbrains.compose.devtools.theme.DtColors
 import org.jetbrains.compose.devtools.theme.DtPadding
-import org.jetbrains.compose.devtools.theme.dtHorizontalPadding
 import org.jetbrains.compose.devtools.theme.dtVerticalPadding
 import org.jetbrains.compose.devtools.widgets.DtCode
 import org.jetbrains.compose.devtools.widgets.animatedReloadStatusBorder
