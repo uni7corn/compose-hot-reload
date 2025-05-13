@@ -11,7 +11,18 @@ import io.sellmair.evas.launchState
 import io.sellmair.evas.update
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.buffer
+import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.flow.consumeAsFlow
 import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.flow.filterIsInstance
+import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.launchIn
+import kotlinx.coroutines.flow.onEach
+import org.jetbrains.compose.devtools.orchestration
+import org.jetbrains.compose.reload.orchestration.OrchestrationMessage.ReloadClassesRequest
+import org.jetbrains.compose.reload.orchestration.OrchestrationMessage.ReloadClassesResult
+import org.jetbrains.compose.reload.orchestration.asChannel
+import org.jetbrains.compose.reload.orchestration.asFlow
 
 data class ReloadCountState(
     val successfulReloads: Int = 0,
@@ -24,15 +35,22 @@ data class ReloadCountState(
 
 
 internal fun CoroutineScope.launchReloadCountState() = launchState(ReloadCountState.Key) {
-    ReloadState.flow().buffer().distinctUntilChanged().collect { reloadState ->
+    ReloadState.flow().buffer().distinctUntilChanged().onEach { reloadState ->
         when (reloadState) {
-            is ReloadState.Ok -> ReloadCountState.update { count ->
-                count.copy(successfulReloads = count.successfulReloads + 1)
-            }
             is ReloadState.Failed -> ReloadCountState.update { count ->
                 count.copy(failedReloads = count.failedReloads + 1)
             }
-            else -> return@collect
+            else -> Unit
+        }
+    }.launchIn(this)
+
+    orchestration.asFlow().filterIsInstance<ReloadClassesRequest>().collectLatest { request ->
+        val result = orchestration.asChannel().consumeAsFlow().filterIsInstance<ReloadClassesResult>().first { result ->
+            result.reloadRequestId == request.messageId
+        }
+
+        if (result.isSuccess && request.changedClassFiles.isNotEmpty()) ReloadCountState.update { count ->
+            count.copy(successfulReloads = count.successfulReloads + 1)
         }
     }
 }
