@@ -12,13 +12,17 @@ import kotlinx.coroutines.Deferred
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.async
 import kotlinx.coroutines.cancel
-import kotlinx.coroutines.channels.ReceiveChannel
+import kotlinx.coroutines.cancelChildren
+import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.currentCoroutineContext
+import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.buffer
 import kotlinx.coroutines.flow.emptyFlow
 import kotlinx.coroutines.flow.filterIsInstance
 import kotlinx.coroutines.flow.merge
 import kotlinx.coroutines.flow.receiveAsFlow
+import kotlinx.coroutines.flow.shareIn
 import kotlinx.coroutines.job
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.test.TestScope
@@ -62,20 +66,37 @@ internal constructor(
     public suspend fun <T> runTransaction(
         block: suspend TransactionScope.() -> T
     ): T = withAsyncTrace("'runTransaction'") {
-        coroutineScope {
-            val scope = TransactionScope(
-                fixture = this@HotReloadTestFixture,
-                coroutineScope = this@coroutineScope,
-                incomingMessages = createReceiveChannel(),
-            )
-            scope.block()
-        }
-    }
+        async {
+            /*
+            Multiple consumers will be able to 'receive' all messages sent during the transaction.
+            Therefore, this shared flow is buffered with unlimited replay.
+             */
+            val sharedMessages = orchestration.asFlow()
+                .buffer(Channel.UNLIMITED)
+                .shareIn(this, SharingStarted.Eagerly, replay = Channel.UNLIMITED)
 
-    public suspend fun createReceiveChannel(): ReceiveChannel<OrchestrationMessage> {
-        val channel = orchestration.asChannel()
-        currentCoroutineContext().job.invokeOnCompletion { channel.cancel() }
-        return channel
+            /*
+            This is the transactions message channel.
+            This can be used to linearly progress through the transaction.
+             */
+            val messageChannel = Channel<OrchestrationMessage>(Channel.UNLIMITED)
+            launch { sharedMessages.collect { message -> messageChannel.send(message) } }
+
+            try {
+                coroutineScope {
+                    val scope = TransactionScope(
+                        fixture = this@HotReloadTestFixture,
+                        coroutineScope = this,
+                        sharedMessages = sharedMessages,
+                        orchestration.asChannel()
+                    )
+                    scope.block()
+                }
+            } finally {
+                currentCoroutineContext().cancelChildren()
+                messageChannel.close()
+            }
+        }.await()
     }
 
     public suspend fun <T> sendMessage(
@@ -137,7 +158,7 @@ internal constructor(
                 val stderr = gradleRunner.stderrChannel?.receiveAsFlow() ?: emptyFlow()
                 val stdout = gradleRunner.stdoutChannel?.receiveAsFlow() ?: emptyFlow()
                 merge(stderr, stdout).collect { message ->
-                    orchestration.sendMessage(LogMessage(LogMessage.TAG_COMPILER, message)).get()
+                    orchestration.sendMessage(LogMessage("Gradle Test Runner", message)).get()
                 }
             }
 

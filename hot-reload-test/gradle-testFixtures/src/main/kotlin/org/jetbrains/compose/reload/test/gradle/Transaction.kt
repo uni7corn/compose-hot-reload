@@ -8,13 +8,17 @@ package org.jetbrains.compose.reload.test.gradle
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
+import kotlinx.coroutines.cancel
+import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.channels.ReceiveChannel
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.flow.filterIsInstance
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.toList
+import kotlinx.coroutines.job
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import kotlinx.coroutines.withTimeout
@@ -23,11 +27,10 @@ import org.jetbrains.compose.reload.core.AsyncTraces
 import org.jetbrains.compose.reload.core.asyncTracesString
 import org.jetbrains.compose.reload.core.createLogger
 import org.jetbrains.compose.reload.core.withAsyncTrace
-import org.jetbrains.compose.reload.orchestration.OrchestrationClientRole
+import org.jetbrains.compose.reload.orchestration.OrchestrationClientRole.Application
 import org.jetbrains.compose.reload.orchestration.OrchestrationMessage
 import org.jetbrains.compose.reload.orchestration.OrchestrationMessage.Ack
 import org.jetbrains.compose.reload.orchestration.OrchestrationMessage.ClientDisconnected
-import org.jetbrains.compose.reload.orchestration.OrchestrationMessage.LogMessage
 import org.jetbrains.compose.reload.orchestration.OrchestrationMessage.Ping
 import org.jetbrains.compose.reload.orchestration.OrchestrationMessage.ReloadClassesRequest
 import org.jetbrains.compose.reload.orchestration.OrchestrationMessage.ReloadClassesResult
@@ -52,10 +55,28 @@ public annotation class TransactionDslMarker
 public class TransactionScope internal constructor(
     @PublishedApi
     internal val fixture: HotReloadTestFixture,
+
     private val coroutineScope: CoroutineScope,
+
+    /**
+     * A shared flow of all messages during the transaction.
+     * This flow is supposed to replay all messages for new subscribers.
+     */
+    public val sharedMessages: SharedFlow<OrchestrationMessage>,
+
+    /**
+     * Single channel representing the state of the transaction.
+     * This 'linear' channel can be used in [pullMessages] or [skipToMessage]]
+     */
     @PublishedApi
-    internal val incomingMessages: ReceiveChannel<OrchestrationMessage>,
+    internal val message: ReceiveChannel<OrchestrationMessage>
 ) : CoroutineScope by coroutineScope {
+
+    internal val daemonScope = CoroutineScope(coroutineScope.coroutineContext + Job()).also { daemon ->
+        coroutineScope.coroutineContext.job.invokeOnCompletion {
+            daemon.cancel()
+        }
+    }
 
     @PublishedApi
     internal val logger: Logger = createLogger()
@@ -66,12 +87,37 @@ public class TransactionScope internal constructor(
         logger.debug("Sent message: $this")
     }
 
-    public suspend fun launchChildTransaction(block: suspend TransactionScope.() -> Unit): Job {
-        val receiveChannel = fixture.createReceiveChannel()
+    /**
+     * Launches a coroutine, which will not 'block' the current transaction.
+     * Such daemons can be used to setup hooks such as 'fail the test if a certain message XYZ is received
+     * during the transaction.'
+     */
+    public fun launchDaemon(block: suspend () -> Unit): Job = daemonScope.launch {
+        block()
+    }
 
-        return launch(AsyncTraces("launchChildTransaction")) {
-            TransactionScope(fixture, this@launch, receiveChannel).block()
+    /**
+     * Launches the [block] as a child transaction.
+     * The child transaction will replay all messages received prior.
+     * The current transaction will have to wait for this child transaction to complete as well.
+     */
+    public suspend fun launchChildTransaction(block: suspend TransactionScope.() -> Unit): Job {
+        val currentMessage = Channel<OrchestrationMessage>(Channel.UNLIMITED)
+        val currentMessageCollector = launch {
+            sharedMessages.collect { message -> currentMessage.send(message) }
         }
+
+        val job = launch(AsyncTraces("launchChildTransaction")) {
+            TransactionScope(fixture, this, sharedMessages, currentMessage).block()
+        }
+
+        job.invokeOnCompletion {
+            currentMessageCollector.cancel()
+            currentMessage.close()
+        }
+
+        return job
+
     }
 
     /**
@@ -79,10 +125,13 @@ public class TransactionScope internal constructor(
      */
     public fun pullMessages(): List<OrchestrationMessage> = buildList {
         while (true) {
-            incomingMessages.tryReceive().getOrNull()?.let(::add) ?: break
+            message.tryReceive().getOrNull()?.let(::add) ?: break
         }
     }
 
+    /**
+     * Skips this [TransactionScope] until the suitable message is received.
+     */
     public suspend inline fun <reified T> skipToMessage(
         title: String = "Waiting for message '${T::class.simpleName.toString()}'",
         timeout: Duration = 5.minutes,
@@ -109,7 +158,7 @@ public class TransactionScope internal constructor(
             // No need to monitor if the skip is actually skipping to this message anyway
             if (T::class == ClientDisconnected::class) return@launch
             fixture.orchestration.asFlow().filterIsInstance<ClientDisconnected>().collect { message ->
-                if (message.clientRole == OrchestrationClientRole.Application) {
+                if (message.clientRole == Application) {
                     logger.info("'$title': Application disconnected.")
                     fail("Application disconnected. $asyncTracesString")
                 }
@@ -119,7 +168,7 @@ public class TransactionScope internal constructor(
         withContext(dispatcher) {
             try {
                 withTimeout(if (fixture.isDebug) 24.hours else timeout) {
-                    incomingMessages.receiveAsFlow().filterIsInstance<T>().filter(filter).first()
+                    message.receiveAsFlow().filterIsInstance<T>().filter(filter).first()
                 }
             } finally {
                 reminder.cancel()
@@ -133,19 +182,7 @@ public class TransactionScope internal constructor(
         mainClass: String = "MainKt",
     ): Unit = withAsyncTrace("'launchApplicationAndWait'") {
         fixture.launchApplication(projectPath, mainClass)
-        var uiRendered = false
-
-        skipToMessage<OrchestrationMessage>("Waiting for application to start") { message ->
-            if (message is UIRendered) uiRendered = true
-            if (message is ClientDisconnected && message.clientRole == OrchestrationClientRole.Application) {
-                fail("Application disconnected")
-            }
-            if (message !is LogMessage && message !is Ack && message !is Ping) {
-                logger.debug("application startup: received message: $message")
-                logger.debug("application startup: uiRendered=$uiRendered")
-            }
-            uiRendered
-        }
+        awaitApplicationStart()
     }
 
     public suspend fun launchDevApplicationAndWait(
@@ -154,7 +191,28 @@ public class TransactionScope internal constructor(
         funName: String
     ): Unit = withAsyncTrace("'launchDevApplicationAndWait'") {
         fixture.launchDevApplication(projectPath, className, funName)
-        skipToMessage<UIRendered>("Waiting for dev application to start")
+        awaitApplicationStart()
+    }
+
+    public suspend fun awaitApplicationStart(): Unit = withAsyncTrace("'awaitApplicationStart'") {
+        /* That would be a bummer; Let's fail on such a disconnect */
+        launchDaemon {
+            sharedMessages.filterIsInstance<ClientDisconnected>().filter { it.clientRole == Application }.collect {
+                fail("Application disconnected")
+            }
+        }
+
+        /* If the build mode is Continuous, we want to await the recompiler to be ready */
+        if (fixture.buildMode == BuildMode.Continuous) {
+            launchChildTransaction {
+                /* Ready is signaled by an empty request (UP TO DATE) */
+                skipToMessage<ReloadClassesRequest>("Waiting for recompiler to be ready") { request ->
+                    request.changedClassFiles.isEmpty()
+                }
+            }
+        }
+
+        skipToMessage<UIRendered>("Waiting for application to start")
     }
 
     public suspend fun sync(): Unit = withAsyncTrace("'sync'") {
@@ -168,7 +226,7 @@ public class TransactionScope internal constructor(
         There is no ACK for an ACK, and there is also no ACk for a shutdown request.
          */
         if (message is Ack || message is OrchestrationMessage.ShutdownRequest) return@run
-        skipToMessage<Ack>("Waiting for ack of '${message.javaClass.simpleName}'") { ack ->
+        skipToMessage<Ack>("Waiting for ack of '${message.messageId}'") { ack ->
             ack.acknowledgedMessageId == message.messageId
         }
     }
