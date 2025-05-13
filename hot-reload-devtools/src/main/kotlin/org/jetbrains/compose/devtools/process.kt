@@ -42,6 +42,6 @@ private fun setupOrchestration() {
     }
 }
 
-private fun shutdown(): Nothing {
+internal fun shutdown(): Nothing {
     exitProcess(0)
 }

@@ -22,7 +22,7 @@ import org.jetbrains.compose.reload.gradle.PluginStage
 import org.jetbrains.compose.reload.gradle.await
 import org.jetbrains.compose.reload.gradle.projectFuture
 import org.jetbrains.compose.reload.orchestration.OrchestrationClientRole
-import org.jetbrains.compose.reload.orchestration.OrchestrationMessage
+import org.jetbrains.compose.reload.orchestration.OrchestrationMessage.ShutdownRequest
 import org.jetbrains.compose.reload.orchestration.connectOrchestrationClient
 import java.nio.file.Path
 import java.util.concurrent.TimeUnit
@@ -65,14 +65,16 @@ private fun shutdownApplication(pidfile: Path, logger: Logger? = null) {
     val process = ProcessHandle.of(pid).getOrNull() ?: return
 
     logger?.quiet("Sending 'ShutdownRequest' to '$port'")
-    try {
-        connectOrchestrationClient(OrchestrationClientRole.Tooling, port).use { client ->
-            client.sendMessage(OrchestrationMessage.ShutdownRequest("Gradle Build cancelled")).get()
-            logger?.quiet("Waiting for process to exit. PID: '$pid'")
+
+    connectOrchestrationClient(OrchestrationClientRole.Tooling, port).use { client ->
+        client.sendMessage(ShutdownRequest("Gradle Build cancelled")).get(15, TimeUnit.SECONDS)
+        logger?.quiet("Waiting for process to exit. PID: '$pid'")
+        try {
             process.onExit().get(5, TimeUnit.SECONDS)
+        } catch (t: Throwable) {
+            logger?.error("Failed shutting down process using 'ShutdownRequest'", t)
+            process.destroyWithDescendants()
+            throw t
         }
-    } catch (t: Throwable) {
-        logger?.error("Failed to shutdown application", t)
-        process.destroyWithDescendants()
     }
 }
