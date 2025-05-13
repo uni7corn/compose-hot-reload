@@ -24,7 +24,6 @@ import org.jetbrains.compose.reload.orchestration.OrchestrationMessage.ClientDis
 import org.jetbrains.compose.reload.orchestration.OrchestrationMessage.LogMessage
 import org.jetbrains.compose.reload.orchestration.OrchestrationMessage.TestEvent
 import org.junit.jupiter.api.AfterEach
-import org.junit.jupiter.api.assertThrows
 import java.util.Collections.synchronizedList
 import java.util.UUID
 import java.util.concurrent.ConcurrentHashMap
@@ -271,13 +270,12 @@ class ServerClientTest {
                             }
                         }
                     }
-
                 }
             }
 
             /* Await all clients to disconnect */
             clientJobs.values.forEach { it.join() }
-            server.closeGracefully()
+            server.closeGracefully().get()
 
             val allMessages = messageChannel.toList().filterIsInstance<TestEvent>()
             assertEquals(senderCoroutines * messagesPerSender, allMessages.size)
