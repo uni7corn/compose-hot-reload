@@ -24,18 +24,26 @@ public fun HotReloadTestFixture.launchDevApplication(
     funName: String
 ) {
     daemonTestScope.launch {
+
+        val runTask = when (projectMode) {
+            ProjectMode.Kmp -> when (launchMode) {
+                ApplicationLaunchMode.GradleBlocking -> "jvmRunDev"
+                ApplicationLaunchMode.Detached -> "jvmRunDevAsync"
+            }
+
+            ProjectMode.Jvm -> when (launchMode) {
+                ApplicationLaunchMode.GradleBlocking -> "runDev"
+                ApplicationLaunchMode.Detached -> "runDevAsync"
+            }
+        }
+
         val runTaskPath = buildString {
             if (projectPath != ":") {
                 append(projectPath)
             }
 
             append(":")
-            append(
-                when (launchMode) {
-                    ApplicationLaunchMode.GradleBlocking -> "jvmRunDev"
-                    ApplicationLaunchMode.Detached -> "jvmRunDevAsync"
-                }
-            )
+            append(runTask)
         }
 
         gradleRunner.buildFlow(runTaskPath, "--className", className, "--funName", funName).toList().assertSuccessful()

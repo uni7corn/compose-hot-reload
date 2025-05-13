@@ -7,22 +7,22 @@ package org.jetbrains.compose.reload.tests
 
 import org.jetbrains.compose.reload.test.gradle.HotReloadTest
 import org.jetbrains.compose.reload.test.gradle.HotReloadTestFixture
-import org.jetbrains.compose.reload.test.gradle.ProjectMode
-import org.jetbrains.compose.reload.test.gradle.TestedProjectMode
 import org.jetbrains.compose.reload.test.gradle.checkScreenshot
 import org.jetbrains.compose.reload.test.gradle.fold
 import org.jetbrains.compose.reload.test.gradle.launchDevApplicationAndWait
 import org.jetbrains.compose.reload.test.gradle.replaceText
 import org.jetbrains.compose.reload.utils.GradleIntegrationTest
+import org.jetbrains.compose.reload.utils.QuickTest
 import kotlin.io.path.createParentDirectories
 import kotlin.io.path.writeText
 
+@HotReloadTest
+@GradleIntegrationTest
+@QuickTest
 class DevelopmentEntryPointTests {
 
     @HotReloadTest
-    @GradleIntegrationTest
-    @TestedProjectMode(ProjectMode.Kmp)
-    fun `test - simple jvm project`(fixture: HotReloadTestFixture) = fixture.runTest {
+    fun `test - simple project`(fixture: HotReloadTestFixture) = fixture.runTest {
         val mainKt = fixture.projectDir
             .resolve("src")
             .resolve(fixture.projectMode.fold("jvmMain", "main"))

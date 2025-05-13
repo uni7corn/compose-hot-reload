@@ -28,13 +28,14 @@ import kotlin.io.path.createParentDirectories
 import kotlin.io.path.pathString
 import kotlin.io.path.writeText
 
+@GradleIntegrationTest
+@TestedLaunchMode(ApplicationLaunchMode.Detached)
+@QuickTest
 class RuntimeDependenciesTest {
 
     @HotReloadTest
-    @GradleIntegrationTest
-    @QuickTest
+
     @TestedProjectMode(ProjectMode.Kmp)
-    @TestedLaunchMode(ApplicationLaunchMode.Detached)
     @BuildGradleKts("app")
     @BuildGradleKts("lib")
     fun `test - hot KMP depending on hot KMP project`(fixture: HotReloadTestFixture) = fixture.runTest {
@@ -62,10 +63,7 @@ class RuntimeDependenciesTest {
     }
 
     @HotReloadTest
-    @GradleIntegrationTest
-    @QuickTest
     @TestedProjectMode(ProjectMode.Kmp)
-    @TestedLaunchMode(ApplicationLaunchMode.Detached)
     @BuildGradleKts("app")
     fun `test - hot KMP depending on KMP project wo CHR plugin`(fixture: HotReloadTestFixture) = fixture.runTest {
         fixture.projectDir.settingsGradleKts.appendText(
@@ -111,10 +109,7 @@ class RuntimeDependenciesTest {
     }
 
     @HotReloadTest
-    @GradleIntegrationTest
-    @QuickTest
     @TestedProjectMode(ProjectMode.Jvm)
-    @TestedLaunchMode(ApplicationLaunchMode.Detached)
     fun `test - hot jvm project`(fixture: HotReloadTestFixture) = fixture.runTest {
         fixture.resolveRuntimeClasspath().assertMatches(
             PathRegex(".*/build/run/main/classpath/classes"),
@@ -125,6 +120,43 @@ class RuntimeDependenciesTest {
             *testRuntimeDependencies,
             PathRegex(".*/build/gradleHome/.*")
         )
+    }
+
+    @HotReloadTest
+    @TestedProjectMode(ProjectMode.Kmp)
+    fun `test - dev run`(fixture: HotReloadTestFixture) = fixture.runTest {
+        val devKt = projectDir.resolve("src/jvmDev/kotlin/Dev.kt")
+        devKt.createParentDirectories().writeText(
+            """
+            import org.jetbrains.compose.reload.test.*
+            import androidx.compose.runtime.Composable
+            import org.jetbrains.compose.reload.DevelopmentEntryPoint
+            
+            @Composable
+            @DevelopmentEntryPoint
+            fun Test() {
+                val classpath = System.getProperty("java.class.path")
+                sendTestEvent(classpath)
+            }
+        """.trimIndent()
+        )
+
+        val classpath = runTransaction {
+            launchChildTransaction { launchDevApplicationAndWait(className = "DevKt", funName = "Test") }
+            (skipToMessage<TestEvent>().payload as String).split(File.pathSeparator).map(::File)
+        }
+
+        classpath.assertMatches(
+            PathRegex(".*/build/run/jvmDev/classpath/classes"),
+            PathRegex(".*/build/run/jvmDev/classpath/hot"),
+            PathRegex(".*/build/run/jvmDev/classpath/libs/opaque/.*/main.jar"), // Dependency on main compilatin output
+            *stdlib,
+            *hotReloadAgentDependencies,
+            *hotReloadRuntimeDependencies,
+            *testRuntimeDependencies,
+            PathRegex(".*/build/gradleHome/.*")
+        )
+
     }
 }
 

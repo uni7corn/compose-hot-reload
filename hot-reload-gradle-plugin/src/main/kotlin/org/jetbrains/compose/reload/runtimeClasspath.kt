@@ -32,6 +32,7 @@ import org.gradle.kotlin.dsl.register
 import org.gradle.work.DisableCachingByDefault
 import org.jetbrains.compose.reload.core.HOT_RELOAD_VERSION
 import org.jetbrains.compose.reload.core.asFileName
+import org.jetbrains.compose.reload.core.copyRecursivelyToZip
 import org.jetbrains.compose.reload.gradle.HotReloadUsage.COMPOSE_DEV_RUNTIME_USAGE
 import org.jetbrains.compose.reload.gradle.HotReloadUsageType
 import org.jetbrains.compose.reload.gradle.camelCase
@@ -46,6 +47,7 @@ import kotlin.io.path.createDirectories
 import kotlin.io.path.createParentDirectories
 import kotlin.io.path.deleteRecursively
 import kotlin.io.path.exists
+import kotlin.io.path.name
 
 private const val hotReloadRuntimeConfigurationName = "hotReloadRuntime"
 
@@ -85,11 +87,11 @@ internal val KotlinCompilation<*>.composeHotReloadRuntimeClasspath: FileCollecti
     val agentClasspath = project.composeHotReloadAgentRuntimeClasspath()
 
     val hotLibs = composeDevRuntimeDependencies.incoming.artifactView { view ->
-        view.componentFilter { id -> id.isCurrentBuild() }
+        view.componentFilter { id -> id.isTrackedHot() }
     }
 
     val coldLibs = composeDevRuntimeDependencies.incoming.artifactView { view ->
-        view.componentFilter { id -> !id.isCurrentBuild() }
+        view.componentFilter { id -> !id.isTrackedHot() }
     }
 
     val classesDirectory = runBuildDirectory("classpath/classes")
@@ -129,13 +131,17 @@ internal val KotlinCompilation<*>.composeHotReloadRuntimeClasspath: FileCollecti
 
 internal val KotlinCompilation<*>.hotRuntimeFiles: FileCollection by lazyProperty {
     project.files(this.output.allOutputs, composeDevRuntimeDependencies.incoming.artifactView { view ->
-        view.componentFilter { id -> id.isCurrentBuild() || id is OpaqueComponentArtifactIdentifier }
+        view.componentFilter { id -> id.isTrackedHot() }
     }.files)
 }
 
 private fun ComponentIdentifier.isCurrentBuild(): Boolean {
     @Suppress("DEPRECATION") // Copy approach from KGP?
     return this is ProjectComponentIdentifier && build.isCurrentBuild
+}
+
+private fun ComponentIdentifier.isTrackedHot(): Boolean {
+    return this.isCurrentBuild() || this is OpaqueComponentArtifactIdentifier
 }
 
 @DisableCachingByDefault(because = "Not worth caching")
@@ -147,7 +153,6 @@ private open class SyncArtifactsTask : DefaultTask() {
     @Suppress("unused") // UP-TO-DATE checks
     @get:Classpath
     val files: FileCollection = project.files { artifactCollection.get().map { it.artifactFiles } }
-
 
     @get:OutputDirectory
     val destinationDir: DirectoryProperty = project.objects.directoryProperty()
@@ -174,6 +179,10 @@ private open class SyncArtifactsTask : DefaultTask() {
                 crc.update(artifact.variant.attributes.getAttribute(key).toString().encodeToByteArray())
             }
 
+            if (artifact.id.componentIdentifier is OpaqueComponentArtifactIdentifier) {
+                crc.update(artifact.file.absolutePath.encodeToByteArray())
+            }
+
             val disambiguationHash = crc.value.toInt().toString(24)
 
             val componentIdentifier = artifact.id.componentIdentifier
@@ -193,8 +202,20 @@ private open class SyncArtifactsTask : DefaultTask() {
 
                 else -> destination.resolve("opaque").resolve(disambiguationHash).resolve(artifact.file.name)
             }
-            targetFile.createParentDirectories()
-            artifact.file.copyTo(targetFile.toFile(), overwrite = true)
+
+            if (artifact.file.exists()) {
+                targetFile.createParentDirectories()
+            }
+
+            if (artifact.file.isFile) {
+                artifact.file.copyTo(targetFile.toFile(), overwrite = true)
+            }
+
+            if (artifact.file.isDirectory) {
+                val targetFileJar = targetFile.resolveSibling("${targetFile.name}.jar")
+                artifact.file.toPath().copyRecursivelyToZip(targetFileJar, false)
+            }
+
         }
     }
 }
