@@ -132,7 +132,7 @@ public class TransactionScope internal constructor(
     /**
      * Skips this [TransactionScope] until the suitable message is received.
      */
-    public suspend inline fun <reified T: OrchestrationMessage> skipToMessage(
+    public suspend inline fun <reified T : OrchestrationMessage> skipToMessage(
         title: String = "Waiting for message '${T::class.simpleName.toString()}'",
         timeout: Duration = 5.minutes,
         crossinline filter: (T) -> Boolean = { true }
@@ -242,7 +242,9 @@ public class TransactionScope internal constructor(
 
     public suspend fun awaitReload(): Unit = withAsyncTrace("'awaitReload'") {
         val reloadRequest = skipToMessage<ReloadClassesRequest>()
-        val reloadResult = skipToMessage<ReloadClassesResult>()
+        val reloadResult = skipToMessage<ReloadClassesResult> { result ->
+            result.reloadRequestId == reloadRequest.messageId
+        }
         if (!reloadResult.isSuccess) {
             fail("Failed to reload classes: ${reloadResult.errorMessage}", Throwable(reloadResult.errorMessage).apply {
                 stackTrace = reloadResult.errorStacktrace?.toTypedArray().orEmpty()
