@@ -50,10 +50,10 @@ fun DtSidecarActionBar(modifier: Modifier = Modifier.Companion) {
         }
 
         DtTextButton(
-            text = "Exit",
-            icon = Icons.Filled.Close,
+            text = "Retry Failed Compositions",
+            icon = Icons.Filled.Refresh,
             onClick = {
-                OrchestrationMessage.ShutdownRequest("Requested by user through 'devtools'").send()
+                OrchestrationMessage.RetryFailedCompositionRequest().send()
             }
         )
 
@@ -94,19 +94,20 @@ fun DtSidecarActionBar(modifier: Modifier = Modifier.Companion) {
             })
         }
 
-        DtTextButton(
-            text = "Retry Failed Compositions",
-            icon = Icons.Filled.Refresh,
-            onClick = {
-                OrchestrationMessage.RetryFailedCompositionRequest().send()
-            }
-        )
 
         DtTextButton(
             text = "Clean Composition",
             icon = Icons.Filled.Delete,
             onClick = {
                 OrchestrationMessage.CleanCompositionRequest().send()
+            }
+        )
+
+        DtTextButton(
+            text = "Exit",
+            icon = Icons.Filled.Close,
+            onClick = {
+                OrchestrationMessage.ShutdownRequest("Requested by user through 'devtools'").send()
             }
         )
     }
