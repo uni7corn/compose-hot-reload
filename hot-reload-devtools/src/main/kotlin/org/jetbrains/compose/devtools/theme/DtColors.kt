@@ -8,18 +8,23 @@ package org.jetbrains.compose.devtools.theme
 import androidx.compose.ui.graphics.Color
 
 object DtColors {
-    val composeLogo = Color(red = 66, green = 133, blue = 244)
-    val applicationBackground = Color.White.copy(alpha = 0.9f)
 
-    val surface = Color(red = 244, green = 248, blue = 255)
-    val surfaceActive = Color(red = 198, green = 221, blue = 255)
-    val surfaceConsole = Color(red = 254, green = 254, blue = 254)
+    // UI colors
+    val applicationBackground = Color(0xFF2B2D30) // Dark background like JetBrains Toolbox
 
-    val statusColorOk = Color(red = 56, green = 207, blue = 96)
-    val statusColorOrange1 = Color(0xfff4d642)
-    val statusColorOrange2 = Color(0xffff8c45)
-    val statusColorError = Color(0xffe74c3c)
-    val statusColorWarning = Color(0xffff8c45)
+    val surface = Color(0xFF3C3F41) // Darker surface for cards and panels
+    val surfaceActive = Color(0xFF4E5254) // Slightly lighter for active elements
+    val surfaceConsole = Color(0xFF2B2D30) // Dark console background
 
-    val text = Color(red = 51, green = 51, blue = 51)
+    val statusColorOk = Color(0xFF21D789) //jetBrainsGreen
+    val statusColorOrange1 = Color(0xFFFFCB6B)
+    val statusColorOrange2 = Color(0xFFF97A12) //jetBrainsOrange
+    val statusColorError = Color(0xFFFF5252)
+    val statusColorWarning = Color(0xFFF97A12)
+
+    val text = Color.White
+    val textSecondary = Color(0xFFBBBBBB)
+    val textDark = Color(0xFF3A3A3A)
+    val border = Color(0xFF5E6060)
+
 }

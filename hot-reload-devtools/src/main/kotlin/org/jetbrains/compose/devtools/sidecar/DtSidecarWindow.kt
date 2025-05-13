@@ -14,6 +14,7 @@ import androidx.compose.animation.fadeOut
 import androidx.compose.animation.scaleIn
 import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -36,7 +37,7 @@ import androidx.compose.ui.window.WindowState
 import org.jetbrains.compose.devtools.invokeWhenMessageReceived
 import org.jetbrains.compose.devtools.orchestration
 import org.jetbrains.compose.devtools.theme.DtColors
-import org.jetbrains.compose.devtools.widgets.DtButton
+import org.jetbrains.compose.devtools.theme.DtPadding
 import org.jetbrains.compose.devtools.widgets.DtComposeLogo
 import org.jetbrains.compose.devtools.widgets.DtReloadStatusBanner
 import org.jetbrains.compose.devtools.widgets.animateReloadStatusBackground
@@ -52,6 +53,7 @@ import kotlin.system.exitProcess
 
 private val logger = createLogger()
 
+// Modern rounded corners like JetBrains Toolbox
 private val DevToolingSidecarShape = RoundedCornerShape(8.dp)
 
 @Composable
@@ -106,15 +108,15 @@ fun DtSidecarWindowContent(
             modifier = Modifier
                 .animatedReloadStatusBorder(
                     shape = DevToolingSidecarShape,
-                    idleColor = if (isExpanded) Color.LightGray else Color.Transparent
+                    idleColor = if (isExpanded) DtColors.border else Color.Transparent
                 )
                 .clip(DevToolingSidecarShape)
-                .background(DtColors.applicationBackground)
-                .animateReloadStatusBackground(DtColors.applicationBackground)
+                .background(if (isExpanded) DtColors.applicationBackground else Color.Transparent)
+                .animateReloadStatusBackground(if (isExpanded) DtColors.applicationBackground else Color.Transparent)
                 .weight(1f, fill = false),
             transitionSpec = {
                 if (devToolsTransparencyEnabled) {
-                    (fadeIn(animationSpec = tween(220, delayMillis = 128)) +
+                    (fadeIn(animationSpec = tween(22, delayMillis = 128)) +
                         scaleIn(initialScale = 0.92f, animationSpec = tween(220, delayMillis = 128)))
                         .togetherWith(fadeOut(animationSpec = tween(90)))
                 } else EnterTransition.None togetherWith ExitTransition.None
@@ -122,32 +124,30 @@ fun DtSidecarWindowContent(
             contentAlignment = Alignment.TopEnd,
         ) { expandedState ->
             if (!expandedState) {
-                DtButton(
-                    onClick = { isExpandedChanged(true) },
+                // Collapsed state - show a modern button with the Compose logo
+                Column(
+                    horizontalAlignment = Alignment.CenterHorizontally,
                     modifier = Modifier.animateEnterExit(
                         enter = if (devToolsTransparencyEnabled) fadeIn(tween(220)) else EnterTransition.None,
                         exit = if (devToolsTransparencyEnabled) fadeOut(tween(50)) else ExitTransition.None
-                    ),
+                    ).clickable { isExpandedChanged(true) }
+                        .padding(DtPadding.small)
+                    ,
                 ) {
-                    Column(
-                        horizontalAlignment = Alignment.CenterHorizontally,
-                    ) {
-                        DtComposeLogo(
-                            Modifier.size(28.dp).padding(4.dp),
-                            tint = animateReloadStatusColor(
-                                idleColor = composeLogoColor,
-                                reloadingColor = DtColors.statusColorOrange2
-                            ).value
-                        )
-                        DtCollapsedReloadCounterStatusItem()
-                    }
+                    DtComposeLogo(
+                        Modifier.size(28.dp).padding(4.dp),
+                        tint = animateReloadStatusColor(
+                            idleColor = composeLogoColor,
+                            reloadingColor = DtColors.statusColorOrange2
+                        ).value
+                    )
+                    DtCollapsedReloadCounterStatusItem()
                 }
-
-
             } else {
+                // Expanded state - show the full UI
                 Column {
                     DtSidecarHeaderBar({ isExpandedChanged(false) })
-                    DtSidecarBody(Modifier.padding(8.dp).fillMaxSize())
+                    DtSidecarBody(Modifier.padding(DtPadding.medium).fillMaxSize())
                 }
             }
         }
@@ -155,7 +155,7 @@ fun DtSidecarWindowContent(
         if (devToolsTransparencyEnabled) {
             DtReloadStatusBanner(
                 modifier = Modifier
-                    .padding(4.dp)
+                    .padding(DtPadding.small)
             )
         }
     }

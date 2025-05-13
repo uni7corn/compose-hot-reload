@@ -20,6 +20,7 @@ import io.sellmair.evas.compose.composeValue
 import org.jetbrains.compose.devtools.Tag
 import org.jetbrains.compose.devtools.states.ReloadCountState
 import org.jetbrains.compose.devtools.tag
+import org.jetbrains.compose.devtools.theme.DtColors
 import org.jetbrains.compose.devtools.theme.DtTextStyles
 import org.jetbrains.compose.devtools.widgets.DtText
 
@@ -30,7 +31,7 @@ fun DtExpandedReloadCounterStatusItem() {
     if (state.successfulReloads > 0) {
         DtSidecarStatusItem(
             symbol = {
-                Icon(Icons.Default.Refresh, "Reload")
+                Icon(Icons.Filled.Refresh, "Reload", tint = DtColors.text)
             },
             content = {
                 DtText(
@@ -57,13 +58,13 @@ fun DtCollapsedReloadCounterStatusItem() {
     ) {
         if (state.successfulReloads < 100) {
             Box(modifier = Modifier.size(12.dp)) {
-                Icon(Icons.Default.Refresh, "Reload")
+                Icon(Icons.Default.Refresh, "Reload", tint = DtColors.textDark)
             }
         }
         DtText(
             text = "${state.successfulReloads}",
             modifier = Modifier.tag(Tag.ReloadCounterText),
-            style = DtTextStyles.smallSemiBold
+            style = DtTextStyles.smallSemiBold.copy(color = DtColors.textDark)
         )
     }
 }

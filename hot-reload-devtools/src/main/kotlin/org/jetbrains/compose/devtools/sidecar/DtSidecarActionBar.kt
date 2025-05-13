@@ -9,11 +9,15 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.padding
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Close
+import androidx.compose.material.icons.filled.Delete
+import androidx.compose.material.icons.filled.Refresh
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.unit.dp
 import io.sellmair.evas.compose.EvasLaunching
 import org.jetbrains.compose.devtools.send
+import org.jetbrains.compose.devtools.theme.DtPadding
 import org.jetbrains.compose.devtools.widgets.DtTextButton
 import org.jetbrains.compose.reload.core.HotReloadEnvironment
 import org.jetbrains.compose.reload.core.HotReloadProperty
@@ -30,26 +34,37 @@ private val logger = createLogger()
 @Composable
 fun DtSidecarActionBar(modifier: Modifier = Modifier.Companion) {
     FlowRow(
-        modifier = modifier.padding(horizontal = 8.dp, vertical = 8.dp),
-        horizontalArrangement = Arrangement.spacedBy(8.dp),
-        verticalArrangement = Arrangement.spacedBy(8.dp)
+        modifier = modifier.padding(vertical = DtPadding.medium),
+        horizontalArrangement = Arrangement.spacedBy(DtPadding.medium),
+        verticalArrangement = Arrangement.spacedBy(DtPadding.medium)
     ) {
 
         if (!HotReloadEnvironment.gradleBuildContinuous) {
-            DtTextButton("Reload", onClick = {
-                OrchestrationMessage.RecompileRequest().send()
-            })
+            DtTextButton(
+                text = "Reload",
+                icon = Icons.Filled.Refresh,
+                onClick = {
+                    OrchestrationMessage.RecompileRequest().send()
+                }
+            )
         }
 
-        DtTextButton("Exit", onClick = {
-            OrchestrationMessage.ShutdownRequest("Requested by user through 'devtools'").send()
-        })
+        DtTextButton(
+            text = "Exit",
+            icon = Icons.Filled.Close,
+            onClick = {
+                OrchestrationMessage.ShutdownRequest("Requested by user through 'devtools'").send()
+            }
+        )
 
         if (
             (HotReloadEnvironment.argFile?.exists() == true &&
                 HotReloadEnvironment.mainClass != null)
         ) {
-            DtTextButton("Restart", onClick = EvasLaunching {
+            DtTextButton(
+                text = "Restart",
+                icon = Icons.Filled.Refresh,
+                onClick = EvasLaunching {
                 logger.info("Restarting...")
 
                 val processBuilder = ProcessBuilder(
@@ -79,13 +94,20 @@ fun DtSidecarActionBar(modifier: Modifier = Modifier.Companion) {
             })
         }
 
-        DtTextButton("Retry Failed Compositions", onClick = {
-            OrchestrationMessage.RetryFailedCompositionRequest().send()
-        })
+        DtTextButton(
+            text = "Retry Failed Compositions",
+            icon = Icons.Filled.Refresh,
+            onClick = {
+                OrchestrationMessage.RetryFailedCompositionRequest().send()
+            }
+        )
 
-
-        DtTextButton("Clean Composition", onClick = {
-            OrchestrationMessage.CleanCompositionRequest().send()
-        })
+        DtTextButton(
+            text = "Clean Composition",
+            icon = Icons.Filled.Delete,
+            onClick = {
+                OrchestrationMessage.CleanCompositionRequest().send()
+            }
+        )
     }
 }

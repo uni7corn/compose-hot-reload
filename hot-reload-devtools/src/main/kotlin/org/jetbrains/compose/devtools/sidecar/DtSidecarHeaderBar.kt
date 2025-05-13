@@ -17,7 +17,9 @@ import androidx.compose.material3.Icon
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
+import org.jetbrains.compose.devtools.theme.DtPadding
 import org.jetbrains.compose.devtools.widgets.DtButton
 import org.jetbrains.compose.devtools.widgets.DtComposeLogo
 import org.jetbrains.compose.devtools.widgets.DtHeader1
@@ -28,22 +30,25 @@ internal fun DtSidecarHeaderBar(
     modifier: Modifier = Modifier,
 ) {
     Row(
-        modifier = modifier.padding(horizontal = 16.dp, vertical = 4.dp),
-        verticalAlignment = Alignment.Companion.CenterVertically,
+        modifier = modifier
+            .padding(horizontal = DtPadding.large, vertical = DtPadding.small),
+        verticalAlignment = Alignment.CenterVertically,
     ) {
-        DtComposeLogo(modifier = Modifier.Companion.size(24.dp))
-        Spacer(Modifier.Companion.width(8.dp))
+        DtComposeLogo(modifier = Modifier.size(24.dp))
+        Spacer(Modifier.width(DtPadding.medium))
         DtHeader1("Compose Hot Reload Tooling")
         Spacer(Modifier.weight(1f))
         DtButton(
             onClick = onClose,
             modifier = Modifier
                 .padding(2.dp)
-                .size(24.dp)
+                .size(28.dp)
         ) {
             Icon(
-                Icons.Default.Close, contentDescription = "Close",
-                modifier = Modifier.Companion.fillMaxSize()
+                Icons.Default.Close,
+                contentDescription = "Close",
+                modifier = Modifier.fillMaxSize(),
+                tint = Color.White
             )
         }
     }

@@ -61,7 +61,7 @@ fun DtRuntimeErrorStatusItem() {
         DtSidecarStatusItem(
             symbol = {
                 Icon(
-                    Icons.Default.Warning, "Error", tint = DtColors.statusColorError,
+                    Icons.Filled.Warning, "Error", tint = DtColors.statusColorError,
                     modifier = Modifier.Companion.tag(Tag.RuntimeErrorSymbol)
                 )
             },

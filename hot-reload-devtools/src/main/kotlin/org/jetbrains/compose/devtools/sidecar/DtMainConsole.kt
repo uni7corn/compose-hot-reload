@@ -29,7 +29,7 @@ fun DtMainConsole(
     }
 
     Column(modifier = modifier) {
-        DtHeader2("Console", modifier = Modifier.Companion.dtHorizontalPadding())
+        DtHeader2("Console")
         DtConsole(logs = logState.logs, modifier = Modifier.fillMaxSize())
     }
 }

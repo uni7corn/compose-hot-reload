@@ -5,39 +5,46 @@
 
 package org.jetbrains.compose.devtools.sidecar
 
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.Surface
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.unit.dp
 import org.jetbrains.compose.devtools.theme.DtColors
 import org.jetbrains.compose.devtools.theme.DtPadding
-import org.jetbrains.compose.devtools.theme.dtHorizontalPadding
-import org.jetbrains.compose.devtools.theme.dtVerticalPadding
 import org.jetbrains.compose.devtools.widgets.DtHeader2
 import org.jetbrains.compose.devtools.widgets.animatedReloadStatusBorder
 
 @Composable
 fun DtSidecarStatusSection() {
-    Column(verticalArrangement = Arrangement.spacedBy(DtPadding.vertical)) {
-        DtHeader2("Status", modifier = Modifier.Companion.dtHorizontalPadding())
-        Box(
-            modifier = Modifier.dtHorizontalPadding()
+    Column(verticalArrangement = Arrangement.spacedBy(DtPadding.medium)) {
+        // Modern header with proper spacing
+        DtHeader2(
+            "Status", 
+            modifier = Modifier.padding(vertical = DtPadding.small)
+        )
+
+        // Status card with rounded corners and modern styling
+        Surface(
+            color = DtColors.surface,
+            modifier = Modifier
                 .fillMaxWidth()
-                .background(DtColors.surface)
-                .animatedReloadStatusBorder()
+                .clip(RoundedCornerShape(8.dp))
+                .animatedReloadStatusBorder(shape = RoundedCornerShape(8.dp))
         ) {
             Column(
-                modifier = Modifier
-                    .dtHorizontalPadding()
-                    .dtVerticalPadding()
+                modifier = Modifier.padding(DtPadding.medium),
+                verticalArrangement = Arrangement.spacedBy(DtPadding.small)
             ) {
                 DtReloadStatusItem()
                 DtExpandedReloadCounterStatusItem()
@@ -55,12 +62,21 @@ fun DtSidecarStatusItem(
     content: @Composable () -> Unit
 ) {
     Row(
-        modifier = Modifier.fillMaxWidth().height(24.dp),
+        modifier = Modifier
+            .fillMaxWidth()
+            .height(28.dp)
+            .padding(vertical = DtPadding.small),
         verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.spacedBy(DtPadding.arrangement)
+        horizontalArrangement = Arrangement.spacedBy(DtPadding.medium)
     ) {
+        Box(
+            modifier = Modifier.size(20.dp),
+            contentAlignment = Alignment.Center
+        ) { 
+            symbol() 
+        }
 
-        Box(modifier = Modifier.size(18.dp)) { symbol() }
+        // Content (usually text)
         content()
     }
 }

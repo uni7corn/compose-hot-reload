@@ -71,11 +71,11 @@ fun DtReloadStatusItem() {
             content = { DtText("Reloading...", Modifier.tag(Tag.ReloadStatusText)) }
         )
         is ReloadState.Ok -> DtSidecarStatusItem(
-            symbol = { Icon(Icons.Default.Check, "Success", modifier = Modifier.tag(Tag.ReloadStatusSymbol)) },
+            symbol = { Icon(Icons.Default.Check, "Success", tint = DtColors.statusColorOk, modifier = Modifier.tag(Tag.ReloadStatusSymbol)) },
             content = { ResultContent(reloadState) }
         )
         is ReloadState.Failed -> DtSidecarStatusItem(
-            symbol = { Icon(Icons.Default.Close, "Error", modifier = Modifier.tag(Tag.ReloadStatusSymbol)) },
+            symbol = { Icon(Icons.Default.Close, "Error", tint = DtColors.statusColorError, modifier = Modifier.tag(Tag.ReloadStatusSymbol)) },
             content = { ResultContent(reloadState) }
         )
     }

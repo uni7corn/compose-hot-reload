@@ -127,7 +127,7 @@ fun animatedReloadStatusBrush(
 @Composable
 fun Modifier.animateReloadStatusBackground(idleColor: Color): Modifier {
     val reloadStateColor by animateReloadStatusColor(idleColor = idleColor)
-    return this.background(reloadStateColor.copy(alpha = 0.075f))
+    return this.background(reloadStateColor.copy(alpha = 0.1f))
 }
 
 @Composable

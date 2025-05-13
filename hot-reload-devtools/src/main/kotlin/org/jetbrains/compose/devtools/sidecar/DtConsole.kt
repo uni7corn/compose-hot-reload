@@ -40,7 +40,6 @@ fun DtConsole(
 
     Box(
         modifier
-            .dtHorizontalPadding()
             .dtVerticalPadding()
             .animatedReloadStatusBorder()
             .background(DtColors.surfaceConsole)

@@ -5,18 +5,29 @@
 
 package org.jetbrains.compose.devtools.theme
 
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.padding
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 
 object DtPadding {
-    val horizontal = 8.dp
-    val vertical = 8.dp
+    // More consistent padding values for a modern UI
+    val small = 4.dp
+    val medium = 8.dp
+    val large = 16.dp
 
-    val arrangement = 4.dp
+    // Standard paddings
+    val horizontal = medium
+    val vertical = medium
+
+    // Spacing between items
+    val arrangement = small
+
+    // Common padding values for components
+    val buttonPadding = PaddingValues(horizontal = medium, vertical = small)
 }
 
-
+// Extension functions for common padding patterns
 fun Modifier.dtHorizontalPadding() = this.padding(horizontal = DtPadding.horizontal)
 
 fun Modifier.dtVerticalPadding() = this.padding(vertical = DtPadding.vertical)
