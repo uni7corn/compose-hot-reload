@@ -11,13 +11,14 @@
       <option name="taskNames">
         <list>
           <option value=":hot-reload-devtools:runDev" />
+          <option value="--auto" />
         </list>
       </option>
       <option name="vmOptions" />
     </ExternalSystemSettings>
     <ExternalSystemDebugServerProcess>true</ExternalSystemDebugServerProcess>
-    <ExternalSystemReattachDebugProcess>true</ExternalSystemReattachDebugProcess>
-    <DebugAllEnabled>false</DebugAllEnabled>
+    <ExternalSystemReattachDebugProcess>false</ExternalSystemReattachDebugProcess>
+    <DebugAllEnabled>true</DebugAllEnabled>
     <RunAsTest>false</RunAsTest>
     <method v="2">
       <option name="Gradle.BeforeRunTask" enabled="true" tasks="publishLocally" externalProjectPath="$PROJECT_DIR$" vmOptions="" scriptParameters="" />
