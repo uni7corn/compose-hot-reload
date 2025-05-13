@@ -6,7 +6,6 @@
 @file:OptIn(ExperimentalComposeLibrary::class)
 
 import org.jetbrains.compose.ExperimentalComposeLibrary
-import org.jetbrains.compose.reload.ComposeHotRun
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 import org.jetbrains.kotlin.gradle.tasks.KotlinJvmCompile
 
@@ -22,6 +21,10 @@ plugins {
 
 kotlin {
     jvmToolchain(21)
+}
+
+tasks.withType<JavaExec>().configureEach {
+    systemProperty("compose.reload.devToolsHeadless", "true")
 }
 
 tasks.withType<KotlinJvmCompile>().configureEach {
