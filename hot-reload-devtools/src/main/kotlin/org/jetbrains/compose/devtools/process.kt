@@ -6,8 +6,10 @@
 package org.jetbrains.compose.devtools
 
 import org.jetbrains.compose.reload.core.HotReloadEnvironment
+import org.jetbrains.compose.reload.core.HotReloadProperty
 import org.jetbrains.compose.reload.core.createLogger
 import kotlin.concurrent.thread
+import kotlin.io.path.deleteIfExists
 import kotlin.jvm.optionals.getOrNull
 import kotlin.system.exitProcess
 
@@ -24,6 +26,10 @@ private fun bindParentProcess() {
         shutdown()
     }
 
+    if (HotReloadEnvironment.pidFile == null) {
+        logger.warn("parentPid: Missing '${HotReloadProperty.PidFile.key}' property")
+    }
+
     val process = ProcessHandle.of(pid).getOrNull() ?: run {
         logger.error("parentPid: Cannot find process with pid=$pid")
         shutdown()
@@ -32,6 +38,7 @@ private fun bindParentProcess() {
     thread {
         process.onExit().get()
         logger.info("parentPid: Parent process with pid=$pid exited")
+        runCatching { HotReloadEnvironment.pidFile?.deleteIfExists() }
         shutdown()
     }
 }

@@ -11,7 +11,7 @@ OrchestrationPort:
 PidFile:
   key: compose.reload.pidFile
   type: file
-  target: [ application ]
+  target: [ application, devtools ]
   documentation: |
     Path to the current applications pidfile
 
