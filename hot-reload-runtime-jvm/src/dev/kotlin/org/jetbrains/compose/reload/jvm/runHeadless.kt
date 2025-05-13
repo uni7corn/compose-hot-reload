@@ -24,6 +24,7 @@ import kotlinx.coroutines.Job
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.cancelChildren
 import kotlinx.coroutines.coroutineScope
+import kotlinx.coroutines.currentCoroutineContext
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.job
@@ -103,15 +104,16 @@ suspend fun runHeadlessApplication(
                 onTimeout(delay) { null }
             }
 
-            if (message == null) {
+            if (message == null || message.isSilenceWarning()) {
+                val timeout = currentCoroutineContext()[SilenceTimeout]
                 silence += delay
-                coroutineContext[SilenceTimeout]?.let { timeout ->
+                if (timeout != null) {
                     if (silence >= timeout.timeout) throw TimeoutException(
                         "No message received for $silence within timeout $timeout )"
                     )
                 }
                 if (Clock.System.now() - previousSilenceWarning > 5.seconds) {
-                    logger.warn("No message received for $silence")
+                    issueSilenceWarning(silence, timeout)
                     previousSilenceWarning = Clock.System.now()
                 }
 
@@ -126,6 +128,10 @@ suspend fun runHeadlessApplication(
             }
 
             if (message !is OrchestrationMessage.Ack && message !is OrchestrationMessage.LogMessage) {
+                if (message is OrchestrationMessage.Ping) {
+                    logger.info("Responding to ping '${message.messageId}'")
+                }
+
                 orchestration.sendMessage(OrchestrationMessage.Ack(message.messageId)).get()
             }
 
@@ -171,4 +177,11 @@ fun runHeadlessApplicationBlocking(
 
         runHeadlessApplication(timeout, width, height, content)
     }
+}
+
+private fun OrchestrationMessage.isSilenceWarning() = this is OrchestrationMessage.LogMessage &&
+    message.contains("No messages received for ")
+
+private fun issueSilenceWarning(silence: Duration, silenceTimeout: SilenceTimeout?) {
+    logger.warn("No messages received for '$silence' (timeout '${silenceTimeout?.timeout}')")
 }

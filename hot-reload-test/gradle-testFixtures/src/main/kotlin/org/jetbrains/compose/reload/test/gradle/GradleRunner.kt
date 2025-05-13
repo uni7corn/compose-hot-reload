@@ -12,6 +12,7 @@ import kotlinx.coroutines.channels.trySendBlocking
 import kotlinx.coroutines.currentCoroutineContext
 import kotlinx.coroutines.job
 import org.jetbrains.compose.reload.core.destroyWithDescendants
+import org.jetbrains.compose.reload.core.issueNewDebugSessionJvmArguments
 import org.jetbrains.compose.reload.test.core.InternalHotReloadTestApi
 import org.jetbrains.compose.reload.test.gradle.GradleRunner.ExitCode
 import org.slf4j.LoggerFactory
@@ -69,6 +70,8 @@ public suspend fun GradleRunner.build(
         "--console=plain",
         "--configuration-cache",
         "--configuration-cache-problems=warn",
+        "-Dorg.gradle.jvmargs=-Xmx1G -XX:+UseParallelGC " +
+            issueNewDebugSessionJvmArguments("Gradle (${args.joinToString(" ")})").joinToString(" "),
         *arguments.toTypedArray(),
         *args,
     )

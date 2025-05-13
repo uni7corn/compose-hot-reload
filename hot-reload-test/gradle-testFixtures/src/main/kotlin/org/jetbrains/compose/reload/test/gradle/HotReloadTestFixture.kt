@@ -76,7 +76,7 @@ internal constructor(
                 .shareIn(this, SharingStarted.Eagerly, replay = Channel.UNLIMITED)
 
             /*
-            This is the transactions message channel.
+            This is the transactions' message channel.
             This can be used to linearly progress through the transaction.
              */
             val messageChannel = Channel<OrchestrationMessage>(Channel.UNLIMITED)

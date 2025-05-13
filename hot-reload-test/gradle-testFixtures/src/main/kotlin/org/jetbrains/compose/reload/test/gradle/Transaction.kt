@@ -132,7 +132,7 @@ public class TransactionScope internal constructor(
     /**
      * Skips this [TransactionScope] until the suitable message is received.
      */
-    public suspend inline fun <reified T> skipToMessage(
+    public suspend inline fun <reified T: OrchestrationMessage> skipToMessage(
         title: String = "Waiting for message '${T::class.simpleName.toString()}'",
         timeout: Duration = 5.minutes,
         crossinline filter: (T) -> Boolean = { true }
