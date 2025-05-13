@@ -130,6 +130,8 @@ internal fun JavaExec.configureJavaExecTaskForHotReload(compilation: Provider<Ko
         .environmentVariable(HotReloadProperty.IntelliJDebuggerDispatchPort.key)
         .orNull?.toIntOrNull()
 
+    val projectPath = project.path
+
     doFirst {
         if (!mainClass.isPresent) {
             throw IllegalArgumentException(ErrorMessages.missingMainClassProperty(name))
@@ -158,22 +160,36 @@ internal fun JavaExec.configureJavaExecTaskForHotReload(compilation: Provider<Ko
         logger.quiet(buildString {
             append(
                 """
-            | ________________________________________________________________________________________________
+              ________________________________________________________________________________________________
+            | 
             | Compose Hot Reload ($HOT_RELOAD_VERSION)
             | Running '${mainClass.get()}'
-            | JetBrains Runtime: $executable
+            | JetBrains Runtime: ${javaLauncher.orNull?.executablePath?.asFile?.path}
             | ________________________________________________________________________________________________
             """.trimIndent()
             )
 
             if (!isRecompileContinuous.get()) {
+                val hotReloadTaskPath = projectPath.takeIf { it != ":" }.orEmpty() + ":${hotReloadTaskName.get()}"
+                val thisTaskPath = projectPath.takeIf { it != ":" }.orEmpty() + ":${name}"
+
                 appendLine()
                 append(
                     """
                      | Explicit Reload Mode:
                      | Use `./gradlew ${hotReloadLifecycleTaskName.get()}` to hot reload the application
-                     | Alternatively use `./gradlew ${hotReloadTaskName.get()}`
-                     | Use `./gradlew $name --auto` to automatically reload the application on source changes
+                     | Use `./gradlew $hotReloadTaskPath` to hot reload the application (alternative)
+                     | Use `./gradlew $thisTaskPath --auto` to automatically reload the application on source changes
+                     | ________________________________________________________________________________________________
+                """.trimIndent()
+                )
+            } else {
+                appendLine()
+                append(
+                    """
+                     | Auto Reload Mode:
+                     | Compose Hot Reload will launch a separate Gradle Daemon 
+                     | to continuously recompile and reload the application when source code is changed.
                      | ________________________________________________________________________________________________
                 """.trimIndent()
                 )
