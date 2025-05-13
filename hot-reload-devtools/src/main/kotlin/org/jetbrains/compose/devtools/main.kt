@@ -59,6 +59,7 @@ fun main() {
 
     application(exitProcessOnExit = false) {
         if (HotReloadEnvironment.isHeadless) return@application
+        if (HotReloadEnvironment.devToolsIsHeadless) return@application
         if (!HotReloadEnvironment.devToolsEnabled) return@application
 
         installEvas(

@@ -141,6 +141,14 @@ DevToolsEnabled:
   documentation: |
     Flag to disable the 'devtools' application entirely
 
+DevToolsIsHeadless:
+  key: compose.reload.devToolsHeadless
+  type: boolean
+  default: "false"
+  target: [ application, devtools, build ]
+  documentation: |
+    Run the dev tools in headless mode (No UI window shown)
+
 DevToolsClasspath:
   key: compose.reload.devToolsClasspath
   type: files
