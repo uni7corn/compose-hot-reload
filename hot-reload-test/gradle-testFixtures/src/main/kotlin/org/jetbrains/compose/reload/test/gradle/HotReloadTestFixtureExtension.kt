@@ -15,6 +15,8 @@ import org.junit.jupiter.api.extension.ExtensionContext
 import org.junit.jupiter.api.extension.ParameterContext
 import org.junit.jupiter.api.extension.ParameterResolver
 import java.nio.file.Files
+import kotlin.io.path.ExperimentalPathApi
+import kotlin.io.path.exists
 
 internal class HotReloadTestFixtureExtension(
     private val context: HotReloadTestInvocationContext
@@ -59,11 +61,18 @@ internal class HotReloadTestFixtureExtension(
         )
     }
 
+    @OptIn(ExperimentalPathApi::class)
     private fun ExtensionContext.createTestFixture(): HotReloadTestFixture {
+
         val debugAnnotation = hasAnnotation<Debug>()
         val projectDir = ProjectDir(Files.createTempDirectory("hot-reload-test"))
-        val orchestrationServer = startOrchestrationServer()
+        HotReloadTestFixtureShutdownHook.invokeOnShutdown {
+            if (projectDir.path.exists()) {
+                projectDir.path.toFile().deleteRecursively()
+            }
+        }
 
+        val orchestrationServer = startOrchestrationServer()
         val isHeadless = findAnnotation<Headless>()?.isHeadless ?: true
 
         val gradleRunner = GradleRunner(
