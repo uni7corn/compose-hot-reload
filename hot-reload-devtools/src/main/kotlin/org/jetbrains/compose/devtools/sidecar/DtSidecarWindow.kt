@@ -8,6 +8,8 @@ package org.jetbrains.compose.devtools.sidecar
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.EnterTransition
 import androidx.compose.animation.ExitTransition
+import androidx.compose.animation.animateBounds
+import androidx.compose.animation.animateContentSize
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
@@ -126,11 +128,14 @@ fun DtSidecarWindowContent(
                 // Collapsed state - show a modern button with the Compose logo
                 Column(
                     horizontalAlignment = Alignment.CenterHorizontally,
-                    modifier = Modifier.animateEnterExit(
-                        enter = if (devToolsTransparencyEnabled) fadeIn(tween(220)) else EnterTransition.None,
-                        exit = if (devToolsTransparencyEnabled) fadeOut(tween(50)) else ExitTransition.None
-                    ).clickable { isExpandedChanged(true) }
-                        .padding(DtPadding.small),
+                    modifier = Modifier
+                        .animateEnterExit(
+                            enter = if (devToolsTransparencyEnabled) fadeIn(tween(220)) else EnterTransition.None,
+                            exit = if (devToolsTransparencyEnabled) fadeOut(tween(50)) else ExitTransition.None
+                        ).clickable { isExpandedChanged(true) }
+                        .padding(DtPadding.small)
+                        .animateContentSize(alignment = Alignment.TopCenter)
+                    ,
                 ) {
                     DtComposeLogo(
                         Modifier.size(28.dp).padding(4.dp),
