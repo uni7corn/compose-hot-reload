@@ -8,7 +8,6 @@ package org.jetbrains.compose.devtools.sidecar
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.EnterTransition
 import androidx.compose.animation.ExitTransition
-import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
@@ -44,7 +43,6 @@ import org.jetbrains.compose.devtools.widgets.DtReloadStatusBanner
 import org.jetbrains.compose.devtools.widgets.animateReloadStatusBackground
 import org.jetbrains.compose.devtools.widgets.animateReloadStatusColor
 import org.jetbrains.compose.devtools.widgets.animatedReloadStatusBorder
-import org.jetbrains.compose.devtools.widgets.composeLogoColor
 import org.jetbrains.compose.reload.core.HotReloadEnvironment.devToolsTransparencyEnabled
 import org.jetbrains.compose.reload.core.WindowId
 import org.jetbrains.compose.reload.core.createLogger
@@ -104,11 +102,6 @@ fun DtSidecarWindowContent(
         modifier = modifier.fillMaxSize(),
         horizontalArrangement = Arrangement.End,
     ) {
-        val backgroundColor = animateColorAsState(
-            if (isExpanded) DtColors.applicationBackground
-            else DtColors.applicationBackgroundMinimized
-        )
-
         AnimatedContent(
             isExpanded,
             modifier = Modifier
@@ -117,8 +110,8 @@ fun DtSidecarWindowContent(
                     idleColor = if (isExpanded) DtColors.border else Color.Transparent
                 )
                 .clip(DevToolingSidecarShape)
-                .background(backgroundColor.value)
-                .animateReloadStatusBackground(backgroundColor.value)
+                .background(DtColors.applicationBackground)
+                .animateReloadStatusBackground(DtColors.applicationBackground)
                 .weight(1f, fill = false),
             transitionSpec = {
                 if (devToolsTransparencyEnabled) {
@@ -142,7 +135,7 @@ fun DtSidecarWindowContent(
                     DtComposeLogo(
                         Modifier.size(28.dp).padding(4.dp),
                         tint = animateReloadStatusColor(
-                            idleColor = composeLogoColor,
+                            idleColor = Color.White,
                             reloadingColor = DtColors.statusColorOrange2
                         ).value
                     )

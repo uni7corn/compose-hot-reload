@@ -11,7 +11,6 @@ object DtColors {
 
     // UI colors
     val applicationBackground = Color(0xFF2B2D30) // Dark background like JetBrains Toolbox
-    val applicationBackgroundMinimized = Color.White.copy(alpha = 0.9f)
 
     val surface = Color(0xFF3C3F41) // Darker surface for cards and panels
     val surfaceActive = Color(0xFF4E5254) // Slightly lighter for active elements
@@ -25,7 +24,6 @@ object DtColors {
 
     val text = Color.White
     val textSecondary = Color(0xFFBBBBBB)
-    val textDark = Color(0xFF3A3A3A)
     val border = Color(0xFF5E6060)
 
 }

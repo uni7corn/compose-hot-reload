@@ -58,13 +58,13 @@ fun DtCollapsedReloadCounterStatusItem() {
     ) {
         if (state.successfulReloads < 100) {
             Box(modifier = Modifier.size(12.dp)) {
-                Icon(Icons.Default.Refresh, "Reload", tint = DtColors.textDark)
+                Icon(Icons.Default.Refresh, "Reload", tint = DtColors.text)
             }
         }
         DtText(
             text = "${state.successfulReloads}",
             modifier = Modifier.tag(Tag.ReloadCounterText),
-            style = DtTextStyles.smallSemiBold.copy(color = DtColors.textDark)
+            style = DtTextStyles.smallSemiBold.copy(color = DtColors.text)
         )
     }
 }

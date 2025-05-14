@@ -35,13 +35,11 @@ internal val composeLogoSvgBinary = MainScope().async(Dispatchers.IO) {
         .buffered().use { input -> input.readBytes() }
 }
 
-internal val composeLogoColor = Color(red = 66, green = 133, blue = 244)
-
 @OptIn(ExperimentalResourceApi::class)
 @Composable
 internal fun DtComposeLogo(
     modifier: Modifier,
-    tint: Color? = null
+    tint: Color? = Color.White
 ) {
     var painter: Painter? by remember { mutableStateOf<Painter?>(null) }
     val density = LocalDensity.current
