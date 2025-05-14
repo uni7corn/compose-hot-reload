@@ -269,13 +269,13 @@ class ServerClientTest {
             }
         }.toSet()
 
-        fromChannel.containsAll(expectedEvents)
+        fromChannel.toHashSet().containsAll(expectedEvents)
             || fail("Channel (${fromChannel.size}/$elements) did not receive all messages | iteration : $$invocationIndex")
 
-        fromQueue.containsAll(expectedEvents)
+        fromQueue.toHashSet().containsAll(expectedEvents)
             || fail("Queue (${fromQueue.size}/$elements)  did not receive all messages | iteration : $invocationIndex")
 
-        fromFlowAsync.await().containsAll(expectedEvents)
+        fromFlowAsync.await().toHashSet().containsAll(expectedEvents)
             || fail("Flow(${fromFlowAsync.await().size}) did not receive all messages | iteration : $invocationIndex")
 
         client.close()
@@ -431,7 +431,7 @@ class ServerClientTest {
                     logger.error("Stress test #$invocationIndex timed out (coroutine: $coroutineId)")
                     fail(
                         "Silence Timeout at coroutine '$coroutineId', invocation '$invocationIndex'\n" +
-                            reports.joinToString("\n")
+                            reports.takeLast(64).joinToString("\n")
                     )
                 }
 
