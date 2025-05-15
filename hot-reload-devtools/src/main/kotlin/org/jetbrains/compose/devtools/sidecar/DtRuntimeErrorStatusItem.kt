@@ -49,7 +49,7 @@ import org.jetbrains.compose.devtools.widgets.DtTextButton
 
 @Composable
 fun DtRuntimeErrorStatusItem() {
-    val error = UIErrorState.Key.composeValue()
+    val error = UIErrorState.composeValue()
 
     error.errors.forEach { error ->
         var isDialogVisible by remember { mutableStateOf(false) }
@@ -62,7 +62,7 @@ fun DtRuntimeErrorStatusItem() {
             symbol = {
                 Icon(
                     Icons.Filled.Warning, "Error", tint = DtColors.statusColorError,
-                    modifier = Modifier.Companion.tag(Tag.RuntimeErrorSymbol)
+                    modifier = Modifier.tag(Tag.RuntimeErrorSymbol)
                 )
             },
             content = {
@@ -99,7 +99,7 @@ private fun ErrorDialogWindow(
     ) {
         Column(
             modifier =
-                Modifier.Companion.background(DtColors.applicationBackground)
+                Modifier.background(DtColors.applicationBackground)
                     .fillMaxSize()
                     .dtVerticalPadding()
                     .dtHorizontalPadding(),

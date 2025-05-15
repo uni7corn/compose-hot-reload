@@ -5,6 +5,7 @@
 
 package org.jetbrains.compose.devtools.sidecar
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -57,7 +58,7 @@ import org.jetbrains.compose.devtools.widgets.DtText
 
 @Composable
 fun DtReloadStatusItem() {
-    val reloadState = ReloadState.Key.composeValue()
+    val reloadState = ReloadState.composeValue()
 
     when (reloadState) {
         is ReloadState.Reloading -> DtSidecarStatusItem(
@@ -71,11 +72,25 @@ fun DtReloadStatusItem() {
             content = { DtText("Reloading...", Modifier.tag(Tag.ReloadStatusText)) }
         )
         is ReloadState.Ok -> DtSidecarStatusItem(
-            symbol = { Icon(Icons.Default.Check, "Success", tint = DtColors.statusColorOk, modifier = Modifier.tag(Tag.ReloadStatusSymbol)) },
+            symbol = {
+                Icon(
+                    Icons.Default.Check,
+                    "Success",
+                    tint = DtColors.statusColorOk,
+                    modifier = Modifier.tag(Tag.ReloadStatusSymbol)
+                )
+            },
             content = { ResultContent(reloadState) }
         )
         is ReloadState.Failed -> DtSidecarStatusItem(
-            symbol = { Icon(Icons.Default.Close, "Error", tint = DtColors.statusColorError, modifier = Modifier.tag(Tag.ReloadStatusSymbol)) },
+            symbol = {
+                Icon(
+                    Icons.Default.Close,
+                    "Error",
+                    tint = DtColors.statusColorError,
+                    modifier = Modifier.tag(Tag.ReloadStatusSymbol)
+                )
+            },
             content = { ResultContent(reloadState) }
         )
     }
@@ -164,9 +179,12 @@ private fun ErrorDialogWindow(
         onCloseRequest = onCloseRequest,
         state = rememberDialogState(size = DpSize(512.dp, 512.dp)),
         alwaysOnTop = true,
-        title = state.reason
+        title = state.reason,
     ) {
-        Column(Modifier.Companion.dtHorizontalPadding().dtVerticalPadding()) {
+        Column(
+            Modifier.dtHorizontalPadding().dtVerticalPadding()
+                .background(DtColors.applicationBackground)
+        ) {
             DtHeader2("Reloading Code failed")
             DtCode(state.reason)
             DtConsole(
