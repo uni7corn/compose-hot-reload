@@ -150,7 +150,7 @@ FooKt {
     }
     
     Bar$lambda$0 {
-        type: Regular
+        type: Composable
         desc: (Lkotlin/jvm/functions/Function2;ILandroidx/compose/runtime/Composer;I)Lkotlin/Unit;
         key: null
         codeHash: 74709383
@@ -161,7 +161,7 @@ FooKt {
     }
     
     Foo$lambda$1 {
-        type: Regular
+        type: Composable
         desc: (ILandroidx/compose/runtime/Composer;I)Lkotlin/Unit;
         key: null
         codeHash: 3190275455

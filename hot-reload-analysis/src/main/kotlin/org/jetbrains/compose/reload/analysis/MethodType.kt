@@ -17,6 +17,10 @@ internal fun MethodType(methodNode: MethodNode): MethodType = when {
     methodNode.allAnnotations
         .any { ClassId.fromDesc(it.desc) in COMPOSE_FUNCTION_ANNOTATIONS } -> MethodType.Composable
 
+    methodNode.desc.contains("${Ids.Composer.classId.descriptor}I") -> {
+        MethodType.Composable
+    }
+
     else -> MethodType.Regular
 }
 

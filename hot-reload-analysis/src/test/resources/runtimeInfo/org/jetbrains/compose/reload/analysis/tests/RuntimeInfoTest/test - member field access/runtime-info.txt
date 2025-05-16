@@ -100,7 +100,7 @@ FooKt {
     }
     
     Foo$lambda$1 {
-        type: Regular
+        type: Composable
         desc: (ILandroidx/compose/runtime/Composer;I)Lkotlin/Unit;
         key: null
         codeHash: 3190275455

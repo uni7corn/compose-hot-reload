@@ -64,7 +64,7 @@ FooKt {
     }
     
     App$lambda$3 {
-        type: Regular
+        type: Composable
         desc: (ILandroidx/compose/runtime/Composer;I)Lkotlin/Unit;
         key: null
         codeHash: 186677020
