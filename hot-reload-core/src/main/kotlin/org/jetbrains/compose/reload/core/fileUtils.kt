@@ -10,7 +10,23 @@ import java.util.zip.CRC32
 @OptIn(ExperimentalStdlibApi::class)
 public fun String.asFileName(): String {
     var result = this
-    result = result.replace(Regex("""\\W+"""), "_")
+    val chars = result.toCharArray()
+    chars.forEachIndexed { index, c ->
+        chars[index] = when {
+            c.isLetterOrDigit() -> c
+            c == '.' -> c
+            c == '-' -> c
+            c == ',' -> c
+            c == ';' -> c
+            c == '(' -> c
+            c == ')' -> c
+            c == ' ' -> c
+            c == '#' -> c
+            else -> '_'
+        }
+    }
+
+    result = chars.concatToString()
 
     if (result.length > 200) {
         val crc = CRC32()
