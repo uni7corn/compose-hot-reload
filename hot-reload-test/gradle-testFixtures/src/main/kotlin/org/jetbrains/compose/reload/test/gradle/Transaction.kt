@@ -83,9 +83,7 @@ public class TransactionScope internal constructor(
     internal val logger: Logger = createLogger()
 
     public fun OrchestrationMessage.send() {
-        logger.debug("Sending message: $this")
         fixture.orchestration.sendMessage(this).get()
-        logger.debug("Sent message: $this")
     }
 
     /**
@@ -145,11 +143,11 @@ public class TransactionScope internal constructor(
             val sleep = 15.seconds
             var waiting = 0.seconds
             while (true) {
-                logger.info(
+                delay(sleep)
+                logger.warn(
                     "'$title' ($waiting/$timeout)\n" +
                         asyncTracesString.prependIndent("\t")
                 )
-                delay(sleep)
                 waiting += sleep
             }
         }
@@ -160,7 +158,7 @@ public class TransactionScope internal constructor(
             if (T::class == ClientDisconnected::class) return@launch
             fixture.orchestration.asFlow().filterIsInstance<ClientDisconnected>().collect { message ->
                 if (message.clientRole == Application) {
-                    logger.info("'$title': Application disconnected.")
+                    logger.error("'$title': Application disconnected.")
                     fail("Application disconnected. $asyncTracesString")
                 }
             }

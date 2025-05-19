@@ -78,6 +78,7 @@ internal class HotReloadTestFixtureExtension(
         }
 
         val orchestrationServer = startOrchestrationServer()
+        startOrchestrationTestLogging(orchestrationServer)
         val isHeadless = findAnnotation<Headless>()?.isHeadless ?: true
 
         val gradleRunner = GradleRunner(

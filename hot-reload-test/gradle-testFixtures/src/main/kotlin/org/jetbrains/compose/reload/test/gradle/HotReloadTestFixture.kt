@@ -34,7 +34,6 @@ import org.jetbrains.compose.reload.orchestration.OrchestrationMessage.ShutdownR
 import org.jetbrains.compose.reload.orchestration.OrchestrationServer
 import org.jetbrains.compose.reload.orchestration.asChannel
 import org.jetbrains.compose.reload.orchestration.asFlow
-import org.slf4j.LoggerFactory
 import java.util.concurrent.locks.ReentrantLock
 import kotlin.concurrent.withLock
 import kotlin.coroutines.CoroutineContext
@@ -141,16 +140,6 @@ internal constructor(
                         logger.error("CriticalException: '${disconnected.message}'", exception)
                         testScope.cancel(exception)
                     }
-            }
-
-            /*
-            Forward all logs from the orchestration
-             */
-            daemonTestScope.launch {
-                val logger = LoggerFactory.getLogger("Orchestration")
-                orchestration.asFlow().filterIsInstance<LogMessage>().collect { message ->
-                    logger.debug(message.toString())
-                }
             }
 
             /* Forward all build outputs */

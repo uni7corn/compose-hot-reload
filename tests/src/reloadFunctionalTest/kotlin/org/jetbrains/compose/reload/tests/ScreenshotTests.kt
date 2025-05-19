@@ -7,7 +7,6 @@
 
 package org.jetbrains.compose.reload.tests
 
-import org.jetbrains.compose.reload.core.createLogger
 import org.jetbrains.compose.reload.orchestration.OrchestrationMessage
 import org.jetbrains.compose.reload.test.gradle.AndroidHotReloadTest
 import org.jetbrains.compose.reload.test.gradle.Debug
@@ -22,7 +21,6 @@ import org.jetbrains.compose.reload.utils.GradleIntegrationTest
 import org.jetbrains.compose.reload.utils.HostIntegrationTest
 
 class ScreenshotTests {
-    private val logger = createLogger()
 
     @HotReloadTest
     fun `test - simple change`(fixture: HotReloadTestFixture) = fixture.runTest {
@@ -38,13 +36,9 @@ class ScreenshotTests {
                 }
             }
             """.trimIndent()
-        logger.info("Check 'before' screenshot")
         fixture.checkScreenshot("before")
 
-        logger.info("Replace 'Hello' with 'Goodbye'")
         fixture.replaceSourceCodeAndReload("Hello", "Goodbye")
-
-        logger.info("Check 'after' screenshot")
         fixture.checkScreenshot("after")
     }
 

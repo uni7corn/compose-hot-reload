@@ -26,6 +26,7 @@ class WindowsFunctionalTest() : BuildType({
     artifactRules = """
         **/*-actual*
         **/build/reports/** => reports.zip
+        **/build/logs/** => logs.zip
     """.trimIndent()
 
     features {

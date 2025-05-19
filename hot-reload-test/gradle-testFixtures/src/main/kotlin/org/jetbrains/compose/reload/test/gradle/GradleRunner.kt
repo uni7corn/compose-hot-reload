@@ -79,13 +79,13 @@ public suspend fun GradleRunner.build(
     val exitCode = CompletableDeferred<ExitCode?>()
     val scopeJob = currentCoroutineContext().job
 
-    val thread = thread(name = "Gradle Runner") {
+    val gradleRunnerThread = thread(name = "Gradle Runner") {
         Thread.currentThread().setUncaughtExceptionHandler { _, e ->
             logger.error("Uncaught exception in Gradle runner thread", e)
             exitCode.complete(null)
         }
 
-        logger.info("Starting Gradle runner: ${processBuilder.command().joinToString("\n")}")
+        stdoutChannel?.trySendBlocking("Starting Gradle runner: ${processBuilder.command().joinToString("\n")}")
         val process = processBuilder.start()
 
         scopeJob.invokeOnCompletion {
@@ -137,8 +137,8 @@ public suspend fun GradleRunner.build(
 
     scopeJob.invokeOnCompletion {
         if (!exitCode.isActive) {
-            logger.error("Sending 'Shutdown' signal to Gradle runner thread")
-            thread.interrupt()
+            logger.debug("Interrupting Gradle Runner thread")
+            gradleRunnerThread.interrupt()
         }
     }
 
