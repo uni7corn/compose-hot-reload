@@ -20,6 +20,7 @@ import org.jetbrains.compose.reload.core.withHotReloadEnvironmentVariables
 import org.jetbrains.compose.reload.orchestration.OrchestrationMessage
 import org.jetbrains.compose.reload.orchestration.OrchestrationMessage.LogMessage
 import org.jetbrains.compose.reload.orchestration.OrchestrationMessage.LogMessage.Companion.TAG_COMPILER
+import org.jetbrains.compose.reload.orchestration.OrchestrationMessage.LogMessage.Companion.TAG_DEVTOOLS
 import org.jetbrains.compose.reload.orchestration.OrchestrationMessage.RecompileRequest
 import org.jetbrains.compose.reload.orchestration.invokeWhenReceived
 import java.io.File
@@ -158,6 +159,8 @@ private fun takeRecompileRequests(): List<RecompileRequest> {
 }
 
 private fun ProcessBuilder.startRecompilerProcess(): Int? {
+    LogMessage(TAG_DEVTOOLS, "Starting recompiler process:\n${this.command().joinToString("        \n")}").send()
+
     val process: Process = start()
     logger.debug("'Recompiler': Started (${process.pid()})")
 
