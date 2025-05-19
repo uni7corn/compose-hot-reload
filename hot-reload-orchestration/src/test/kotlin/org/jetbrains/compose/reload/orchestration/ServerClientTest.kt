@@ -470,7 +470,7 @@ class ServerClientTest {
 
             while (isActive) {
                 val report = select {
-                    reportActivityChannel.onReceive { it }
+                    reportActivityChannel.onReceiveCatching { it }
                     onTimeout(silenceTimeout) { null }
                 }
 
@@ -482,7 +482,7 @@ class ServerClientTest {
                     )
                 }
 
-                reports.add(report)
+                reports.add(report.getOrNull() ?: break)
             }
         }
 
