@@ -11,6 +11,7 @@ import kotlinx.coroutines.Job
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.channels.ReceiveChannel
+import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.filter
@@ -202,17 +203,19 @@ public class TransactionScope internal constructor(
             }
         }
 
-        /* If the build mode is Continuous, we want to await the recompiler to be ready */
-        if (fixture.buildMode == BuildMode.Continuous) {
-            launchChildTransaction {
-                /* Ready is signaled by an empty request (UP TO DATE) */
-                skipToMessage<ReloadClassesRequest>("Waiting for recompiler to be ready") { request ->
-                    request.changedClassFiles.isEmpty()
+        coroutineScope {
+            /* If the build mode is Continuous, we want to await the recompiler to be ready */
+            if (fixture.buildMode == BuildMode.Continuous) {
+                launchChildTransaction {
+                    /* Ready is signaled by an empty request (UP TO DATE) */
+                    skipToMessage<ReloadClassesRequest>("Waiting for recompiler to be ready") { request ->
+                        request.changedClassFiles.isEmpty()
+                    }
                 }
             }
-        }
 
-        skipToMessage<UIRendered>("Waiting for application to start")
+            skipToMessage<UIRendered>("Waiting for application to start")
+        }
     }
 
     public suspend fun sync(): Unit = withAsyncTrace("'sync'") {

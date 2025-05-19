@@ -8,9 +8,11 @@ package org.jetbrains.compose.reload.tests.gradle
 import kotlinx.coroutines.flow.toList
 import org.jetbrains.compose.reload.orchestration.OrchestrationMessage.ShutdownRequest
 import org.jetbrains.compose.reload.test.gradle.ApplicationLaunchMode
+import org.jetbrains.compose.reload.test.gradle.BuildMode
 import org.jetbrains.compose.reload.test.gradle.HotReloadTest
 import org.jetbrains.compose.reload.test.gradle.HotReloadTestFixture
 import org.jetbrains.compose.reload.test.gradle.ProjectMode
+import org.jetbrains.compose.reload.test.gradle.TestedBuildMode
 import org.jetbrains.compose.reload.test.gradle.TestedLaunchMode
 import org.jetbrains.compose.reload.test.gradle.TestedProjectMode
 import org.jetbrains.compose.reload.test.gradle.assertSuccessful
@@ -27,6 +29,7 @@ class HijackRunTest {
     @GradleIntegrationTest
     @HotReloadTest
     @TestedLaunchMode(ApplicationLaunchMode.GradleBlocking)
+    @TestedBuildMode(BuildMode.Continuous)
     @TestedProjectMode(ProjectMode.Kmp)
     @QuickTest
     fun `test - run with jvmRun`(fixture: HotReloadTestFixture) = fixture.runTest {
@@ -41,11 +44,15 @@ class HijackRunTest {
         """.trimIndent()
         )
 
-        val jvmRun = launchTestDaemon {
-            fixture.gradleRunner.buildFlow("jvmRun", "-PmainClass=MainKt").toList().assertSuccessful()
-        }
 
-        runTransaction { awaitApplicationStart() }
+        val jvmRun = runTransaction {
+            val jvmRun = fixture.launchTestDaemon {
+                fixture.gradleRunner.buildFlow("jvmRun", "-PmainClass=MainKt").toList().assertSuccessful()
+            }
+
+            awaitApplicationStart()
+            jvmRun
+        }
         checkScreenshot("1")
 
         /* We expect that the jvmRun uses auto recompile */
