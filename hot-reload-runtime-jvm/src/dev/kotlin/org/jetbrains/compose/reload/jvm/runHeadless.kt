@@ -36,7 +36,9 @@ import kotlinx.coroutines.yield
 import org.jetbrains.compose.reload.InternalHotReloadApi
 import org.jetbrains.compose.reload.agent.orchestration
 import org.jetbrains.compose.reload.agent.send
+import org.jetbrains.compose.reload.core.asTemplateOrThrow
 import org.jetbrains.compose.reload.core.createLogger
+import org.jetbrains.compose.reload.core.renderOrThrow
 import org.jetbrains.compose.reload.orchestration.OrchestrationClientRole
 import org.jetbrains.compose.reload.orchestration.OrchestrationMessage
 import org.jetbrains.compose.reload.orchestration.OrchestrationMessage.ShutdownRequest
@@ -93,10 +95,11 @@ suspend fun runHeadlessApplication(
         var virtualTime = 0L
         val virtualFrameDuration = 256.milliseconds
 
-        val startClockTime = Clock.System.now()
-        var previousMessage: OrchestrationMessage? = null
+        val lastMessageBufferSize = 48
+        val lastMessagesBuffer = ArrayDeque<OrchestrationMessage>(48)
         var previousMessageClockTime: Instant? = null
         var previousSilenceWarningSystemClockTime = Clock.System.now()
+        var silenceDuration = Duration.ZERO
 
         while (isActive) {
             virtualTime += virtualFrameDuration.inWholeNanoseconds
@@ -112,8 +115,9 @@ suspend fun runHeadlessApplication(
             }
 
             if (message == null || message.isSilenceWarning()) {
+                silenceDuration += virtualFrameDuration
+
                 val timeout = currentCoroutineContext()[SilenceTimeout]
-                val silenceDuration = Clock.System.now() - (previousMessageClockTime ?: startClockTime)
                 val previousWarningDuration = Clock.System.now() - previousSilenceWarningSystemClockTime
 
                 if (timeout != null && silenceDuration >= timeout.timeout) {
@@ -125,10 +129,22 @@ suspend fun runHeadlessApplication(
                         ?.toJavaInstant()?.atZone(ZoneId.systemDefault())
                         ?.format(DateTimeFormatter.ISO_TIME) ?: "N/A"
 
+
                     throw TimeoutException(
-                        "$currentTime No message received for $silenceDuration within timeout $timeout\n" +
-                            "previousMessageClockTime: $previousMessageTime\n" +
-                            "previousMessage: $previousMessage"
+                        """
+                           🚨🔇⏰ Silence Timeout
+                           
+                           No messages received for: $silenceDuration
+                           Current Time: $currentTime
+                           Previous Message Time: $previousMessageTime
+                           Last Messages: (${lastMessagesBuffer.size}):
+                               - {{message}}
+                       """.trimIndent().asTemplateOrThrow()
+                            .renderOrThrow {
+                                lastMessagesBuffer.forEach { message ->
+                                    "message"(message.toString())
+                                }
+                            }
                     )
                 }
 
@@ -140,7 +156,13 @@ suspend fun runHeadlessApplication(
                 continue
             }
 
-            previousMessage = message
+            if (lastMessagesBuffer.size >= lastMessageBufferSize) {
+                lastMessagesBuffer.removeFirstOrNull()
+            }
+
+            lastMessagesBuffer.addLast(message)
+
+            silenceDuration = Duration.ZERO
             previousMessageClockTime = Clock.System.now()
 
             if (message is ShutdownRequest && message.isApplicable()) {
