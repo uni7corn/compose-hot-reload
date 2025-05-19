@@ -68,7 +68,6 @@ internal fun ExtensionContext.startOrchestrationTestLogging(server: Orchestratio
     val allLogs = outputDirectory.resolve("logs.txt")
     val allLogsWriter = allLogs.bufferedWriter()
     job.invokeOnCompletion {
-        allLogsWriter.flush()
         allLogsWriter.close()
     }
 
@@ -76,7 +75,6 @@ internal fun ExtensionContext.startOrchestrationTestLogging(server: Orchestratio
     val allMessages = outputDirectory.resolve("messages.txt")
     val allMessagesWriter = allMessages.bufferedWriter()
     job.invokeOnCompletion {
-        allMessagesWriter.flush()
         allMessagesWriter.close()
     }
 
@@ -84,14 +82,13 @@ internal fun ExtensionContext.startOrchestrationTestLogging(server: Orchestratio
     allLogsWriter.appendLine("<<Start>>")
     allMessagesWriter.appendLine("<<Start>>")
 
-    /* We will create a specific log file for each log tag (e.g. a logs-Compiler.txt) */
+    /* We will create a specific log file for each log tag (e.g., a logs-Compiler.txt) */
     val taggedWriters = hashMapOf<String, BufferedWriter>()
     fun taggedWriter(tag: String): BufferedWriter = taggedWriters.getOrPut(tag) {
         val file = outputDirectory.resolve("logs-$tag.txt".asFileName())
         val writer = file.bufferedWriter()
         writer.appendLine("<<Start>>")
         job.invokeOnCompletion {
-            writer.flush()
             writer.close()
         }
 
