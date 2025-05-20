@@ -25,12 +25,11 @@ class VerificationTests {
         val d = "\$"
         val code = fixture.initialSourceCode(
             """
-                import androidx.compose.material.Text
                 import org.jetbrains.compose.reload.test.*
                 
                 fun main() {
                     screenshotTestApplication {
-                        Text("Hello")
+                        TestText("Foo")
                     }
                 }
             """.trimIndent()
@@ -42,12 +41,8 @@ class VerificationTests {
             /*
             Legal Change: replace the code inside the composable function
             */
-            code.replaceText("""Text("Hello")""", """Text("hello")""")
-            requestReload()
-            val request = skipToMessage<OrchestrationMessage.ReloadClassesRequest>()
-            val result = skipToMessage<OrchestrationMessage.ReloadClassesResult>()
-            assertEquals(request.messageId, result.reloadRequestId)
-            assertTrue(result.isSuccess)
+            code.replaceText("""TestText("Foo")""", """TestText("Bar")""")
+            requestAndAwaitReload()
             fixture.checkScreenshot("1-correct-change")
         }
 
@@ -59,7 +54,7 @@ class VerificationTests {
                 """
                 fun main() {
                     screenshotTestApplication {
-                        Text("hello")
+                        TestText("Bar")
                     }
                 }""".trimIndent(),
                 """
@@ -67,7 +62,7 @@ class VerificationTests {
                     var myVariable = 0
                     screenshotTestApplication {
                         myVariable = 1
-                        Text("${d}myVariable")
+                        TestText("Bar ${d}myVariable")
                     }
                 }""".trimIndent()
             )
@@ -86,12 +81,55 @@ class VerificationTests {
 
     @HotReloadTest
     @QuickTest
-    @Disabled("Current verification diagnostic does not support such cases")
-    fun `illegal code change - update compose entry function transitively`(fixture: HotReloadTestFixture) = fixture.runTest {
-        val d = "\$"
+    fun `illegal code change - change local variables in main`(fixture: HotReloadTestFixture) = fixture.runTest {
         val code = fixture.initialSourceCode(
             """
-            import androidx.compose.material.Text
+                import org.jetbrains.compose.reload.test.*
+                
+                fun main() {
+                    val str1 = "Hello "
+                    screenshotTestApplication {
+                        TestText(str1 + "Foo!")
+                    }
+                }
+            """.trimIndent()
+        )
+
+        fixture.checkScreenshot("0-initial")
+
+        fixture.runTransaction {
+            /*
+            Legal Change: replace the code inside the composable function
+            */
+            code.replaceText(""""Foo!"""", """"Bar!"""")
+            requestAndAwaitReload()
+            fixture.checkScreenshot("1-correct-change")
+        }
+
+        fixture.runTransaction {
+            /*
+            Illegal Change: change local variable name in main
+            */
+            code.replaceText("str1", "str2")
+            requestReload()
+            val request = skipToMessage<OrchestrationMessage.ReloadClassesRequest>()
+            val result = skipToMessage<OrchestrationMessage.ReloadClassesResult>()
+            assertEquals(request.messageId, result.reloadRequestId)
+            assertFalse(result.isSuccess)
+            assertEquals(
+                "Compose Hot Reload does not support the redefinition of the Compose entry method." +
+                    " Please restart the App or revert the changes in 'MainKt.main ()V'.",
+                result.errorMessage
+            )
+        }
+    }
+
+    @HotReloadTest
+    @QuickTest
+    @Disabled("Current verification diagnostic does not support such cases")
+    fun `illegal code change - update compose entry function transitively`(fixture: HotReloadTestFixture) = fixture.runTest {
+        val code = fixture.initialSourceCode(
+            """
             import androidx.compose.runtime.Composable
             import org.jetbrains.compose.reload.test.*
 
@@ -107,7 +145,7 @@ class VerificationTests {
             
             fun main() {
                 foo {
-                    Text("Hello")
+                    TestText("Foo")
                 }
             }
             """.trimIndent()
@@ -119,12 +157,8 @@ class VerificationTests {
             /*
             Legal Change: replace the code inside the composable function
             */
-            code.replaceText("""Text("Hello")""", """Text("hello")""")
-            requestReload()
-            val request = skipToMessage<OrchestrationMessage.ReloadClassesRequest>()
-            val result = skipToMessage<OrchestrationMessage.ReloadClassesResult>()
-            assertEquals(request.messageId, result.reloadRequestId)
-            assertTrue(result.isSuccess)
+            code.replaceText("""TestText("Foo")""", """TestText("Bar")""")
+            requestAndAwaitReload()
             fixture.checkScreenshot("1-change-inside-composable")
         }
 
@@ -136,11 +170,7 @@ class VerificationTests {
                 val b = 10
                 foo2(a)
             """.trimIndent())
-            requestReload()
-            val request = skipToMessage<OrchestrationMessage.ReloadClassesRequest>()
-            val result = skipToMessage<OrchestrationMessage.ReloadClassesResult>()
-            assertEquals(request.messageId, result.reloadRequestId)
-            assertTrue(result.isSuccess)
+            requestAndAwaitReload()
             fixture.checkScreenshot("2-change-outside-compose")
         }
 
@@ -152,14 +182,14 @@ class VerificationTests {
                 """
                 fun main() {
                     foo {
-                        Text("hello")
+                        TestText("Foo")
                     }
                 }""".trimIndent(),
                 """
                 fun main() {
                     val a = 10
                     foo {
-                        Text("hello")
+                        TestText("Foo")
                     }
                 }""".trimIndent()
             )

@@ -12,6 +12,7 @@ fun RuntimeInfo.verifyRedefinitions(redefinitions: RuntimeInfo) {
 private fun RuntimeInfo.verifyMethodRedefinitions(redefined: RuntimeInfo) {
     redefined.methodIndex.forEach { (methodId, redefinedMethod) ->
         val previousMethod = methodIndex[methodId] ?: return@forEach
+
         if (
             previousMethod.rootScope.methodType == MethodType.ComposeEntryPoint &&
             previousMethod.rootScope.hash != redefinedMethod.rootScope.hash
