@@ -58,7 +58,7 @@ internal fun ExtensionContext.startOrchestrationTestLogging(server: Orchestratio
 
     val outputDirectory = Path("build/logs/${testClass.name.asFileName()}")
         .resolve(testMethod.name.asFileName())
-        .resolve(context.getDisplayName().asFileName())
+        .resolve(context.getDisplayName().asFileName().replace("(", "").replace(")", ""))
 
     /* Clean previous logs if present */
     if (outputDirectory.exists()) outputDirectory.deleteRecursively()
