@@ -47,7 +47,7 @@ class HijackRunTest {
 
         val jvmRun = runTransaction {
             val jvmRun = fixture.launchTestDaemon {
-                fixture.gradleRunner.buildFlow("jvmRun", "-PmainClass=MainKt").toList().assertSuccessful()
+                fixture.gradleRunner.buildFlow("jvmRun", "-PmainClass=MainKt", "-Didea.active=true").toList().assertSuccessful()
             }
 
             awaitApplicationStart()

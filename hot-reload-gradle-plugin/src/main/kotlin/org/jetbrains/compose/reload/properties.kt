@@ -19,3 +19,8 @@ val Project.isHotReloadBuild: Boolean get() = composeReloadIsHotReloadBuild
 
 internal val Project.isIdeaSync: Provider<Boolean>
     get() = providers.systemProperty("idea.sync.active").map { raw -> raw.toBoolean() }
+        .orElse(false)
+
+internal val Project.isIdea: Provider<Boolean>
+    get() = providers.systemProperty("idea.active").map { raw -> raw.toBooleanStrictOrNull() ?: true }
+        .orElse(false)

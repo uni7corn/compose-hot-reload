@@ -32,10 +32,12 @@ internal val Project.jvmRunHijackTasks: Future<Collection<TaskProvider<out JavaE
 
 @OptIn(InternalKotlinGradlePluginApi::class)
 internal val KotlinTarget.hijackJvmRunTask: Future<TaskProvider<out KotlinJvmRun>?> by future {
+    if (!project.isIdea.get()) return@future null
+
     /* Ide support is present, no need for hijacking */
     if (project.composeReloadIdeaComposeHotReload) return@future null
     val mainCompilation = project.provider { compilations.getByName("main") }
-    if(this !is KotlinJvmTarget) return@future null
+    if (this !is KotlinJvmTarget) return@future null
 
     val runTask = project.tasks.register<KotlinJvmRun>(camelCase(name, "run")) {
         mainClass.convention(
