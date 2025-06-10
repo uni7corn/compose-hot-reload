@@ -4,11 +4,11 @@
       "version": "2.1.20"
     },
     {
-      "version": "2.2.0-RC",
+      "version": "2.2.0-RC2",
       "isDefault": true
     },
     {
-      "version": "2.2.20-dev-3958"
+      "version": "2.2.20-dev-4982"
     }
   ],
   "gradle": [
