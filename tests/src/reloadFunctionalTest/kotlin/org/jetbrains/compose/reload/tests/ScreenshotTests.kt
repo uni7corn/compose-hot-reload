@@ -44,7 +44,7 @@ class ScreenshotTests {
 
     @GradleIntegrationTest
     @HostIntegrationTest
-    @DisabledVersion("#128: ComposableSingleton + Indy", kotlin = "2.2.0-RC2", compose = "1.9.0-alpha02")
+    @DisabledVersion("#128: ComposableSingleton + Indy", kotlin = "2.2.0-RC3", compose = "1.9.0-alpha02")
     @HotReloadTest
     fun `test - retained state`(fixture: HotReloadTestFixture) = fixture.runTest {
         val d = "$"
@@ -101,7 +101,7 @@ class ScreenshotTests {
         fixture.checkScreenshot("after")
     }
 
-    @DisabledVersion("#128: ComposableSingleton + Indy", kotlin = "2.2.0-RC2", compose = "1.9.0-alpha02")
+    @DisabledVersion("#128: ComposableSingleton + Indy", kotlin = "2.2.0-RC3", compose = "1.9.0-alpha02")
     @HotReloadTest
     fun `test - add button`(fixture: HotReloadTestFixture) = fixture.runTest {
         fixture initialSourceCode """
@@ -134,7 +134,7 @@ class ScreenshotTests {
     }
 
 
-    @DisabledVersion("#128: ComposableSingleton + Indy", kotlin = "2.2.0-RC2", compose = "1.9.0-alpha02")
+    @DisabledVersion("#128: ComposableSingleton + Indy", kotlin = "2.2.0-RC3", compose = "1.9.0-alpha02")
     @HotReloadTest
     fun `test - add remembered state`(fixture: HotReloadTestFixture) = fixture.runTest {
         fixture initialSourceCode """
@@ -174,7 +174,7 @@ class ScreenshotTests {
         }
     }
 
-    @DisabledVersion("#128: ComposableSingleton + Indy", kotlin = "2.2.0-RC2", compose = "1.9.0-alpha02")
+    @DisabledVersion("#128: ComposableSingleton + Indy", kotlin = "2.2.0-RC3", compose = "1.9.0-alpha02")
     @HotReloadTest
     fun `test - update remembered value`(fixture: HotReloadTestFixture) = fixture.runTest {
         fixture initialSourceCode """

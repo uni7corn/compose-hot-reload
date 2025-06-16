@@ -96,7 +96,7 @@ class AfterHotReloadEffectTest {
         }
     }
 
-    @DisabledVersion("#128: ComposableSingleton + Indy", kotlin = "2.2.0-RC2", compose = "1.9.0-alpha02")
+    @DisabledVersion("#128: ComposableSingleton + Indy", kotlin = "2.2.0-RC3", compose = "1.9.0-alpha02")
     @HotReloadTest
     fun `test - remove AfterHotReloadEffect code`(fixture: HotReloadTestFixture) = fixture.runTest {
         fixture initialSourceCode """
