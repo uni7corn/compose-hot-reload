@@ -41,8 +41,9 @@ fun functionalTests(): List<FunctionalTest> {
             // Create buckets
             if (isDefaultKotlinVersion && isDefaultComposeVersion) {
                 return@flatMap listOf(
-                    FunctionalTest(kotlinVersionString, composeVersionString, bucket = 1, bucketsCount = 2),
-                    FunctionalTest(kotlinVersionString, composeVersionString, bucket = 2, bucketsCount = 2)
+                    FunctionalTest(kotlinVersionString, composeVersionString, bucket = 1, bucketsCount = 3),
+                    FunctionalTest(kotlinVersionString, composeVersionString, bucket = 2, bucketsCount = 3),
+                    FunctionalTest(kotlinVersionString, composeVersionString, bucket = 3, bucketsCount = 3)
                 )
             }
 
