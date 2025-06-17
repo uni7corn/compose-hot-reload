@@ -131,7 +131,7 @@ internal class DefaultSettingsGradleKts : SettingsGradleKtsExtension {
     }
 
     override fun plugins(context: ExtensionContext): String {
-        return """id("org.gradle.toolchains.foojay-resolver-convention") version "0.10.0""""
+        return """id("org.gradle.toolchains.foojay-resolver-convention") version "1.0.0""""
     }
 
     override fun dependencyResolutionManagementRepositories(context: ExtensionContext): String {
