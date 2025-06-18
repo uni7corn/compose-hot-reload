@@ -186,7 +186,7 @@ class TestKt {
                 BlockToken(2)
                 LabelToken(L57)
                 BlockToken(1)
-                SourceInformationMarkerStart(key=ComposeGroupKey(key=-384672921), sourceInformation='C89@4556L9:Column.kt#2w3rfo')
+                SourceInformationMarkerStart(key=ComposeGroupKey(key=2093002350), sourceInformation='C89@4556L9:Column.kt#2w3rfo')
                 BlockToken(13)
                 LabelToken(L59)
                 BlockToken(2)

@@ -360,7 +360,7 @@ class TestKt {
             ISTORE 26
             L58
             ALOAD 25
-            LDC -384672921
+            LDC 2093002350
             LDC "C89@4556L9:Column.kt#2w3rfo"
             L59
             LINENUMBER 25 L59
