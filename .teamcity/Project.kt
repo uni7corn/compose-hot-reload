@@ -13,6 +13,7 @@ import builds.SamplesCheck
 import builds.StagingDeploy
 import builds.Test
 import builds.TestIntelliJPluginCheck
+import builds.UpdateComposeDevVersion
 import builds.WindowsFunctionalTest
 import builds.WindowsTest
 import builds.conventions.configureConventions
@@ -64,6 +65,7 @@ object ComposeHotReloadProject : Project({
 
     buildType(BuildCache(Host.Linux))
     buildType(BuildCache(Host.Windows))
+    buildType(UpdateComposeDevVersion)
 
     buildType(PublishDevBuild)
     buildType(StagingDeploy)

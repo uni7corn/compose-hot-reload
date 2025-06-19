@@ -28,3 +28,5 @@ tasks.register<JavaExec>("installAndroidSdk")
 tasks.register<JavaExec>("push")
 
 tasks.register<JavaExec>("pushDevVersionTag")
+
+tasks.register<JavaExec>("updateComposeDevVersion")
