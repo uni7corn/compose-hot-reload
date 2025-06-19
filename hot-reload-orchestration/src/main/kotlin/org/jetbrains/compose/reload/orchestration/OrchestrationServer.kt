@@ -13,7 +13,6 @@ import org.jetbrains.compose.reload.core.WorkerThread
 import org.jetbrains.compose.reload.core.complete
 import org.jetbrains.compose.reload.core.completeExceptionally
 import org.jetbrains.compose.reload.core.createLogger
-import org.jetbrains.compose.reload.core.debug
 import org.jetbrains.compose.reload.core.exceptionOrNull
 import org.jetbrains.compose.reload.core.getBlocking
 import org.jetbrains.compose.reload.core.getOrThrow
@@ -24,6 +23,7 @@ import org.jetbrains.compose.reload.core.launchOnFinish
 import org.jetbrains.compose.reload.core.launchOnStop
 import org.jetbrains.compose.reload.core.launchTask
 import org.jetbrains.compose.reload.core.stopNow
+import org.jetbrains.compose.reload.core.trace
 import org.jetbrains.compose.reload.core.withThread
 import org.jetbrains.compose.reload.orchestration.OrchestrationMessage.ClientConnected
 import org.jetbrains.compose.reload.orchestration.OrchestrationMessage.ClientDisconnected
@@ -122,7 +122,7 @@ private fun launchClient(
 
     /* Read the client protocol version */
     val clientProtocolVersion = io.readInt()
-    logger.debug("client protocol version: $clientProtocolVersion")
+    logger.trace { "client protocol version: $clientProtocolVersion" }
 
     /* Write protocol magic number and the servers protocol version */
     io writeInt ORCHESTRATION_PROTOCOL_MAGIC_NUMBER

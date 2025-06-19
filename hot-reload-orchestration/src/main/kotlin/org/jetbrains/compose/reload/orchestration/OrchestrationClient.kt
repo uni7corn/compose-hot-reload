@@ -29,6 +29,7 @@ import org.jetbrains.compose.reload.core.launchOnStop
 import org.jetbrains.compose.reload.core.launchTask
 import org.jetbrains.compose.reload.core.stopNow
 import org.jetbrains.compose.reload.core.toLeft
+import org.jetbrains.compose.reload.core.trace
 import org.jetbrains.compose.reload.core.withThread
 import org.jetbrains.compose.reload.orchestration.OrchestrationPackage.Introduction
 import java.io.Serializable
@@ -103,7 +104,7 @@ public fun OrchestrationClient(clientRole: OrchestrationClientRole, port: Int): 
         checkMagicNumberOrThrow(io.readInt())
 
         val serverProtocolVersion = io.readInt()
-        logger.debug("OrchestrationServer protocol version: $serverProtocolVersion")
+        logger.trace { "OrchestrationServer protocol version: $serverProtocolVersion" }
 
         /* Send Handshake, expect 'ClientConnected' response */
         io.writePackage(Introduction(clientId, clientRole, ProcessHandle.current().pid()))
