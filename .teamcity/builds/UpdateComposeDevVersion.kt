@@ -22,7 +22,7 @@ object UpdateComposeDevVersion : BuildType({
 
     triggers {
         schedule {
-            branchFilter = "+:<default>"
+            branchFilter = "+:staging"
             schedulingPolicy = weekly {
                 dayOfWeek = ScheduleTrigger.DAY.Sunday
                 timezone = "Europe/Berlin"
