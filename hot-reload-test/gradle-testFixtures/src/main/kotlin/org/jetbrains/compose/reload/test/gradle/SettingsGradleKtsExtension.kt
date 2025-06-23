@@ -127,8 +127,6 @@ internal class DefaultSettingsGradleKts : SettingsGradleKtsExtension {
             }
             
             mavenCentral()
-            
-            mavenLocal()
         """.trimIndent()
     }
 
@@ -147,8 +145,6 @@ internal class DefaultSettingsGradleKts : SettingsGradleKtsExtension {
             }
             
             mavenCentral()
-            
-            mavenLocal()
         """.trimIndent()
     }
 }
