@@ -5,6 +5,8 @@
 
 package builds
 
+import builds.conventions.HardwareCapacity
+import builds.conventions.PushPrivilege
 import builds.conventions.setupGit
 import jetbrains.buildServer.configs.kotlin.BuildType
 import jetbrains.buildServer.configs.kotlin.buildSteps.gradle
@@ -50,4 +52,4 @@ object UpdateComposeDevVersion : BuildType({
             """.trimIndent()
         }
     }
-})
+}), PushPrivilege, HardwareCapacity.Medium
