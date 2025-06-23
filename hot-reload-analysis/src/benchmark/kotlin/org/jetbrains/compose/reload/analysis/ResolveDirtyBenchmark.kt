@@ -16,6 +16,7 @@ import kotlinx.benchmark.Setup
 import kotlinx.benchmark.State
 import kotlinx.benchmark.TearDown
 import kotlinx.benchmark.Warmup
+import org.jetbrains.compose.reload.core.Context
 import org.jetbrains.compose.reload.core.createLogger
 import org.jetbrains.compose.reload.core.info
 import org.jetbrains.compose.reload.core.testFixtures.Compiler
@@ -107,7 +108,7 @@ open class ResolveDirtyScopesBenchmark {
 
     @Benchmark
     fun redefine(): RuntimeDirtyScopes {
-        return currentRuntime.resolveDirtyRuntimeScopes(pendingRedefinition)
+        return Context().resolveDirtyRuntimeScopes(currentRuntime, pendingRedefinition)
     }
 
 }

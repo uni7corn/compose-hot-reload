@@ -5,6 +5,8 @@
 
 package org.jetbrains.compose.reload.core
 
+import org.jetbrains.compose.reload.InternalHotReloadApi
+import java.io.File
 import java.util.zip.CRC32
 
 @OptIn(ExperimentalStdlibApi::class)
@@ -38,3 +40,6 @@ public fun String.asFileName(): String {
 
     return result
 }
+
+@InternalHotReloadApi
+public fun File.isClass(): Boolean = extension == "class"

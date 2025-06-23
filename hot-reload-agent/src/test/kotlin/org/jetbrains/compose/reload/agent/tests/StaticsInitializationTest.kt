@@ -13,6 +13,7 @@ import org.jetbrains.compose.reload.analysis.TrackingRuntimeInfo
 import org.jetbrains.compose.reload.analysis.classInitializerMethodId
 import org.jetbrains.compose.reload.analysis.resolveDirtyRuntimeScopes
 import org.jetbrains.compose.reload.analysis.testFixtures.checkJavap
+import org.jetbrains.compose.reload.core.Context
 import org.jetbrains.compose.reload.core.testFixtures.Compiler
 import org.jetbrains.compose.reload.core.testFixtures.WithCompiler
 import org.jetbrains.compose.reload.core.testFixtures.compile
@@ -84,7 +85,7 @@ class StaticsInitializationTest() {
         val redefineRuntimeInfo = TrackingRuntimeInfo()
         redefineRuntimeInfo.add(afterClassInfo)
 
-        val redefinition = beforeRuntimeInfo.resolveDirtyRuntimeScopes(redefineRuntimeInfo)
+        val redefinition = Context().resolveDirtyRuntimeScopes(beforeRuntimeInfo, redefineRuntimeInfo)
         if (beforeClassInfoInitializer in redefinition.dirtyMethodIds) {
             fail("Unexpected '$beforeClassInfoInitializer' in dirtyMethodIds")
         }
