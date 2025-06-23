@@ -39,6 +39,7 @@ fun main() {
             testDimensions.toFile().writeText(testDimensionsContent.replace(version, latestDevVersion))
             command("git", "add", ".")
             command("git", "commit", "-m", "Update Compose dev version to '$latestDevVersion'")
+            return
         }
     }
 
