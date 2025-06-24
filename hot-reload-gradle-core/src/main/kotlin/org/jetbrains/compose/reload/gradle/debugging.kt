@@ -7,7 +7,7 @@ package org.jetbrains.compose.reload.gradle
 
 import org.gradle.api.Project
 import org.gradle.api.provider.Provider
-import org.jetbrains.compose.reload.core.InternalHotReloadApi
+import org.jetbrains.compose.reload.InternalHotReloadApi
 
 @InternalHotReloadApi
 val Project.intellijDebuggerDispatchPort: Provider<Int>
