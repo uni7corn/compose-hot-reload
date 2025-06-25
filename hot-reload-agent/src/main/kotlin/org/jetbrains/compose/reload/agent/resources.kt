@@ -16,6 +16,7 @@ import org.jetbrains.compose.reload.core.createLogger
 import org.jetbrains.compose.reload.core.error
 import org.jetbrains.compose.reload.core.info
 import org.jetbrains.compose.reload.core.isClass
+import org.jetbrains.compose.reload.orchestration.OrchestrationMessage.ReloadClassesRequest
 
 private val logger = createLogger()
 
@@ -65,7 +66,7 @@ internal fun Context.cleanResourceCacheIfNecessary() {
 }
 
 private fun Context.hasChangedResources(): Boolean {
-    return this[ReloadRequestContextKey]?.changedClassFiles.orEmpty().any { (file, _) ->
+    return this[ReloadClassesRequest]?.changedClassFiles.orEmpty().any { (file, _) ->
         file.isFile && !file.isClass()
     }
 }

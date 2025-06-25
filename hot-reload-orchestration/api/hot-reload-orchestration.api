@@ -285,6 +285,7 @@ public final class org/jetbrains/compose/reload/orchestration/OrchestrationMessa
 }
 
 public final class org/jetbrains/compose/reload/orchestration/OrchestrationMessage$ReloadClassesRequest : org/jetbrains/compose/reload/orchestration/OrchestrationMessage {
+	public static final field Key Lorg/jetbrains/compose/reload/orchestration/OrchestrationMessage$ReloadClassesRequest$Key;
 	public fun <init> ()V
 	public fun <init> (Ljava/util/Map;)V
 	public synthetic fun <init> (Ljava/util/Map;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
@@ -304,6 +305,9 @@ public final class org/jetbrains/compose/reload/orchestration/OrchestrationMessa
 	public static fun getEntries ()Lkotlin/enums/EnumEntries;
 	public static fun valueOf (Ljava/lang/String;)Lorg/jetbrains/compose/reload/orchestration/OrchestrationMessage$ReloadClassesRequest$ChangeType;
 	public static fun values ()[Lorg/jetbrains/compose/reload/orchestration/OrchestrationMessage$ReloadClassesRequest$ChangeType;
+}
+
+public final class org/jetbrains/compose/reload/orchestration/OrchestrationMessage$ReloadClassesRequest$Key : org/jetbrains/compose/reload/core/OptionalContextKey {
 }
 
 public final class org/jetbrains/compose/reload/orchestration/OrchestrationMessage$ReloadClassesResult : org/jetbrains/compose/reload/orchestration/OrchestrationMessage {

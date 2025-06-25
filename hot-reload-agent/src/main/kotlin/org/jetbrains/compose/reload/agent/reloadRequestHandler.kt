@@ -7,7 +7,6 @@ package org.jetbrains.compose.reload.agent
 
 
 import org.jetbrains.compose.reload.core.Context
-import org.jetbrains.compose.reload.core.ContextKey
 import org.jetbrains.compose.reload.core.createLogger
 import org.jetbrains.compose.reload.core.error
 import org.jetbrains.compose.reload.core.exception
@@ -15,6 +14,7 @@ import org.jetbrains.compose.reload.core.info
 import org.jetbrains.compose.reload.core.isFailure
 import org.jetbrains.compose.reload.core.isSuccess
 import org.jetbrains.compose.reload.core.launchTask
+import org.jetbrains.compose.reload.core.with
 import org.jetbrains.compose.reload.core.withLinearClosure
 import org.jetbrains.compose.reload.core.withType
 import org.jetbrains.compose.reload.orchestration.OrchestrationMessage
@@ -23,10 +23,6 @@ import java.io.File
 import java.lang.instrument.Instrumentation
 
 private val logger = createLogger()
-
-object ReloadRequestContextKey : ContextKey<ReloadClassesRequest?> {
-    override val default: ReloadClassesRequest? = null
-}
 
 internal fun launchReloadRequestHandler(instrumentation: Instrumentation) = launchTask {
     var pendingChanges = mapOf<File, ReloadClassesRequest.ChangeType>()
@@ -42,7 +38,7 @@ internal fun launchReloadRequestHandler(instrumentation: Instrumentation) = laun
         runOnUiThreadBlocking {
             pendingChanges = pendingChanges + request.changedClassFiles
 
-            val context = Context().with(ReloadRequestContextKey, request)
+            val context = Context(ReloadClassesRequest with request)
 
             executeBeforeHotReloadListeners(request.messageId)
             val result = context.reload(instrumentation, request.messageId, pendingChanges)

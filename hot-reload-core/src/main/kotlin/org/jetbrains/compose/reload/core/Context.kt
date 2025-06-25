@@ -5,33 +5,77 @@
 
 package org.jetbrains.compose.reload.core
 
-public interface Context {
+public sealed interface Context {
     public operator fun <T> get(key: ContextKey<T>): T
-    public fun <T> with(key: ContextKey<T>, value: T): Context
 }
 
-public interface ContextKey<T> {
+public interface ContextKey<out T> {
     public val default: T
 }
 
+public abstract class OptionalContextKey<T> : ContextKey<T?> where T : Any {
+    final override val default: T? get() = null
+}
+
+public abstract class ContextElement : Context {
+    public abstract val key: ContextKey<*>
+
+    override fun <T> get(key: ContextKey<T>): T {
+        @Suppress("UNCHECKED_CAST")
+        return if (key == this.key) this as T
+        else key.default
+    }
+}
+
 public fun Context(): Context {
-    return ContextImpl.EMPTY
+    return EmptyContext
+}
+
+public fun Context(vararg entries: ContextEntry<*>): Context {
+    if (entries.isEmpty()) return Context()
+    else return ContextImpl(entries.associate { it.key to it.value })
+}
+
+public fun Context.with(vararg entries: ContextEntry<*>): Context {
+    if (entries.isEmpty()) return this
+    return ContextImpl(this.map + entries.associate { it.key to it.value })
+}
+
+public operator fun Context.plus(other: Context): Context {
+    val thisMap = this.map
+    val otherMap = other.map
+    if (thisMap.isEmpty()) return other
+    if (otherMap.isEmpty()) return this
+    return ContextImpl(thisMap + otherMap)
+}
+
+public infix fun <T> ContextKey<T>.with(value: T): ContextEntry<T> =
+    ContextEntry(this, value)
+
+public class ContextEntry<T>(
+    public val key: ContextKey<T>,
+    public val value: T,
+)
+
+public object EmptyContext : Context {
+    override fun <T> get(key: ContextKey<T>): T {
+        return key.default
+    }
 }
 
 private class ContextImpl(
-    private val map: Map<ContextKey<*>, Any?>
+    val map: Map<ContextKey<*>, Any?>
 ) : Context {
     override fun <T> get(key: ContextKey<T>): T {
         @Suppress("UNCHECKED_CAST")
         return if (key in map) map[key] as T
         else key.default
     }
-
-    override fun <T> with(key: ContextKey<T>, value: T): Context {
-        return ContextImpl(map.plus(key to value))
-    }
-
-    companion object {
-        val EMPTY = ContextImpl(emptyMap())
-    }
 }
+
+private val Context.map: Map<ContextKey<*>, Any?>
+    get() = when (this) {
+        is ContextImpl -> this.map
+        is ContextElement -> mapOf(key to this)
+        is EmptyContext -> emptyMap()
+    }

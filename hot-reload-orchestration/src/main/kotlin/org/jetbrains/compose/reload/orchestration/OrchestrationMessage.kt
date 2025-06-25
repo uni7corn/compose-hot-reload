@@ -9,6 +9,7 @@ import org.jetbrains.compose.reload.core.Environment
 import org.jetbrains.compose.reload.core.HotReloadEnvironment
 import org.jetbrains.compose.reload.core.Logger
 import org.jetbrains.compose.reload.core.Logger.Level
+import org.jetbrains.compose.reload.core.OptionalContextKey
 import org.jetbrains.compose.reload.core.WindowId
 import org.jetbrains.compose.reload.core.displayString
 import org.jetbrains.compose.reload.core.withLinearClosure
@@ -207,7 +208,7 @@ public sealed class OrchestrationMessage : OrchestrationPackage(), Serializable 
     public data class ReloadClassesRequest(
         val changedClassFiles: Map<File, ChangeType> = emptyMap()
     ) : OrchestrationMessage() {
-        internal companion object {
+        public companion object Key : OptionalContextKey<ReloadClassesRequest>() {
             @Suppress("unused")
             internal const val serialVersionUID: Long = 0L
         }
