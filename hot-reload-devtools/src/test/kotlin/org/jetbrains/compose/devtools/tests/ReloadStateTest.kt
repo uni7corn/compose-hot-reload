@@ -15,8 +15,12 @@ import kotlinx.coroutines.job
 import kotlinx.coroutines.test.runTest
 import org.jetbrains.compose.devtools.states.ReloadState
 import org.jetbrains.compose.devtools.states.launchReloadState
+import org.jetbrains.compose.reload.core.Future
 import org.jetbrains.compose.reload.core.awaitIdle
+import org.jetbrains.compose.reload.core.complete
+import org.jetbrains.compose.reload.core.invokeOnValue
 import org.jetbrains.compose.reload.core.reloadMainThread
+import org.jetbrains.compose.reload.orchestration.OrchestrationHandle
 import org.jetbrains.compose.reload.orchestration.OrchestrationMessage
 import org.jetbrains.compose.reload.orchestration.OrchestrationMessage.ReloadClassesRequest
 import org.jetbrains.compose.reload.orchestration.OrchestrationMessage.ReloadClassesResult
@@ -30,18 +34,19 @@ class ReloadStateTest {
     @Test
     fun `test - build started - build finished`() = runTest(States() + Events()) {
         val orchestration = startOrchestrationServer()
+
         currentCoroutineContext().job.invokeOnCompletion { orchestration.close() }
         launchReloadState(orchestration)
         testScheduler.advanceUntilIdle()
 
         assertIs<ReloadState.Ok>(ReloadState.value())
-        orchestration.send(OrchestrationMessage.BuildStarted())
+        orchestration.sendAndWait(OrchestrationMessage.BuildStarted())
         reloadMainThread.awaitIdle()
         testScheduler.advanceUntilIdle()
         assertIs<ReloadState.Reloading>(ReloadState.value())
 
 
-        orchestration.send(OrchestrationMessage.BuildFinished())
+        orchestration.sendAndWait(OrchestrationMessage.BuildFinished())
         reloadMainThread.awaitIdle()
         testScheduler.advanceUntilIdle()
         assertIs<ReloadState.Ok>(ReloadState.value())
@@ -59,7 +64,7 @@ class ReloadStateTest {
         assertIs<ReloadState.Ok>(ReloadState.value())
 
         /* Send 'Build Started -> Expect 'Reloading*' */
-        orchestration.send(OrchestrationMessage.BuildStarted())
+        orchestration.sendAndWait(OrchestrationMessage.BuildStarted())
         reloadMainThread.awaitIdle()
         testScheduler.advanceUntilIdle()
         val initialReloading = assertIs<ReloadState.Reloading>(ReloadState.value())
@@ -74,13 +79,13 @@ class ReloadStateTest {
         assertEquals(initialReloading.time, reloadingState.time)
 
         /* Send 'Build Finished' -> Still expect 'Reloading' as we're waiting for the 'Reload Result' now */
-        orchestration send OrchestrationMessage.BuildFinished()
+        orchestration sendAndWait OrchestrationMessage.BuildFinished()
         reloadMainThread.awaitIdle()
         testScheduler.advanceUntilIdle()
         assertEquals(reloadRequest, assertIs<ReloadState.Reloading>(ReloadState.value()).request)
 
         /* Send 'ReloadClassesResult' -> Expect 'Ok' */
-        orchestration send ReloadClassesResult(
+        orchestration sendAndWait ReloadClassesResult(
             reloadRequestId = reloadRequest.messageId,
             isSuccess = true,
         )
@@ -102,7 +107,7 @@ class ReloadStateTest {
         ReloadState.set(ReloadState.Reloading(request = request))
 
         /* Send failed 'Reload Result' -> Expect 'Failed' */
-        orchestration send ReloadClassesResult(
+        orchestration sendAndWait ReloadClassesResult(
             reloadRequestId = request.messageId,
             isSuccess = false,
         )
@@ -122,15 +127,31 @@ class ReloadStateTest {
 
         ReloadState.set(ReloadState.Reloading())
 
-
-        orchestration send OrchestrationMessage.BuildTaskResult(
+        orchestration sendAndWait OrchestrationMessage.BuildTaskResult(
             taskId = ":test", isSuccess = false, isSkipped = false,
             startTime = null, endTime = null, failures = emptyList()
         )
+
         reloadMainThread.awaitIdle()
         testScheduler.advanceUntilIdle()
         assertIs<ReloadState.Failed>(ReloadState.value())
 
         currentCoroutineContext().job.cancelChildren()
+    }
+}
+
+private suspend infix fun OrchestrationHandle.sendAndWait(message: OrchestrationMessage) {
+    val future = Future()
+    val disposable = messages.invokeOnValue { incoming ->
+        if (incoming.messageId == message.messageId) {
+            future.complete()
+        }
+    }
+    try {
+        reloadMainThread.awaitIdle()
+        send(message)
+        future.await()
+    } finally {
+        disposable.dispose()
     }
 }
