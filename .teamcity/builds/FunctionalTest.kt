@@ -49,7 +49,7 @@ fun functionalTests(): List<FunctionalTest> {
 
             listOf(FunctionalTest(kotlinVersionString, composeVersionString))
         }
-    }.plus(FunctionalTest(kotlinVersion = null, composeVersion = null, defaultCompilerOptions = false))
+    }
 }
 
 @OptIn(ExperimentalStdlibApi::class, ExperimentalEncodingApi::class)

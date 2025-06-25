@@ -111,22 +111,6 @@ or provided when invoking the task
 ./gradlew jvmRunHot --mainClass com.example.MainKt
 ```
 
-### Optimization: Enable 'OptimizeNonSkippingGroups' (Not Required):
-Note: This optimization is not required, but will lead to a better user experience.
-It is expected that the feature will be enabled by default in future versions of the compiler.
-
-Add the following to your `build.gradle.kts`:
-
-```kotlin
-import org.jetbrains.kotlin.compose.compiler.gradle.ComposeFeatureFlag
-
-// ...
-
-composeCompiler {
-    featureFlags.add(ComposeFeatureFlag.OptimizeNonSkippingGroups)
-}
-```
-
 ### Set up automatic provisioning of the JetBrains Runtime (JBR) via Gradle
 
 > [!IMPORTANT]  

@@ -9,7 +9,6 @@ package org.jetbrains.compose.reload.utils
 
 import org.jetbrains.compose.reload.core.createLogger
 import org.jetbrains.compose.reload.core.info
-import org.jetbrains.compose.reload.test.core.CompilerOption
 import org.jetbrains.compose.reload.test.gradle.ApplicationLaunchMode
 import org.jetbrains.compose.reload.test.gradle.BuildMode
 import org.jetbrains.compose.reload.test.gradle.Headless
@@ -124,22 +123,11 @@ class HotReloadTestDimensionBuilder : HotReloadTestDimensionExtension {
             }
         }
 
-        /* Expand compiler options */
-        if (!context.hasAnnotation<TestOnlyDefaultCompilerOptions>()) {
-            result += baselineContext.copy {
-                compilerOption(
-                    CompilerOption.OptimizeNonSkippingGroups,
-                    !CompilerOption.OptimizeNonSkippingGroups.default
-                )
-            }
-        }
-
         return result.sortedWith(
             compareBy(
                 { it.kotlinVersion.version },
                 { it.gradleVersion.version },
                 { it.composeVersion.version },
-                { it.compilerOptions.contains(CompilerOption.OptimizeNonSkippingGroups) }
             )
         )
     }
@@ -184,7 +172,7 @@ class HotReloadTestDimensionFilter : HotReloadTestDimensionExtension {
         }
 
         if (GraphicsEnvironment.isHeadless()) {
-            result = result.filter { invocationContext ->
+            result = result.filter { _ ->
                 context.findAnnotation<Headless>()?.isHeadless ?: true
             }
         }
