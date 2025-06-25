@@ -58,11 +58,16 @@ fun main() {
 
     applicationScope.launchApplicationStates()
 
-    application(exitProcessOnExit = false) {
-        if (HotReloadEnvironment.isHeadless) return@application
-        if (HotReloadEnvironment.devToolsIsHeadless) return@application
-        if (!HotReloadEnvironment.devToolsEnabled) return@application
+    if (
+        HotReloadEnvironment.isHeadless ||
+        HotReloadEnvironment.devToolsIsHeadless ||
+        !HotReloadEnvironment.devToolsEnabled
+    ) {
+        logger.info("DevTools started headless")
+        return
+    }
 
+    application(exitProcessOnExit = false) {
         installEvas(
             applicationScope.coroutineContext.eventsOrThrow,
             applicationScope.coroutineContext.statesOrThrow

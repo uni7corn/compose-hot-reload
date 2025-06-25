@@ -31,7 +31,7 @@ import java.util.ServiceLoader
 
 private val logger = createLogger()
 
-private val recompilerThread = WorkerThread("Recompiler")
+private val recompilerThread = WorkerThread("Recompiler", isDaemon = false)
 
 @OptIn(ExperimentalCoroutinesApi::class)
 internal fun launchRecompiler(): Future<Unit> = launchTask("Recompiler", recompilerThread.dispatcher) task@{
