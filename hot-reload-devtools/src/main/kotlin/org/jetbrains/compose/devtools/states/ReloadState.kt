@@ -20,7 +20,6 @@ import kotlinx.datetime.Instant
 import org.jetbrains.compose.reload.core.Environment
 import org.jetbrains.compose.reload.core.Logger
 import org.jetbrains.compose.reload.core.createLogger
-import org.jetbrains.compose.reload.core.info
 import org.jetbrains.compose.reload.core.trace
 import org.jetbrains.compose.reload.orchestration.OrchestrationHandle
 import org.jetbrains.compose.reload.orchestration.OrchestrationMessage
@@ -65,7 +64,7 @@ fun CoroutineScope.launchReloadState(
         ReloadCountState.flow().collectLatest { _ ->
             errorLogs.clear()
             orchestration.asFlow().filterIsInstance<LogMessage>().collect { log ->
-                if (log.level >= Logger.Level.Error) {
+                if (log.environment != Environment.devTools && log.level >= Logger.Level.Error) {
                     errorLogs += log
                 }
 
