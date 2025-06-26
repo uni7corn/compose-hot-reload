@@ -20,6 +20,7 @@ import java.nio.file.Path
 import java.util.concurrent.LinkedBlockingQueue
 import kotlin.io.path.bufferedWriter
 import kotlin.io.path.createParentDirectories
+import kotlin.io.path.deleteIfExists
 import kotlin.io.path.exists
 import kotlin.system.exitProcess
 import kotlin.time.Duration.Companion.milliseconds
@@ -28,6 +29,9 @@ private val logger = createLogger()
 
 internal fun setupShutdownProcedure() {
     Runtime.getRuntime().addShutdownHook(ShutdownThread)
+
+    /* Remove the previous shutdown log file */
+    shutdownReportFile?.deleteIfExists()
 
     /* Log the shutdown */
     invokeOnShutdown {
@@ -88,7 +92,7 @@ private object ShutdownThread : Thread("shutdown") {
     override fun run() {
         val startInstant = System.currentTimeMillis()
         val shutdownReportWriter = shutdownReportFile?.createParentDirectories()?.bufferedWriter()
-        shutdownReportWriter?.appendLine("Shutting down...")
+        shutdownReportWriter?.appendLine("Shutting down (DevTools '${ProcessHandle.current().pid()})")
         shutdownReportWriter?.appendLine("Shutdown actions registered: ${actions.size}")
         shutdownReportWriter?.flush()
 
