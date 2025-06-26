@@ -25,6 +25,9 @@ import org.gradle.tooling.events.task.TaskSkippedResult
 import org.gradle.tooling.events.task.TaskSuccessResult
 import org.gradle.util.GradleVersion
 import org.jetbrains.compose.reload.core.exception
+import org.jetbrains.compose.reload.core.getBlocking
+import org.jetbrains.compose.reload.core.getOrThrow
+import org.jetbrains.compose.reload.core.launchTask
 import org.jetbrains.compose.reload.core.leftOr
 import org.jetbrains.compose.reload.core.update
 import org.jetbrains.compose.reload.gradle.Future
@@ -39,6 +42,7 @@ import org.jetbrains.compose.reload.orchestration.invokeOnClose
 import org.jetbrains.compose.reload.orchestration.sendAsync
 import java.lang.AutoCloseable
 import java.util.concurrent.atomic.AtomicReference
+import kotlin.time.Duration.Companion.seconds
 
 /**
  * This [statusService] will connect to running (hot) applications and sends notifications
@@ -144,7 +148,9 @@ internal abstract class StatusService : BuildService<StatusService.Params>, Oper
 
     override fun close() {
         val clients = clients.getAndSet(emptyList())
-        clients.forEach { client -> client.sendAsync(BuildFinished()) }
-        clients.forEach { client -> client.close() }
+        launchTask {
+            clients.forEach { client -> client.send(BuildFinished()) }
+            clients.forEach { client -> client.close() }
+        }.getBlocking(15.seconds).getOrThrow()
     }
 }
