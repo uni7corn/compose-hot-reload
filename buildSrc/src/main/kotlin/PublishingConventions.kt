@@ -6,11 +6,10 @@ import org.gradle.kotlin.dsl.property
  * Use of this source code is governed by the Apache 2.0 license that can be found in the LICENSE file.
  */
 
-open class PublishingConventions(private val project: Project) {
+open class PublishingConventions(project: Project) {
 
     val artifactId = project.objects.property<String>()
         .value(project.name)
 
     val oldArtifactId = project.objects.property<String>()
-        .value(project.name.removePrefix("hot-reload-"))
 }
