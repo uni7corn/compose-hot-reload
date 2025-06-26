@@ -8,6 +8,7 @@
 package org.jetbrains.compose.reload
 
 import org.gradle.api.Project
+import org.gradle.api.logging.Logging
 import org.gradle.api.provider.ListProperty
 import org.gradle.api.provider.Property
 import org.gradle.api.provider.Provider
@@ -23,6 +24,8 @@ import org.gradle.tooling.events.task.TaskFinishEvent
 import org.gradle.tooling.events.task.TaskSkippedResult
 import org.gradle.tooling.events.task.TaskSuccessResult
 import org.gradle.util.GradleVersion
+import org.jetbrains.compose.reload.core.exception
+import org.jetbrains.compose.reload.core.leftOr
 import org.jetbrains.compose.reload.core.update
 import org.jetbrains.compose.reload.gradle.Future
 import org.jetbrains.compose.reload.gradle.projectFuture
@@ -80,10 +83,16 @@ internal abstract class StatusService : BuildService<StatusService.Params>, Oper
 
     private val clients = AtomicReference<List<OrchestrationClient>>(emptyList())
 
+    private val logger = Logging.getLogger(StatusService::class.java)
+
     init {
         clients.set(parameters.ports.get().mapNotNull { port ->
-            OrchestrationClient(OrchestrationClientRole.Compiler, port).connectBlocking().leftOrNull()
+            OrchestrationClient(OrchestrationClientRole.Compiler, port).connectBlocking().leftOr { right ->
+                logger.error("StatusService: Failed to connect to '$port' for '${parameters.projectPath.get()}'", right.exception)
+                null
+            }
         }.onEach { client ->
+            logger.info("StatusService: Connected to '${client.port.getOrNull()}'")
             client.sendAsync(OrchestrationMessage.BuildStarted())
             client.invokeOnClose {
                 clients.update { it - client }
