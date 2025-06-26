@@ -7,11 +7,11 @@ package org.jetbrains.compose.reload
 
 
 @RequiresOptIn("Internal API: Do not use outside of the 'compose-hot-reload' repository", RequiresOptIn.Level.ERROR)
-@Retention(AnnotationRetention.BINARY)
+@Retention(AnnotationRetention.RUNTIME)
 public annotation class InternalHotReloadApi
 
 @RequiresOptIn("Delicate API: Only use with caution", RequiresOptIn.Level.WARNING)
-@Retention(AnnotationRetention.BINARY)
+@Retention(AnnotationRetention.RUNTIME)
 public annotation class DelicateHotReloadApi
 
 @Retention(AnnotationRetention.RUNTIME)
