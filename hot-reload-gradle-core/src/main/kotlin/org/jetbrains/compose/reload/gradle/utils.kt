@@ -34,7 +34,7 @@ val String.capitalized
 val String.decapitalized
     get() = this.replaceFirstChar { if (it.isUpperCase()) it.lowercase(Locale.getDefault()) else it.toString() }
 
-@InternalHotReloadGradleApi
+@InternalHotReloadApi
 fun camelCase(vararg nameParts: String?): String =
     nameParts.filterNotNull().filter { it.isNotBlank() }.joinToString("") { it.capitalized }.decapitalized
 

@@ -1,5 +1,6 @@
-@file:OptIn(InternalHotReloadGradleApi::class)
+@file:OptIn(InternalHotReloadGradleApi::class, InternalHotReloadApi::class)
 
+import org.jetbrains.compose.reload.InternalHotReloadApi
 import org.jetbrains.compose.reload.gradle.InternalHotReloadGradleApi
 import org.jetbrains.compose.reload.gradle.camelCase
 
