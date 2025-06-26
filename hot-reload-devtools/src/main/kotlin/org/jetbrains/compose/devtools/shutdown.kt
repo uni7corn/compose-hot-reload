@@ -92,7 +92,7 @@ private object ShutdownThread : Thread("shutdown") {
     override fun run() {
         val startInstant = System.currentTimeMillis()
         val shutdownReportWriter = shutdownReportFile?.createParentDirectories()?.bufferedWriter()
-        shutdownReportWriter?.appendLine("Shutting down (DevTools '${ProcessHandle.current().pid()})")
+        shutdownReportWriter?.appendLine("Shutting down (DevTools '${ProcessHandle.current().pid()}')")
         shutdownReportWriter?.appendLine("Shutdown actions registered: ${actions.size}")
         shutdownReportWriter?.flush()
 

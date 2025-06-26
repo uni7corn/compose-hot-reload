@@ -28,7 +28,6 @@ class ComposeHotReloadPlugin : Plugin<Project> {
             target.launch { target.jvmRunHijackTasks.await() }
             target.launch { target.hotAsyncRunTasks.await() }
             target.launch { target.hotArgFileTasks.await() }
-            target.launch { target.hotProcessManagerTask.await() }
             target.launch { target.hotDevCompilations.await() }
             target.launch { target.hotReloadLifecycleTask.await() }
             target.launch { target.hotReloadTasks.await() }

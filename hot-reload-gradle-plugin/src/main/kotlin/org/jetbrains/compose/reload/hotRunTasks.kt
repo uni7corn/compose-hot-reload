@@ -26,7 +26,6 @@ import org.jetbrains.compose.reload.gradle.futureProvider
 import org.jetbrains.compose.reload.gradle.intellijDebuggerDispatchPort
 import org.jetbrains.compose.reload.gradle.kotlinJvmOrNull
 import org.jetbrains.compose.reload.gradle.kotlinMultiplatformOrNull
-import org.jetbrains.compose.reload.gradle.launch
 import org.jetbrains.compose.reload.gradle.projectFuture
 import org.jetbrains.compose.reload.gradle.string
 import org.jetbrains.kotlin.gradle.InternalKotlinGradlePluginApi
@@ -117,12 +116,6 @@ internal fun JavaExec.configureJavaExecTaskForHotReload(compilation: Provider<Ko
         setArgFile(argfile.map { it.asFile })
         isRecompileContinuous(isRecompileContinuous)
         setReloadTaskName(compilation.map { compilation -> compilation.hotReloadTaskName })
-    }
-
-    project.launch {
-        val processManager = project.hotProcessManagerTask.await().get()
-        dependsOn(processManager)
-        processManager.pidFiles.from(pidfile)
     }
 
     project.intellijDebuggerDispatchPort.orNull?.let { debuggerDispatchPort ->
