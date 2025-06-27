@@ -135,6 +135,8 @@ class HotReloadTestDimensionBuilder : HotReloadTestDimensionExtension {
 
 class HotReloadTestDimensionFilter : HotReloadTestDimensionExtension {
 
+    override val ordinal: Int = Int.MAX_VALUE
+
     override fun transform(
         context: ExtensionContext,
         tests: List<HotReloadTestInvocationContext>

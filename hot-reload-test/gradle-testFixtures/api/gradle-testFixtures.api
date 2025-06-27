@@ -230,7 +230,12 @@ public abstract interface class org/jetbrains/compose/reload/test/gradle/HotRelo
 }
 
 public abstract interface class org/jetbrains/compose/reload/test/gradle/HotReloadTestDimensionExtension {
+	public fun getOrdinal ()I
 	public abstract fun transform (Lorg/junit/jupiter/api/extension/ExtensionContext;Ljava/util/List;)Ljava/util/List;
+}
+
+public final class org/jetbrains/compose/reload/test/gradle/HotReloadTestDimensionExtension$DefaultImpls {
+	public static fun getOrdinal (Lorg/jetbrains/compose/reload/test/gradle/HotReloadTestDimensionExtension;)I
 }
 
 public final class org/jetbrains/compose/reload/test/gradle/HotReloadTestFixture : java/lang/AutoCloseable {

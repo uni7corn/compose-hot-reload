@@ -9,6 +9,8 @@ import org.junit.jupiter.api.extension.ExtensionContext
 import java.util.ServiceLoader
 
 public interface HotReloadTestDimensionExtension {
+    public val ordinal: Int get() = 0
+
     public fun transform(
         context: ExtensionContext,
         tests: List<HotReloadTestInvocationContext>
@@ -21,6 +23,7 @@ internal fun buildHotReloadTestDimensions(context: ExtensionContext): List<HotRe
     }
 
     return ServiceLoader.load(HotReloadTestDimensionExtension::class.java).plus(fromAnnotation)
+        .sortedBy { it.ordinal }
         .fold(listOf(HotReloadTestInvocationContext())) { tests, extension ->
             extension.transform(context, tests)
         }
