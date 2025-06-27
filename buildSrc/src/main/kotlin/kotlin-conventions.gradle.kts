@@ -21,7 +21,7 @@ plugins.withType<KotlinBasePluginWrapper> {
 
         if (this is HasConfigurableKotlinCompilerOptions<*>) {
             this.compilerOptions {
-                languageVersion = KotlinVersion.KOTLIN_2_1
+                languageVersion = KotlinVersion.KOTLIN_2_2
                 apiVersion = KotlinVersion.KOTLIN_2_1
                 optIn.add("org.jetbrains.compose.reload.InternalHotReloadApi")
                 optIn.add("org.jetbrains.compose.reload.DelicateHotReloadApi")
