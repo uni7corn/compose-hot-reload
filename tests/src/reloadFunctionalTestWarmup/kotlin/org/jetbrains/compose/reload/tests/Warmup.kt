@@ -11,6 +11,7 @@ import org.jetbrains.compose.reload.test.gradle.AndroidHotReloadTest
 import org.jetbrains.compose.reload.test.gradle.HotReloadTest
 import org.jetbrains.compose.reload.test.gradle.HotReloadTestFixture
 import org.jetbrains.compose.reload.test.gradle.launchApplication
+import org.jetbrains.compose.reload.utils.GradleIntegrationTest
 import org.junit.jupiter.api.parallel.Execution
 import org.junit.jupiter.api.parallel.ExecutionMode
 import kotlin.time.Duration.Companion.minutes
@@ -23,6 +24,7 @@ class Warmup {
      */
     @HotReloadTest
     @AndroidHotReloadTest
+    @GradleIntegrationTest
     @Execution(ExecutionMode.SAME_THREAD)
     fun build(fixture: HotReloadTestFixture) = fixture.runTest(timeout = timeout) {
         fixture.runTransaction {
