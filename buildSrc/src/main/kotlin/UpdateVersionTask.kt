@@ -23,7 +23,7 @@ open class UpdateVersionTask : DefaultTask() {
         logger.info("Updating project versions to '${projectVersion.get()}'")
         logger.info("Updating kotlin firework versions to '${kotlinFireworkVersion.get()}'")
 
-        val projectVersionRegex = Regex("""hot-reload.*(?<version>\d+\.\d+\.\d+-\w+-\d+)""")
+        val projectVersionRegex = Regex("""hot-reload.*(?<version>\d+\.\d+\.\d+[-+][\w\.]+[-+]\d+)""")
         val kotlinVersionRegex = Regex("""((kotlin\("jvm"\))|(kotlin\("multiplatform"\))|(kotlin\("plugin\..*)\)).*(?<version>\d+\.\d+\.\d+(-\w+)?)""")
 
         sources.forEach { sourceFile ->
