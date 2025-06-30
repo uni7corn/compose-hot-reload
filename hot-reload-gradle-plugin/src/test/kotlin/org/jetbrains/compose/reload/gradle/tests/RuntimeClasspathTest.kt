@@ -9,6 +9,7 @@ import org.gradle.testfixtures.ProjectBuilder
 import org.jetbrains.compose.reload.core.HOT_RELOAD_VERSION
 import org.jetbrains.compose.reload.core.testFixtures.PathRegex
 import org.jetbrains.compose.reload.core.testFixtures.assertMatches
+import org.jetbrains.compose.reload.core.testFixtures.regexEscaped
 import org.jetbrains.compose.reload.gradle.ComposeHotReloadPlugin
 import org.jetbrains.compose.reload.gradle.composeHotReloadAgentClasspath
 import org.jetbrains.compose.reload.gradle.composeHotReloadAgentJar
@@ -22,7 +23,7 @@ class RuntimeClasspathTest {
         val project = ProjectBuilder.builder().build()
         project.withRepositories()
         project.composeHotReloadAgentClasspath.files.assertMatches(
-            PathRegex(""".*hot-reload-agent-$HOT_RELOAD_VERSION.jar"""), { true },
+            PathRegex(""".*hot-reload-agent-${HOT_RELOAD_VERSION.regexEscaped}.jar"""), { true },
         )
     }
 
@@ -31,7 +32,7 @@ class RuntimeClasspathTest {
         val project = ProjectBuilder.builder().build()
         project.withRepositories()
         project.composeHotReloadAgentJar.files.assertMatches(
-            PathRegex(""".*hot-reload-agent-$HOT_RELOAD_VERSION.jar""")
+            PathRegex(""".*hot-reload-agent-${HOT_RELOAD_VERSION.regexEscaped}.jar""")
         )
     }
 
@@ -42,8 +43,8 @@ class RuntimeClasspathTest {
         project.plugins.apply(ComposeHotReloadPlugin::class.java)
 
         project.composeHotReloadRuntimeClasspath.files.assertMatches(
-            PathRegex(".*hot-reload-runtime-jvm-$HOT_RELOAD_VERSION.jar"),
-            PathRegex(".*hot-reload-annotations-jvm-$HOT_RELOAD_VERSION.jar"),
+            PathRegex(".*hot-reload-runtime-jvm-${HOT_RELOAD_VERSION.regexEscaped}.jar"),
+            PathRegex(".*hot-reload-annotations-jvm-${HOT_RELOAD_VERSION.regexEscaped}.jar"),
             { true }
         )
     }
