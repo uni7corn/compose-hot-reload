@@ -45,10 +45,10 @@ val bootstrapVersion = providers.fileContents(layout.projectDirectory.file("../g
     }
 
 dependencies {
-    implementation("org.jetbrains.compose.hot-reload:core:${bootstrapVersion.get()}")
-    implementation("org.jetbrains.compose.hot-reload:gradle-core:${bootstrapVersion.get()}")
-    implementation("org.jetbrains.compose.hot-reload:gradle-plugin:${bootstrapVersion.get()}")
-    implementation("org.jetbrains.compose.hot-reload:test-gradle-plugin:${bootstrapVersion.get()}")
+    implementation("org.jetbrains.compose.hot-reload:hot-reload-core:${bootstrapVersion.get()}")
+    implementation("org.jetbrains.compose.hot-reload:hot-reload-gradle-core:${bootstrapVersion.get()}")
+    implementation("org.jetbrains.compose.hot-reload:hot-reload-gradle-plugin:${bootstrapVersion.get()}")
+    implementation("org.jetbrains.compose.hot-reload:hot-reload-test-gradle-plugin:${bootstrapVersion.get()}")
     implementation(kotlin("gradle-plugin:${deps.versions.kotlin.get()}"))
     implementation("org.jetbrains.kotlin.plugin.compose:org.jetbrains.kotlin.plugin.compose.gradle.plugin:${deps.versions.kotlin.get()}")
     implementation("org.jetbrains.kotlin.plugin.serialization:org.jetbrains.kotlin.plugin.serialization.gradle.plugin:${deps.versions.kotlin.get()}")
