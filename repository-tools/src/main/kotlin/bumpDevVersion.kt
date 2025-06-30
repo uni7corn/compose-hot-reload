@@ -46,7 +46,7 @@ private class ComposeHotReloadVersion(val value: String) {
     companion object {
         val regex = Regex(
             """(?<major>\d+).(?<minor>\d+).(?<patch>\d+)""" +
-                """(-(?<qualifier>\w+\d*))?""" +
+                """(-(?<qualifier>[\w.]+\d*))?""" +
                 """(([-+])(?<buildNumber>\d+))?"""
         )
     }
