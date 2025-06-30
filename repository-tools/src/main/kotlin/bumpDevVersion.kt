@@ -13,12 +13,12 @@ fun main() {
 
     val latestDevVersion = fetchLatestVersionFromFireworkDevRepository()
     val latestDevVersionBuildNumber = latestDevVersion.buildNumber ?: error("Missing build number in version $latestDevVersion")
-    val currentVersion = KotlinToolingVersion(readGradleProperties("version"))
+    val currentVersion = ComposeHotReloadVersion(readGradleProperties("version"))
     val currentBuildNumber = currentVersion.buildNumber ?: error("Missing build number in version $currentVersion")
     val newBuildNumber = maxOf(currentBuildNumber, latestDevVersionBuildNumber) + 1
-    val newVersion = currentVersion.toString().replace(currentBuildNumber.toString(), newBuildNumber.toString())
+    val newVersion = currentVersion.withBuildNumber(newBuildNumber)
 
-    writeGradleProperties("version", newVersion)
+    writeGradleProperties("version", newVersion.toString())
 
     command("./gradlew", "updateVersions")
 
@@ -28,7 +28,7 @@ fun main() {
 }
 
 
-private fun fetchLatestVersionFromFireworkDevRepository(): KotlinToolingVersion {
+private fun fetchLatestVersionFromFireworkDevRepository(): ComposeHotReloadVersion {
     val mavenMetadataUrl =
         "https://packages.jetbrains.team/maven/p/firework/dev/org/jetbrains/compose/hot-reload/core/maven-metadata.xml"
 
@@ -39,5 +39,32 @@ private fun fetchLatestVersionFromFireworkDevRepository(): KotlinToolingVersion 
     val rawVersion = DocumentBuilderFactory.newInstance().newDocumentBuilder().parse(mavenMetadata.byteInputStream())
         .getElementsByTagName("latest").item(0).textContent
 
-    return KotlinToolingVersion(rawVersion)
+    return ComposeHotReloadVersion(rawVersion)
+}
+
+private class ComposeHotReloadVersion(val value: String) {
+    companion object {
+        val regex = Regex(
+            """(?<major>\d+).(?<minor>\d+).(?<patch>\d+)""" +
+                """(-(?<qualifier>\w+\d*))?""" +
+                """(([-+])(?<buildNumber>\d+))?"""
+        )
+    }
+
+    val match = regex.matchEntire(value) ?: error("Invalid version '$value'")
+    val major = match.groups["major"]!!.value.toInt()
+    val minor = match.groups["minor"]!!.value.toInt()
+    val patch = match.groups["patch"]!!.value.toInt()
+    val qualifier = match.groups["qualifier"]?.value
+    val buildNumber = match.groups["buildNumber"]?.value?.toInt()
+
+    fun withBuildNumber(buildNumber: Int?) = ComposeHotReloadVersion(
+        "$major.$minor.$patch" +
+            (qualifier?.let { "-$it" } ?: "") +
+            (buildNumber?.let { "+$it" } ?: "")
+    )
+
+    override fun toString(): String {
+        return value
+    }
 }
