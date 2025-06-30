@@ -14,13 +14,28 @@ import jetbrains.buildServer.configs.kotlin.BuildType
 import jetbrains.buildServer.configs.kotlin.buildFeatures.buildCache
 import jetbrains.buildServer.configs.kotlin.buildSteps.gradle
 
-class WindowsFunctionalTest() : BuildType({
-    name = "Functional Test: $requiredHost"
-    id("FunctionalTest_$requiredHost")
+fun windowsFunctionalTests(): List<WindowsFunctionalTest> {
+    return listOf(
+        WindowsFunctionalTest(1, 2),
+        WindowsFunctionalTest(2, 2)
+    )
+}
+
+class WindowsFunctionalTest(
+    private val bucket: Int? = null,
+    private val bucketsCount: Int? = null,
+) : BuildType({
+    name = "Functional Test: $requiredHost ($bucket/$bucketsCount)"
+    id("FunctionalTest_${requiredHost}_${bucket}_$bucketsCount")
 
     params {
         param("bootstrap", "false")
         param("env.ANDROID_HOME", "%system.teamcity.build.workingDir%/.local/android-sdk")
+
+        if (bucket != null && bucketsCount != null) {
+            param("env.TESTED_BUCKET", bucket.toString())
+            param("env.TESTED_BUCKETS_COUNT", bucketsCount.toString())
+        }
     }
 
     artifactRules = """

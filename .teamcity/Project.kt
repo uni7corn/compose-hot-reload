@@ -14,11 +14,11 @@ import builds.StagingDeploy
 import builds.Test
 import builds.TestIntelliJPluginCheck
 import builds.UpdateComposeDevVersion
-import builds.WindowsFunctionalTest
 import builds.WindowsTest
 import builds.conventions.configureConventions
 import builds.functionalTests
 import builds.utils.Host
+import builds.windowsFunctionalTests
 import jetbrains.buildServer.configs.kotlin.ParameterDisplay
 import jetbrains.buildServer.configs.kotlin.Project
 import jetbrains.buildServer.configs.kotlin.sequential
@@ -37,14 +37,14 @@ object ComposeHotReloadProject : Project({
     /* Tests */
     buildType(AllTests)
     val linuxTest = Test(Host.Linux)
-    val windowsFunctionalTestsTest = WindowsFunctionalTest()
     val windowsTests = WindowsTest()
     val functionalTests = functionalTests()
-
     functionalTests.forEach { buildType(it) }
 
+    val windowsFunctionalTestsTest = windowsFunctionalTests()
+    windowsFunctionalTestsTest.forEach { buildType(it) }
+
     buildType(linuxTest)
-    buildType(windowsFunctionalTestsTest)
     buildType(windowsTests)
     buildType(ApiCheck)
     buildType(SamplesCheck)
@@ -52,13 +52,13 @@ object ComposeHotReloadProject : Project({
 
     sequential {
         parallel {
-            buildType(windowsFunctionalTestsTest)
             buildType(windowsTests)
             buildType(linuxTest)
             buildType(ApiCheck)
             buildType(SamplesCheck)
             buildType(TestIntelliJPluginCheck)
             functionalTests.forEach { buildType(it) }
+            windowsFunctionalTestsTest.forEach { buildType(it) }
         }
         buildType(AllTests)
     }
