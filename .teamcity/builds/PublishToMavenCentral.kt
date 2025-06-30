@@ -32,7 +32,7 @@ object PublishToMavenCentralProject : Project({
     }
 
     buildType(BuildDeployBundle)
-    buildType(DeployToMavenCentral)
+    buildType(PublishToMavenCentral)
 })
 
 
@@ -58,8 +58,8 @@ object BuildDeployBundle : BuildType({
 })
 
 
-object DeployToMavenCentral : BuildType({
-    name = "Deploy: Deploy Bundle"
+object PublishToMavenCentral : BuildType({
+    name = "Publish to Maven Central"
     type = Type.DEPLOYMENT
 
     vcs {
