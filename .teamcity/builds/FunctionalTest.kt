@@ -24,11 +24,12 @@ import kotlin.io.path.readText
 
 fun functionalTests(): List<FunctionalTest> {
     return listOf(
-        FunctionalTest(bucket = 1, bucketsCount = 5),
-        FunctionalTest(bucket = 2, bucketsCount = 5),
-        FunctionalTest(bucket = 3, bucketsCount = 5),
-        FunctionalTest(bucket = 4, bucketsCount = 5),
-        FunctionalTest(bucket = 5, bucketsCount = 5),
+        FunctionalTest(bucket = 1, bucketsCount = 6),
+        FunctionalTest(bucket = 2, bucketsCount = 6),
+        FunctionalTest(bucket = 3, bucketsCount = 6),
+        FunctionalTest(bucket = 4, bucketsCount = 6),
+        FunctionalTest(bucket = 5, bucketsCount = 6),
+        FunctionalTest(bucket = 6, bucketsCount = 6),
     )
 }
 
