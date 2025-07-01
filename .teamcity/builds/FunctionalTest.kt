@@ -100,17 +100,6 @@ class FunctionalTest(
         **/build/logs/** => logs.zip
     """.trimIndent()
 
-    features {
-        buildCache {
-            use = true
-            publish = true
-            name = "(${key}) Functional Test Gradle (build-cache)"
-            rules = """
-                tests/build/gradleHome/caches/build-cache-1
-            """.trimIndent()
-        }
-    }
-
     params {
         if (kotlinVersion != null) {
             param("env.TESTED_KOTLIN_VERSION", kotlinVersion)
