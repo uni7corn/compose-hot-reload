@@ -1,3 +1,4 @@
+import org.jetbrains.compose.reload.core.Os
 import org.jetbrains.compose.reload.core.StoppedException
 import org.jetbrains.compose.reload.core.Task
 import org.jetbrains.compose.reload.core.WorkerThread
@@ -10,6 +11,7 @@ import org.jetbrains.compose.reload.core.isFailure
 import org.jetbrains.compose.reload.core.launchTask
 import org.jetbrains.compose.reload.core.reloadMainThread
 import org.jetbrains.compose.reload.core.withThread
+import org.junit.jupiter.api.Assumptions
 import kotlin.test.AfterTest
 import kotlin.test.Test
 import kotlin.test.assertEquals
@@ -61,6 +63,11 @@ class CoroutinesTest {
 
     @Test
     fun `test - switching threads`() {
+        Assumptions.assumeTrue(
+            Os.current() != Os.Windows,
+            "https://github.com/JetBrains/compose-hot-reload/issues/262"
+        )
+
         val threads = launchTask("test") {
             val threads = mutableListOf<Thread>()
             threads += Thread.currentThread()
