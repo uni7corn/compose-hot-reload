@@ -75,8 +75,12 @@ class ContinuousBuildTest {
             """.trimIndent()
         )
 
-        gradleRunner.buildFlow(":hotRunJvmAsync", "--mainClass", "MainKt", "--auto").toList()
-            .assertSuccessful()
+        runTransaction {
+            fixture.gradleRunner.buildFlow(":hotRunJvmAsync", "--mainClass", "MainKt", "--auto")
+                .toList().assertSuccessful()
+
+            awaitApplicationStart()
+        }
 
         runTransaction {
             fixture.replaceSourceCode("0", "1")
