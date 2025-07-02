@@ -11,16 +11,10 @@ import builds.conventions.HardwareCapacity
 import builds.conventions.HostRequirement
 import builds.conventions.PublishLocallyConvention
 import jetbrains.buildServer.configs.kotlin.BuildType
-import jetbrains.buildServer.configs.kotlin.buildFeatures.buildCache
 import jetbrains.buildServer.configs.kotlin.buildSteps.gradle
-import kotlinx.serialization.json.Json
-import kotlinx.serialization.json.JsonArray
-import kotlinx.serialization.json.JsonObject
 import java.nio.ByteBuffer
 import java.util.Base64
 import kotlin.io.encoding.ExperimentalEncodingApi
-import kotlin.io.path.Path
-import kotlin.io.path.readText
 
 fun functionalTests(): List<FunctionalTest> {
     return listOf(
@@ -84,5 +78,5 @@ class FunctionalTest(
 }), PublishLocallyConvention,
     CommitStatusPublisher,
     HostRequirement.Linux,
-    HardwareCapacity.Medium,
+    HardwareCapacity.Large,
     BuildCacheConvention.Consumer
