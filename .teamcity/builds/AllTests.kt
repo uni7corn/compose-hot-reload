@@ -5,6 +5,7 @@
 
 package builds
 
+import builds.conventions.CommitStatusPublisher
 import jetbrains.buildServer.configs.kotlin.BuildType
 import jetbrains.buildServer.configs.kotlin.buildFeatures.PullRequests
 import jetbrains.buildServer.configs.kotlin.buildFeatures.pullRequests
@@ -50,4 +51,4 @@ object AllTests : BuildType({
             """.trimIndent()
         }
     }
-})
+}), CommitStatusPublisher
