@@ -528,7 +528,7 @@ class ScreenshotTests {
     }
 
     @HotReloadTest
-    @MinKotlinVersion("2.2.20-Beta1") // https://github.com/JetBrains/compose-hot-reload/issues/220
+    @MinKotlinVersion("2.2.20-dev-7701") // https://github.com/JetBrains/compose-hot-reload/issues/220
     fun `test - add decoy function above`(fixture: HotReloadTestFixture) = fixture.runTest {
         fixture initialSourceCode """
             import androidx.compose.foundation.layout.*
