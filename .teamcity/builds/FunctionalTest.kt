@@ -46,7 +46,7 @@ class FunctionalTest(
         append(
             buildList {
                 if (bucket != null && bucketsCount != null) {
-                    add("($bucket/$bucketsCount)")
+                    add("$bucket/$bucketsCount")
                 }
             }.joinToString(", ")
         )
