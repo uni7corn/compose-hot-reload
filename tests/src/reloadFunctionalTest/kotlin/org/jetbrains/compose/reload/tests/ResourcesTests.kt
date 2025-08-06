@@ -39,7 +39,8 @@ class ResourcesTests {
     private fun HotReloadTestFixture.projectName() = projectDir.path.name.replace('-', '_')
 
     private suspend fun HotReloadTestFixture.drawableResourceUsageSource(resourceName: String): Path {
-        return initialSourceCode("""
+        return initialSourceCode(
+            """
             import androidx.compose.foundation.Image
             import org.jetbrains.compose.reload.test.*
             import ${projectName()}.generated.resources.*
@@ -50,7 +51,8 @@ class ResourcesTests {
                     Image(painterResource(Res.drawable.$resourceName), null)
                 }
             }
-            """.trimIndent())
+            """.trimIndent()
+        )
     }
 
     private fun HotReloadTestFixture.testResourceDir(): Path {
@@ -245,19 +247,24 @@ class ResourcesTests {
 
         fixture.initialSourceCode(
             """
-                import androidx.compose.ui.text.font.FontFamily
+                import ${fixture.projectName()}.generated.resources.*
+                import androidx.compose.foundation.layout.padding
                 import androidx.compose.material3.Text
+                import androidx.compose.ui.Modifier
+                import androidx.compose.ui.text.font.FontFamily
+                import androidx.compose.ui.unit.dp
                 import androidx.compose.ui.unit.sp
                 import org.jetbrains.compose.reload.test.*
-                import ${fixture.projectName()}.generated.resources.*
                 import org.jetbrains.compose.resources.Font
                 
                 fun main() {
                     screenshotTestApplication {
-                        Text("Font resource",
-                            fontSize = 48.sp,
-                            fontFamily = FontFamily(Font(Res.font.$resourceName)),
-                        )
+                       Text(
+                           "Font resource",
+                           fontSize = 24.sp,
+                           fontFamily = FontFamily(Font(Res.font.$resourceName)),
+                           modifier = Modifier.padding(16.dp)
+                       )
                     }
                 }
                 """.trimIndent()
