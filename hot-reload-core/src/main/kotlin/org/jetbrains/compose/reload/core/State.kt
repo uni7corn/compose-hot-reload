@@ -54,7 +54,7 @@ public class MutableState<T>(initialValue: T) : State<T> {
                     lastEmittedValue = state.value
                     collector(state.value)
                 }
-                state.nextState.await()
+                state.nextState.awaitOrThrow()
             }
         } catch (_: StopCollectingException) {
         }

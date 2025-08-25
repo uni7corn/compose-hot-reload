@@ -6,6 +6,7 @@
 package org.jetbrains.compose.reload.core
 
 import org.jetbrains.compose.reload.DelicateHotReloadApi
+import org.jetbrains.compose.reload.InternalHotReloadApi
 import java.util.concurrent.RejectedExecutionException
 import java.util.concurrent.atomic.AtomicReference
 import kotlin.coroutines.Continuation
@@ -49,13 +50,19 @@ public suspend fun Task<*>.isActive(): Boolean {
     val currentContext = coroutineContext
     return suspendCoroutine { continuation ->
         suspend {
-            !value.isCompleted() && !isStopped()
+            isTaskActive
         }.createCoroutine(Continuation(currentContext) { result ->
             continuation.resumeWith(result)
         }).resume(Unit)
     }
 }
 
+/**
+ * Same as `isActive()` without yielding the thread.
+ * Note: This is a delicate API, which shall be used carefully to avoid thread starvation.
+ */
+@InternalHotReloadApi
+public val Task<*>.isTaskActive: Boolean get() = !value.isCompleted() && !isStopped()
 
 @DelicateHotReloadApi
 public fun Task<*>.isStopped(): Boolean = onStop.isCompleted()

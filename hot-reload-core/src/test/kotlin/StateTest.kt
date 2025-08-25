@@ -1,16 +1,21 @@
 import org.jetbrains.compose.reload.core.Future
 import org.jetbrains.compose.reload.core.MutableState
 import org.jetbrains.compose.reload.core.Queue
+import org.jetbrains.compose.reload.core.StoppedException
 import org.jetbrains.compose.reload.core.await
 import org.jetbrains.compose.reload.core.awaitIdle
 import org.jetbrains.compose.reload.core.complete
+import org.jetbrains.compose.reload.core.exception
 import org.jetbrains.compose.reload.core.getBlocking
 import org.jetbrains.compose.reload.core.getOrThrow
 import org.jetbrains.compose.reload.core.isActive
+import org.jetbrains.compose.reload.core.isFailure
 import org.jetbrains.compose.reload.core.launchTask
 import org.jetbrains.compose.reload.core.reloadMainThread
 import kotlin.test.Test
 import kotlin.test.assertEquals
+import kotlin.test.assertIs
+import kotlin.test.fail
 import kotlin.time.Duration.Companion.seconds
 
 /*
@@ -154,5 +159,18 @@ class StateTest {
         }
 
         assertEquals(10, result.getBlocking(5.seconds).getOrThrow())
+    }
+
+    @Test
+    fun `test - await & stop`() {
+        val state = MutableState(0)
+        val task = launchTask {
+            state.await { it >= 10 }
+        }
+
+        task.stop()
+        val result = task.getBlocking(5.seconds)
+        if (!result.isFailure()) fail("Unexpected result: $result")
+        assertIs<StoppedException>(result.exception)
     }
 }
