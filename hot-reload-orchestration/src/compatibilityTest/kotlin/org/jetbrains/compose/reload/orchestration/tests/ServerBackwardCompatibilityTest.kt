@@ -57,6 +57,7 @@ class ServerBackwardCompatibilityTest {
 
             log("Sending 'Hello' event")
             client.send(TestEvent("Hello"))
+            client.await()
         }
     }
 
@@ -106,6 +107,8 @@ class ServerBackwardCompatibilityTest {
             reloadMainThread.awaitIdle()
             clientA.send(TestEvent("Hello"))
             clientB.send(TestEvent("World"))
+            clientA.await()
+            clientB.await()
         }
     }
 
@@ -184,6 +187,7 @@ class ServerBackwardCompatibilityTest {
 
             log("Client ready")
             Ready.send()
+            client.await()
         }
     }
 
