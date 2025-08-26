@@ -11,6 +11,13 @@ plugins {
     kotlin("jvm") version deps.versions.kotlin
 }
 
+kotlin {
+    compilerOptions {
+        optIn.add("org.jetbrains.compose.reload.InternalHotReloadApi")
+        optIn.add("org.jetbrains.compose.reload.DelicateHotReloadApi")
+    }
+}
+
 repositories {
     maven(file("../build/bootstrap"))
 
