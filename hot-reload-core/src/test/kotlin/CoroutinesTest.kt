@@ -2,6 +2,7 @@ import org.jetbrains.compose.reload.core.StoppedException
 import org.jetbrains.compose.reload.core.Task
 import org.jetbrains.compose.reload.core.WorkerThread
 import org.jetbrains.compose.reload.core.dispatcher
+import org.jetbrains.compose.reload.core.dispatcherImmediate
 import org.jetbrains.compose.reload.core.exceptionOrNull
 import org.jetbrains.compose.reload.core.getBlocking
 import org.jetbrains.compose.reload.core.getOrThrow
@@ -57,6 +58,35 @@ class CoroutinesTest {
         }.getBlocking(5.seconds).getOrThrow()
 
         assertEquals(worker, thread)
+    }
+
+    @Test
+    fun `test - launch with immediate context`() {
+        val worker = use(WorkerThread("w1"))
+        launchTask(context = worker.dispatcher) {
+            assertEquals(worker, Thread.currentThread())
+
+            var launchTaskWasImmediate = false
+            launchTask(context = worker.dispatcherImmediate) {
+                launchTaskWasImmediate = true
+            }
+
+            assertEquals(
+                launchTaskWasImmediate, true,
+                "Expected the 'launchTask' to be immediate with the immediate dispatcher"
+            )
+
+            var subtaskWasImmediate = false
+            subtask(context = worker.dispatcherImmediate) {
+                subtaskWasImmediate = true
+            }
+
+            assertEquals(
+                subtaskWasImmediate, true,
+                "Expected the 'subtask' to be immediate with the immediate dispatcher"
+            )
+
+        }.getBlocking(5.seconds).getOrThrow()
     }
 
     @Test

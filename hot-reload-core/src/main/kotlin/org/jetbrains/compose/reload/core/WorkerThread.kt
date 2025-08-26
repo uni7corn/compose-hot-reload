@@ -86,6 +86,17 @@ public class WorkerThread(
         else invoke(action)
     }
 
+    /**
+     * Similar to the [invokeImmediate] method, but blocks the current thread until the [action] is completed if
+     * the current thread was not the worker thread.
+     *
+     * If the current thread is the worker thread, the [action] is executed immediately.
+     */
+    public fun <T> invokeImmediateBlocking(action: () -> T): T {
+        return if (currentThread() == this) action()
+        else invoke(action).getBlocking().getOrThrow()
+    }
+
     private fun <T> enqueue(queue: LinkedBlockingQueue<Work<*>>, action: () -> T): Future<T> {
         val future = Future<T>()
 

@@ -9,15 +9,12 @@ import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.channels.ReceiveChannel
 import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.buffer
 import kotlinx.coroutines.flow.callbackFlow
 import kotlinx.coroutines.flow.flow
-import kotlinx.coroutines.flow.onStart
-import kotlinx.coroutines.flow.onSubscription
-import kotlinx.coroutines.flow.stateIn
 import org.jetbrains.compose.reload.core.launchTask
+import org.jetbrains.compose.reload.core.reloadMainDispatcherImmediate
+import org.jetbrains.compose.reload.core.reloadMainThread
 import java.lang.ref.WeakReference
 import java.util.concurrent.BlockingQueue
 import java.util.concurrent.LinkedBlockingQueue
@@ -56,23 +53,37 @@ public fun OrchestrationHandle.asFlow(): Flow<OrchestrationMessage> = callbackFl
     awaitClose { task.stop() }
 }.buffer(Channel.UNLIMITED)
 
-public fun OrchestrationHandle.asChannel(): ReceiveChannel<OrchestrationMessage> {
-    val channel = Channel<OrchestrationMessage>(Channel.UNLIMITED)
+/**
+ * Creates a [ReceiveChannel] that emits all messages from the [OrchestrationHandle].
+ * The channel is buffered and closed when the [OrchestrationHandle] is closed.
+ *
+ * The creation of the channel is performed on the [reloadMainThread] and messages
+ * are guaranteed to be delivered once the channel is returned
+ */
+public fun OrchestrationHandle.asChannel(): ReceiveChannel<OrchestrationMessage> =
+    reloadMainThread.invokeImmediateBlocking {
+        val channel = Channel<OrchestrationMessage>(Channel.UNLIMITED)
 
-    val task = launchTask("asChannel") {
-        messages.collect { message ->
-            channel.send(message)
+        /*
+        Launching the collecting task using the immediate dispatcher.
+        This ensures that the 'collect' method is called right away, ensuring
+        that no messages will be lost as the underlying listener is registered now
+         */
+        val task = launchTask("asChannel", context = reloadMainDispatcherImmediate) {
+            messages.collect { message ->
+                channel.send(message)
+            }
         }
+
+        launchTask("asChannel.close") {
+            this@asChannel.await()
+            channel.close()
+        }
+
+        channel.invokeOnClose { task.stop() }
+        channel
     }
 
-    launchTask("asChannel.close") {
-        this@asChannel.await()
-        channel.close()
-    }
-
-    channel.invokeOnClose { task.stop() }
-    return channel
-}
 
 public fun <T : OrchestrationState?> OrchestrationStates.flowOf(key: OrchestrationStateKey<T>): Flow<T> = flow {
     get(key).collect { value -> emit(value) }
