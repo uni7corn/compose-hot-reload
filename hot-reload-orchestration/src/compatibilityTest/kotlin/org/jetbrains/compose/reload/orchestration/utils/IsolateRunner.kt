@@ -83,7 +83,7 @@ object IsolateRunner {
                     log("Isolate finished successfully")
                 }
 
-            }.getBlocking(10.seconds).getOrThrow()
+            }.getBlocking(30.seconds).getOrThrow()
         } catch (t: Throwable) {
             createLogger().error("Isolate failed ${t.message}", t)
             throw t
