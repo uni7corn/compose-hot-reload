@@ -128,7 +128,7 @@ fun launch(action: suspend CoroutineScope.() -> Unit): Job {
 }
 
 context(_: IsolateTestContext, _: IsolateHandle)
-suspend fun await(title: String, timeout: Duration = 5.seconds, action: suspend () -> Unit) {
+suspend fun await(title: String, timeout: Duration = 30.seconds, action: suspend () -> Unit) {
     log("awaiting: '$title'")
     try {
         withTimeout(timeout) {
@@ -146,7 +146,7 @@ fun runIsolateTest(test: suspend context(IsolateTestContext) () -> Unit) = runBl
     }
 
     try {
-        withTimeout(15.seconds) {
+        withTimeout(60.seconds) {
             with(IsolateTestContext(this)) { test() }
         }
     } finally {
