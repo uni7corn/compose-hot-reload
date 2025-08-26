@@ -94,6 +94,15 @@ class ServerForwardCompatibilityTest {
             log("clientA & clientB connected")
         }
 
+        /* Warmup */
+        await("clientA & clientB warmup") {
+            clientA.send(TestEvent("Warmup"))
+            messagesA.receiveAsFlow().first { it is TestEvent && it.payload == "Warmup" }
+
+            clientB.send(TestEvent("Warmup"))
+            messagesB.receiveAsFlow().first { it is TestEvent && it.payload == "Warmup" }
+        }
+
         reloadMainThread.awaitIdle()
 
         /* Send a message from client A */
