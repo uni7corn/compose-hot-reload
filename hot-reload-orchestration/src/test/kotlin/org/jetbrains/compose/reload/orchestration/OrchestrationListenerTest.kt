@@ -17,7 +17,6 @@ import org.jetbrains.compose.reload.orchestration.utils.await
 import org.junit.jupiter.api.Assertions.assertTrue
 import kotlin.test.Test
 import kotlin.test.assertEquals
-import kotlin.time.Duration.Companion.seconds
 
 class OrchestrationListenerTest {
 
@@ -101,7 +100,5 @@ class OrchestrationListenerTest {
 
         assertTrue(client.isStopped(), "Expected client to be stopped when listener is closed")
         await("Client Closed") { client.await() }
-
-        Thread.sleep(30.seconds.inWholeMilliseconds)
     }
 }

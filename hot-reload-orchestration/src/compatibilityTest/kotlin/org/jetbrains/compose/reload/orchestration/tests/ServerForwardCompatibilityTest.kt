@@ -82,7 +82,6 @@ class ServerForwardCompatibilityTest {
         }
     }
 
-
     @IsolateTest(StartServer::class)
     context(_: IsolateTestFixture)
     fun `test - send message across two clients`() = runIsolateTest {
@@ -164,8 +163,6 @@ class ServerForwardCompatibilityTest {
         val clientB = OrchestrationClient(Unknown, port)
         clientA.connect().getOrThrow()
         clientB.connect().getOrThrow()
-
-
 
         await("update states") {
             clientA.update(stateKey) { current -> TestOrchestrationState(current.payload + 1) }
