@@ -14,10 +14,10 @@ import org.jetbrains.compose.reload.core.isActive
 import org.jetbrains.compose.reload.core.isStopped
 import org.jetbrains.compose.reload.core.reloadMainThread
 import org.jetbrains.compose.reload.orchestration.utils.await
-import org.junit.jupiter.api.Assertions.assertFalse
 import org.junit.jupiter.api.Assertions.assertTrue
 import kotlin.test.Test
 import kotlin.test.assertEquals
+import kotlin.time.Duration.Companion.seconds
 
 class OrchestrationListenerTest {
 
@@ -94,10 +94,14 @@ class OrchestrationListenerTest {
         val client = listener.connections.receive().getOrThrow()
 
         assertTrue(client.isActive())
+
         listener.close()
+        listener.await()
         reloadMainThread.awaitIdle()
 
-        assertFalse(client.isStopped(), "Expected client to be stopped when listener is closed")
+        assertTrue(client.isStopped(), "Expected client to be stopped when listener is closed")
         await("Client Closed") { client.await() }
+
+        Thread.sleep(30.seconds.inWholeMilliseconds)
     }
 }

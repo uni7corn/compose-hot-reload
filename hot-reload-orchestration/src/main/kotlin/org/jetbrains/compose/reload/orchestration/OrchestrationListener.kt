@@ -75,9 +75,11 @@ public fun startOrchestrationListener(role: OrchestrationClientRole): Orchestrat
 
         while (isActive()) {
             val client = OrchestrationClient(role, AwaitServerConnection(serverSocket))
+            invokeOnFinish { client.close() }
             val connection = client.connect()
-            invokeOnFinish { client.stop() }
-            connections.send(if (connection.isSuccess()) client.toLeft() else connection)
+            if (isActive()) {
+                connections.send(if (connection.isSuccess()) client.toLeft() else connection)
+            }
         }
     }
 
