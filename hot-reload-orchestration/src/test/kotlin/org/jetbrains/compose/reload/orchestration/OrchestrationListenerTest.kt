@@ -6,12 +6,14 @@
 package org.jetbrains.compose.reload.orchestration
 
 import kotlinx.coroutines.test.runTest
+import kotlinx.coroutines.withContext
 import org.jetbrains.compose.reload.core.await
 import org.jetbrains.compose.reload.core.awaitIdle
 import org.jetbrains.compose.reload.core.awaitOrThrow
 import org.jetbrains.compose.reload.core.getOrThrow
 import org.jetbrains.compose.reload.core.isActive
 import org.jetbrains.compose.reload.core.isStopped
+import org.jetbrains.compose.reload.core.reloadMainDispatcherImmediate
 import org.jetbrains.compose.reload.core.reloadMainThread
 import org.jetbrains.compose.reload.orchestration.utils.await
 import org.junit.jupiter.api.Assertions.assertTrue
@@ -94,11 +96,13 @@ class OrchestrationListenerTest {
 
         assertTrue(client.isActive())
 
-        listener.close()
-        listener.await()
-        reloadMainThread.awaitIdle()
+        withContext(reloadMainDispatcherImmediate) {
+            listener.close()
+            listener.await()
+            reloadMainThread.awaitIdle()
 
-        assertTrue(client.isStopped(), "Expected client to be stopped when listener is closed")
-        await("Client Closed") { client.await() }
+            assertTrue(client.isStopped(), "Expected client to be stopped when listener is closed")
+            await("Client Closed") { client.await() }
+        }
     }
 }
