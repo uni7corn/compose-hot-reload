@@ -136,7 +136,7 @@ class TestKt {
             L12
             ALOAD 6
             LDC 1341605231
-            LDC "CC(Column)P(2,3,1)87@4442L61,88@4508L133:Column.kt#2w3rfo"
+            LDC "CC(Column)P(2,3,1)87@4443L61,88@4509L134:Column.kt#2w3rfo"
             L13
             LINENUMBER 17 L13
             INVOKESTATIC androidx/compose/runtime/ComposerKt.sourceInformationMarkerStart (Landroidx/compose/runtime/Composer;ILjava/lang/String;)V
@@ -192,15 +192,16 @@ class TestKt {
             L21
             ALOAD 6
             LDC -1159599143
-            LDC "CC(Layout)P(!1,2)79@3206L23,82@3357L359:Layout.kt#80mrfh"
+            LDC "CC(Layout)P(!1,2)80@3267L27,83@3433L360:Layout.kt#80mrfh"
             L22
             LINENUMBER 28 L22
             INVOKESTATIC androidx/compose/runtime/ComposerKt.sourceInformationMarkerStart (Landroidx/compose/runtime/Composer;ILjava/lang/String;)V
-            ALOAD 6
-            ICONST_0
             L23
             LINENUMBER 29 L23
-            INVOKESTATIC androidx/compose/runtime/ComposablesKt.getCurrentCompositeKeyHash (Landroidx/compose/runtime/Composer;I)I
+            ALOAD 6
+            ICONST_0
+            INVOKESTATIC androidx/compose/runtime/ComposablesKt.getCurrentCompositeKeyHashCode (Landroidx/compose/runtime/Composer;I)J
+            INVOKESTATIC java/lang/Long.hashCode (J)I
             ISTORE 13
             L24
             ALOAD 6
@@ -237,7 +238,7 @@ class TestKt {
             L31
             ALOAD 6
             LDC -553112988
-            LDC "CC(ReusableComposeNode)P(1,2)355@14017L9:Composables.kt#9igjgp"
+            LDC "CC(ReusableComposeNode)N(factory,update,content)399@15590L9:Composables.kt#9igjgp"
             L32
             LINENUMBER 34 L32
             INVOKESTATIC androidx/compose/runtime/ComposerKt.sourceInformationMarkerStart (Landroidx/compose/runtime/Composer;ILjava/lang/String;)V
@@ -373,7 +374,7 @@ class TestKt {
             L59
             ALOAD 26
             LDC 2093002350
-            LDC "C89@4556L9:Column.kt#2w3rfo"
+            LDC "C89@4557L9:Column.kt#2w3rfo"
             L60
             LINENUMBER 25 L60
             INVOKESTATIC androidx/compose/runtime/ComposerKt.sourceInformationMarkerStart (Landroidx/compose/runtime/Composer;ILjava/lang/String;)V

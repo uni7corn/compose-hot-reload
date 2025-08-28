@@ -28,7 +28,6 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import io.sellmair.evas.compose.composeValue
 import kotlinx.coroutines.delay
-import kotlinx.datetime.Clock
 import kotlinx.datetime.LocalTime
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.format
@@ -47,6 +46,7 @@ import org.jetbrains.compose.devtools.widgets.DtErrorDialogWindow
 import org.jetbrains.compose.devtools.widgets.DtImage
 import org.jetbrains.compose.devtools.widgets.DtSmallText
 import org.jetbrains.compose.devtools.widgets.DtText
+import kotlin.time.Clock
 
 @Composable
 fun DtReloadStatusItem() {

@@ -144,7 +144,7 @@
           "group": "org.jetbrains.compose.components",
           "module": "components-resources",
           "version": {
-            "requires": "1.8.2"
+            "requires": "1.9.0-rc01"
           }
         },
         {

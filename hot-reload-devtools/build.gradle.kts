@@ -26,6 +26,7 @@ kotlin {
 tasks.withType<KotlinJvmCompile>().configureEach {
     compilerOptions {
         this.jvmTarget.set(JvmTarget.JVM_17)
+        this.optIn.add("kotlin.time.ExperimentalTime")
     }
 }
 

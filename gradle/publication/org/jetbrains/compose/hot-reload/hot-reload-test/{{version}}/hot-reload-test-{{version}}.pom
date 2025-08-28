@@ -129,7 +129,7 @@
     <dependency>
       <groupId>org.jetbrains.compose.components</groupId>
       <artifactId>components-resources-desktop</artifactId>
-      <version>1.8.2</version>
+      <version>1.9.0-rc01</version>
       <scope>runtime</scope>
     </dependency>
   </dependencies>
