@@ -10,6 +10,7 @@ import jetbrains.buildServer.configs.kotlin.BuildType
 import jetbrains.buildServer.configs.kotlin.buildFeatures.PullRequests
 import jetbrains.buildServer.configs.kotlin.buildFeatures.pullRequests
 import jetbrains.buildServer.configs.kotlin.triggers.VcsTrigger
+import jetbrains.buildServer.configs.kotlin.triggers.gitHubChecks
 import jetbrains.buildServer.configs.kotlin.triggers.vcs
 import vcs.Github
 import kotlin.time.Duration.Companion.minutes
@@ -34,11 +35,15 @@ object AllTests : BuildType({
                     token = "credentialsJSON:63ad183a-fe82-4c2f-b80d-f92b2d7b69ec"
                 }
                 filterAuthorRole = PullRequests.GitHubRoleFilter.MEMBER
+                filterTargetBranch = "+:staging"
             }
         }
     }
 
     triggers {
+        gitHubChecks {
+        }
+
         vcs {
             quietPeriodMode = VcsTrigger.QuietPeriodMode.USE_CUSTOM
             quietPeriod = 15.minutes.inWholeSeconds.toInt()
@@ -47,7 +52,6 @@ object AllTests : BuildType({
                 +:master
                 +:rr/*
                 +:release/*
-                +pr: target=staging sourceRepo=same github_role=member draft=false
             """.trimIndent()
         }
     }
