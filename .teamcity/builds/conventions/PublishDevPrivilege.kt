@@ -5,14 +5,14 @@
 
 package builds.conventions
 
-import jetbrains.buildServer.configs.kotlin.BuildSteps
 import jetbrains.buildServer.configs.kotlin.BuildType
 import jetbrains.buildServer.configs.kotlin.ParameterDisplay
-import jetbrains.buildServer.configs.kotlin.buildSteps.gradle
 
 interface PublishDevPrivilege
 
 fun BuildType.publishDevPrivilegeConventions() {
+    if (this !is PublishDevPrivilege) return
+
     params {
         password(
             "env.ORG_GRADLE_PROJECT_repo.sellmair.user",
