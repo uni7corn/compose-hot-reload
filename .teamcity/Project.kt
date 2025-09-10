@@ -19,7 +19,6 @@ import builds.conventions.configureConventions
 import builds.functionalTests
 import builds.utils.Host
 import builds.windowsFunctionalTests
-import jetbrains.buildServer.configs.kotlin.ParameterDisplay
 import jetbrains.buildServer.configs.kotlin.Project
 import jetbrains.buildServer.configs.kotlin.sequential
 import vcs.Github
@@ -83,20 +82,6 @@ object ComposeHotReloadProject : Project({
         subProject.buildTypes.forEach { buildType ->
             buildType.configureConventions()
         }
-    }
-
-    params {
-        password(
-            "env.ORG_GRADLE_PROJECT_signing.key",
-            "credentialsJSON:a8763adb-f827-47c7-a463-344294cd4850",
-            display = ParameterDisplay.HIDDEN,
-        )
-
-        password(
-            "env.ORG_GRADLE_PROJECT_signing.key.password",
-            "credentialsJSON:55dbddf8-050d-4139-8a8c-82ede4c58523",
-            display = ParameterDisplay.HIDDEN,
-        )
     }
 
     cleanup {

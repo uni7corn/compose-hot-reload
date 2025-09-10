@@ -37,5 +37,17 @@ fun BuildType.publishDevPrivilegeConventions() {
             "credentialsJSON:0c2c7f64-7532-4e25-b950-7317f831eda4",
             display = ParameterDisplay.HIDDEN,
         )
+
+        password(
+            "env.ORG_GRADLE_PROJECT_signing.key",
+            "credentialsJSON:a8763adb-f827-47c7-a463-344294cd4850",
+            display = ParameterDisplay.HIDDEN,
+        )
+
+        password(
+            "env.ORG_GRADLE_PROJECT_signing.key.password",
+            "credentialsJSON:55dbddf8-050d-4139-8a8c-82ede4c58523",
+            display = ParameterDisplay.HIDDEN,
+        )
     }
 }
