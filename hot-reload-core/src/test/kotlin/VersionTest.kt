@@ -104,4 +104,29 @@ class VersionTest {
         assertTrue(a10 > a9)
         assertTrue(a9 < a10)
     }
+
+    @Test
+    fun `test  - rc version`() {
+        val rc1 = Version("1.0.0-rc01")
+        val beta1 = Version("1.0.0-beta01")
+        assertTrue(rc1 > beta1)
+        assertTrue(beta1 < rc1)
+    }
+
+    @Test
+    fun `test  - rc version - with build number`() {
+        val rc1 = Version("1.0.0-rc01+1283")
+        val beta1 = Version("1.0.0-beta01")
+        assertTrue(rc1 > beta1)
+        assertTrue(beta1 < rc1)
+    }
+
+    @Test
+    fun `test  - rc version - as snapshot`() {
+        val rc1 = Version("1.0.0-rc01-SNAPSHOT")
+        val beta1 = Version("1.0.0-beta01")
+        assertTrue(rc1 > beta1)
+        assertTrue(beta1 < rc1)
+    }
+
 }
