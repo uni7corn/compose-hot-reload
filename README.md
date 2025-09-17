@@ -68,7 +68,7 @@ Follow the [Kotlin Multiplatform quickstart](https://www.jetbrains.com/help/kotl
 
    ```
    plugins {
-       id("org.gradle.toolchains.foojay-resolver-convention") version "%foojayResolverConventionVersion%"
+       id("org.gradle.toolchains.foojay-resolver-convention") version "1.0.0"
    }
    ```
 
