@@ -166,23 +166,6 @@ For example:
 ./gradlew :app:reload
 ```
 
-## Compose Multiplatform optimization
-
-If you're using Compose Multiplatform, you can configure the [`OptimizeNonSkippingGroups`](https://kotlinlang.org/api/kotlin-gradle-plugin/compose-compiler-gradle-plugin/org.jetbrains.kotlin.compose.compiler.gradle/-compose-feature-flag/-companion/-optimize-non-skipping-groups.html) feature flag to remove groups around non-skipping composable functions.
-Enabling this feature flag can improve your app's runtime performance.
-
-Add the following to your `build.gradle.kts`:
-
-```kotlin
-import org.jetbrains.kotlin.compose.compiler.gradle.ComposeFeatureFlag
-
-// ...
-
-composeCompiler {
-    featureFlags.add(ComposeFeatureFlag.OptimizeNonSkippingGroups)
-}
-```
-
 ## Use developer builds
 
 If you want to try the latest changes in Compose Hot Reload, you can use `dev` builds. To use the latest 'dev' builds of Compose Hot Reload, add the `firework` Maven repository in your `settings.gradle.kts` file:
