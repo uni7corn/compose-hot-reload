@@ -25,6 +25,7 @@ The JetBrains Runtime intelligently reloads your code whenever it changes.
 
 - Kotlin 2.1.20 or higher.
 - Compose compiler 2.1.20 or higher.
+- Compose 1.8.2 or higher
 - JetBrains Runtime.
 
 ## Set up your project
