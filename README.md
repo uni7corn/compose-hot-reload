@@ -14,11 +14,12 @@ Build Compose UIs faster and let your creativity flow when designing multiplatfo
   <img alt="Text changing depending on mode. Light: 'So light!' Dark: 'So dark!'" src="./readme-assets/banner_light.png">
 </picture>
 
-With Compose Hot Reload, you can make UI code changes in a Compose Multiplatform app and see the results instantly, without needing to restart.
+With Compose Hot Reload, you can make UI code changes in a Compose Multiplatform app and see the results instantly,
+without needing to restart.
 The JetBrains Runtime intelligently reloads your code whenever it changes.
 
 > [!IMPORTANT]  
-> Compose Hot Reload needs a JVM target in your multiplatform project. We're exploring adding support for 
+> Compose Hot Reload needs a JVM target in your multiplatform project. We're exploring adding support for
 > other targets in the future.
 
 ## Prerequisites
@@ -27,7 +28,8 @@ The JetBrains Runtime intelligently reloads your code whenever it changes.
 - Compose compiler 2.1.20 or higher.
 - Compose Multiplatform 1.8.2
 - [JetBrains Runtime](https://github.com/JetBrains/JetBrainsRuntime).
-  To be compatible with JetBrains Runtime, your project needs to [target](https://docs.gradle.org/current/userguide/building_java_projects.html#sec:java_cross_compilation)
+  To be compatible with JetBrains Runtime, your project needs
+  to [target](https://docs.gradle.org/current/userguide/building_java_projects.html#sec:java_cross_compilation)
   Java 21 or earlier.
 
 ## Set up your project
@@ -39,7 +41,8 @@ There are two ways to add Compose Hot Reload to your project:
 
 ### Create a project from scratch
 
-Follow the [Kotlin Multiplatform quickstart](https://www.jetbrains.com/help/kotlin-multiplatform-dev/quickstart.html) guide to set up your environment and create a project. Be sure to select the desktop target when you create the project.
+Follow the [Kotlin Multiplatform quickstart](https://www.jetbrains.com/help/kotlin-multiplatform-dev/quickstart.html)
+guide to set up your environment and create a project. Be sure to select the desktop target when you create the project.
 
 ### Apply the Gradle plugin to your project
 
@@ -56,10 +59,11 @@ Follow the [Kotlin Multiplatform quickstart](https://www.jetbrains.com/help/kotl
        alias(libs.plugins.composeHotReload) apply false
    }
    ```
-   
+
    This prevents the Compose Hot Reload plugin from being loaded multiple times in each of your subprojects.
 
-3. In the `build.gradle.kts` of the subproject containing your multiplatform application, add the following code to your `plugins {}` block:
+3. In the `build.gradle.kts` of the subproject containing your multiplatform application, add the following code to your
+   `plugins {}` block:
 
    ```
    plugins { 
@@ -67,8 +71,11 @@ Follow the [Kotlin Multiplatform quickstart](https://www.jetbrains.com/help/kotl
    }
    ```
 
-4. In your `settings.gradle.kts` file, add a plugin that's required for the Compose Hot Reload plugin:
-
+4. An installation of the JetBrains Runtime is required:
+   Launching Compose Hot Reload with the Kotlin Multiplatform IDE plugin will re-use IntelliJ's installation of the
+   JetBrains Runtime.
+   If you want Gradle to automatically download the JetBrains Runtime, add the following code to your
+   `settings.gradle.kts` file
    ```
    plugins {
        id("org.gradle.toolchains.foojay-resolver-convention") version "1.0.0"
@@ -85,9 +92,11 @@ You can run your application with Compose Hot Reload from inside your IDE or fro
 
 ### From the IDE
 
-In IntelliJ IDEA or Android Studio, in the gutter, click the **Run** icon <img alt="Run main function" src="./readme-assets/run.png" width="12"> of your main function:
+In IntelliJ IDEA or Android Studio, in the gutter, click the **Run**
+icon <img alt="Run main function" src="./readme-assets/run.png" width="12"> of your main function:
 
-* If you have the [Kotlin Multiplatform IDE plugin](https://plugins.jetbrains.com/plugin/14936-kotlin-multiplatform) installed, select **Run 'MainKt [hotRunJvm]' with Compose Hot Reload (Beta)**.
+* If you have the [Kotlin Multiplatform IDE plugin](https://plugins.jetbrains.com/plugin/14936-kotlin-multiplatform)
+  installed, select **Run 'MainKt [hotRunJvm]' with Compose Hot Reload (Beta)**.
 * Otherwise, select **Run 'MainKt [jvm]'**.
 
 ### From the CLI
@@ -109,7 +118,8 @@ After making changes, save all files to automatically update your app's UI.
 
 ##### Custom target name
 
-If you define a custom JVM target name, Gradle uses a different task name. For example, if your target name is `desktop`:
+If you define a custom JVM target name, Gradle uses a different task name. For example, if your target name is
+`desktop`:
 
 ```kotlin
 kotlin {
@@ -169,7 +179,8 @@ For example:
 
 ## Use developer builds
 
-If you want to try the latest changes in Compose Hot Reload, you can use `dev` builds. To use the latest 'dev' builds of Compose Hot Reload, add the `firework` Maven repository in your `settings.gradle.kts` file:
+If you want to try the latest changes in Compose Hot Reload, you can use `dev` builds. To use the latest 'dev' builds of
+Compose Hot Reload, add the `firework` Maven repository in your `settings.gradle.kts` file:
 
 ```kotlin
 pluginManagement {
@@ -189,11 +200,14 @@ dependencyResolutionManagement {
 
 ### I'm developing an Android-only app without Kotlin Mutliplatform. Can I use Compose Hot Reload?
 
-Compose Hot Reload is designed to work with Compose Multiplatform. To use Compose Hot Reload with an Android-only project, you need to:
+Compose Hot Reload is designed to work with Compose Multiplatform. To use Compose Hot Reload with an Android-only
+project, you need to:
 
 - Switch from the Jetpack Compose plugin to the Compose Multiplatform plugin.
-- Add a separate Gradle module and configure the JVM target according to [the instructions](#apply-the-gradle-plugin-to-your-project).
+- Add a separate Gradle module and configure the JVM target according
+  to [the instructions](#apply-the-gradle-plugin-to-your-project).
 
 ### My project is a desktop-only app with Compose Multiplatform. Can I use Compose Hot Reload?
 
-Yes! However, be aware that you can't start the application via the run button in the gutter ([CMP-3123](https://youtrack.jetbrains.com/issue/CMP-3123)). Instead, use [Gradle tasks](#from-the-cli).
+Yes! However, be aware that you can't start the application via the run button in the
+gutter ([CMP-3123](https://youtrack.jetbrains.com/issue/CMP-3123)). Instead, use [Gradle tasks](#from-the-cli).
