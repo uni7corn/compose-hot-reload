@@ -29,7 +29,6 @@ import org.jetbrains.compose.reload.core.isActive
 import org.jetbrains.compose.reload.core.launchOnFinish
 import org.jetbrains.compose.reload.core.launchOnStop
 import org.jetbrains.compose.reload.core.launchTask
-import org.jetbrains.compose.reload.core.stopNow
 import org.jetbrains.compose.reload.core.trace
 import org.jetbrains.compose.reload.core.withThread
 import org.jetbrains.compose.reload.core.withType
@@ -290,7 +289,7 @@ private fun launchClient(
     /* Reader loop: Read messages, push them through the Bus and send back an 'Ack' */
     subtask("Reader") {
         while (isActive()) {
-            val pkg = io.readPackage() ?: stopNow()
+            val pkg = io.readPackage() ?: throw StoppedException()
             when (pkg) {
                 is OrchestrationStateRequest -> launchStateStreamingIfNecessary(pkg.stateId)
 

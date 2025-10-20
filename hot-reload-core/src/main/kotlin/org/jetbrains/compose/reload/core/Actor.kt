@@ -105,7 +105,7 @@ private class ActorImpl<In, Out> : Actor<In, Out> {
         }
 
         /* Handle the case where the current coroutines task finishes before calling any 'finally' block */
-        val onFinish = invokeOnStop { error ->
+        val onFinish = currentTask().invokeOnStop { error ->
             complete(error)
         }
 
@@ -117,7 +117,7 @@ private class ActorImpl<In, Out> : Actor<In, Out> {
                 }
 
                 /* Handle the case where the current coroutine task finished before calling the 'finally' block */
-                val elementOnFinish = invokeOnFinish { error ->
+                val elementOnFinish = currentTask().invokeOnFinish { error ->
                     element.future.completeExceptionally(ActorClosedException(error.exceptionOrNull()))
                 }
                 try {

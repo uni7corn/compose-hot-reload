@@ -31,7 +31,6 @@ import org.jetbrains.compose.reload.core.isFailure
 import org.jetbrains.compose.reload.core.launchOnFinish
 import org.jetbrains.compose.reload.core.launchOnStop
 import org.jetbrains.compose.reload.core.launchTask
-import org.jetbrains.compose.reload.core.stopNow
 import org.jetbrains.compose.reload.core.toLeft
 import org.jetbrains.compose.reload.core.trace
 import org.jetbrains.compose.reload.core.warn
@@ -188,7 +187,7 @@ internal fun OrchestrationClient(
         /* Launch sequential reader coroutine */
         subtask("Reader") {
             while (isActive()) {
-                val pkg = io.readPackage() ?: stopNow()
+                val pkg = io.readPackage() ?: throw StoppedException()
                 when (pkg) {
                     is OrchestrationPackage.Ack -> ackQueue.send(pkg)
                     is OrchestrationMessage -> receiveBroadcast.send(pkg)

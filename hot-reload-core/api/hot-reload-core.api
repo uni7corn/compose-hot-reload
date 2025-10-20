@@ -357,7 +357,9 @@ public final class org/jetbrains/compose/reload/core/TaskKt {
 	public static final fun isStopped (Lorg/jetbrains/compose/reload/core/Task;)Z
 	public static final fun launchOnError (Lorg/jetbrains/compose/reload/core/Task;Ljava/lang/String;Lkotlin/jvm/functions/Function3;)Lorg/jetbrains/compose/reload/core/Disposable;
 	public static final fun launchOnFinish (Lorg/jetbrains/compose/reload/core/Task;Ljava/lang/String;Lkotlin/jvm/functions/Function3;)Lorg/jetbrains/compose/reload/core/Disposable;
+	public static synthetic fun launchOnFinish$default (Lorg/jetbrains/compose/reload/core/Task;Ljava/lang/String;Lkotlin/jvm/functions/Function3;ILjava/lang/Object;)Lorg/jetbrains/compose/reload/core/Disposable;
 	public static final fun launchOnStop (Lorg/jetbrains/compose/reload/core/Task;Ljava/lang/String;Lkotlin/jvm/functions/Function3;)Lorg/jetbrains/compose/reload/core/Disposable;
+	public static synthetic fun launchOnStop$default (Lorg/jetbrains/compose/reload/core/Task;Ljava/lang/String;Lkotlin/jvm/functions/Function3;ILjava/lang/Object;)Lorg/jetbrains/compose/reload/core/Disposable;
 	public static final fun launchTask (Ljava/lang/String;Lkotlin/coroutines/CoroutineContext;Lkotlin/jvm/functions/Function2;)Lorg/jetbrains/compose/reload/core/Task;
 	public static final fun launchTask (Lkotlin/jvm/functions/Function2;)Lorg/jetbrains/compose/reload/core/Task;
 	public static synthetic fun launchTask$default (Ljava/lang/String;Lkotlin/coroutines/CoroutineContext;Lkotlin/jvm/functions/Function2;ILjava/lang/Object;)Lorg/jetbrains/compose/reload/core/Task;

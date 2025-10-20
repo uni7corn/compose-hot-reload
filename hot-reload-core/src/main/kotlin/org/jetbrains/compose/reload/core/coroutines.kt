@@ -75,6 +75,7 @@ internal class SelectContinuation<T>(
 
 @InternalHotReloadApi
 @Suppress("RedundantSuspendModifier")
+@Deprecated("Use 'StoppedException' instead", replaceWith = ReplaceWith("throw StoppedException()"))
 public suspend fun stopNow(): Nothing = throw StoppedException()
 
 @InternalHotReloadApi
@@ -82,27 +83,32 @@ public suspend fun currentTask(): Task<*> =
     coroutineContext[Task] ?: error("Missing '${Task::class.simpleName}' in context")
 
 @InternalHotReloadApi
+@Deprecated("Use 'currentTask().stop(error)' instead", replaceWith = ReplaceWith("currentTask().stop(error)"))
 public suspend fun stop(error: Throwable? = null) {
     coroutineContext[Task]?.stop(error)
 }
 
 @InternalHotReloadApi
+@Deprecated("Please reference the Compose Hot Reload 'Task' explicitly", replaceWith = ReplaceWith("currentTask().invokeOnStop(action)"))
 public suspend fun invokeOnStop(action: (error: Throwable?) -> Unit): Disposable {
     return currentTask().invokeOnStop(action)
 }
 
 @InternalHotReloadApi
+@Deprecated("Please reference the Compose Hot Reload 'Task' explicitly", replaceWith = ReplaceWith("currentTask().invokeOnFinish(action)"))
 public suspend fun invokeOnFinish(action: (result: Try<*>) -> Unit): Disposable {
     return currentTask().invokeOnFinish(action)
 }
 
 @InternalHotReloadApi
+@Deprecated("Please reference the Compose Hot Reload 'Task' explicitly", replaceWith = ReplaceWith("currentTask().launchOnFinish(action)"))
 public suspend fun launchOnFinish(action: suspend Task<*>.(result: Try<*>) -> Unit): Disposable {
     val task = currentTask()
     return task.launchOnFinish("${task.name}.launchOnFinish", action)
 }
 
 @InternalHotReloadApi
+@Deprecated("Please reference the Compose Hot Reload 'Task' explicitly", replaceWith = ReplaceWith("currentTask().launchOnStop(action)"))
 public suspend fun launchOnStop(action: suspend Task<*>.(error: Throwable) -> Unit): Disposable {
     val task = currentTask()
     return currentTask().launchOnStop("${task.name}.launchOnStop", action)
