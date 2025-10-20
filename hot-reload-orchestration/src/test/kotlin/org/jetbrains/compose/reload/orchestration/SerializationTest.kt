@@ -6,10 +6,7 @@
 package org.jetbrains.compose.reload.orchestration
 
 import org.junit.jupiter.api.Test
-import java.io.ByteArrayOutputStream
 import java.io.File
-import java.io.ObjectInputStream
-import java.io.ObjectOutputStream
 import kotlin.test.assertEquals
 
 class SerializationTest {

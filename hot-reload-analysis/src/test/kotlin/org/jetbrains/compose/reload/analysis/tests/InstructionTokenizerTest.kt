@@ -15,7 +15,6 @@ import org.jetbrains.compose.reload.core.leftOr
 import org.jetbrains.compose.reload.core.testFixtures.Compiler
 import org.jetbrains.compose.reload.core.testFixtures.WithCompiler
 import org.jetbrains.compose.reload.core.testFixtures.sanitized
-import org.jetbrains.compose.reload.test.core.CompilerOption
 import org.jetbrains.compose.reload.test.core.TestEnvironment
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.TestInfo

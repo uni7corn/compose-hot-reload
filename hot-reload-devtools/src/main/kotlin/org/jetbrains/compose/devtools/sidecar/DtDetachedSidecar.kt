@@ -12,9 +12,9 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.window.Window
 import org.jetbrains.compose.devtools.sendBlocking
+import org.jetbrains.compose.devtools.theme.DtShapes
 import org.jetbrains.compose.devtools.theme.DtTitles.COMPOSE_HOT_RELOAD_TITLE
 import org.jetbrains.compose.devtools.theme.DtTitles.DEV_TOOLS
-import org.jetbrains.compose.devtools.theme.DtShapes
 import org.jetbrains.compose.devtools.widgets.dtBackground
 import org.jetbrains.compose.reload.orchestration.OrchestrationMessage.ShutdownRequest
 import kotlin.system.exitProcess

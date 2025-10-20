@@ -20,10 +20,10 @@ import androidx.compose.ui.test.hasClickAction
 import org.jetbrains.compose.devtools.Tag
 import org.jetbrains.compose.devtools.sidecar.DtDetachedSidecarContent
 import org.jetbrains.compose.devtools.states.BuildSystemUIState
+import org.jetbrains.compose.devtools.states.ErrorUIState
 import org.jetbrains.compose.devtools.states.ReloadCountUIState
 import org.jetbrains.compose.devtools.states.ReloadUIState
 import org.jetbrains.compose.devtools.states.UIErrorDescription
-import org.jetbrains.compose.devtools.states.ErrorUIState
 import org.jetbrains.compose.devtools.theme.DtImages
 import org.jetbrains.compose.reload.core.BuildSystem
 import org.jetbrains.compose.reload.core.WindowId

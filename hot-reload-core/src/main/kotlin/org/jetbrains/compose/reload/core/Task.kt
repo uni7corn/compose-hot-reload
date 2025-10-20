@@ -75,7 +75,10 @@ public fun Task<*>.invokeOnStop(action: (error: Throwable) -> Unit): Disposable 
 }
 
 @DelicateHotReloadApi
-public fun Task<*>.launchOnStop(name: String, body: suspend Task<*>.(error: Throwable) -> Unit): Disposable =
+public fun Task<*>.launchOnStop(
+    name: String = "${this.name}.launchOnStop",
+    body: suspend Task<*>.(error: Throwable) -> Unit
+): Disposable =
     invokeOnStop { error ->
         launchTask(name) {
             body(error)
@@ -105,7 +108,9 @@ public fun <T> Task<T>.invokeOnFinish(action: (result: Try<T>) -> Unit): Disposa
 }
 
 @DelicateHotReloadApi
-public fun <T> Task<T>.launchOnFinish(name: String, action: suspend Task<*>.(result: Try<T>) -> Unit): Disposable =
+public fun <T> Task<T>.launchOnFinish(
+    name: String = "${this.name}.launchOnFinish", action: suspend Task<*>.(result: Try<T>) -> Unit
+): Disposable =
     invokeOnFinish { result ->
         launchTask(name) {
             action(result)

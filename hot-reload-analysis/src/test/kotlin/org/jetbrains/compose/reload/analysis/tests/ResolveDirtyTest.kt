@@ -7,8 +7,8 @@ package org.jetbrains.compose.reload.analysis.tests
 
 import org.intellij.lang.annotations.Language
 import org.jetbrains.compose.reload.analysis.ClassInfo
-import org.jetbrains.compose.reload.analysis.ResolvedDirtyScopes
 import org.jetbrains.compose.reload.analysis.MutableApplicationInfo
+import org.jetbrains.compose.reload.analysis.ResolvedDirtyScopes
 import org.jetbrains.compose.reload.analysis.resolveDirtyScopes
 import org.jetbrains.compose.reload.core.Context
 import org.jetbrains.compose.reload.core.testFixtures.Compiler

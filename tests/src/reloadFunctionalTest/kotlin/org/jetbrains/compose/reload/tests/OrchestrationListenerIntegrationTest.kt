@@ -29,7 +29,6 @@ import org.jetbrains.compose.reload.test.gradle.HotReloadTestFixture
 import org.jetbrains.compose.reload.test.gradle.assertSuccessful
 import org.jetbrains.compose.reload.test.gradle.buildFlow
 import org.jetbrains.compose.reload.test.gradle.getDefaultMainKtSourceFile
-import org.jetbrains.compose.reload.utils.Deflake
 import org.jetbrains.compose.reload.utils.QuickTest
 import kotlin.io.path.createParentDirectories
 import kotlin.io.path.writeText

@@ -1,7 +1,6 @@
 import org.jetbrains.compose.devtools.api.ReloadCountState
 import org.jetbrains.compose.reload.core.getOrThrow
 import org.jetbrains.compose.reload.orchestration.encoderOfOrThrow
-import kotlin.io.encoding.Base64.Default.decode
 import kotlin.test.Test
 import kotlin.test.assertEquals
 

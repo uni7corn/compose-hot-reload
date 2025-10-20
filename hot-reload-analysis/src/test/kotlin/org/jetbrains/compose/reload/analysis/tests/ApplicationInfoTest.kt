@@ -5,14 +5,14 @@
 
 package org.jetbrains.compose.reload.analysis.tests
 
+import org.jetbrains.compose.reload.analysis.ApplicationInfo
 import org.jetbrains.compose.reload.analysis.ClassInfo
 import org.jetbrains.compose.reload.analysis.InstructionTree
 import org.jetbrains.compose.reload.analysis.MethodId
-import org.jetbrains.compose.reload.analysis.ApplicationInfo
+import org.jetbrains.compose.reload.analysis.MutableApplicationInfo
 import org.jetbrains.compose.reload.analysis.ScopeAnalyzerExtension
 import org.jetbrains.compose.reload.analysis.ScopeInfo
 import org.jetbrains.compose.reload.analysis.SpecialComposeGroupKeys
-import org.jetbrains.compose.reload.analysis.MutableApplicationInfo
 import org.jetbrains.compose.reload.analysis.javap
 import org.jetbrains.compose.reload.analysis.render
 import org.jetbrains.compose.reload.analysis.util.TestScopeAnalyzerExtension
@@ -27,7 +27,6 @@ import org.jetbrains.compose.reload.core.withClosure
 import org.jetbrains.compose.reload.test.core.CompilerOption
 import org.jetbrains.compose.reload.test.core.TestEnvironment
 import org.jetbrains.kotlin.util.prefixIfNot
-import org.junit.jupiter.api.Disabled
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.TestInfo
 import org.objectweb.asm.tree.MethodNode
