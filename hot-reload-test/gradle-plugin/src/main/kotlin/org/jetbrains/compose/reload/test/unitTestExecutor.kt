@@ -18,6 +18,7 @@ import org.gradle.api.internal.tasks.testing.TestResultProcessor
 import org.gradle.api.internal.tasks.testing.TestStartEvent
 import org.gradle.api.tasks.testing.TestFailure
 import org.gradle.api.tasks.testing.TestOutputEvent
+import org.gradle.internal.time.Time
 import org.jetbrains.compose.reload.core.HotReloadProperty
 import org.jetbrains.compose.reload.core.destroyWithDescendants
 import org.jetbrains.compose.reload.core.getBlocking
@@ -160,7 +161,11 @@ internal class HotReloadUnitTestExecutor(
             process.inputStream.bufferedReader().forEachLine { line ->
                 processor.output(
                     testMethodDescriptor.id,
-                    DefaultTestOutputEvent(TestOutputEvent.Destination.StdOut, line + System.lineSeparator())
+                    DefaultTestOutputEvent(
+                        Time.currentTimeMillis(),
+                        TestOutputEvent.Destination.StdOut,
+                        line + System.lineSeparator()
+                    )
                 )
             }
         }
@@ -169,7 +174,10 @@ internal class HotReloadUnitTestExecutor(
             process.errorStream.bufferedReader().forEachLine { line ->
                 processor.output(
                     testMethodDescriptor.id,
-                    DefaultTestOutputEvent(TestOutputEvent.Destination.StdErr, line + System.lineSeparator())
+                    DefaultTestOutputEvent(
+                        Time.currentTimeMillis(),
+                        TestOutputEvent.Destination.StdErr, line + System.lineSeparator()
+                    )
                 )
             }
         }
