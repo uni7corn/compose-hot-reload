@@ -17,6 +17,7 @@ public enum class OrchestrationProtocolVersion(public val intValue: Int) {
     V1_3(4),
     ;
 
+    @Suppress("DEPRECATION")
     public companion object {
         internal const val serialVersionUID: Long = 0L
 

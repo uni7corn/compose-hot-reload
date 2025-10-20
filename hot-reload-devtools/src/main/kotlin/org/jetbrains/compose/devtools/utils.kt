@@ -13,6 +13,7 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.launch
 import org.jetbrains.compose.reload.core.Disposable
+import org.jetbrains.compose.reload.core.currentTask
 import org.jetbrains.compose.reload.core.invokeOnStop
 import org.jetbrains.compose.reload.orchestration.OrchestrationState
 import org.jetbrains.compose.reload.orchestration.OrchestrationStateKey
@@ -50,7 +51,7 @@ internal suspend fun <T> withDisposableShutdownHook(disposable: Disposable, acti
 }
 
 internal suspend fun <T> useDisposableStoppable(disposable: Disposable, action: suspend () -> T): T {
-    val stop = invokeOnStop { disposable.dispose() }
+    val stop = currentTask().invokeOnStop { disposable.dispose() }
     return try {
         action()
     } finally {
