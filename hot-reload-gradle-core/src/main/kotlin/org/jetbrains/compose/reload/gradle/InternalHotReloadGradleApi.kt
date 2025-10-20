@@ -11,6 +11,6 @@ import org.jetbrains.compose.reload.InternalHotReloadApi
     "This API is internal to hot-reload-gradle-plugin and should not be used from outside.",
     level = RequiresOptIn.Level.ERROR
 )
-@Deprecated(level = DeprecationLevel.WARNING, message = "Use 'InternalHotReloadApi' instead.")
+@Deprecated(level = DeprecationLevel.HIDDEN, message = "Use 'InternalHotReloadApi' instead.")
 @OptIn(InternalHotReloadApi::class)
 annotation class InternalHotReloadGradleApi()
