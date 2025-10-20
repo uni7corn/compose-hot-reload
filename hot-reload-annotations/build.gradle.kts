@@ -67,7 +67,7 @@ tasks.withType<KotlinJsTest>().configureEach {
 
 android {
     compileSdk = 34
-    namespace = "org.jetbrains.compose.reload"
+    namespace = "org.jetbrains.compose.reload.annotations"
 
     defaultConfig {
         minSdk = 21
