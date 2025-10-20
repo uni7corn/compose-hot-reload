@@ -1,2 +1,0 @@
-Shutting down... (0 in queue)
-Shutdown actions completed: 0, failed: 0
