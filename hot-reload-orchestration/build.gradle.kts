@@ -16,6 +16,10 @@ plugins {
     build.orchestrationCompatibilityTests
 }
 
+kotlin {
+    explicitApi()
+}
+
 benchmark {
     targets.create("test")
 }
