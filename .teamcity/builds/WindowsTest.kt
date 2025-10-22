@@ -39,7 +39,7 @@ class WindowsTest() : BuildType({
             name = "Test"
             tasks = "check -i --continue -x apiCheck " +
                 "-x reloadFunctionalTest -x reloadFunctionalTestWarmup " +
-                "-Pchr.tests.sequential"
+                "-Pchr.tests.parallelism=2"
         }
     }
 }), CommitStatusPublisher,

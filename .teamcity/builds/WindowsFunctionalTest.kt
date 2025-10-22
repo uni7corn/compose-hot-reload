@@ -60,7 +60,7 @@ class WindowsFunctionalTest(
         gradle {
             name = "Test"
             tasks = "reloadFunctionalTest -i --continue -x publishLocally " +
-                "-Pchr.tests.sequential -Phost-integration-tests=true"
+                "-Pchr.tests.parallelism=3 -Phost-integration-tests=true"
         }
     }
 }), PublishLocallyConvention,
