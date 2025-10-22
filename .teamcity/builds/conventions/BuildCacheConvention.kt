@@ -5,8 +5,8 @@
 
 package builds.conventions
 
+import builds.BuildCache
 import jetbrains.buildServer.configs.kotlin.BuildType
-import jetbrains.buildServer.configs.kotlin.buildFeatures.buildCache
 
 sealed interface BuildCacheConvention {
     interface Consumer : BuildCacheConvention
@@ -22,110 +22,33 @@ fun BuildType.buildCacheConventions() {
         param("env.KONAN_DATA_DIR", "%system.teamcity.build.checkoutDir%/.local/konan")
     }
 
-    val isPublisher = this is BuildCacheConvention.Publisher
-    val isConsumer = this is BuildCacheConvention.Consumer
+    val caches = mutableMapOf(
+        ".local/konan" to "konan.zip",
+        ".local/android-sdk" to "android-sdk.zip",
+        ".local/gradle/jdks" to "gradle-jdks.zip",
+        ".local/gradle/wrapper" to "gradle-wrapper.zip",
+        ".local/gradle/caches/modules-2/files-2.1" to "gradle-cache-modules-2-files-2.1.zip",
+        ".local/gradle/caches/modules-2/metadata-2.107" to "gradle-cache-modules-2-metadata-2.107.zip",
+        ".local/build-cache" to "build-cache.zip",
+        "tests/build/gradleHome/caches/modules-2/files-2.1" to "test-gradle-cache-modules-2-files-2.1.zip",
+        "tests/build/gradleHome/caches/modules-2/metadata-2.107" to "test-gradle-cache-modules-2-metadata-2.107.zip"
+    )
 
-    features {
-        buildCache {
-            name = "($host) konan"
-            use = isConsumer
-            publish = isPublisher
-            publishOnlyChanged = false
-            rules = """
-               .local/konan
-           """.trimIndent()
+    if (this is BuildCacheConvention.Consumer) {
+        val producer = BuildCache(host)
+        dependencies {
+            artifacts(producer.id!!) {
+                this.sameChainOrLastFinished()
+                artifactRules = caches.entries.joinToString("\n") { (location, artifact) ->
+                    "$artifact!** => $location"
+                }
+            }
         }
+    }
 
-        buildCache {
-            name = "($host) android sdk"
-            use = isConsumer
-            publish = isPublisher
-            publishOnlyChanged = false
-            rules = """
-               .local/android-sdk
-           """.trimIndent()
-        }
-
-        buildCache {
-            name = "($host)  Gradle (jdks)"
-            use = isConsumer
-            publish = isPublisher
-            publishOnlyChanged = false
-            rules = """
-               .local/gradle/jdks/
-           """.trimIndent()
-        }
-
-        buildCache {
-            name = "($host) Gradle (Wrapper)"
-            use = isConsumer
-            publish = isPublisher
-            publishOnlyChanged = false
-            rules = """
-                .local/gradle/wrapper
-            """.trimIndent()
-        }
-
-        buildCache {
-            name = "($host) Gradle (transforms-4)"
-            use = isConsumer
-            publish = isPublisher
-            publishOnlyChanged = false
-            rules = """
-                .local/gradle/caches/transforms-4
-            """.trimIndent()
-        }
-
-        buildCache {
-            name = "($host) Gradle (modules-2)"
-            use = isConsumer
-            publish = isPublisher
-            publishOnlyChanged = false
-            rules = """
-                .local/gradle/caches/modules-2/files-2.1
-                .local/gradle/caches/modules-2/metadata-2.107
-            """.trimIndent()
-        }
-
-        buildCache {
-            name = "($host) Gradle (build-cache)"
-            use = isConsumer
-            publish = isPublisher
-            publishOnlyChanged = false
-            rules = """
-                .local/build-cache
-            """.trimIndent()
-        }
-
-        buildCache {
-            name = "(${host}) Functional Test Gradle (modules-2)"
-            use = isConsumer
-            publish = isPublisher
-            publishOnlyChanged = true
-            rules = """
-                tests/build/gradleHome/caches/modules-2/files-2.1
-                tests/build/gradleHome/caches/modules-2/metadata-2.107
-            """.trimIndent()
-        }
-
-        buildCache {
-            name = "(${host}) Functional Test Gradle (build-cache)"
-            use = isConsumer
-            publish = isPublisher
-            publishOnlyChanged = false
-            rules = """
-                tests/build/gradleHome/caches/build-cache-1
-            """.trimIndent()
-        }
-
-        buildCache {
-            name = "(${host}) Functional Test Gradle (wrapper)"
-            use = isConsumer
-            publish = isPublisher
-            publishOnlyChanged = false
-            rules = """
-                tests/build/gradleHome/wrapper
-            """.trimIndent()
+    if (this is BuildCacheConvention.Publisher) {
+        artifactRules = caches.entries.joinToString("\n") { (location, artifact) ->
+            "$location => $artifact"
         }
     }
 }
