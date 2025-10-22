@@ -90,7 +90,7 @@ internal class HotReloadTestFixtureExtension(
             arguments = listOf(
                 "-P${HotReloadProperty.OrchestrationPort.key}=${orchestrationServer.port.getBlocking()}",
                 "-P${HotReloadProperty.IsHeadless.key}=$isHeadless",
-                "-P${HotReloadProperty.LogLevel.key}=${Logger.Level.Trace.name}",
+                "-P${HotReloadProperty.LogLevel.key}=${Logger.Level.Debug.name}",
                 "-P${HotReloadProperty.ReloadEffectsEnabled.key}=$effectsEnabled",
             ),
             stdoutChannel = Channel(),
