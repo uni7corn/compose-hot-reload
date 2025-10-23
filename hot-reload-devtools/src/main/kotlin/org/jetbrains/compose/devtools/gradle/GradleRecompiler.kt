@@ -107,6 +107,7 @@ internal class GradleRecompiler(
                     /* Continuous mode arguments */
                     "-t".takeIf { HotReloadEnvironment.gradleBuildContinuous },
                     "--no-daemon".takeIf { !useGradleDaemon },
+                    "--offline".takeIf { HotReloadEnvironment.gradleOfflineMode }
                 )
             )
         }

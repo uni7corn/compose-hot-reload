@@ -90,6 +90,15 @@ GradleJavaHome:
     The 'java home' used to run Gradle. The recompiler will pick the same java to launch 
     the recompiler in order to avoid cache misses or other issues.
 
+GradleOfflineMode:
+  key: gradle.offline.mode
+  type: boolean
+  default: "false"
+  target: [ application, devtools ]
+  documentation: |
+    The 'offline mode' used to run Gradle. The recompiler will pick the same offline mode to launch 
+    the recompiler in order to avoid cache misses or other issues.
+
 GradleBuildRoot:
   key: gradle.build.root
   type: file

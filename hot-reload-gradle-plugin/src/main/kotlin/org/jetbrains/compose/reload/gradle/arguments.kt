@@ -175,6 +175,11 @@ internal class ComposeHotReloadArguments(project: Project) :
     val javaHome: Provider<String> = project.providers.systemProperty("java.home")
 
     @get:Input
+    val gradleOfflineMode: Provider<Boolean> = project.gradle.startParameter.let { startParameter ->
+        project.provider { startParameter.isOffline }
+    }
+
+    @get:Input
     val virtualMethodResolveEnabled = project.composeReloadVirtualMethodResolveEnabled
 
     @get:Input
@@ -339,6 +344,7 @@ internal class ComposeHotReloadArguments(project: Project) :
         javaHome.orNull?.let { javaHome ->
             add("-D${HotReloadProperty.GradleJavaHome.key}=$javaHome")
         }
+        add("-D${HotReloadProperty.GradleOfflineMode.key}=${gradleOfflineMode.getOrElse(false)}")
 
         /* Forward the orchestration port if one is explicitly requested (client mode) */
         orchestrationPort.orNull?.let { orchestrationPort ->

@@ -12,6 +12,7 @@ import org.jetbrains.compose.reload.core.BuildSystem.Gradle
 import org.jetbrains.compose.reload.core.HotReloadEnvironment
 import org.jetbrains.compose.reload.core.HotReloadEnvironment.gradleBuildRoot
 import org.jetbrains.compose.reload.core.createLogger
+import org.jetbrains.compose.reload.core.debug
 import org.jetbrains.compose.reload.core.error
 import org.jetbrains.compose.reload.orchestration.OrchestrationMessage
 import java.nio.file.Path
@@ -34,6 +35,10 @@ internal class GradleRecompilerExtension : RecompilerExtension {
         val gradleBuildTask: String = HotReloadEnvironment.gradleBuildTask ?: run {
             logger.error("Missing '${HotReloadEnvironment::gradleBuildTask.name}' property")
             return null
+        }
+
+        if (HotReloadEnvironment.gradleOfflineMode) {
+            logger.debug("offline mode detected")
         }
 
         /* Side Effect */
