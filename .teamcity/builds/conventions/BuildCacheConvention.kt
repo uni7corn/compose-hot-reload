@@ -30,8 +30,10 @@ fun BuildType.buildCacheConventions() {
         ".local/gradle/caches/modules-2/files-2.1" to "gradle-cache-modules-2-files-2.1.zip",
         ".local/gradle/caches/modules-2/metadata-2.107" to "gradle-cache-modules-2-metadata-2.107.zip",
         ".local/build-cache" to "build-cache.zip",
+        "tests/build/gradleHome/wrapper" to "test-gradle-wrapper.zip",
         "tests/build/gradleHome/caches/modules-2/files-2.1" to "test-gradle-cache-modules-2-files-2.1.zip",
-        "tests/build/gradleHome/caches/modules-2/metadata-2.107" to "test-gradle-cache-modules-2-metadata-2.107.zip"
+        "tests/build/gradleHome/caches/modules-2/metadata-2.107" to "test-gradle-cache-modules-2-metadata-2.107.zip",
+        "tests/build/gradleHome/caches/modules-2/metadata-2.106" to "test-gradle-cache-modules-2-metadata-2.106.zip"
     )
 
     if (this is BuildCacheConvention.Consumer) {
