@@ -59,7 +59,7 @@ class RuntimeDependenciesTest {
             *hotReloadAgentDependencies,
             *hotReloadRuntimeDependencies,
             *testRuntimeDependencies,
-            PathRegex(".*/build/gradleHome/.*")
+            *remoteDependencies
         )
     }
 
@@ -105,7 +105,7 @@ class RuntimeDependenciesTest {
             *hotReloadAgentDependencies,
             *hotReloadRuntimeDependencies,
             *testRuntimeDependencies,
-            PathRegex(".*/build/gradleHome/.*")
+            *remoteDependencies
         )
     }
 
@@ -119,7 +119,7 @@ class RuntimeDependenciesTest {
             *hotReloadAgentDependencies,
             *hotReloadRuntimeDependencies,
             *testRuntimeDependencies,
-            PathRegex(".*/build/gradleHome/.*")
+            *remoteDependencies
         )
     }
 
@@ -158,9 +158,8 @@ class RuntimeDependenciesTest {
             *hotReloadAgentDependencies,
             *hotReloadRuntimeDependencies,
             *testRuntimeDependencies,
-            PathRegex(".*/build/gradleHome/.*")
+            *remoteDependencies
         )
-
     }
 }
 
@@ -192,9 +191,9 @@ private val stdlib = arrayOf(
 )
 
 private val hotReloadAgentDependencies = arrayOf(
-    PathRegex(".*/gradleHome/.*/asm-9.9.jar"),
-    PathRegex(".*/gradleHome/.*/asm-tree-9.9.jar"),
-    PathRegex(".*/gradleHome/.*/javassist-3.30.2-GA.jar"),
+    PathRegex(".*/modules-2/.*/asm-9.9.jar"),
+    PathRegex(".*/modules-2/.*/asm-tree-9.9.jar"),
+    PathRegex(".*/modules-2/.*/javassist-3.30.2-GA.jar"),
     PathRegex("${repositoryRoot.pathString}/build/repo/.*/hot-reload-agent-${HOT_RELOAD_VERSION.regexEscaped}.jar"),
     PathRegex("${repositoryRoot.pathString}/build/repo/.*/hot-reload-core-${HOT_RELOAD_VERSION.regexEscaped}.jar"),
     PathRegex("${repositoryRoot.pathString}/build/repo/.*/hot-reload-orchestration-${HOT_RELOAD_VERSION.regexEscaped}.jar"),
@@ -210,4 +209,8 @@ private val hotReloadRuntimeDependencies = arrayOf(
 private val testRuntimeDependencies = arrayOf(
     PathRegex("${repositoryRoot.pathString}/build/repo/.*/hot-reload-test-${HOT_RELOAD_VERSION.regexEscaped}.jar"),
     PathRegex("${repositoryRoot.pathString}/build/repo/.*/hot-reload-test-core-${HOT_RELOAD_VERSION.regexEscaped}.jar"),
+)
+
+private val remoteDependencies = arrayOf(
+    PathRegex(".*/modules-2/files-2.1/.*")
 )

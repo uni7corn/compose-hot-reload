@@ -22,35 +22,71 @@ fun BuildType.buildCacheConventions() {
         param("env.KONAN_DATA_DIR", "%system.teamcity.build.checkoutDir%/.local/konan")
     }
 
-    val caches = mutableMapOf(
-        ".local/konan" to "konan.zip",
-        ".local/android-sdk" to "android-sdk.zip",
-        ".local/gradle/jdks" to "gradle-jdks.zip",
-        ".local/gradle/wrapper" to "gradle-wrapper.zip",
-        ".local/gradle/caches/modules-2/files-2.1" to "gradle-cache-modules-2-files-2.1.zip",
-        ".local/gradle/caches/modules-2/metadata-2.107" to "gradle-cache-modules-2-metadata-2.107.zip",
-        ".local/build-cache" to "build-cache.zip",
-        "tests/build/gradleHome/wrapper" to "test-gradle-wrapper.zip",
-        "tests/build/gradleHome/caches/modules-2/files-2.1" to "test-gradle-cache-modules-2-files-2.1.zip",
-        "tests/build/gradleHome/caches/modules-2/metadata-2.107" to "test-gradle-cache-modules-2-metadata-2.107.zip",
-        "tests/build/gradleHome/caches/modules-2/metadata-2.106" to "test-gradle-cache-modules-2-metadata-2.106.zip"
+    class Artifact(
+        val archiveName: String,
+        val sourceLocation: String,
+        val targetLocation: String = sourceLocation
+    )
+
+    val caches = listOf(
+        Artifact("konan.zip", ".local/konan"),
+        Artifact("android-sdk.zip", ".local/android-sdk"),
+        Artifact("gradle-jdks.zip", ".local/gradle/jdks"),
+        Artifact("gradle-wrapper.zip", ".local/gradle/wrapper"),
+        Artifact("gradle-cache-modules-2-files-2.1.zip", ".local/gradle/caches/modules-2/files-2.1"),
+        Artifact("gradle-cache-modules-2-metadata-2.107.zip", ".local/gradle/caches/modules-2/metadata-2.107"),
+        Artifact("build-cache.zip", ".local/build-cache"),
+        Artifact("test-gradle-wrapper.zip", "tests/build/gradleHome/wrapper"),
+
+        /*
+        Declare Gradle caches used by the functionalTests:
+        Note, we're not putting them back to the original place, but
+        we'll use Gradle's 'read only cache' feature:
+        https://docs.gradle.org/current/userguide/dependency_caching.html
+         */
+        Artifact(
+            "test-gradle-cache-modules-2-files-2.1.zip",
+            "tests/build/gradleHome/caches/modules-2/files-2.1",
+            ".local/gradle-ro-cache/modules-2/files-2.1"
+        ),
+
+        Artifact(
+            "test-gradle-cache-modules-2-metadata-2.106.zip",
+            "tests/build/gradleHome/caches/modules-2/metadata-2.106",
+            ".local/gradle-ro-cache/modules-2/metadata-2.106"
+        ),
+
+        Artifact(
+            "test-gradle-cache-modules-2-metadata-2.107.zip",
+            "tests/build/gradleHome/caches/modules-2/metadata-2.107",
+            ".local/gradle-ro-cache/modules-2/metadata-2.107"
+        )
     )
 
     if (this is BuildCacheConvention.Consumer) {
         val producer = BuildCache(host)
+
+        params {
+            param("env.GRADLE_RO_DEP_CACHE", "%system.teamcity.build.checkoutDir%/.local/gradle-ro-cache")
+        }
+
         dependencies {
             artifacts(producer.id!!) {
                 this.sameChainOrLastFinished()
-                artifactRules = caches.entries.joinToString("\n") { (location, artifact) ->
-                    "?:$artifact!** => $location"
+                artifactRules = buildString {
+                    caches.forEach { artifact ->
+                        appendLine("?:${artifact.archiveName}!** => ${artifact.targetLocation}")
+                    }
                 }
             }
         }
     }
 
     if (this is BuildCacheConvention.Publisher) {
-        artifactRules = caches.entries.joinToString("\n") { (location, artifact) ->
-            "$location => $artifact"
+        artifactRules = buildString {
+            caches.forEach { artifact ->
+                appendLine("${artifact.sourceLocation} => ${artifact.archiveName}")
+            }
         }
     }
 }
