@@ -6,6 +6,7 @@
 package org.jetbrains.compose.reload.test.gradle
 
 import kotlinx.coroutines.channels.Channel
+import org.jetbrains.compose.reload.core.HotReloadEnvironment
 import org.jetbrains.compose.reload.core.HotReloadProperty
 import org.jetbrains.compose.reload.core.Logger
 import org.jetbrains.compose.reload.core.getBlocking
@@ -87,11 +88,12 @@ internal class HotReloadTestFixtureExtension(
         val gradleRunner = GradleRunner(
             projectRoot = projectDir.path,
             gradleVersion = context.gradleVersion.version,
-            arguments = listOf(
+            arguments = listOfNotNull(
                 "-P${HotReloadProperty.OrchestrationPort.key}=${orchestrationServer.port.getBlocking()}",
                 "-P${HotReloadProperty.IsHeadless.key}=$isHeadless",
                 "-P${HotReloadProperty.LogLevel.key}=${Logger.Level.Debug.name}",
                 "-P${HotReloadProperty.ReloadEffectsEnabled.key}=$effectsEnabled",
+                "--offline".takeIf { HotReloadEnvironment.gradleOfflineMode }
             ),
             stdoutChannel = Channel(),
             stderrChannel = Channel(),

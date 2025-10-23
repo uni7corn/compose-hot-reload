@@ -77,6 +77,7 @@ internal fun Project.configureGradleTestTasks() {
 
         task.environment("GRADLE_USER_HOME", project.testGradleUserHome.absolutePath)
         task.environment("JAVA_HOME", testJavaHome.absolutePath)
+        task.systemProperty(HotReloadProperty.GradleOfflineMode.key, project.gradle.startParameter.isOffline)
 
         intellijDebuggerDispatchPort.orNull?.let { port ->
             task.environment(HotReloadProperty.IntelliJDebuggerDispatchPort.key, port.toString())

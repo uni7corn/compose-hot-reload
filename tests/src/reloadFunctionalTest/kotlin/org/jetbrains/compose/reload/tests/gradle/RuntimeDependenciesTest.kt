@@ -36,7 +36,6 @@ import kotlin.io.path.writeText
 class RuntimeDependenciesTest {
 
     @HotReloadTest
-
     @TestedProjectMode(ProjectMode.Kmp)
     @BuildGradleKts("app")
     @BuildGradleKts("lib")
