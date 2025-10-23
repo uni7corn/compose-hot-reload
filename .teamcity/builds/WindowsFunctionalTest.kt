@@ -12,7 +12,6 @@ import builds.conventions.HostRequirement
 import builds.conventions.PublishLocallyConvention
 import builds.conventions.requiredHost
 import jetbrains.buildServer.configs.kotlin.BuildType
-import jetbrains.buildServer.configs.kotlin.buildFeatures.buildCache
 import jetbrains.buildServer.configs.kotlin.buildSteps.gradle
 
 fun windowsFunctionalTests(): List<WindowsFunctionalTest> {
@@ -44,17 +43,6 @@ class WindowsFunctionalTest(
         **/build/reports/** => reports.zip
         **/build/logs/** => logs.zip
     """.trimIndent()
-
-    features {
-        buildCache {
-            use = true
-            publish = true
-            name = "(Windows) Functional Test Gradle (build-cache)"
-            rules = """
-                tests/build/gradleHome/caches/build-cache-1
-            """.trimIndent()
-        }
-    }
 
     steps {
         gradle {
