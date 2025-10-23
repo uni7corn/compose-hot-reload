@@ -51,7 +51,7 @@ class PublishingPlugin : Plugin<Project> {
         plugins.apply(MavenPublishPlugin::class.java)
         plugins.apply(SigningPlugin::class.java)
 
-        val extension = project.extensions.create(
+        project.extensions.create(
             "publishingConventions", BuildPublishingExtension::class.java, project
         )
 
