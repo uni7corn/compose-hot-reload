@@ -45,6 +45,8 @@ tasks.withType<AbstractTestTask> {
 }
 
 tasks.reloadFunctionalTest.configure {
+    forkEvery = 1
+
     providers.environmentVariable("TESTED_BUCKET").orNull?.let { value ->
         environment("TESTED_BUCKET", value)
     }
@@ -59,6 +61,8 @@ tasks.reloadFunctionalTest.configure {
             systemProperty("hostIntegrationTests", "true")
         }
     }
+
+
 }
 
 kotlin.target.compilations.getByName("reloadFunctionalTestWarmup")
