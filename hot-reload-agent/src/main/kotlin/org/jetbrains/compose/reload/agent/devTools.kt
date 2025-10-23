@@ -45,6 +45,7 @@ private fun tryStartDevToolsProcess(): DevToolsHandle? {
     val process = ProcessBuilder(
         resolveDevtoolsJavaBinary(),
         *platformSpecificJvmArguments(),
+        "-XX:+UseZGC", "-Xmx256M", "-XX:SoftMaxHeapSize128M",
         "-cp", classpath.joinToString(File.pathSeparator),
         *subprocessSystemProperties(DevTools).toTypedArray(),
         *issueNewDebugSessionJvmArguments("DevTools"),
