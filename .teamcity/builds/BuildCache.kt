@@ -43,10 +43,10 @@ class BuildCache(
 
         gradle {
             name = "Compile & Warmup"
-            tasks = "compile reloadFunctionalTest --continue -Pchr.tests.sequential" +
+            tasks = "compile reloadFunctionalTest --continue -Pchr.tests.sequential -Pchr.tests.maxParallelForks=2" +
                 if (requiredHost != Host.Linux) " -Phost-integration-tests=true" else ""
         }
     }
 }), HostRequirement.Dynamic,
-    HardwareCapacity.Medium,
+    HardwareCapacity.Large,
     BuildCacheConvention.Publisher
