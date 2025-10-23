@@ -180,6 +180,10 @@ class HotReloadTestDimensionFilter : HotReloadTestDimensionExtension {
             }
         }
 
+        if (context.hasAnnotation<TestOnlyAndroid>()) {
+            result = result.filter { context -> context.androidVersion != null }
+        }
+
         val bucket = System.getenv("TESTED_BUCKET")?.toInt()
         val bucketsCount = System.getenv("TESTED_BUCKETS_COUNT")?.toInt()
         if (bucket != null && bucketsCount != null && context.requiredTestClass.simpleName != "Warmup") {

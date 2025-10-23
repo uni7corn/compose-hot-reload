@@ -43,3 +43,8 @@ annotation class TestOnlyDefaultKotlinVersion
  * Ensures that this test only runs against the default Compose version
  */
 annotation class TestOnlyDefaultComposeVersion
+
+/**
+ * Ensures that the test only runs with Android available
+ */
+annotation class TestOnlyAndroid

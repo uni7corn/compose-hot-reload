@@ -13,7 +13,7 @@ internal class AndroidHotReloadTestDimensionExtension : HotReloadTestDimensionEx
     ): List<HotReloadTestInvocationContext> {
         if (tests.isEmpty()) return tests
         context.findAnnotation<AndroidHotReloadTest>() ?: return tests
-        return tests + tests.last().copy {
+        return tests + tests.first().copy {
             androidVersion = TestedAndroidVersion.default
         }
     }

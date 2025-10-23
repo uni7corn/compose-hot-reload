@@ -20,6 +20,7 @@ import org.jetbrains.compose.reload.test.gradle.replaceSourceCodeAndReload
 import org.jetbrains.compose.reload.test.gradle.sendTestEvent
 import org.jetbrains.compose.reload.utils.GradleIntegrationTest
 import org.jetbrains.compose.reload.utils.HostIntegrationTest
+import org.jetbrains.compose.reload.utils.TestOnlyAndroid
 import org.jetbrains.compose.reload.utils.TestOnlyDefaultComposeVersion
 
 class ScreenshotTests {
@@ -84,6 +85,7 @@ class ScreenshotTests {
     }
 
     @AndroidHotReloadTest
+    @TestOnlyAndroid
     fun `test - kmp with android and jvm`(fixture: HotReloadTestFixture) = fixture.runTest {
         fixture initialSourceCode """
             import androidx.compose.foundation.layout.*
