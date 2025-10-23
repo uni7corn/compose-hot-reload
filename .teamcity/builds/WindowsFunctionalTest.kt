@@ -48,7 +48,8 @@ class WindowsFunctionalTest(
         gradle {
             name = "Test"
             tasks = "reloadFunctionalTest -i --continue -x publishLocally " +
-                "-Pchr.tests.parallelism=3 -Phost-integration-tests=true"
+                "-x reloadFunctionalTestWarmup " +
+                "-Pchr.tests.parallelism=2 -Phost-integration-tests=true"
         }
     }
 }), PublishLocallyConvention,
