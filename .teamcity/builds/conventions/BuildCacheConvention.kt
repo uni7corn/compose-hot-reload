@@ -42,7 +42,7 @@ fun BuildType.buildCacheConventions() {
             artifacts(producer.id!!) {
                 this.sameChainOrLastFinished()
                 artifactRules = caches.entries.joinToString("\n") { (location, artifact) ->
-                    "$artifact!** => $location"
+                    "?:$artifact!** => $location"
                 }
             }
         }
