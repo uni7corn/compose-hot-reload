@@ -43,7 +43,8 @@ class BuildCache(
 
         gradle {
             name = "Compile & Warmup"
-            tasks = "compile reloadFunctionalTest --continue -Pchr.tests.sequential"
+            tasks = "compile reloadFunctionalTest --continue -Pchr.tests.sequential" +
+                if (requiredHost != Host.Linux) " -Phost-integration-tests=true" else ""
         }
     }
 }), HostRequirement.Dynamic,
