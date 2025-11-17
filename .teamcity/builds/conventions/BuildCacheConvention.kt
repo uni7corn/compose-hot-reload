@@ -32,6 +32,7 @@ fun BuildType.buildCacheConventions() {
         Artifact("konan.zip", ".local/konan"),
         Artifact("android-sdk.zip", ".local/android-sdk"),
         Artifact("gradle-jdks.zip", ".local/gradle/jdks"),
+        Artifact("skiko.zip", "%teamcity.agent.jvm.user.home%/.skiko"),
         Artifact("gradle-wrapper.zip", ".local/gradle/wrapper"),
         Artifact("gradle-cache-modules-2-files-2.1.zip", ".local/gradle/caches/modules-2/files-2.1"),
         Artifact("gradle-cache-modules-2-metadata-2.107.zip", ".local/gradle/caches/modules-2/metadata-2.107"),
