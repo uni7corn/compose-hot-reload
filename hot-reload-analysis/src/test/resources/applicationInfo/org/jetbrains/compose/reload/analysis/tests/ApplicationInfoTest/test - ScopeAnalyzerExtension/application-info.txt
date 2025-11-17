@@ -29,7 +29,7 @@ FooKt {
     
             RestartGroup {
                 key: -965539098
-                codeHash: 4136965881
+                codeHash: 1450142174
                 methodDependencies: []
                 fieldDependencies: []
                 payloadKey: Foo | ComposeGroupKey(key=-965539098)

@@ -109,7 +109,7 @@ ComposableSingletons$FooKt$lambda$1969856002$1 {
         type: Composable
         Method {
             key: 1969856002
-            codeHash: 4126179722
+            codeHash: 1445717390
             methodDependencies: []
             fieldDependencies: []
         }
@@ -166,7 +166,7 @@ ComposableSingletons$FooKt$lambda$904522804$1 {
         type: Composable
         Method {
             key: 904522804
-            codeHash: 1646862304
+            codeHash: 2732973022
             methodDependencies: [
                 ComposableSingletons$FooKt.getLambda$1969856002$testModule ()Lkotlin/jvm/functions/Function3;
             ]

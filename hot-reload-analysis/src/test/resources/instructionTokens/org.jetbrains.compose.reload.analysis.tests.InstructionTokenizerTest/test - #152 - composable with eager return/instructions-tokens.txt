@@ -535,10 +535,11 @@ class FooKt {
         LabelToken(L61, lineNumber=14)
             LabelNode(L61)
             LineNumberNode [-1]
-        BlockToken(22)
+        BlockToken(23)
             VarInsnNode [25]
             InsnNode [1]
             InsnNode [9]
+            InsnNode [1]
             InsnNode [9]
             InsnNode [1]
             InsnNode [1]
@@ -556,8 +557,8 @@ class FooKt {
             VarInsnNode [25]
             InsnNode [3]
             InsnNode [3]
-            LdcInsnNode(131070) [18]
-            MethodInsnNode(androidx/compose/material3/TextKt.Text--4IGK_g (Ljava/lang/String;Landroidx/compose/ui/Modifier;JJLandroidx/compose/ui/text/font/FontStyle;Landroidx/compose/ui/text/font/FontWeight;Landroidx/compose/ui/text/font/FontFamily;JLandroidx/compose/ui/text/style/TextDecoration;Landroidx/compose/ui/text/style/TextAlign;JIZIILkotlin/jvm/functions/Function1;Landroidx/compose/ui/text/TextStyle;Landroidx/compose/runtime/Composer;III)V) [184]
+            LdcInsnNode(262142) [18]
+            MethodInsnNode(androidx/compose/material3/TextKt.Text-Nvy7gAk (Ljava/lang/String;Landroidx/compose/ui/Modifier;JLandroidx/compose/foundation/text/TextAutoSize;JLandroidx/compose/ui/text/font/FontStyle;Landroidx/compose/ui/text/font/FontWeight;Landroidx/compose/ui/text/font/FontFamily;JLandroidx/compose/ui/text/style/TextDecoration;Landroidx/compose/ui/text/style/TextAlign;JIZIILkotlin/jvm/functions/Function1;Landroidx/compose/ui/text/TextStyle;Landroidx/compose/runtime/Composer;III)V) [184]
         LabelToken(L62, lineNumber=15)
             LabelNode(L62)
             LineNumberNode [-1]

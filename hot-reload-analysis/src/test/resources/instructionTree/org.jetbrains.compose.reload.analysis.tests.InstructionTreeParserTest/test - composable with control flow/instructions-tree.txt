@@ -87,7 +87,7 @@ class TestKt {
                 ReplaceGroup (group=ComposeGroupKey(key=-1254962396)) {
                     StartReplaceGroup(key=ComposeGroupKey(key=-1254962396))
                     LabelToken(L8, lineNumber=7)
-                    BlockToken(22)
+                    BlockToken(23)
                     LabelToken(L9, lineNumber=6)
                     BlockToken(1)
                     EndReplaceGroup()
@@ -103,7 +103,7 @@ class TestKt {
                     LabelToken(L14)
                     BlockToken(2)
                     LabelToken(L15, lineNumber=13)
-                    BlockToken(23)
+                    BlockToken(24)
                     LabelToken(L16, lineNumber=8)
                     BlockToken(1)
                     EndReplaceGroup()
@@ -111,7 +111,7 @@ class TestKt {
                     ReplaceGroup (group=ComposeGroupKey(key=-1254902535)) {
                         StartReplaceGroup(key=ComposeGroupKey(key=-1254902535))
                         LabelToken(L12, lineNumber=10)
-                        BlockToken(22)
+                        BlockToken(23)
                         LabelToken(L13, lineNumber=9)
                         BlockToken(1)
                         EndReplaceGroup()

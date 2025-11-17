@@ -194,7 +194,7 @@ class TestKt {
                 LabelToken(L60)
                 BlockToken(2)
                 LabelToken(L61, lineNumber=14)
-                BlockToken(22)
+                BlockToken(23)
                 LabelToken(L62, lineNumber=15)
                 BlockToken(1)
                 LabelToken(L63, lineNumber=25)
