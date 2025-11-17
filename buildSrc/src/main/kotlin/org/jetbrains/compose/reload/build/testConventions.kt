@@ -57,6 +57,10 @@ open class TestConventionsPlugin : Plugin<Project> {
                     systemProperty("junit.jupiter.execution.parallel.config.fixed.parallelism", parallelism)
                     systemProperty("junit.jupiter.execution.parallel.config.fixed.max-pool-size", parallelism)
                 }
+
+                providers.gradleProperty("chr.tests.parallelForks").orNull?.let { value ->
+                    maxParallelForks = value.toInt()
+                }
             }
 
             testLogging {

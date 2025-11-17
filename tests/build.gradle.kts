@@ -61,8 +61,6 @@ tasks.reloadFunctionalTest.configure {
             systemProperty("hostIntegrationTests", "true")
         }
     }
-
-
 }
 
 kotlin.target.compilations.getByName("reloadFunctionalTestWarmup")

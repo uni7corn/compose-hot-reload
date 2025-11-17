@@ -49,7 +49,7 @@ class WindowsFunctionalTest(
             name = "Test"
             tasks = "reloadFunctionalTest -i --continue -x publishLocally " +
                 "-x reloadFunctionalTestWarmup " +
-                "-Pchr.tests.parallelism=2 -Phost-integration-tests=true"
+                "-Pchr.tests.sequential -Phost-integration-tests=true"
         }
     }
 }), PublishLocallyConvention,
