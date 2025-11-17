@@ -4,6 +4,7 @@ import org.jetbrains.compose.reload.core.Queue
 import org.jetbrains.compose.reload.core.getBlocking
 import org.jetbrains.compose.reload.core.launchTask
 import org.jetbrains.compose.reload.core.testFixtures.runStressTest
+import org.junit.jupiter.api.RepeatedTest
 import java.util.concurrent.atomic.AtomicInteger
 import kotlin.test.Test
 import kotlin.test.assertEquals
@@ -45,7 +46,7 @@ class QueueTest {
         )
     }
 
-    @Test
+    @RepeatedTest(24, failureThreshold = 1)
     fun `stress test - send add receive`() = runStressTest(silenceTimeout = 10.seconds) {
         val nextInt = AtomicInteger(0)
         val queue = Queue<Int>()
