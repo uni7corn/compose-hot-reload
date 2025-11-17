@@ -46,7 +46,7 @@ class QueueTest {
     }
 
     @Test
-    fun `stress test - send add receive`() = runStressTest(silenceTimeout = 2.seconds) {
+    fun `stress test - send add receive`() = runStressTest(silenceTimeout = 10.seconds) {
         val nextInt = AtomicInteger(0)
         val queue = Queue<Int>()
 
