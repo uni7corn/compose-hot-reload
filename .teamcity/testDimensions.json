@@ -4,7 +4,7 @@
       "version": "2.1.21"
     },
     {
-      "version": "2.3.0-RC3",
+      "version": "2.3.0",
       "isDefault": true
     },
     {
@@ -35,6 +35,9 @@
     {
       "version": "1.10.0-rc02",
       "isDefault": true
+    },
+    {
+      "version": "1.11.0-alpha01"
     },
     {
       "version": "1.11.0-alpha01+dev3396"
