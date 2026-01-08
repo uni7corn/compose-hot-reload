@@ -29,7 +29,7 @@ private val Project.testedVersions: List<String>
         "1.0.0-beta06", "1.0.0-beta07", "1.0.0-beta08",
         "1.0.0-beta09", "1.0.0-rc01", "1.0.0-rc02",
         "1.0.0-rc03",  "1.0.0-rc04", "1.0.0",
-        "1.1.0-alpha01", "1.1.0-alpha02",
+        "1.1.0-alpha01", "1.1.0-alpha02", "1.1.0-alpha03",
         project.providers.gradleProperty("bootstrap.version").get()
     )
 
