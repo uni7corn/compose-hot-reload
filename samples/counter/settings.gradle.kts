@@ -23,7 +23,7 @@ pluginManagement {
 }
 
 plugins {
-    id("org.jetbrains.compose.hot-reload.test.jbr-resolver-convention") version "1.1.0-alpha+185"
+    id("org.jetbrains.compose.hot-reload.test.jbr-resolver-convention") version "1.1.0-alpha+186"
 }
 
 dependencyResolutionManagement {
