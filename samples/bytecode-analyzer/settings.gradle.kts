@@ -5,7 +5,7 @@
 
 pluginManagement {
     plugins {
-        id("org.jetbrains.compose.hot-reload") version "1.2.0-alpha+197"
+        id("org.jetbrains.compose.hot-reload") version "1.2.0-alpha+198"
     }
 
     repositories {
@@ -23,7 +23,7 @@ pluginManagement {
 }
 
 plugins {
-    id("org.jetbrains.compose.hot-reload.test.jbr-resolver-convention") version "1.2.0-alpha+197"
+    id("org.jetbrains.compose.hot-reload.test.jbr-resolver-convention") version "1.2.0-alpha+198"
 }
 
 dependencyResolutionManagement {
