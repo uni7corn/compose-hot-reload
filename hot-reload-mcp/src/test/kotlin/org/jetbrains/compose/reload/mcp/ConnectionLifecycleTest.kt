@@ -8,8 +8,9 @@ package org.jetbrains.compose.reload.mcp
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
-import kotlinx.coroutines.cancel
+import kotlinx.coroutines.cancelAndJoin
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.job
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.stateIn
@@ -86,7 +87,7 @@ class ConnectionLifecycleTest {
             // Wait for disconnection
             orchestration.first { it == null }
         } finally {
-            flowScope.cancel()
+            flowScope.coroutineContext.job.cancelAndJoin()
             server.close()
             tempDir.toFile().deleteRecursively()
         }
@@ -124,7 +125,7 @@ class ConnectionLifecycleTest {
                 server2.close()
             }
         } finally {
-            flowScope.cancel()
+            flowScope.coroutineContext.job.cancelAndJoin()
             server1.close()
             tempDir.toFile().deleteRecursively()
         }
