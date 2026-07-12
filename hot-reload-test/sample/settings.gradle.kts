@@ -5,8 +5,8 @@
 
 pluginManagement {
     plugins {
-        id("org.jetbrains.compose.hot-reload") version "1.3.0-alpha+211"
-        id("org.jetbrains.compose.hot-reload.test") version "1.3.0-alpha+211"
+        id("org.jetbrains.compose.hot-reload") version "1.3.0-alpha+212"
+        id("org.jetbrains.compose.hot-reload.test") version "1.3.0-alpha+212"
     }
 
     repositories {
